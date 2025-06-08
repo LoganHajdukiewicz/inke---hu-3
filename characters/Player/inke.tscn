@@ -1,0 +1,60 @@
+[gd_scene load_steps=12 format=3 uid="uid://bdxo4fr0da0vb"]
+
+[ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://characters/Player/inke.gd" id="1_2pj2q"]
+[ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://characters/Player/camera_controller.gd" id="2_hiafp"]
+[ext_resource type="Script" uid="uid://b164e1bhx0p62" path="res://characters/Player/StateMachine/state_machine.gd" id="2_r0lcg"]
+[ext_resource type="Script" uid="uid://cc26ths8yx5b7" path="res://characters/Player/StateMachine/idle_state.gd" id="4_t0ghx"]
+[ext_resource type="Script" uid="uid://coek0e7serlvq" path="res://characters/Player/StateMachine/jumping_state.gd" id="5_5n7dv"]
+[ext_resource type="Script" uid="uid://ygtkcbjletyn" path="res://characters/Player/running_state.gd" id="5_5pe7g"]
+[ext_resource type="Script" uid="uid://ck50hd5hostap" path="res://characters/Player/StateMachine/walking_state.gd" id="5_xr1x7"]
+[ext_resource type="Script" uid="uid://dvbngax6l30iw" path="res://characters/Player/StateMachine/falling_state.gd" id="6_5n7dv"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
+shading_mode = 2
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_hiafp"]
+height = 1.5
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dnjla"]
+size = Vector3(1, 1.54602, 1)
+
+[node name="Inke" type="CharacterBody3D" groups=["Player"]]
+script = ExtResource("1_2pj2q")
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("2_r0lcg")
+initial_state = NodePath("IdleState")
+
+[node name="IdleState" type="Node" parent="StateMachine"]
+script = ExtResource("4_t0ghx")
+
+[node name="WalkingState" type="Node" parent="StateMachine"]
+script = ExtResource("5_xr1x7")
+
+[node name="RunningState" type="Node" parent="StateMachine"]
+script = ExtResource("5_5pe7g")
+
+[node name="JumpingState" type="Node" parent="StateMachine"]
+script = ExtResource("5_5n7dv")
+
+[node name="FallingState" type="Node" parent="StateMachine"]
+script = ExtResource("6_5n7dv")
+
+[node name="CameraController" type="Node3D" parent="."]
+top_level = true
+script = ExtResource("2_hiafp")
+
+[node name="CameraTarget" type="Node3D" parent="CameraController"]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 2.75, 3.5)
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/CameraTarget"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.828082, 0)
+material_overlay = SubResource("StandardMaterial3D_hiafp")
+mesh = SubResource("CapsuleMesh_hiafp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.856902, 0)
+shape = SubResource("BoxShape3D_dnjla")
