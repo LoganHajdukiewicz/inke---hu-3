@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://dfqnll0f2t2il"]
+
+[ext_resource type="Script" uid="uid://r43vjpbp8gn2" path="res://items/rail_follow_node.gd" id="1_r657r"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r657r"]
+albedo_color = Color(1, 1, 0, 1)
+
+[node name="RailFollowNode" type="PathFollow3D" groups=["rail_follower"]]
+transform = Transform3D(-0.993509, 0.0327574, 0.108921, -1.86264e-09, 0.957625, -0.288002, -0.11374, -0.286133, -0.951411, 0, 0, 0)
+loop = false
+script = ExtResource("1_r657r")
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="."]
+radius = 0.3
+material = SubResource("StandardMaterial3D_r657r")

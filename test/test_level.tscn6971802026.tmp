@@ -28,8 +28,8 @@ transform = Transform3D(1, 0, 0, 0, 0.319009, 0.947752, 0, -0.947752, 0.319009, 
 [node name="Inke" parent="." instance=ExtResource("1_8rkqs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.039009, 0)
 
-[node name="SixTeethGear" parent="." groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear" parent="." instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -3.22031)
 
 [node name="Rail" parent="." instance=ExtResource("3_ls30l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.87354, -0.001421, 18.5915)

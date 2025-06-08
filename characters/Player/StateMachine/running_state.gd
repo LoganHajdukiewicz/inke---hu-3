@@ -1,7 +1,7 @@
 extends State
 class_name RunningState
 
-const SPEED : float = 20.0
+const SPEED : float = 15.0
 
 func enter():
 	print("Entered Running State")

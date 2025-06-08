@@ -21,8 +21,10 @@ func physics_update(delta: float):
 		change_to("JumpingState")
 		return
 
+	# Check for running
 	if Input.is_action_pressed("run"):
 		change_to("RunningState")
+		return
 	
 	# Get movement input
 	var input_dir = Input.get_vector("left", "right", "forward", "back")

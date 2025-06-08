@@ -4,7 +4,6 @@ class_name State
 var state_machine: StateMachine
 var player: CharacterBody3D
 
-
 func enter():
 	pass
 
@@ -19,3 +18,6 @@ func physics_update(_delta: float):
 
 func change_to(new_state: String):
 	state_machine.change_state(new_state)
+
+func get_speed():
+	return 0.0

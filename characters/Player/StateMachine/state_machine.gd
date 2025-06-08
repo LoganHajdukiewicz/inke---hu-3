@@ -3,7 +3,6 @@ class_name StateMachine
 
 @export var initial_state: State
 var current_state: State
-const SPEED : float = 0.0
 var states: Dictionary = {}
 
 @onready var player: CharacterBody3D = get_parent()
@@ -17,7 +16,6 @@ func _ready():
 			child.player = player
 	
 	# Start with initial state
-	
 	if initial_state:
 		current_state = initial_state
 		current_state.enter()
@@ -40,4 +38,8 @@ func change_state(new_state_name: String):
 		
 		current_state = new_state
 		current_state.enter()
-		
+
+func get_current_state_speed():
+	if current_state and current_state.has_method("get_speed"):
+		return current_state.get_speed()
+	return 0.0
