@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3 uid="uid://jv0f638wtp43"]
+
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/inke.tscn" id="1_8rkqs"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="2_klfgi"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hwtdh"]
+size = Vector3(100, 0.5, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8rkqs"]
+size = Vector3(100, 0.5, 100)
+
+[node name="TestLevel" type="Node3D"]
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
+metadata/_edit_group_ = true
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_hwtdh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_8rkqs")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.319009, 0.947752, 0, -0.947752, 0.319009, 22.6726, 127.313, 142.142)
+
+[node name="Inke" parent="." instance=ExtResource("1_8rkqs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.039009, 0)
+
+[node name="SixTeethGear" parent="." instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -3.22031)
