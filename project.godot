@@ -80,3 +80,7 @@ run={
 , Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"button_index":7,"pressure":0.0,"pressed":true,"script":null)
 ]
 }
+
+[layer_names]
+
+3d_physics/layer_2="Grindable Layer"

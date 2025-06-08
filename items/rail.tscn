@@ -10,15 +10,16 @@ _data = {
 }
 point_count = 12
 
-[node name="Rail" type="Path3D"]
+[node name="Rail" type="Path3D" groups=["Rail"]]
 curve = SubResource("Curve3D_s36x5")
 script = ExtResource("1_7pqbj")
 
 [node name="RailFollowNode" parent="." instance=ExtResource("2_x0na8")]
-transform = Transform3D(-0.975187, -0.0626744, -0.212312, 0, 0.959079, -0.28312, 0.22137, -0.276096, -0.935285, -0.00175963, -0.00133805, 0.00205678)
+transform = Transform3D(-0.975187, -0.0626744, -0.212312, 0, 0.959079, -0.28312, 0.22137, -0.276096, -0.935284, -0.00175963, -0.00133805, 0.00205678)
 
-[node name="CSGPolygon3D" type="CSGPolygon3D" parent="."]
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="." groups=["Rail"]]
 use_collision = true
+collision_layer = 2
 polygon = PackedVector2Array(0.200668, 0.0123393, 0.113687, 0.154305, -0.119658, 0.142215, -0.17088, 0.0178885, -0.12085, -0.125726, 0.117021, -0.150203)
 mode = 2
 path_node = NodePath("..")

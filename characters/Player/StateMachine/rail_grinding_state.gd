@@ -16,8 +16,6 @@ var grind_speed: float = 12.0
 
 func enter():
 	print("Entered Rail Grinding State")
-	# The grinding setup is handled when we transition to this state
-	# No need to set grinding = true here since we're already in the grinding state
 
 func exit():
 	print("Exited Rail Grinding State")

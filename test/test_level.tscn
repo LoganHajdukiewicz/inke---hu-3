@@ -12,6 +12,9 @@ size = Vector3(100, 0.5, 100)
 
 [node name="TestLevel" type="Node3D"]
 
+[node name="Rail" parent="." instance=ExtResource("3_ls30l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)
+
 [node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
 metadata/_edit_group_ = true
@@ -30,6 +33,3 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.039009, 0)
 
 [node name="SixTeethGear" parent="." groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -3.22031)
-
-[node name="Rail" parent="." instance=ExtResource("3_ls30l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)

@@ -1,16 +1,15 @@
 extends Path3D
-#Adjust these to your prject:
+
 @export var rail_follower = preload("res://items/rail_follow_node.tscn")
-@export var point_total: int = 20
+@export var point_total: int = 50
+
+var hasSpawnedPoints = false
+var pointCount: float = 0.0
  
  
 @onready var path_3d = $"."
-var hasSpawnedPoints = false
-var pointCount: float = 0
 @onready var path_curve = curve
- 
- 
-# Called when the node enters the scene tree for the first time.
+
 func _ready():
 	populate_rail()
 	
@@ -19,7 +18,7 @@ func _process(delta):
  
 func populate_rail():
 	var path_length = curve.get_baked_length()
-	var spacing = path_length / 19
+	var spacing = path_length / 10
 	var current_distance = 0
 	var staring_progress = 0.001
 	for i in range(point_total):
