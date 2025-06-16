@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bdxo4fr0da0vb"]
+[gd_scene load_steps=14 format=3 uid="uid://bdxo4fr0da0vb"]
 
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://characters/Player/camera_controller.gd" id="2_hiafp"]
@@ -16,6 +16,9 @@ albedo_color = Color(0, 0, 1, 1)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_hiafp"]
 height = 1.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_04s0v"]
+size = Vector3(0.8, 0.1, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_dnjla"]
 size = Vector3(1, 1.54602, 1)
@@ -55,10 +58,14 @@ transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 
 
 [node name="Camera3D" type="Camera3D" parent="CameraController/CameraTarget"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="Body" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.828082, 0)
 material_overlay = SubResource("StandardMaterial3D_hiafp")
 mesh = SubResource("CapsuleMesh_hiafp")
+
+[node name="HatBrim" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00622028, 0.342695, -0.244018)
+mesh = SubResource("BoxMesh_04s0v")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.856902, 0)
@@ -66,10 +73,11 @@ shape = SubResource("BoxShape3D_dnjla")
 
 [node name="Grindrays" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.365044, 0)
+visible = false
 
 [node name="RailRaycast" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.813821, -0.581115, 0, 0.581115, 0.813821, 0, 0, 0, 1, 0, 0, 0)
-target_position = Vector3(0, 0.5, 0)
+transform = Transform3D(0.772161, -0.551368, -0.315848, 0.581115, 0.813821, 0, 0.257044, -0.183544, 0.94881, 0, 0, 0)
+target_position = Vector3(0, -0.5, 0)
 collision_mask = 2
 collide_with_areas = true
 
@@ -80,7 +88,7 @@ collision_mask = 2
 collide_with_areas = true
 
 [node name="RailRaycastDown" type="RayCast3D" parent="Grindrays"]
-target_position = Vector3(0, -0.7, 0)
+target_position = Vector3(0, -0.5, 0)
 collision_mask = 2
 collide_with_areas = true
 

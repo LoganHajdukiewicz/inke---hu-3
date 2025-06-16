@@ -1,10 +1,29 @@
-[gd_scene load_steps=6 format=3 uid="uid://jv0f638wtp43"]
+[gd_scene load_steps=10 format=3 uid="uid://jv0f638wtp43"]
 
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/Player/inke.tscn" id="1_8rkqs"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="2_klfgi"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://items/rail.tscn" id="3_ls30l"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ls30l"]
+sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
+sky_horizon_color = Color(0.618941, 0.639129, 0.727188, 1)
+ground_horizon_color = Color(0.618941, 0.639129, 0.727188, 1)
+energy_multiplier = 1.5
+
+[sub_resource type="Sky" id="Sky_kgsy5"]
+sky_material = SubResource("ProceduralSkyMaterial_ls30l")
+
+[sub_resource type="Environment" id="Environment_oxjuh"]
+background_mode = 2
+sky = SubResource("Sky_kgsy5")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ls30l"]
+albedo_color = Color(0, 0.41793, 0, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_hwtdh"]
+material = SubResource("StandardMaterial3D_ls30l")
 size = Vector3(100, 0.5, 100)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8rkqs"]
@@ -12,12 +31,19 @@ size = Vector3(100, 0.5, 100)
 
 [node name="TestLevel" type="Node3D"]
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_oxjuh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+light_color = Color(1, 1, 0.211765, 1)
+shadow_enabled = true
+
 [node name="Rail" parent="." instance=ExtResource("3_ls30l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)
 
 [node name="Floor" type="StaticBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
-metadata/_edit_group_ = true
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_hwtdh")
@@ -25,11 +51,8 @@ mesh = SubResource("BoxMesh_hwtdh")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
 shape = SubResource("BoxShape3D_8rkqs")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.319009, 0.947752, 0, -0.947752, 0.319009, 22.6726, 127.313, 142.142)
-
 [node name="Inke" parent="." instance=ExtResource("1_8rkqs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.039009, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.137317, 0)
 
 [node name="SixTeethGear" parent="." groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -3.22031)

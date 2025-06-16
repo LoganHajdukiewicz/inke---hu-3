@@ -2,6 +2,7 @@ extends State
 class_name RunningState
 
 const SPEED : float = 15.0
+const ROTATION_SPEED : float = 12.0  # Slightly faster rotation for running
 
 func enter():
 	print("Entered Running State")
@@ -37,6 +38,11 @@ func physics_update(delta: float):
 	# Move based on camera direction
 	var camera_basis = player.get_node("CameraController").transform.basis
 	var direction: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	
+	# Rotate player to face movement direction
+	if direction.length() > 0.1:
+		var target_rotation = atan2(-direction.x, -direction.z)
+		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
 	
 	player.velocity.x = direction.x * SPEED
 	player.velocity.z = direction.z * SPEED
