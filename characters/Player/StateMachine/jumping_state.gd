@@ -6,9 +6,19 @@ var jump_velocity : float = 5.0
 func enter():
 	print("Entered Jumping State")
 	player.velocity.y = jump_velocity
+	
+	# Reset double jump availability when starting a new jump from ground
+	if player.is_on_floor():
+		player.can_double_jump = true
 
 func physics_update(delta: float):
 	player.velocity += player.get_gravity() * delta
+	
+	# Check for double jump input
+	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
+		player.perform_double_jump()
+		# Stay in jumping state for the double jump
+		return
 
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	

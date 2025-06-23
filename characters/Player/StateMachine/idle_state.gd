@@ -8,7 +8,6 @@ func enter():
 	print("Entered Idle State")
 
 func physics_update(delta: float):
-	# CHANGE: Reset player rotation to upright when landing
 	reset_player_rotation(delta)
 	
 	# Handle gravity
@@ -23,7 +22,6 @@ func physics_update(delta: float):
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
 	if input_dir.length() > 0.1:
-		# If moving AND running, go to running state
 		if Input.is_action_pressed("run"):
 			change_to("RunningState")
 		else:
@@ -35,6 +33,10 @@ func physics_update(delta: float):
 	player.velocity.z = move_toward(player.velocity.z, 0, DECELERATION * delta)
 	
 	player.move_and_slide()
+
+
+##TODO: This method is messing up the direction a player stops in, and also is causing the debugger to go crazy when 
+##      grinding on a rail while tilted sideways. Fix this. 
 
 func reset_player_rotation(delta: float):
 	# Create target rotation (upright, but preserve Y rotation for facing direction)

@@ -1,4 +1,6 @@
-[gd_scene load_steps=5 format=3 uid="uid://dencclsb8gs8v"]
+[gd_scene load_steps=6 format=3 uid="uid://dencclsb8gs8v"]
+
+[ext_resource type="Script" uid="uid://djp8lmohg81ly" path="res://characters/merchant.gd" id="1_4l1ay"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4l1ay"]
 albedo_color = Color(0.659453, 0.529296, 0.103782, 1)
@@ -13,6 +15,7 @@ radius = 1.56329
 
 [node name="Merchant" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55207, 0)
+script = ExtResource("1_4l1ay")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_2blnl")

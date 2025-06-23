@@ -8,6 +8,13 @@ func physics_update(delta: float):
 	# Apply gravity
 	player.velocity += player.get_gravity() * delta
 	
+	# Check for double jump input while falling
+	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
+		player.perform_double_jump()
+		# Transition back to jumping state for the double jump
+		change_to("JumpingState")
+		return
+	
 	# Handle horizontal movement while falling
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	

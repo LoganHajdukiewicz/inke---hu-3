@@ -7,6 +7,10 @@ var gravity_default: float = 9.8
 var jump_velocity: float = 5.0
 var gear_count: int = 0
 
+# Double jump variables
+var double_jump_unlocked: bool = false
+var has_double_jumped: bool = false
+var can_double_jump: bool = false
 
 @export var grindrays: Node3D
 
@@ -19,12 +23,22 @@ var gear_count: int = 0
 
 func _ready():
 	$CameraController.initialize_camera()
+	
+	# Load double jump status from merchant
+	var merchant_script = load("res://characters/merchant.gd")
+	if merchant_script:
+		double_jump_unlocked = merchant_script.double_jump_purchased
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
 	
 	# Check for rail grinding opportunity (only if not already grinding and timer is complete)
 	check_for_rail_grinding()
+	
+	# Handle double jump reset when on floor
+	if is_on_floor():
+		has_double_jumped = false
+		can_double_jump = true
 	
 	$CameraController.follow_character(position, velocity)
 
@@ -34,6 +48,24 @@ func _process(_delta):
 func get_player_speed():
 	return state_machine.current_state.get_speed()
 
+func unlock_double_jump():
+	"""Called by the merchant when double jump is purchased"""
+	double_jump_unlocked = true
+	print("Double jump unlocked!")
+
+func can_perform_double_jump() -> bool:
+	"""Check if the player can perform a double jump"""
+	return double_jump_unlocked and not has_double_jumped and can_double_jump and not is_on_floor()
+
+func perform_double_jump():
+	"""Execute the double jump"""
+	if can_perform_double_jump():
+		velocity.y = jump_velocity
+		has_double_jumped = true
+		can_double_jump = false
+		print("Double jump performed!")
+		return true
+	return false
 
 ## Rail Grinding Logic
 
