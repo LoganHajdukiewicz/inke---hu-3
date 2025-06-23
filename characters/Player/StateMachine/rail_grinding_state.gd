@@ -37,6 +37,9 @@ func exit():
 	disable_grind_raycasts()
 
 func physics_update(delta: float):
+	
+
+	
 	# Handle the grinding movement and physics
 	if rail_grind_node:
 		# Smoothly move player to rail position
@@ -163,7 +166,7 @@ func is_facing_same_direction(player_node: CharacterBody3D, path_follow: PathFol
 	const THRESHOLD = 0.5
 	return dot_product > THRESHOLD
 
-# CHANGE #3: Add function to disable grind raycasts temporarily
+
 func disable_grind_raycasts():
 	if player.grindrays:
 		for grind_ray in player.grindrays.get_children():
@@ -172,7 +175,7 @@ func disable_grind_raycasts():
 		
 		# Re-enable them after a short delay using a timer
 		var timer = Timer.new()
-		timer.wait_time = 0.5  # Half second delay
+		timer.wait_time = 0.3
 		timer.one_shot = true
 		timer.timeout.connect(enable_grind_raycasts)
 		player.add_child(timer)
@@ -186,3 +189,5 @@ func enable_grind_raycasts():
 
 func get_speed():
 	return grind_speed
+	
+	

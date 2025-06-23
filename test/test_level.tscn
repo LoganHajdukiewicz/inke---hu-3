@@ -3,6 +3,9 @@
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/Player/inke.tscn" id="1_8rkqs"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="2_klfgi"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://items/rail.tscn" id="3_ls30l"]
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://environments/floor.tscn" id="3_oxjuh"]
+[ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://environments/wall.tscn" id="4_k117l"]
+[ext_resource type="PackedScene" uid="uid://dencclsb8gs8v" path="res://characters/merchant.tscn" id="5_k117l"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ls30l"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -19,40 +22,49 @@ sky = SubResource("Sky_kgsy5")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ls30l"]
-albedo_color = Color(0, 0.41793, 0, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_hwtdh"]
-material = SubResource("StandardMaterial3D_ls30l")
-size = Vector3(100, 0.5, 100)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_8rkqs"]
-size = Vector3(100, 0.5, 100)
-
 [node name="TestLevel" type="Node3D"]
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_oxjuh")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
-light_color = Color(1, 1, 0.211765, 1)
-shadow_enabled = true
-
-[node name="Rail" parent="." instance=ExtResource("3_ls30l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)
-
-[node name="Floor" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("BoxMesh_hwtdh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-shape = SubResource("BoxShape3D_8rkqs")
 
 [node name="Inke" parent="." instance=ExtResource("1_8rkqs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.137317, 0)
 
-[node name="SixTeethGear" parent="." groups=["Collectable"] instance=ExtResource("2_klfgi")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -3.22031)
+[node name="World and Environment" type="Node" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="World and Environment"]
+environment = SubResource("Environment_oxjuh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="World and Environment"]
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+light_color = Color(1, 1, 0.211765, 1)
+shadow_enabled = true
+
+[node name="Rail" parent="World and Environment" instance=ExtResource("3_ls30l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)
+
+[node name="Floor" parent="World and Environment" instance=ExtResource("3_oxjuh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
+
+[node name="Wall" parent="World and Environment" groups=["Wall"] instance=ExtResource("4_k117l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8303, 0.0362835, -15.8181)
+
+[node name="Merchant" parent="World and Environment" instance=ExtResource("5_k117l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.2596, 0.498579, 21.8049)
+
+[node name="GearsHolder" type="Node" parent="."]
+
+[node name="SixTeethGear" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -2.03307)
+
+[node name="SixTeethGear2" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -4.60501)
+
+[node name="SixTeethGear3" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 7.17845, 1.31789, 11.6659)
+
+[node name="SixTeethGear6" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 15.6137, 3.23236, 14.8743)
+
+[node name="SixTeethGear4" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.639925, 0.699131, -3.71702)
+
+[node name="SixTeethGear5" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.352856, 0.453561, -2.49715)

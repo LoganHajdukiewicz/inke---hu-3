@@ -20,8 +20,8 @@ height = 1.5
 [sub_resource type="BoxMesh" id="BoxMesh_04s0v"]
 size = Vector3(0.8, 0.1, 1)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_dnjla"]
-size = Vector3(1, 1.54602, 1)
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_04s0v"]
+height = 1.63472
 
 [node name="Inke" type="CharacterBody3D" node_paths=PackedStringArray("grindrays") groups=["Player"]]
 script = ExtResource("1_2pj2q")
@@ -68,12 +68,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00622028, 0.342695, -0.244
 mesh = SubResource("BoxMesh_04s0v")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.856902, 0)
-shape = SubResource("BoxShape3D_dnjla")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.760535, 0)
+shape = SubResource("CapsuleShape3D_04s0v")
 
 [node name="Grindrays" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.365044, 0)
 visible = false
+
+[node name="RailRaycastDown" type="RayCast3D" parent="Grindrays"]
+target_position = Vector3(0, -0.5, 0)
+collision_mask = 2
+collide_with_areas = true
 
 [node name="RailRaycast" type="RayCast3D" parent="Grindrays"]
 transform = Transform3D(0.772161, -0.551368, -0.315848, 0.581115, 0.813821, 0, 0.257044, -0.183544, 0.94881, 0, 0, 0)
@@ -83,11 +88,6 @@ collide_with_areas = true
 
 [node name="RailRaycast2" type="RayCast3D" parent="Grindrays"]
 transform = Transform3D(0.873798, 0.48629, 0, -0.48629, 0.873798, 0, 0, 0, 1, 0, 0, 0)
-target_position = Vector3(0, -0.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycastDown" type="RayCast3D" parent="Grindrays"]
 target_position = Vector3(0, -0.5, 0)
 collision_mask = 2
 collide_with_areas = true
