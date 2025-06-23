@@ -46,9 +46,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
 [node name="Wall" parent="World and Environment" groups=["Wall"] instance=ExtResource("4_k117l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8303, 0.0362835, -15.8181)
 
-[node name="Merchant" parent="World and Environment" instance=ExtResource("5_k117l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.2596, 0.498579, 21.8049)
-
 [node name="GearsHolder" type="Node" parent="."]
 
 [node name="SixTeethGear" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
@@ -68,3 +65,6 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.639
 
 [node name="SixTeethGear5" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.352856, 0.453561, -2.49715)
+
+[node name="Merchant" parent="." instance=ExtResource("5_k117l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.7708, 0.422478, 30.9161)
