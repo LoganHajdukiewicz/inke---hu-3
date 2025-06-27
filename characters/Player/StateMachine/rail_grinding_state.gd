@@ -17,24 +17,7 @@ var grind_speed: float = 12.0
 func enter():
 	print("Entered Rail Grinding State")
 
-func exit():
-	print("Exited Rail Grinding State")
-	# Clean up when leaving the grinding state
-	if rail_grind_node:
-		rail_grind_node.chosen = false
-		rail_grind_node.detach = false
-		rail_grind_node.direction_selected = false
-		rail_grind_node.grinding = false
-	
-	# Restore gravity
-	player.gravity = player.gravity_default
-	
-	# Reset grind timer
-	grind_timer_complete = true
-	start_grind_timer = false
-	
-	# CHANGE #3: Disable grind raycasts to prevent immediate re-grinding
-	disable_grind_raycasts()
+
 
 func physics_update(delta: float):
 	
@@ -46,13 +29,13 @@ func physics_update(delta: float):
 		player.position = lerp(player.position, rail_grind_node.global_position, delta * lerp_speed)
 		
 		# CHANGE #1: Rotate player to align with rail direction
-		var target_rotation = rail_grind_node.global_transform.basis
+		var target_rotation = rail_grind_node.global_transform.basis.orthonormalized()
 		if not rail_grind_node.forward:
 			# If moving backward, flip the rotation 180 degrees
 			target_rotation = target_rotation.rotated(Vector3.UP, PI)
 		
 		# Smoothly rotate the player to match the rail direction
-		player.transform.basis = player.transform.basis.slerp(target_rotation, delta * lerp_speed)
+		player.transform.basis = player.transform.basis.slerp(target_rotation, delta * lerp_speed).orthonormalized()
 		
 		# Set horizontal velocity based on rail movement direction
 		var rail_velocity = Vector3.ZERO
@@ -82,36 +65,7 @@ func physics_update(delta: float):
 	# Update the grind timer
 	grind_timer(delta)
 	
-	# Don't call move_and_slide() here since we're manually controlling position
 
-func detach_from_rail():
-	print("Detaching from rail")
-	
-	# Give the player upward velocity
-	player.velocity.y = jump_velocity
-	
-	# FIXED: Properly apply rail momentum to player velocity
-	if rail_grind_node:
-		var rail_direction = Vector3.ZERO
-		if rail_grind_node.forward:
-			rail_direction = -rail_grind_node.transform.basis.z  # Negative Z is forward in Godot
-		else:
-			rail_direction = rail_grind_node.transform.basis.z   # Positive Z is backward
-		
-		# Apply the full rail momentum in the correct direction
-		var momentum_velocity = rail_direction * grind_speed
-		player.velocity.x = momentum_velocity.x
-		player.velocity.z = momentum_velocity.z
-		
-		print("Detaching with momentum: ", momentum_velocity)
-	
-	# Start the grind cooldown timer
-	start_grind_timer = true
-	countdown_for_next_grind_time_left = countdown_for_next_grind
-	grind_timer_complete = false
-	
-	# CHANGE #2: Always transition to JumpingState when detaching from rail
-	change_to("JumpingState")
 
 func grind_timer(delta: float):
 	if start_grind_timer and countdown_for_next_grind_time_left > 0:
@@ -180,6 +134,56 @@ func disable_grind_raycasts():
 		timer.timeout.connect(enable_grind_raycasts)
 		player.add_child(timer)
 		timer.start()
+# Add this to your rail_grinding_state.gd exit() function:
+
+func exit():
+	print("Exited Rail Grinding State")
+	# Clean up when leaving the grinding state
+	if rail_grind_node:
+		rail_grind_node.chosen = false
+		rail_grind_node.detach = false
+		rail_grind_node.direction_selected = false
+		rail_grind_node.grinding = false
+	
+	# Restore gravity
+	player.gravity = player.gravity_default
+	
+	# Reset grind timer
+	grind_timer_complete = true
+	start_grind_timer = false
+	
+	# CHANGE #3: Disable grind raycasts to prevent immediate re-grinding
+	disable_grind_raycasts()
+
+# Also update the detach_from_rail function to handle the state transition better:
+func detach_from_rail():
+	print("Detaching from rail")
+	
+	# Give the player upward velocity
+	player.velocity.y = jump_velocity
+	
+	# FIXED: Properly apply rail momentum to player velocity
+	if rail_grind_node:
+		var rail_direction = Vector3.ZERO
+		if rail_grind_node.forward:
+			rail_direction = -rail_grind_node.transform.basis.z  # Negative Z is forward in Godot
+		else:
+			rail_direction = rail_grind_node.transform.basis.z   # Positive Z is backward
+		
+		# Apply the full rail momentum in the correct direction
+		var momentum_velocity = rail_direction * grind_speed
+		player.velocity.x = momentum_velocity.x
+		player.velocity.z = momentum_velocity.z
+		
+		print("Detaching with momentum: ", momentum_velocity)
+	
+	# Start the grind cooldown timer
+	start_grind_timer = true
+	countdown_for_next_grind_time_left = countdown_for_next_grind
+	grind_timer_complete = false
+	
+	# CHANGE #2: Always transition to JumpingState when detaching from rail
+	change_to("JumpingState")
 
 func enable_grind_raycasts():
 	if player.grindrays:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://jv0f638wtp43"]
+[gd_scene load_steps=11 format=3 uid="uid://jv0f638wtp43"]
 
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/Player/inke.tscn" id="1_8rkqs"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="2_klfgi"]
@@ -22,10 +22,21 @@ sky = SubResource("Sky_kgsy5")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="Curve3D" id="Curve3D_k117l"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 8.10513, -0.119258, -0.0800648, 0, 0, 0, 0, 0, 0, 16.3467, 1.28442, 0.103614, 0, 0, 0, 0, 0, 0, 21.1859, 1.04562, -2.2258, 0, 0, 0, 0, 0, 0, 30.2506, -0.165776, -5.90303),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+}
+point_count = 5
+
 [node name="TestLevel" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("1_8rkqs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.137317, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.191614, 0)
+
+[node name="Merchant" parent="." instance=ExtResource("5_k117l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.7708, 0.422478, 30.9161)
 
 [node name="World and Environment" type="Node" parent="."]
 
@@ -38,7 +49,8 @@ light_color = Color(1, 1, 0.211765, 1)
 shadow_enabled = true
 
 [node name="Rail" parent="World and Environment" instance=ExtResource("3_ls30l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.21059, 0.167588, 4.2387)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.166974, 0.167588, 4.2387)
+curve = SubResource("Curve3D_k117l")
 
 [node name="Floor" parent="World and Environment" instance=ExtResource("3_oxjuh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
@@ -46,25 +58,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.251421, 0)
 [node name="Wall" parent="World and Environment" groups=["Wall"] instance=ExtResource("4_k117l")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8303, 0.0362835, -15.8181)
 
-[node name="GearsHolder" type="Node" parent="."]
+[node name="GearsHolder" type="Node" parent="World and Environment"]
 
-[node name="SixTeethGear" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear" parent="World and Environment/GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -2.03307)
 
-[node name="SixTeethGear2" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear2" parent="World and Environment/GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.5081, 0.618351, -4.60501)
 
-[node name="SixTeethGear3" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear3" parent="World and Environment/GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 7.17845, 1.31789, 11.6659)
 
-[node name="SixTeethGear6" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear6" parent="World and Environment/GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 15.6137, 3.23236, 14.8743)
 
-[node name="SixTeethGear4" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear4" parent="World and Environment/GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.639925, 0.699131, -3.71702)
 
-[node name="SixTeethGear5" parent="GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
+[node name="SixTeethGear5" parent="World and Environment/GearsHolder" groups=["Collectable"] instance=ExtResource("2_klfgi")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.352856, 0.453561, -2.49715)
-
-[node name="Merchant" parent="." instance=ExtResource("5_k117l")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.7708, 0.422478, 30.9161)

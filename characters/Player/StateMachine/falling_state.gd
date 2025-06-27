@@ -28,11 +28,25 @@ func physics_update(delta: float):
 		var air_speed = max(current_horizontal_speed, 8.0)  # At least walking speed
 		var target_velocity = direction * air_speed
 		
-		# Blend current horizontal velocity with input direction for air control
-		var air_control_factor = 0.3  # Adjust this value for desired air control
+		# ENHANCED: Increased air control factor for better midair turning
+		var air_control_factor = 0.7  # Increased from 0.3 to 0.7 for much better air control
 		player.velocity.x = lerp(player.velocity.x, target_velocity.x, air_control_factor)
 		player.velocity.z = lerp(player.velocity.z, target_velocity.z, air_control_factor)
+		
+		# ENHANCED: Add player rotation while falling for visual feedback
+		if direction.length() > 0.1:
+			var target_rotation = atan2(-direction.x, -direction.z)
+			var rotation_speed = 12.0  # Faster rotation for more responsive turning
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, rotation_speed * delta)
 	else:
+		# ENHANCED: If no input but we have momentum, face the direction we're moving
+		var horizontal_velocity = Vector2(player.velocity.x, player.velocity.z)
+		if horizontal_velocity.length() > 1.0:  # Only rotate if moving with some speed
+			var momentum_direction = Vector3(horizontal_velocity.x, 0, horizontal_velocity.y).normalized()
+			var target_rotation = atan2(-momentum_direction.x, -momentum_direction.z)
+			var rotation_speed = 6.0  # Slower when not inputting
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, rotation_speed * delta)
+		
 		# Gradually reduce horizontal movement when no input (air resistance)
 		var air_resistance = 0.02  # Much less than ground friction
 		player.velocity.x = lerp(player.velocity.x, 0.0, air_resistance)

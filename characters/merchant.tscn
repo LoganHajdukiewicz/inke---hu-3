@@ -11,7 +11,7 @@ material = SubResource("StandardMaterial3D_4l1ay")
 [sub_resource type="BoxShape3D" id="BoxShape3D_5nsnd"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_iyjy8"]
-radius = 1.56329
+radius = 1.7229
 
 [node name="Merchant" type="CharacterBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55207, 0)

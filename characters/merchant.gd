@@ -22,11 +22,14 @@ func _ready():
 	# Connect area signals
 	$Area3D.body_entered.connect(_on_area_3d_body_entered)
 	$Area3D.body_exited.connect(_on_area_3d_body_exited)
-
+	
 func setup_ui():
 	# Create UI elements as children of the merchant
 	var canvas_layer = CanvasLayer.new()
 	add_child(canvas_layer)
+	
+	# Set the canvas layer to process during pause
+	canvas_layer.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 	
 	# Interaction prompt
 	interaction_label = Label.new()
@@ -83,7 +86,7 @@ func setup_ui():
 	close_button.position = Vector2(140, 180)
 	close_button.pressed.connect(_on_close_pressed)
 	purchase_panel.add_child(close_button)
-
+	
 func _process(delta):
 	if player_in_range and Input.is_action_just_pressed("interact"):
 		open_shop()
@@ -105,7 +108,6 @@ func open_shop():
 	if not current_player:
 		return
 		
-	##########################################################################################################
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	# Update gear count display
 	var player_gears = get_player_gear_count()
@@ -123,10 +125,10 @@ func open_shop():
 		purchase_button.disabled = true
 	
 	purchase_panel.visible = true
-	# Pause the game or capture input
 	get_tree().paused = true
 
 func close_shop():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	purchase_panel.visible = false
 	get_tree().paused = false
 
