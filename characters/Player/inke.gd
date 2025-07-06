@@ -12,7 +12,13 @@ var double_jump_unlocked: bool = false
 var has_double_jumped: bool = false
 var can_double_jump: bool = false
 
+# Wall jump variables
+var wall_jump_unlocked: bool = false
+var wall_jump_cooldown: float = 0.0
+var wall_jump_cooldown_time: float = 0.2  # Prevent spam wall jumping
+
 @export var grindrays: Node3D
+@export var wall_jump_rays: Node3D  # Add wall jump raycasts
 
 # References
 @onready var player = self
@@ -24,16 +30,24 @@ var can_double_jump: bool = false
 func _ready():
 	$CameraController.initialize_camera()
 	
-	# Load double jump status from merchant
+	# Load upgrade statuses from merchant
 	var merchant_script = load("res://characters/merchant.gd")
 	if merchant_script:
 		double_jump_unlocked = merchant_script.double_jump_purchased
+		wall_jump_unlocked = merchant_script.wall_jump_purchased
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
 	
+	# Update wall jump cooldown
+	if wall_jump_cooldown > 0:
+		wall_jump_cooldown -= delta
+	
 	# Check for rail grinding opportunity (only if not already grinding and timer is complete)
 	check_for_rail_grinding()
+	
+	# Check for wall jump opportunity
+	check_for_wall_jump()
 	
 	# Handle double jump reset when on floor
 	if is_on_floor():
@@ -53,6 +67,11 @@ func unlock_double_jump():
 	double_jump_unlocked = true
 	print("Double jump unlocked!")
 
+func unlock_wall_jump():
+	"""Called by the merchant when wall jump is purchased"""
+	wall_jump_unlocked = true
+	print("Wall jump unlocked!")
+
 func can_perform_double_jump() -> bool:
 	"""Check if the player can perform a double jump"""
 	return double_jump_unlocked and not has_double_jumped and can_double_jump and not is_on_floor()
@@ -66,6 +85,29 @@ func perform_double_jump():
 		print("Double jump performed!")
 		return true
 	return false
+
+func can_perform_wall_jump() -> bool:
+	"""Check if the player can perform a wall jump"""
+	var current_state_name = state_machine.current_state.get_script().get_global_name()
+	return (wall_jump_unlocked and 
+			not is_on_floor() and 
+			wall_jump_cooldown <= 0 and
+			(current_state_name == "FallingState" or current_state_name == "JumpingState"))
+
+func get_wall_jump_direction() -> Vector3:
+	"""Get the direction to wall jump based on wall detection"""
+	if not wall_jump_rays:
+		return Vector3.ZERO
+	
+	for ray in wall_jump_rays.get_children():
+		if ray is RayCast3D:
+			var raycast = ray as RayCast3D
+			if raycast.is_colliding():
+				var collider = raycast.get_collider()
+				if collider and (collider.is_in_group("Wall") or collider is StaticBody3D):
+					return raycast.get_collision_normal()
+	
+	return Vector3.ZERO
 
 ## Rail Grinding Logic
 
@@ -94,3 +136,17 @@ func get_valid_grind_ray():
 			var collider = raycast.get_collider()	
 			if collider and collider.is_in_group("Rail"):
 				return raycast
+
+## Wall Jump Logic
+
+func check_for_wall_jump():
+	# Only check for wall jump if player pressed jump and can wall jump
+	if Input.is_action_just_pressed("jump") and can_perform_wall_jump():
+		var wall_normal = get_wall_jump_direction()
+		if wall_normal.length() > 0:
+			# Start wall jump
+			var wall_jump_state = state_machine.states.get("walljumpstate")
+			if wall_jump_state:
+				wall_jump_state.setup_wall_jump(wall_normal)
+				state_machine.change_state("WallJumpState")
+				wall_jump_cooldown = wall_jump_cooldown_time

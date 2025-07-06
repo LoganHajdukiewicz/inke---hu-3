@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bdxo4fr0da0vb"]
+[gd_scene load_steps=16 format=3 uid="uid://bdxo4fr0da0vb"]
 
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://characters/Player/camera_controller.gd" id="2_hiafp"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://ck50hd5hostap" path="res://characters/Player/StateMachine/walking_state.gd" id="5_xr1x7"]
 [ext_resource type="Script" uid="uid://dvbngax6l30iw" path="res://characters/Player/StateMachine/falling_state.gd" id="6_5n7dv"]
 [ext_resource type="Script" uid="uid://d0nfcgmke1446" path="res://characters/Player/StateMachine/rail_grinding_state.gd" id="8_04s0v"]
+[ext_resource type="Script" uid="uid://bbebbr6sj1dp2" path="res://characters/Player/wall_jumping_state.gd" id="9_joeft"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -26,9 +27,10 @@ height = 1.5
 [sub_resource type="SphereShape3D" id="SphereShape3D_04s0v"]
 radius = 2.34364
 
-[node name="Inke" type="CharacterBody3D" node_paths=PackedStringArray("grindrays") groups=["Player"]]
+[node name="Inke" type="CharacterBody3D" node_paths=PackedStringArray("grindrays", "wall_jump_rays") groups=["Player"]]
 script = ExtResource("1_2pj2q")
 grindrays = NodePath("Grindrays")
+wall_jump_rays = NodePath("WallJumpRays")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("2_r0lcg")
@@ -51,6 +53,9 @@ script = ExtResource("6_5n7dv")
 
 [node name="RailGrindingState" type="Node" parent="StateMachine"]
 script = ExtResource("8_04s0v")
+
+[node name="WallJumpingState" type="Node" parent="StateMachine"]
+script = ExtResource("9_joeft")
 
 [node name="CameraController" type="Node3D" parent="."]
 top_level = true
@@ -100,6 +105,21 @@ collide_with_areas = true
 transform = Transform3D(1, 0, 0, 0, 0.882628, -0.470072, 0, 0.470072, 0.882628, 0, 0, 0)
 collision_mask = 2
 collide_with_areas = true
+
+[node name="WallJumpRays" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.792745, 0)
+
+[node name="Right" type="RayCast3D" parent="WallJumpRays"]
+target_position = Vector3(1.5, 0, 0)
+
+[node name="Left" type="RayCast3D" parent="WallJumpRays"]
+target_position = Vector3(-1.5, 0, 0)
+
+[node name="Front" type="RayCast3D" parent="WallJumpRays"]
+target_position = Vector3(0, 0, -1.5)
+
+[node name="Back" type="RayCast3D" parent="WallJumpRays"]
+target_position = Vector3(0, 0, 1.5)
 
 [node name="HU-3Boundary" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98123, 0)
