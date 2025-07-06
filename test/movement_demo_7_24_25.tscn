@@ -1,10 +1,20 @@
-[gd_scene load_steps=10 format=3 uid="uid://dwo2hshdwc4i"]
+[gd_scene load_steps=12 format=3 uid="uid://dwo2hshdwc4i"]
 
+[ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://environments/reset_plane.tscn" id="1_7rrck"]
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://environments/floor.tscn" id="1_raww5"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/Player/inke.tscn" id="2_x4ydk"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://items/rail.tscn" id="3_k34u7"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="4_dbelr"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://items/sign.tscn" id="5_2acrq"]
+[ext_resource type="PackedScene" uid="uid://dencclsb8gs8v" path="res://characters/merchant.tscn" id="6_022yb"]
+
+[sub_resource type="Curve3D" id="Curve3D_dbelr"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 0.0999745, 0.35317, -24.973),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_x4ydk"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -21,50 +31,65 @@ sky = SubResource("Sky_k34u7")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Curve3D" id="Curve3D_dbelr"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 0.0999745, 0.35317, -24.973),
-"tilts": PackedFloat32Array(0, 0)
-}
-point_count = 2
-
 [node name="Movement Demo 7_24_25" type="Node3D"]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
-light_color = Color(1, 1, 0.211765, 1)
-shadow_enabled = true
+[node name="Platforms" type="Node" parent="."]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_dbelr")
-
-[node name="Floor" parent="." instance=ExtResource("1_raww5")]
+[node name="Floor" parent="Platforms" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -0.0306387)
 
-[node name="Floor2" parent="." instance=ExtResource("1_raww5")]
+[node name="Floor2" parent="Platforms" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -20.0408)
 
-[node name="Floor3" parent="." instance=ExtResource("1_raww5")]
+[node name="Floor3" parent="Platforms" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -57.5437)
 
-[node name="Floor4" parent="." instance=ExtResource("1_raww5")]
+[node name="Floor4" parent="Platforms" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -75.3176)
 
+[node name="Floor5" parent="Platforms" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -106.917)
+
 [node name="Inke" parent="." instance=ExtResource("2_x4ydk")]
-
-[node name="SixTeethGear" parent="." instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -32.2012)
-
-[node name="SixTeethGear2" parent="." instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -44.4966)
-
-[node name="SixTeethGear3" parent="." instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0495647, 1.3212, -51.207)
 
 [node name="Rail" parent="." instance=ExtResource("3_k34u7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -26.488)
 curve = SubResource("Curve3D_dbelr")
 
-[node name="Sign" parent="." instance=ExtResource("5_2acrq")]
+[node name="Merchant" parent="." instance=ExtResource("6_022yb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -78.7382)
+
+[node name="Gears" type="Node" parent="."]
+
+[node name="SixTeethGear" parent="Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -32.2012)
+
+[node name="SixTeethGear2" parent="Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -44.4966)
+
+[node name="SixTeethGear3" parent="Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0495647, 1.3212, -51.207)
+
+[node name="Environment" type="Node" parent="."]
+
+[node name="ResetPlane" parent="Environment" instance=ExtResource("1_7rrck")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.181533, -1.04061, 0.0948524)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+light_color = Color(1, 1, 0.211765, 1)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_dbelr")
+
+[node name="Signs" type="Node" parent="."]
+
+[node name="Sign" parent="Signs" instance=ExtResource("5_2acrq")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.10307, 0.00799988, -24.6548)
+
+[node name="Sign2" parent="Signs" instance=ExtResource("5_2acrq")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -78.2755)
+
+[node name="Sign3" parent="Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -2.69596, 0.0179829, -2.1624)
