@@ -35,7 +35,7 @@ point_count = 2
 [node name="Movement Demo 7_24_25" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_x4ydk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.72668)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.27332)
 
 [node name="Merchant" parent="." instance=ExtResource("6_022yb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -105.125)
@@ -68,7 +68,7 @@ environment = SubResource("Environment_dbelr")
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -18.7573)
 
 [node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -2.6132)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, 0.386795)
 
 [node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -46.4273)
@@ -123,7 +123,7 @@ transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 
 [node name="Signs" type="Node" parent="Environment"]
 
 [node name="WSAD" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -3.91643)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -0.916428)
 sign_text = "Press WSAD to move and Spacebar to Jump"
 
 [node name="Running" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
@@ -134,11 +134,11 @@ sign_text = "You might want to take a running start with the SHIFT button."
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.10307, 0.00799988, -51.0413)
 sign_text = "Make sure to jump on the rail for a cool rail grind!"
 
-[node name="Merchant3" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
+[node name="Merchant" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -104.662)
 sign_text = "This next jump looks crazy. You might want to buy a double jump powerup from the Merchant"
 
-[node name="Merchant 2" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
+[node name="Merchant2" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -161.954)
 sign_text = "This wall looks like it could be wall jumped between. Go ask the Merchant about it."
 

@@ -9,6 +9,7 @@ var grind_timer_complete: bool = true
 var start_grind_timer: bool = false
 var detached_from_rail: bool = false
 
+
 # Configuration
 var jump_velocity: float = 5.0
 var lerp_speed: float = 40.0

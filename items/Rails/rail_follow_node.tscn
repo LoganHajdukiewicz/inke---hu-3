@@ -7,6 +7,7 @@ albedo_color = Color(1, 1, 0, 1)
 
 [node name="RailFollowNode" type="PathFollow3D" groups=["rail_follower"]]
 transform = Transform3D(-0.993509, 0.0327574, 0.108921, -1.86264e-09, 0.957625, -0.288002, -0.11374, -0.286133, -0.951411, 0, 0, 0)
+visible = false
 loop = false
 script = ExtResource("1_r657r")
 

@@ -18,16 +18,29 @@ func _process(delta):
  
 func populate_rail():
 	var path_length = curve.get_baked_length()
-	var spacing = path_length / 10
-	var current_distance = 0
-	var staring_progress = 0.001
+	
+	# Calculate the progress increment to distribute nodes evenly
+	var progress_increment = path_length / float(point_total - 1)  # -1 to include both ends
+	
+	print("Rail length: ", path_length)
+	print("Progress increment: ", progress_increment)
+	print("Total points to spawn: ", point_total)
+	
 	for i in range(point_total):
 		var object_instance = rail_follower.instantiate()
-		object_instance.progress = staring_progress
+		
+		# Calculate progress based on distance along the curve
+		var current_progress = i * progress_increment
+		
+		# Clamp to ensure we don't exceed the rail length
+		current_progress = min(current_progress, path_length)
+		
+		object_instance.progress = current_progress
 		add_child(object_instance)
-		staring_progress += 5
-		current_distance += spacing
+		
 		pointCount += 1.0
-		if i == point_total:
-			hasSpawnedPoints = true
- 
+		
+		print("Spawned node ", i, " at progress: ", current_progress)
+	
+	hasSpawnedPoints = true
+	print("Finished spawning ", pointCount, " rail nodes")

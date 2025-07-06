@@ -26,13 +26,17 @@ func _process(delta):
 		elif !forward:
 			path_follow_3d.progress -= move_speed * delta
 
-		# Check if we've reached the end of the rail
-		if path_follow_3d.get_progress_ratio() >= 0.99:
+		# Get the total path length
+		var path_length = path_3d.curve.get_baked_length()
+		
+		# Check if we've reached the end of the rail using actual progress
+		# Only check for detachment if we're actually moving in that direction
+		if forward and path_follow_3d.progress >= path_length - 1.0:  # 1 unit before end
 			detach = true
 			grinding = false
 			direction_selected = false
 		
-		if path_follow_3d.get_progress_ratio() <= 0.002:
+		if not forward and path_follow_3d.progress <= 1.0:  # 1 unit from start
 			detach = true
 			grinding = false
 			direction_selected = false
