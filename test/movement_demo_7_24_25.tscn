@@ -35,12 +35,13 @@ point_count = 2
 [node name="Movement Demo 7_24_25" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_x4ydk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.72668)
 
 [node name="Merchant" parent="." instance=ExtResource("6_022yb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -78.7382)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -105.125)
 
 [node name="Merchant2" parent="." instance=ExtResource("6_022yb")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51127, 1.05032, -136.894)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51127, 1.05032, -163.281)
 powerup_type = 1
 powerup_name = "Wall Jump Upgrade"
 powerup_description = "Allows you to jump between two walls. "
@@ -49,10 +50,10 @@ powerup_cost = 4
 [node name="Environment" type="Node" parent="."]
 
 [node name="ResetPlane" parent="Environment" instance=ExtResource("1_7rrck")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.181533, -1.04061, 0.0948524)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.181533, -1.04061, -26.2917)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, 0, 16.324, -26.3865)
 light_color = Color(1, 1, 0.211765, 1)
 shadow_enabled = true
 
@@ -64,103 +65,110 @@ environment = SubResource("Environment_dbelr")
 [node name="Floors" type="Node" parent="Environment/Platforms"]
 
 [node name="Floor" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -0.0306387)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -18.7573)
+
+[node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -2.6132)
 
 [node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -20.0408)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -46.4273)
 
 [node name="Floor3" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -58.6091)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -84.9956)
 
 [node name="Floor4" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -75.3176)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -101.704)
 
 [node name="Floor5" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -106.917)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -133.304)
 
 [node name="Floor6" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -121.621)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -148.008)
 
 [node name="Floor7" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -136.412)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -162.799)
 
 [node name="Floor8" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, 16.7126, -151.54)
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, 16.7126, -177.927)
 
 [node name="Floor9" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.5, 0, 0, 0, 0.113, 0, 0, 0, 0.528, -0.0169895, 16.7126, -200.284)
+transform = Transform3D(0.5, 0, 0, 0, 0.113, 0, 0, 0, 0.528, -0.0169895, 16.7126, -226.671)
 
 [node name="Walls" type="Node" parent="Environment/Platforms"]
 
 [node name="Wall" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 0, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 0, -168.736)
 
 [node name="Wall2" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 4.96974, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 4.96974, -168.736)
 
 [node name="Wall3" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 9.49231, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 9.49231, -168.736)
 
 [node name="Wall4" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 14.3944, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 14.3944, -168.736)
 
 [node name="Wall5" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 0, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 0, -168.736)
 
 [node name="Wall6" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 4.96974, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 4.96974, -168.736)
 
 [node name="Wall7" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 9.49231, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 9.49231, -168.736)
 
 [node name="Wall8" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 14.3944, -142.349)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 14.3944, -168.736)
 
 [node name="Signs" type="Node" parent="Environment"]
 
 [node name="WSAD" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -2.18975)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -3.91643)
 sign_text = "Press WSAD to move and Spacebar to Jump"
 
+[node name="Running" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -22.8271)
+sign_text = "You might want to take a running start with the SHIFT button."
+
 [node name="Rail Grind" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.10307, 0.00799988, -24.6548)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.10307, 0.00799988, -51.0413)
 sign_text = "Make sure to jump on the rail for a cool rail grind!"
 
-[node name="Merchant" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -78.2755)
+[node name="Merchant3" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -104.662)
 sign_text = "This next jump looks crazy. You might want to buy a double jump powerup from the Merchant"
 
 [node name="Merchant 2" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -135.567)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -161.954)
 sign_text = "This wall looks like it could be wall jumped between. Go ask the Merchant about it."
 
 [node name="Fight" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.89196, 16.7206, -156.518)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.89196, 16.7206, -182.905)
 sign_text = "This guy up ahead looks scary. Make sure to attack him with ATTACKBUTTON. (Non-functional)"
 
 [node name="Gears" type="Node" parent="Environment"]
 
 [node name="SixTeethGear" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -32.2012)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -54.862)
 
 [node name="SixTeethGear2" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -44.4966)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -67.1574)
 
 [node name="SixTeethGear4" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -41.7685)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -64.4293)
 
 [node name="SixTeethGear5" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -39.0182)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -61.679)
 
 [node name="SixTeethGear6" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -36.0816)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -58.7424)
 
 [node name="SixTeethGear7" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -33.5921)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -56.2529)
 
 [node name="SixTeethGear3" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0495647, 1.3212, -51.207)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0495647, 1.3212, -73.8678)
 
 [node name="Rail" parent="Environment" instance=ExtResource("3_k34u7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -26.488)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -52.8745)
 curve = SubResource("Curve3D_dbelr")

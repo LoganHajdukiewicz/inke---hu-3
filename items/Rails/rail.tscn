@@ -6,10 +6,10 @@
 [sub_resource type="Curve3D" id="Curve3D_s36x5"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 8.10513, -0.119258, -0.0800648),
-"tilts": PackedFloat32Array(0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678),
+"tilts": PackedFloat32Array(0)
 }
-point_count = 2
+point_count = 1
 
 [node name="Rail" type="Path3D" groups=["Rail"]]
 curve = SubResource("Curve3D_s36x5")
