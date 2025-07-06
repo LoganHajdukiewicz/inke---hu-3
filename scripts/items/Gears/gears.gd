@@ -10,15 +10,22 @@ extends Area3D
 ##TODO: Turn this into a GameStateManager type Inventory system. 
 static var gear_count: int = 0
 
-
 var initial_position: Vector3
 var time_passed: float = 0.0
+var collected: bool = false  # Prevent double collection
 
 func _ready():
 	# Store the initial position for bobbing
 	initial_position = position
 	
+	# Add this gear to the "Gear" group so HU-3 can find it
+	add_to_group("Gear")
+	
 func _process(delta):
+	# Don't update if already collected
+	if collected:
+		return
+		
 	# Rotate the gear around the Y axis
 	rotation_degrees.y += rotation_speed * delta
 	
@@ -28,14 +35,39 @@ func _process(delta):
 		position.y = initial_position.y + sin(time_passed * bob_speed) * bob_height
 
 func _on_body_entered(body):
-	# Check if the player collected this gear
-	if body.is_in_group("Player"):
-		collect_gear()
+	# Check if the player collected this gear directly
+	if body.is_in_group("Player") and not collected:
+		collect_gear_by_player()
 
-func collect_gear():
-	# Add collection logic here (sound, particles, score, etc.)
+func collect_gear_by_player():
+	"""Called when player directly collects the gear"""
+	if collected:
+		return
+		
+	collected = true
 	gear_count += 1
-	print("Total number of Gears: " + str(gear_count))
+	print("Player collected gear directly! Total gears: " + str(gear_count))
+	
+	# Also update the player's gear count
+	var player = get_tree().get_first_node_in_group("Player")
+	if player and player.has_method("add_gear_count"):
+		player.add_gear_count(1)
 	
 	# Remove the gear from the scene
 	queue_free()
+
+func collect_gear_by_hu3():
+	"""Called when HU-3 collects the gear"""
+	if collected:
+		return
+		
+	collected = true
+	gear_count += 1
+	print("HU-3 collected gear! Total gears: " + str(gear_count))
+	
+	# Remove the gear from the scene
+	queue_free()
+
+# Legacy method for compatibility
+func collect_gear():
+	collect_gear_by_player()

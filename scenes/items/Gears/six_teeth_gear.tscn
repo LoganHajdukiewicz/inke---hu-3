@@ -6,7 +6,7 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_ehjxu"]
 size = Vector3(0.279785, 0.0593262, 0.296379)
 
-[node name="SixTeethGear" type="Area3D"]
+[node name="SixTeethGear" type="Area3D" groups=["Gear"]]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 script = ExtResource("1_ix468")
 

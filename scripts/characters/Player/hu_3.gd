@@ -17,14 +17,16 @@ var side_offset: float = 1.5  # Offset to the right of player
 var forward_offset: float = 1.0  # Slight forward offset
 
 # Gear collection
-var gear_collection_distance: float = 5.0
-var gear_collection_speed: float = 12.0
+var gear_collection_distance: float = 8.0  # Increased detection range
+var gear_collection_speed: float = 15.0  # Increased collection speed
 var collected_gears: Array[Node] = []
 
 # Internal state
 var hover_time: float = 0.0
 var is_collecting_gear: bool = false
 var target_gear: Node = null
+var collection_timer: float = 0.0
+var collection_timeout: float = 5.0  # Give up after 5 seconds
 
 # Health/status
 var health: int = 100
@@ -60,6 +62,14 @@ func _physics_process(delta: float):
 	
 	# Update hover animation
 	hover_time += delta
+	
+	# Update collection timer
+	if is_collecting_gear:
+		collection_timer += delta
+		if collection_timer > collection_timeout:
+			# Give up on current gear and find another
+			print("HU-3: Timeout collecting gear, finding new target")
+			reset_collection_state()
 	
 	# Check for nearby gears to collect
 	if not is_collecting_gear:
@@ -111,7 +121,12 @@ func find_nearest_gear():
 	var nearest_distance = gear_collection_distance
 	
 	for gear in gears:
-		if gear in collected_gears:
+		# Skip if already collected or invalid
+		if not is_instance_valid(gear) or gear in collected_gears:
+			continue
+		
+		# Skip if gear is already collected (check gear's collected flag)
+		if gear.has_method("get") and gear.get("collected"):
 			continue
 			
 		var distance = global_position.distance_to(gear.global_position)
@@ -122,52 +137,79 @@ func find_nearest_gear():
 	if nearest_gear:
 		target_gear = nearest_gear
 		is_collecting_gear = true
-		print("HU-3: Targeting gear: ", target_gear.name)
+		collection_timer = 0.0
+		print("HU-3: Targeting gear: ", target_gear.name, " at distance: ", nearest_distance)
 
 func move_to_gear(delta: float):
 	if not target_gear or not is_instance_valid(target_gear):
-		is_collecting_gear = false
-		target_gear = null
+		reset_collection_state()
+		return
+	
+	# Check if gear was collected by someone else
+	if target_gear.has_method("get") and target_gear.get("collected"):
+		reset_collection_state()
 		return
 	
 	# Move towards the gear
 	var direction = (target_gear.global_position - global_position).normalized()
 	velocity = direction * gear_collection_speed
 	
+	# Smoothly rotate to face the gear
+	if velocity.length() > 0.1:
+		var target_transform = global_transform.looking_at(global_position + velocity.normalized(), Vector3.UP)
+		global_transform = global_transform.interpolate_with(target_transform, delta * 5.0)
+	
 	# Check if we're close enough to collect
 	var distance = global_position.distance_to(target_gear.global_position)
-	if distance < 1.0:
+	if distance < 1.5:  # Increased collection radius
 		collect_gear(target_gear)
 
 func collect_gear(gear: Node):
-	if gear and is_instance_valid(gear):
-		# Add to player's gear count
-		if player.has_method("add_gear_count"):
-			player.add_gear_count(1)
-		elif player.has_property("gear_count"):
-			player.gear_count += 1
-		
-		# Mark as collected and remove from scene
-		collected_gears.append(gear)
+	if not gear or not is_instance_valid(gear):
+		reset_collection_state()
+		return
+	
+	# Check if gear has already been collected
+	if gear.has_method("get") and gear.get("collected"):
+		reset_collection_state()
+		return
+	
+	# Collect the gear
+	if gear.has_method("collect_gear_by_hu3"):
+		gear.collect_gear_by_hu3()
+	else:
+		# Fallback - mark as collected and remove
 		gear.queue_free()
-		
-		print("HU-3: Collected gear! Player gear count: ", player.gear_count)
-		
-		# Reset collection state
-		is_collecting_gear = false
-		target_gear = null
+	
+	# Update player's gear count
+	if player and player.has_method("add_gear_count"):
+		player.add_gear_count(1)
+	
+	# Mark as collected
+	collected_gears.append(gear)
+	
+	print("HU-3: Collected gear! Total collected by HU-3: ", collected_gears.size())
+	
+	# Reset collection state
+	reset_collection_state()
+
+func reset_collection_state():
+	is_collecting_gear = false
+	target_gear = null
+	collection_timer = 0.0
 
 func _on_gear_entered(body: Node3D):
 	if body.is_in_group("Gear"):
-		print("HU-3: Gear detected: ", body.name)
+		print("HU-3: Gear body detected: ", body.name)
 
 func _on_gear_exited(body: Node3D):
 	if body.is_in_group("Gear"):
-		print("HU-3: Gear left detection range: ", body.name)
+		print("HU-3: Gear body left detection range: ", body.name)
 
 func _on_gear_area_entered(area: Area3D):
 	if area.is_in_group("Gear"):
 		print("HU-3: Gear area detected: ", area.name)
+		# Could trigger immediate collection if very close
 
 func _on_gear_area_exited(area: Area3D):
 	if area.is_in_group("Gear"):
