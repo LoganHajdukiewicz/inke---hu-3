@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dwaregi88lej4"]
 
-[ext_resource type="Script" uid="uid://oy3jh5viw30h" path="res://items/rail.gd" id="1_7pqbj"]
-[ext_resource type="PackedScene" uid="uid://dfqnll0f2t2il" path="res://items/rail_follow_node.tscn" id="2_x0na8"]
+[ext_resource type="Script" uid="uid://dlc5vtwqtv7c6" path="res://items/Rails/rail.gd" id="1_7pqbj"]
+[ext_resource type="PackedScene" uid="uid://dfqnll0f2t2il" path="res://items/Rails/rail_follow_node.tscn" id="2_x0na8"]
 
 [sub_resource type="Curve3D" id="Curve3D_s36x5"]
 resource_local_to_scene = true
@@ -16,7 +16,7 @@ curve = SubResource("Curve3D_s36x5")
 script = ExtResource("1_7pqbj")
 
 [node name="RailFollowNode" parent="." instance=ExtResource("2_x0na8")]
-transform = Transform3D(0.010129, 0.0145425, -0.999827, 4.65651e-10, 0.999886, 0.0145431, 0.999926, -0.000147312, 0.010128, -0.00175963, -0.00133805, 0.00205678)
+transform = Transform3D(0.010129, 0.0145425, -0.999827, -4.65651e-10, 0.999886, 0.0145431, 0.999926, -0.000147311, 0.010128, -0.00175963, -0.00133805, 0.00205678)
 
 [node name="CSGPolygon3D" type="CSGPolygon3D" parent="." groups=["Rail"]]
 use_collision = true

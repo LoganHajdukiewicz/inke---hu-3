@@ -12,7 +12,7 @@ var detached_from_rail: bool = false
 # Configuration
 var jump_velocity: float = 5.0
 var lerp_speed: float = 40.0
-var grind_speed: float = 10.0
+var grind_exit_speed: float = 10.0
 
 func enter():
 	print("Entered Rail Grinding State")
@@ -40,9 +40,9 @@ func physics_update(delta: float):
 		# Set horizontal velocity based on rail movement direction
 		var rail_velocity = Vector3.ZERO
 		if rail_grind_node.forward:
-			rail_velocity = rail_grind_node.transform.basis.z * grind_speed
+			rail_velocity = rail_grind_node.transform.basis.z * grind_exit_speed
 		else:
-			rail_velocity = -rail_grind_node.transform.basis.z * grind_speed
+			rail_velocity = -rail_grind_node.transform.basis.z * grind_exit_speed
 		
 		player.velocity.x = rail_velocity.x
 		player.velocity.z = rail_velocity.z
@@ -171,7 +171,7 @@ func detach_from_rail():
 			rail_direction = rail_grind_node.transform.basis.z   # Positive Z is backward
 		
 		# Apply the full rail momentum in the correct direction
-		var momentum_velocity = rail_direction * grind_speed
+		var momentum_velocity = rail_direction * grind_exit_speed
 		player.velocity.x = momentum_velocity.x
 		player.velocity.z = momentum_velocity.z
 		
@@ -192,6 +192,6 @@ func enable_grind_raycasts():
 				grind_ray.enabled = true
 
 func get_speed():
-	return grind_speed
+	return grind_exit_speed
 	
 	
