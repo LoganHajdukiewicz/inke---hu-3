@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/Player/inke.tscn" id="2_x4ydk"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://items/Rails/rail.tscn" id="3_k34u7"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/Gears/six_teeth_gear.tscn" id="4_dbelr"]
-[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://items/Signs/sign.tscn" id="5_2acrq"]
+[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://items/sign.tscn" id="5_2acrq"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://characters/NPCs/Friendly NPCs/merchant.tscn" id="6_022yb"]
 [ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://environments/wall.tscn" id="7_swpkg"]
 

@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3 uid="uid://d0ixvyxxmslor"]
 
-[ext_resource type="Script" uid="uid://b0esh8d4poopu" path="res://items/sign.gd" id="1_tmua1"]
+[ext_resource type="Script" uid="uid://b0esh8d4poopu" path="res://items/Signs/sign.gd" id="1_tmua1"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_uto80"]
 radius = 2.58695
