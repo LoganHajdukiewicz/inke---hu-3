@@ -42,6 +42,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -78.7382)
 
 [node name="Merchant2" parent="." instance=ExtResource("6_022yb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51127, 1.05032, -136.894)
+powerup_type = 1
+powerup_name = "Wall Jump Upgrade"
+powerup_description = "Allows you to jump between two walls. "
+powerup_cost = 4
 
 [node name="BadGuy" parent="." instance=ExtResource("6_a3xcx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.347351, 17.738, -222.808)
