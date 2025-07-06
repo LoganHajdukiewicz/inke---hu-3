@@ -214,13 +214,13 @@ func _on_close_pressed():
 
 func get_player_gear_count() -> int:
 	# Get gear count from the gears script
-	var gears_script = load("res://items/Gears/gears.gd")
+	var gears_script = load("res://scripts/items/Gears/gears.gd")
 	if gears_script:
 		return gears_script.gear_count
 	return 0
 
 func spend_player_gears(amount: int):
 	# Spend gears from the gears script
-	var gears_script = load("res://items/Gears/gears.gd")
+	var gears_script = load("res://scripts/items/Gears/gears.gd")
 	if gears_script:
 		gears_script.gear_count = max(0, gears_script.gear_count - amount)

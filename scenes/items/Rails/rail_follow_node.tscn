@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://dfqnll0f2t2il"]
 
-[ext_resource type="Script" uid="uid://r43vjpbp8gn2" path="res://items/Rails/rail_follow_node.gd" id="1_r657r"]
+[ext_resource type="Script" uid="uid://r43vjpbp8gn2" path="res://scripts/items/Rails/rail_follow_node.gd" id="1_c04fm"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r657r"]
 albedo_color = Color(1, 1, 0, 1)
@@ -9,7 +9,7 @@ albedo_color = Color(1, 1, 0, 1)
 transform = Transform3D(-0.993509, 0.0327574, 0.108921, -1.86264e-09, 0.957625, -0.288002, -0.11374, -0.286133, -0.951411, 0, 0, 0)
 visible = false
 loop = false
-script = ExtResource("1_r657r")
+script = ExtResource("1_c04fm")
 
 [node name="CSGSphere3D" type="CSGSphere3D" parent="."]
 radius = 0.3

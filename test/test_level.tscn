@@ -1,11 +1,11 @@
 [gd_scene load_steps=11 format=3 uid="uid://jv0f638wtp43"]
 
-[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://characters/Player/inke.tscn" id="1_8rkqs"]
-[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="2_klfgi"]
-[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://items/rail.tscn" id="3_ls30l"]
-[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://environments/floor.tscn" id="3_oxjuh"]
-[ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://environments/wall.tscn" id="4_k117l"]
-[ext_resource type="PackedScene" uid="uid://dencclsb8gs8v" path="res://characters/merchant.tscn" id="5_k117l"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_8rkqs"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="2_klfgi"]
+[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="3_ls30l"]
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="3_oxjuh"]
+[ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="4_k117l"]
+[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="5_k117l"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ls30l"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)

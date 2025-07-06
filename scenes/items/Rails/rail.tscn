@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dwaregi88lej4"]
 
-[ext_resource type="Script" uid="uid://dlc5vtwqtv7c6" path="res://items/Rails/rail.gd" id="1_7pqbj"]
-[ext_resource type="PackedScene" uid="uid://dfqnll0f2t2il" path="res://items/Rails/rail_follow_node.tscn" id="2_x0na8"]
+[ext_resource type="Script" uid="uid://dlc5vtwqtv7c6" path="res://scripts/items/Rails/rail.gd" id="1_7pqbj"]
+[ext_resource type="PackedScene" uid="uid://dfqnll0f2t2il" path="res://scenes/items/Rails/rail_follow_node.tscn" id="2_x0na8"]
 
 [sub_resource type="Curve3D" id="Curve3D_s36x5"]
 resource_local_to_scene = true

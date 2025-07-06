@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://c12ty8bvk86rc"]
 
 [ext_resource type="ArrayMesh" uid="uid://crlgcc2bif0g4" path="res://assets/models/gears/six_teeth_gear.res" id="1_ehjxu"]
-[ext_resource type="Script" uid="uid://cucja4ftd10jj" path="res://items/gears.gd" id="1_ix468"]
+[ext_resource type="Script" uid="uid://cucja4ftd10jj" path="res://scripts/items/Gears/gears.gd" id="1_ix468"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ehjxu"]
 size = Vector3(0.279785, 0.0593262, 0.296379)

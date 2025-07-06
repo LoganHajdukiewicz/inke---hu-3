@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bgtuvkweqa1l4"]
 
-[ext_resource type="Script" uid="uid://ca8t2ivx256q4" path="res://environments/reset_plane.gd" id="1_42qyu"]
+[ext_resource type="Script" uid="uid://ca8t2ivx256q4" path="res://scripts/environments/reset_plane.gd" id="1_42qyu"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_d27ew"]
 resource_local_to_scene = true
