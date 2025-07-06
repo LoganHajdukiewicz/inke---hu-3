@@ -112,6 +112,21 @@ transform = Transform3D(0.5, 0, 0, 0, 0.113, 0, 0, 0, 0.528, -0.0169895, 16.7126
 [node name="Wall" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
 transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -2.60787, 0, -211.202)
 
+[node name="Wall9" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(0.15, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 2.28329, 0, -212.183)
+
+[node name="Wall10" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(0.15, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 2.28329, 4.71248, -212.183)
+
+[node name="Wall11" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(0.15, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 2.28329, 8.76595, -212.183)
+
+[node name="Wall12" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(0.15, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 2.28329, 11.5733, -212.183)
+
+[node name="Wall13" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(0.15, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 2.28329, 11.8452, -212.183)
+
 [node name="Wall2" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
 transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -2.60787, 4.96974, -211.202)
 
@@ -119,7 +134,7 @@ transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 
 transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -2.60787, 9.49231, -211.202)
 
 [node name="Wall4" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -2.60787, 14.3944, -211.202)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -2.60787, 11.848, -211.202)
 
 [node name="Wall5" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
 transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 3.11906, 0, -211.202)
@@ -131,7 +146,7 @@ transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 
 transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 3.11906, 9.49231, -211.202)
 
 [node name="Wall8" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
-transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 3.11906, 14.3944, -211.202)
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 3.11906, 11.885, -211.202)
 
 [node name="Signs" type="Node" parent="Environment"]
 
