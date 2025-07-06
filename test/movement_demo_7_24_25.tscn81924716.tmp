@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dwo2hshdwc4i"]
+[gd_scene load_steps=14 format=3 uid="uid://dwo2hshdwc4i"]
 
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://environments/reset_plane.tscn" id="1_7rrck"]
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://environments/floor.tscn" id="1_raww5"]
@@ -6,7 +6,8 @@
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://items/Rails/rail.tscn" id="3_k34u7"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/Gears/six_teeth_gear.tscn" id="4_dbelr"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://items/sign.tscn" id="5_2acrq"]
-[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://characters/NPCs/Friendly NPCs/merchant.tscn" id="6_022yb"]
+[ext_resource type="PackedScene" uid="uid://dencclsb8gs8v" path="res://characters/NPCs/Friendly NPCs/merchant.tscn" id="6_022yb"]
+[ext_resource type="PackedScene" uid="uid://qku54onir2io" path="res://characters/NPCs/Enemies/bad_guy.tscn" id="6_a3xcx"]
 [ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://environments/wall.tscn" id="7_swpkg"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_x4ydk"]
@@ -45,6 +46,9 @@ powerup_type = 1
 powerup_name = "Wall Jump Upgrade"
 powerup_description = "Allows you to jump between two walls. "
 powerup_cost = 4
+
+[node name="BadGuy" parent="." instance=ExtResource("6_a3xcx")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0.347351, 17.738, -222.808)
 
 [node name="Environment" type="Node" parent="."]
 

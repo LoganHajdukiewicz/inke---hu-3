@@ -6,8 +6,7 @@ var jump_velocity : float = 5.0
 func enter():
 	print("Entered Jumping State")
 	player.velocity.y = jump_velocity
-	
-	# Reset double jump availability when starting a new jump from ground
+
 	if player.is_on_floor():
 		player.can_double_jump = true
 

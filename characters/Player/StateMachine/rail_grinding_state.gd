@@ -11,8 +11,8 @@ var detached_from_rail: bool = false
 
 # Configuration
 var jump_velocity: float = 5.0
-var lerp_speed: float = 10.0
-var grind_speed: float = 12.0
+var lerp_speed: float = 40.0
+var grind_speed: float = 10.0
 
 func enter():
 	print("Entered Rail Grinding State")

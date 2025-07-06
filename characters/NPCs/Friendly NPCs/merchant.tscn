@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://dencclsb8gs8v"]
+[gd_scene load_steps=6 format=3 uid="uid://bx58ch1j8e8bo"]
 
-[ext_resource type="Script" uid="uid://djp8lmohg81ly" path="res://characters/merchant.gd" id="1_4l1ay"]
+[ext_resource type="Script" uid="uid://djp8lmohg81ly" path="res://characters/NPCs/Friendly NPCs/merchant.gd" id="1_4l1ay"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4l1ay"]
 albedo_color = Color(1, 1, 0, 1)

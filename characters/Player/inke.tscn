@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://ck50hd5hostap" path="res://characters/Player/StateMachine/walking_state.gd" id="5_xr1x7"]
 [ext_resource type="Script" uid="uid://dvbngax6l30iw" path="res://characters/Player/StateMachine/falling_state.gd" id="6_5n7dv"]
 [ext_resource type="Script" uid="uid://d0nfcgmke1446" path="res://characters/Player/StateMachine/rail_grinding_state.gd" id="8_04s0v"]
-[ext_resource type="Script" uid="uid://bbebbr6sj1dp2" path="res://characters/Player/wall_jumping_state.gd" id="9_joeft"]
+[ext_resource type="Script" uid="uid://cyispbhw6d3re" path="res://characters/Player/StateMachine/wall_jumping_state.gd" id="9_joeft"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2

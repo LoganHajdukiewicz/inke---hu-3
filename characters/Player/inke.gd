@@ -31,7 +31,7 @@ func _ready():
 	$CameraController.initialize_camera()
 	
 	# Load upgrade statuses from merchant
-	var merchant_script = load("res://characters/merchant.gd")
+	var merchant_script = load("res://characters/NPCs/Friendly NPCs/merchant.gd")
 	if merchant_script:
 		double_jump_unlocked = merchant_script.double_jump_purchased
 		wall_jump_unlocked = merchant_script.wall_jump_purchased

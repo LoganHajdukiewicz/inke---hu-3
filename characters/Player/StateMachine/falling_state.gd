@@ -12,10 +12,10 @@ func physics_update(delta: float):
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
 		var wall_normal = player.get_wall_jump_direction()
 		if wall_normal.length() > 0:
-			var wall_jump_state = player.state_machine.states.get("walljumpstate")
+			var wall_jump_state = player.state_machine.states.get("walljumpingstate")
 			if wall_jump_state:
 				wall_jump_state.setup_wall_jump(wall_normal)
-				change_to("WallJumpState")
+				change_to("WallJumpingState")
 				player.wall_jump_cooldown = player.wall_jump_cooldown_time
 				return
 	
