@@ -1,20 +1,21 @@
 extends CharacterBody3D
 
-# HU-3 Companion robot that follows the player and collects gears
-
-# References
 @onready var player: CharacterBody3D = null
 @onready var area_3d: Area3D = $Area3D
 @onready var health_indicator: MeshInstance3D = $Mesh/HealthIndicator
 
 # Following behavior
 var follow_distance: float = 2.0
-var follow_speed: float = 8.0
+var base_follow_speed: float = 9.0  # Base speed when player is idle/walking
+var follow_speed_multiplier: float = 1.2  # Multiplier for player speed (20% faster to catch up)
+var max_follow_speed: float = 40.0  # Maximum speed cap
 var hover_height: float = 1.5
 var hover_amplitude: float = 0.3
 var hover_frequency: float = 2.0
 var side_offset: float = 1.5  # Offset to the right of player
 var forward_offset: float = 1.0  # Slight forward offset
+var catchup_distance: float = 5.0  # Distance at which HU-3 goes into "catchup mode"
+var catchup_speed_multiplier: float = 2.5  # Speed multiplier when catching up
 
 # Gear collection
 var gear_collection_distance: float = 8.0  # Increased detection range
@@ -84,6 +85,30 @@ func _physics_process(delta: float):
 	# Apply movement
 	move_and_slide()
 
+func get_dynamic_follow_speed(distance_to_target: float) -> float:
+	"""Calculate HU-3's speed based on player's current speed and distance"""
+	var player_speed = base_follow_speed
+	
+	# Get player's current speed from their state machine
+	if player and player.has_method("get_player_speed"):
+		player_speed = player.get_player_speed()
+	
+	# Base speed is slightly faster than player to catch up
+	var target_speed = player_speed * follow_speed_multiplier
+	
+	# If we're too far behind, activate catchup mode
+	if distance_to_target > catchup_distance:
+		target_speed = player_speed * catchup_speed_multiplier
+		print("HU-3: Catchup mode activated - Distance: ", distance_to_target)
+	
+	# Cap the maximum speed
+	target_speed = min(target_speed, max_follow_speed)
+	
+	# Ensure minimum speed
+	target_speed = max(target_speed, base_follow_speed)
+	
+	return target_speed
+
 func follow_player(delta: float):
 	if not player:
 		return
@@ -100,13 +125,16 @@ func follow_player(delta: float):
 	# Add subtle hovering motion
 	follow_pos.y += sin(hover_time * hover_frequency) * hover_amplitude
 	
-	# Calculate movement direction
+	# Calculate movement direction and distance
 	var direction = (follow_pos - global_position).normalized()
 	var distance = global_position.distance_to(follow_pos)
 	
+	# Get dynamic speed based on distance and player speed
+	var dynamic_speed = get_dynamic_follow_speed(distance)
+	
 	# Only move if we're too far from follow position
 	if distance > follow_distance * 0.5:
-		velocity = direction * follow_speed
+		velocity = direction * dynamic_speed
 		
 		# Smoothly rotate to face movement direction
 		if velocity.length() > 0.1:
