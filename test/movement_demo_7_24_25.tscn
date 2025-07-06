@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dwo2hshdwc4i"]
+[gd_scene load_steps=14 format=3 uid="uid://dwo2hshdwc4i"]
 
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://environments/reset_plane.tscn" id="1_7rrck"]
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://environments/floor.tscn" id="1_raww5"]
@@ -7,14 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://items/six_teeth_gear.tscn" id="4_dbelr"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://items/sign.tscn" id="5_2acrq"]
 [ext_resource type="PackedScene" uid="uid://dencclsb8gs8v" path="res://characters/merchant.tscn" id="6_022yb"]
-
-[sub_resource type="Curve3D" id="Curve3D_dbelr"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 0.0999745, 0.35317, -24.973),
-"tilts": PackedFloat32Array(0, 0)
-}
-point_count = 2
+[ext_resource type="PackedScene" uid="uid://qku54onir2io" path="res://characters/bad_guy.tscn" id="6_a3xcx"]
+[ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://environments/wall.tscn" id="7_swpkg"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_x4ydk"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -31,44 +25,26 @@ sky = SubResource("Sky_k34u7")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="Curve3D" id="Curve3D_dbelr"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 0.0999745, 0.35317, -24.973),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
 [node name="Movement Demo 7_24_25" type="Node3D"]
 
-[node name="Platforms" type="Node" parent="."]
-
-[node name="Floor" parent="Platforms" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -0.0306387)
-
-[node name="Floor2" parent="Platforms" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -20.0408)
-
-[node name="Floor3" parent="Platforms" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -57.5437)
-
-[node name="Floor4" parent="Platforms" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -75.3176)
-
-[node name="Floor5" parent="Platforms" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -106.917)
-
 [node name="Inke" parent="." instance=ExtResource("2_x4ydk")]
-
-[node name="Rail" parent="." instance=ExtResource("3_k34u7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -26.488)
-curve = SubResource("Curve3D_dbelr")
 
 [node name="Merchant" parent="." instance=ExtResource("6_022yb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -78.7382)
 
-[node name="Gears" type="Node" parent="."]
+[node name="Merchant2" parent="." instance=ExtResource("6_022yb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.51127, 1.05032, -136.894)
 
-[node name="SixTeethGear" parent="Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -32.2012)
-
-[node name="SixTeethGear2" parent="Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -44.4966)
-
-[node name="SixTeethGear3" parent="Gears" instance=ExtResource("4_dbelr")]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0495647, 1.3212, -51.207)
+[node name="BadGuy" parent="." instance=ExtResource("6_a3xcx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.347351, 17.738, -206.2)
 
 [node name="Environment" type="Node" parent="."]
 
@@ -83,13 +59,106 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
 environment = SubResource("Environment_dbelr")
 
-[node name="Signs" type="Node" parent="."]
+[node name="Platforms" type="Node" parent="Environment"]
 
-[node name="Sign" parent="Signs" instance=ExtResource("5_2acrq")]
+[node name="Floors" type="Node" parent="Environment/Platforms"]
+
+[node name="Floor" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -0.0306387)
+
+[node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -20.0408)
+
+[node name="Floor3" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -58.6091)
+
+[node name="Floor4" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -75.3176)
+
+[node name="Floor5" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -106.917)
+
+[node name="Floor6" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -121.621)
+
+[node name="Floor7" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -136.412)
+
+[node name="Floor8" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, 16.7126, -151.54)
+
+[node name="Floor9" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, 16.7126, -185.801)
+
+[node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, 16.7126, -200.284)
+
+[node name="Walls" type="Node" parent="Environment/Platforms"]
+
+[node name="Wall" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 0, -142.349)
+
+[node name="Wall2" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 4.96974, -142.349)
+
+[node name="Wall3" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 9.49231, -142.349)
+
+[node name="Wall4" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, -1, 14.3944, -142.349)
+
+[node name="Wall5" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 0, -142.349)
+
+[node name="Wall6" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 4.96974, -142.349)
+
+[node name="Wall7" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 9.49231, -142.349)
+
+[node name="Wall8" parent="Environment/Platforms/Walls" instance=ExtResource("7_swpkg")]
+transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 1.52554, 14.3944, -142.349)
+
+[node name="Signs" type="Node" parent="Environment"]
+
+[node name="Sign" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.10307, 0.00799988, -24.6548)
 
-[node name="Sign2" parent="Signs" instance=ExtResource("5_2acrq")]
+[node name="Sign2" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -78.2755)
 
-[node name="Sign3" parent="Signs" instance=ExtResource("5_2acrq")]
+[node name="Sign3" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -2.69596, 0.0179829, -2.1624)
+
+[node name="Sign4" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -135.567)
+
+[node name="Sign5" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.89196, 16.7206, -156.518)
+
+[node name="Gears" type="Node" parent="Environment"]
+
+[node name="SixTeethGear" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -32.2012)
+
+[node name="SixTeethGear2" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -44.4966)
+
+[node name="SixTeethGear4" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -41.7685)
+
+[node name="SixTeethGear5" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -39.0182)
+
+[node name="SixTeethGear6" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -36.0816)
+
+[node name="SixTeethGear7" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -33.5921)
+
+[node name="SixTeethGear3" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.0495647, 1.3212, -51.207)
+
+[node name="Rail" parent="Environment" instance=ExtResource("3_k34u7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -26.488)
+curve = SubResource("Curve3D_dbelr")
