@@ -7,7 +7,8 @@ extends StaticBody3D
 var player_in_range: bool = false
 var player_reference: Node = null
 
-# UI elements for displaying the sign text
+# UI elements
+var interaction_label: Label
 var sign_ui: Control
 var sign_label: Label
 var background_panel: Panel
@@ -19,10 +20,22 @@ func _ready():
 	area.body_exited.connect(_on_area_3d_body_exited)
 	
 	# Create UI elements
-	create_sign_ui()
+	create_ui()
 
-func create_sign_ui():
-	# Create the main UI container
+func create_ui():
+	# Create canvas layer for UI
+	var canvas_layer = CanvasLayer.new()
+	add_child(canvas_layer)
+	
+	# Interaction prompt (similar to merchant)
+	interaction_label = Label.new()
+	interaction_label.text = "Press E to read sign"
+	interaction_label.add_theme_font_size_override("font_size", 24)
+	interaction_label.position = Vector2(50, 50)
+	interaction_label.visible = false
+	canvas_layer.add_child(interaction_label)
+	
+	# Create the main sign UI container
 	sign_ui = Control.new()
 	sign_ui.name = "SignUI"
 	sign_ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -77,22 +90,34 @@ func create_sign_ui():
 	background_panel.add_child(margin_container)
 	margin_container.add_child(sign_label)
 	
-	# Add to the scene tree
-	get_tree().root.add_child.call_deferred(sign_ui)
+	# Add sign UI to the canvas layer
+	canvas_layer.add_child(sign_ui)
+
+func _process(delta):
+	# Check for E key press when player is in range (similar to merchant)
+	if player_in_range and Input.is_action_just_pressed("interact"):
+		toggle_sign()
 
 func _on_area_3d_body_entered(body):
 	if body.is_in_group("Player"):
 		player_in_range = true
 		player_reference = body
-		show_sign()
-		print("Player entered sign area: ", sign_text.split("\n")[0])  # Print first line
+		interaction_label.visible = true
+		print("Player entered sign area - press E to read")
 
 func _on_area_3d_body_exited(body):
 	if body.is_in_group("Player"):
 		player_in_range = false
 		player_reference = null
+		interaction_label.visible = false
 		hide_sign()
 		print("Player left sign area")
+
+func toggle_sign():
+	if sign_ui.visible:
+		hide_sign()
+	else:
+		show_sign()
 
 func show_sign():
 	if sign_ui:
@@ -111,19 +136,6 @@ func hide_sign():
 		var tween = create_tween()
 		tween.tween_property(sign_ui, "modulate:a", 0.0, 0.2)
 		tween.tween_callback(func(): sign_ui.visible = false)
-
-func _input(event):
-	# Optional: Allow player to dismiss the sign with a key press
-	if player_in_range and event.is_action_pressed("ui_accept"):  # Enter key
-		hide_sign()
-		await get_tree().create_timer(0.5).timeout  # Short delay before it can show again
-		if player_in_range:  # If still in range, show it again
-			show_sign()
-
-func _exit_tree():
-	# Clean up UI when the sign is removed
-	if sign_ui:
-		sign_ui.queue_free()
 
 # Function to update sign text dynamically (optional)
 func set_sign_text(new_text: String):
