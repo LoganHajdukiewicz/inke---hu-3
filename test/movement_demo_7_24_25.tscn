@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dwo2hshdwc4i"]
+[gd_scene load_steps=14 format=3 uid="uid://dwo2hshdwc4i"]
 
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="1_7rrck"]
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_raww5"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="5_2acrq"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="6_022yb"]
 [ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="7_swpkg"]
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="9_a3xcx"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_x4ydk"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -252,6 +253,24 @@ transform = Transform3D(0.948385, 0.317123, -1.38619e-08, 0, -4.37114e-08, -1, -
 [node name="SixTeethGear34" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
 transform = Transform3D(0.948385, 0.317123, -1.38619e-08, 0, -4.37114e-08, -1, -0.317123, 0.948385, -4.14552e-08, 0.962347, 1.11547, -48.3764)
 
+[node name="SixTeethGear35" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(0.984199, -0.177068, 7.73987e-09, 0, -4.37114e-08, -1, 0.177068, 0.984199, -4.30207e-08, 2.17607, 0.836062, -49.2704)
+
+[node name="SixTeethGear36" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(0.984199, -0.177068, 7.73987e-09, 0, -4.37114e-08, -1, 0.177068, 0.984199, -4.30207e-08, 2.05603, 0.836062, -48.6032)
+
+[node name="SixTeethGear37" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(0.997965, 0.0637659, -2.7873e-09, -8.62337e-16, -4.37114e-08, -1, -0.0637659, 0.997965, -4.36224e-08, 1.56932, 0.836062, -47.723)
+
+[node name="SixTeethGear38" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(0.989551, 0.144184, -6.30246e-09, 0, -4.37114e-08, -1, -0.144184, 0.989551, -4.32547e-08, 1.1847, 0.853884, -48.8915)
+
+[node name="SixTeethGear39" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(0.984199, -0.177068, 7.73987e-09, 0, -4.37114e-08, -1, 0.177068, 0.984199, -4.30207e-08, 1.97504, 1.09765, -49.3931)
+
+[node name="SixTeethGear41" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(0.989551, 0.144184, -6.30246e-09, 0, -4.37114e-08, -1, -0.144184, 0.989551, -4.32547e-08, 1.71093, 1.11547, -48.3766)
+
 [node name="SixTeethGear25" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
 transform = Transform3D(0.844851, 0.535001, -2.33857e-08, -8.62337e-16, -4.37114e-08, -1, -0.535001, 0.844851, -3.69296e-08, 0.348817, 0.853884, -47.7842)
 
@@ -285,3 +304,6 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.049
 [node name="Rail" parent="Environment" instance=ExtResource("3_k34u7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -95.3405)
 curve = SubResource("Curve3D_dbelr")
+
+[node name="Enemy" parent="." instance=ExtResource("9_a3xcx")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.116194, 16.7409, -293.815)
