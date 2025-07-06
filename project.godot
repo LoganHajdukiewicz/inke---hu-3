@@ -94,3 +94,4 @@ interact={
 [layer_names]
 
 3d_physics/layer_2="Grindable Layer"
+3d_physics/layer_3="HU-3"

@@ -30,6 +30,7 @@ height = 0.1
 radius = 3.45128
 
 [node name="HU-3" type="CharacterBody3D"]
+collision_layer = 4
 motion_mode = 1
 script = ExtResource("1_gpibh")
 
