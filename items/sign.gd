@@ -78,7 +78,7 @@ func create_sign_ui():
 	margin_container.add_child(sign_label)
 	
 	# Add to the scene tree
-	get_tree().root.add_child(sign_ui)
+	get_tree().root.add_child.call_deferred(sign_ui)
 
 func _on_area_3d_body_entered(body):
 	if body.is_in_group("Player"):
