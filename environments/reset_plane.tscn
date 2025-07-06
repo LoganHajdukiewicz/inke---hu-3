@@ -1,11 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://bgtuvkweqa1l4"]
+[gd_scene load_steps=3 format=3 uid="uid://bgtuvkweqa1l4"]
+
+[ext_resource type="Script" uid="uid://ca8t2ivx256q4" path="res://environments/reset_plane.gd" id="1_42qyu"]
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_d27ew"]
+resource_local_to_scene = true
 
 [node name="ResetPlane" type="Node3D"]
+script = ExtResource("1_42qyu")
 
 [node name="Area3D" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)

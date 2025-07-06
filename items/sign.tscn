@@ -1,4 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://d0ixvyxxmslor"]
+[gd_scene load_steps=8 format=3 uid="uid://d0ixvyxxmslor"]
+
+[ext_resource type="Script" uid="uid://b0esh8d4poopu" path="res://items/sign.gd" id="1_tmua1"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_uto80"]
 radius = 2.58695
@@ -24,6 +26,7 @@ size = Vector3(0.05, 1, 1)
 
 [node name="Sign" type="StaticBody3D"]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
+script = ExtResource("1_tmua1")
 
 [node name="Area3D" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.750902, 0)
