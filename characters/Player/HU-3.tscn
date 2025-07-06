@@ -21,7 +21,7 @@ albedo_color = Color(0.254902, 1, 0, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_wb2kj"]
 material = SubResource("StandardMaterial3D_d8svk")
-radius = 0.05
+radius = 0.1
 height = 0.1
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_m8gco"]
@@ -49,7 +49,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.409646)
 mesh = SubResource("SphereMesh_tdy7j")
 
 [node name="HealthIndicator" type="MeshInstance3D" parent="Mesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.195615, 0, 0.410446)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.174128, 0, 0.374805)
 mesh = SubResource("SphereMesh_wb2kj")
 
 [node name="Area3D" type="Area3D" parent="."]
