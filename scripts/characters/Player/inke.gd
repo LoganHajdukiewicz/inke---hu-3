@@ -15,10 +15,14 @@ var can_double_jump: bool = false
 # Wall jump variables
 var wall_jump_unlocked: bool = false
 var wall_jump_cooldown: float = 0.0
-var wall_jump_cooldown_time: float = 0.2  # Prevent spam wall jumping
+var wall_jump_cooldown_time: float = 0.1  # Prevent spam wall jumping
 
 @export var grindrays: Node3D
 @export var wall_jump_rays: Node3D  # Add wall jump raycasts
+
+# HU-3 Companion
+@onready var hu3_companion: CharacterBody3D = null
+var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
 
 # References
 @onready var player = self
@@ -35,6 +39,30 @@ func _ready():
 	if merchant_script:
 		double_jump_unlocked = merchant_script.double_jump_purchased
 		wall_jump_unlocked = merchant_script.wall_jump_purchased
+	
+	# Spawn HU-3 companion
+	spawn_hu3_companion()
+
+func spawn_hu3_companion():
+	"""Spawn HU-3 companion robot"""
+	if hu3_scene:
+		hu3_companion = hu3_scene.instantiate()
+		
+		# Add HU-3 script if it doesn't have one
+		if not hu3_companion.has_method("follow_player"):
+			var hu3_script = load("res://scripts/characters/Player/hu3_companion.gd")
+			if hu3_script:
+				hu3_companion.set_script(hu3_script)
+		
+		# Position HU-3 to the right and above player (out of camera view)
+		hu3_companion.global_position = global_position + Vector3(1.5, 1.5, 1.0)
+		
+		# Add to scene
+		get_parent().add_child.call_deferred(hu3_companion)
+		
+		print("HU-3 companion spawned!")
+	else:
+		print("Could not load HU-3 scene!")
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
@@ -109,6 +137,28 @@ func get_wall_jump_direction() -> Vector3:
 	
 	return Vector3.ZERO
 
+# HU-3 Companion Methods
+func add_gear_count(amount: int):
+	"""Called by HU-3 when it collects gears"""
+	gear_count += amount
+	print("Player gear count increased to: ", gear_count)
+
+func get_hu3_companion() -> CharacterBody3D:
+	"""Get reference to HU-3 companion"""
+	return hu3_companion
+
+func get_hu3_health() -> float:
+	"""Get HU-3's health percentage"""
+	if hu3_companion and hu3_companion.has_method("get_health_percentage"):
+		return hu3_companion.get_health_percentage()
+	return 0.0
+
+func get_hu3_gear_count() -> int:
+	"""Get number of gears collected by HU-3"""
+	if hu3_companion and hu3_companion.has_method("get_gear_count"):
+		return hu3_companion.get_gear_count()
+	return 0
+
 ## Rail Grinding Logic
 
 func check_for_rail_grinding():
@@ -145,8 +195,8 @@ func check_for_wall_jump():
 		var wall_normal = get_wall_jump_direction()
 		if wall_normal.length() > 0:
 			# Start wall jump
-			var wall_jump_state = state_machine.states.get("walljumpstate")
+			var wall_jump_state = state_machine.states.get("walljumpingstate")
 			if wall_jump_state:
 				wall_jump_state.setup_wall_jump(wall_normal)
-				state_machine.change_state("WallJumpState")
+				state_machine.change_state("WallJumpingState")
 				wall_jump_cooldown = wall_jump_cooldown_time

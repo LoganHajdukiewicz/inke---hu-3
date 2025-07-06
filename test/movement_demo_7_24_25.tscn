@@ -34,9 +34,6 @@ point_count = 2
 
 [node name="Movement Demo 7_24_25" type="Node3D"]
 
-[node name="Inke" parent="." instance=ExtResource("2_x4ydk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.27332)
-
 [node name="Merchant" parent="." instance=ExtResource("6_022yb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08533, 1.008, -105.125)
 
@@ -151,6 +148,9 @@ sign_text = "This guy up ahead looks scary. Make sure to attack him with ATTACKB
 [node name="SixTeethGear" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.0180606, 0.836062, -54.862)
 
+[node name="SixTeethGear8" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.869585, 0.836062, -3.32698)
+
 [node name="SixTeethGear2" parent="Environment/Gears" instance=ExtResource("4_dbelr")]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0.00815463, 1.17838, -67.1574)
 
@@ -172,3 +172,6 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.049
 [node name="Rail" parent="Environment" instance=ExtResource("3_k34u7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -52.8745)
 curve = SubResource("Curve3D_dbelr")
+
+[node name="Inke" parent="." instance=ExtResource("2_x4ydk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0704318, 0.00799988, 0.0944285)

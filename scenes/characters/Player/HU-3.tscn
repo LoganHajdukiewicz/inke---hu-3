@@ -1,4 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://b4hgy8sq56iq2"]
+[gd_scene load_steps=10 format=3 uid="uid://b4hgy8sq56iq2"]
+
+[ext_resource type="Script" uid="uid://dosj0vw8n4p01" path="res://scripts/characters/Player/hu_3.gd" id="1_gpibh"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_ehadf"]
 
@@ -27,8 +29,9 @@ height = 0.1
 [sub_resource type="SphereShape3D" id="SphereShape3D_m8gco"]
 radius = 3.45128
 
-[node name="CharacterBody3D" type="CharacterBody3D"]
+[node name="HU-3" type="CharacterBody3D"]
 motion_mode = 1
+script = ExtResource("1_gpibh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_ehadf")

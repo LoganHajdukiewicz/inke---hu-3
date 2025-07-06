@@ -10,10 +10,14 @@ var close_button: Button
 # Powerup types
 enum PowerupType {
 	DOUBLE_JUMP,
-	WALL_JUMP
+	WALL_JUMP, 
+	DASH, 
+	SPEED_UPGRADE,
+	HEALTH_UPGRADE, 
+	MORE_DAMAGE
 }
 
-# Merchant configuration
+# Default configuration
 @export var powerup_type: PowerupType = PowerupType.DOUBLE_JUMP
 @export var powerup_name: String = "Double Jump Upgrade"
 @export var powerup_description: String = "Allows you to jump again while in mid-air"
@@ -213,14 +217,12 @@ func _on_close_pressed():
 	close_shop()
 
 func get_player_gear_count() -> int:
-	# Get gear count from the gears script
 	var gears_script = load("res://scripts/items/Gears/gears.gd")
 	if gears_script:
 		return gears_script.gear_count
 	return 0
 
 func spend_player_gears(amount: int):
-	# Spend gears from the gears script
 	var gears_script = load("res://scripts/items/Gears/gears.gd")
 	if gears_script:
 		gears_script.gear_count = max(0, gears_script.gear_count - amount)
