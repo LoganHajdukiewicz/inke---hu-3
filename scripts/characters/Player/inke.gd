@@ -17,6 +17,11 @@ var wall_jump_unlocked: bool = false
 var wall_jump_cooldown: float = 0.0
 var wall_jump_cooldown_time: float = 0.1  # Prevent spam wall jumping
 
+# Coyote time variables
+var coyote_time_duration: float = 0.15  # How long after leaving ground player can still jump
+var coyote_time_counter: float = 0.0
+var was_on_floor: bool = false
+
 @export var grindrays: Node3D
 @export var wall_jump_rays: Node3D  # Add wall jump raycasts
 
@@ -67,6 +72,9 @@ func spawn_hu3_companion():
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
 	
+	# Update coyote time
+	update_coyote_time(delta)
+	
 	# Update wall jump cooldown
 	if wall_jump_cooldown > 0:
 		wall_jump_cooldown -= delta
@@ -83,6 +91,33 @@ func _physics_process(delta: float) -> void:
 		can_double_jump = true
 	
 	$CameraController.follow_character(position, velocity)
+
+func update_coyote_time(delta: float):
+	"""Update coyote time counter"""
+	var currently_on_floor = is_on_floor()
+	
+	# If we were on floor and now we're not, start coyote time
+	if was_on_floor and not currently_on_floor:
+		coyote_time_counter = coyote_time_duration
+	
+	# If we're on floor, reset coyote time
+	if currently_on_floor:
+		coyote_time_counter = 0.0
+	
+	# If we're not on floor, count down coyote time
+	if not currently_on_floor and coyote_time_counter > 0:
+		coyote_time_counter -= delta
+	
+	# Update the was_on_floor flag
+	was_on_floor = currently_on_floor
+
+func can_coyote_jump() -> bool:
+	"""Check if player can perform a coyote time jump"""
+	return coyote_time_counter > 0.0 and not is_on_floor()
+
+func consume_coyote_time():
+	"""Consume coyote time when jumping"""
+	coyote_time_counter = 0.0
 
 func _process(_delta):
 	pass
