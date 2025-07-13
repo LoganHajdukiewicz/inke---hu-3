@@ -49,6 +49,9 @@ powerup_name = "Wall Jump Upgrade"
 powerup_description = "Allows you to jump between two walls. "
 powerup_cost = 20
 
+[node name="Enemy" parent="." instance=ExtResource("9_a3xcx")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.116194, 16.7409, -293.815)
+
 [node name="Environment" type="Node" parent="."]
 
 [node name="ResetPlane" parent="Environment" instance=ExtResource("1_7rrck")]
@@ -97,6 +100,9 @@ transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -175.77)
 
 [node name="Floor6" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
+transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -190.474)
+
+[node name="Floor15" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -190.474)
 
 [node name="Floor7" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
@@ -304,6 +310,3 @@ transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.049
 [node name="Rail" parent="Environment" instance=ExtResource("3_k34u7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0802035, 0.313667, -95.3405)
 curve = SubResource("Curve3D_dbelr")
-
-[node name="Enemy" parent="." instance=ExtResource("9_a3xcx")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.116194, 16.7409, -293.815)
