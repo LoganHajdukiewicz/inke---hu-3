@@ -3,13 +3,22 @@ class_name Floor
 
 enum FloorType {
 	NORMAL,
-	SPRING
+	SPRING,
+	FALLING
 }
 
+# Spring Floor Variables
 @export var floor_type: FloorType = FloorType.NORMAL
 @export var spring_force: float = 20.0
 @export var spring_cooldown: float = 0.5
 @export var spring_tween_duration: float = 0.1
+
+# Falling Floor Variables
+@export var fall_speed: float = 5.0
+@export var fall_duration: float = 3.0
+@export var respawn_delay: float = 2.0
+@export var shake_intensity: float = 0.35
+@export var shake_duration: float = 1.0
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
@@ -18,8 +27,15 @@ enum FloorType {
 
 var players_on_floor: Array[CharacterBody3D] = []
 var spring_cooldown_timer: float = 0.0
+var fall_timer: float = 0.0
+var is_falling: bool = false
+var has_fallen: bool = false
+var fall_triggered: bool = false
+var original_position: Vector3
+var fall_tween: Tween
 
 func _ready():
+	original_position = global_position
 	setup_floor_type()
 	
 	# Connect spring area signals
@@ -35,6 +51,13 @@ func _process(delta):
 	if floor_type == FloorType.SPRING and spring_cooldown_timer <= 0:
 		if players_on_floor.size() > 0:
 			activate_spring()
+	
+	# Handle falling floor logic
+	if floor_type == FloorType.FALLING and not is_falling and not has_fallen and not fall_triggered:
+		if players_on_floor.size() > 0:
+			fall_timer += delta
+			fall_triggered = true
+			start_falling()
 
 func setup_floor_type():
 	"""Setup the floor based on the selected type"""
@@ -43,6 +66,8 @@ func setup_floor_type():
 			setup_normal_floor()
 		FloorType.SPRING:
 			setup_spring_floor()
+		FloorType.FALLING:
+			setup_falling_floor()
 
 func setup_normal_floor():
 	"""Setup a normal floor"""
@@ -82,6 +107,30 @@ func setup_spring_floor():
 				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
 				spring_collision.position.y = floor_shape.size.y * 0.25
 
+func setup_falling_floor():
+	"""Setup a falling floor"""
+	# Set falling floor color (warning red)
+	var material = mesh_instance.get_surface_override_material(0)
+	if not material:
+		material = StandardMaterial3D.new()
+		mesh_instance.set_surface_override_material(0, material)
+	material.albedo_color = Color(0.8, 0.2, 0.2, 1)  # Red
+	material.metallic = 0.1
+	material.roughness = 0.4
+	
+	# Enable spring area for detection (reuse the same area)
+	if spring_area:
+		spring_area.monitoring = true
+		spring_area.visible = true
+		
+		# Make sure the collision shape matches the floor size
+		var floor_shape = collision_shape.shape as BoxShape3D
+		if floor_shape and spring_collision:
+			var spring_shape = spring_collision.shape as BoxShape3D
+			if spring_shape:
+				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
+				spring_collision.position.y = floor_shape.size.y * 0.25
+
 func _on_spring_area_body_entered(body):
 	"""When a player enters the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
@@ -92,6 +141,8 @@ func _on_spring_area_body_exited(body):
 	"""When a player exits the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
 		players_on_floor.erase(body)
+		
+		# DON'T reset fall timer - once triggered, the floor will fall regardless
 
 func activate_spring():
 	"""Activate the spring effect for all players on the floor"""
@@ -154,3 +205,96 @@ func _apply_spring_velocity(player: CharacterBody3D):
 		player.move_and_slide()
 		
 		print("Spring activated! Player bounced with force: ", spring_force, " Current velocity.y: ", player.velocity.y)
+
+func start_falling():
+	"""Start the falling sequence"""
+	if is_falling or has_fallen:
+		return
+	
+	is_falling = true
+	print("Floor starting to fall!")
+	
+	# Add a slight shake/warning before falling
+	create_warning_shake()
+	
+	# Wait for the shake duration, then start falling
+	await get_tree().create_timer(shake_duration).timeout
+	
+	# Disable collision so players fall through
+	collision_shape.disabled = true
+	if spring_area:
+		spring_area.monitoring = false
+	
+	# Create falling tween
+	fall_tween = create_tween()
+	fall_tween.tween_property(self, "global_position", 
+		original_position + Vector3(0, -20, 0), fall_duration)
+	fall_tween.tween_callback(func(): _on_fall_complete())
+
+func create_warning_shake():
+	"""Create a warning shake effect"""
+	var shake_tween = create_tween()
+	var shake_loops = int(shake_duration / 0.1)  # Calculate loops based on duration
+	shake_tween.set_loops(shake_loops)
+	shake_tween.tween_property(self, "global_position", 
+		original_position + Vector3(randf_range(-shake_intensity, shake_intensity), 0, randf_range(-shake_intensity, shake_intensity)), 0.05)
+	shake_tween.tween_property(self, "global_position", original_position, 0.05)
+
+func _on_fall_complete():
+	"""Called when the floor has finished falling"""
+	has_fallen = true
+	is_falling = false
+	
+	# Make floor semi-transparent to show it's fallen
+	var material = mesh_instance.get_surface_override_material(0)
+	if material:
+		material.albedo_color.a = 0.3
+	
+	# Schedule respawn
+	await get_tree().create_timer(respawn_delay).timeout
+	respawn_floor()
+
+func respawn_floor():
+	"""Respawn the floor at its original position"""
+	print("Floor respawning!")
+	
+	# Reset position
+	global_position = original_position
+	
+	# Re-enable collision
+	collision_shape.disabled = false
+	if spring_area:
+		spring_area.monitoring = true
+	
+	# Reset material transparency
+	var material = mesh_instance.get_surface_override_material(0)
+	if material:
+		material.albedo_color.a = 1.0
+	
+	# Reset state
+	is_falling = false
+	has_fallen = false
+	fall_triggered = false
+	fall_timer = 0.0
+	players_on_floor.clear()
+	
+	# Create a small respawn effect
+	create_respawn_effect()
+
+func create_respawn_effect():
+	"""Create a visual effect when the floor respawns"""
+	var respawn_tween = create_tween()
+	respawn_tween.set_parallel(true)
+	
+	# Scale effect
+	var original_scale = scale
+	scale = Vector3(0.1, 0.1, 0.1)
+	respawn_tween.tween_property(self, "scale", original_scale, 0.5)
+	respawn_tween.tween_property(self, "scale", original_scale, 0.5).set_trans(Tween.TRANS_BOUNCE)
+	
+	# Color flash effect
+	var material = mesh_instance.get_surface_override_material(0)
+	if material:
+		var original_color = material.albedo_color
+		material.albedo_color = Color.WHITE
+		respawn_tween.tween_property(material, "albedo_color", original_color, 0.3)
