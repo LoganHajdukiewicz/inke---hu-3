@@ -164,10 +164,12 @@ transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 
 [node name="WSAD" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
 sign_text = "Press WSAD to move and Spacebar to Jump"
+dialogic_timeline = "WSAD-Sign"
+use_dialogic = true
 
 [node name="Gears" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -17.4829)
-sign_text = "Up ahead is a stack of GEARs. Collect all the GEARs you can! Merchants use them as currency. "
+sign_text = "Up ahead is a stack of GEARs. Robots LOVE to gather as many as they can! "
 
 [node name="Running" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -65.2932)
@@ -180,6 +182,8 @@ sign_text = "Make sure to jump on the rail for a cool rail grind!"
 [node name="Merchant3" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -147.128)
 sign_text = "This next jump looks crazy. You might want to buy a double jump powerup from the Merchant"
+dialogic_timeline = "Merchant-DJ"
+use_dialogic = true
 
 [node name="Merchant4" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -204.42)
