@@ -1,34 +1,40 @@
 extends StaticBody3D
 class_name Floor
 
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var collision_shape: CollisionShape3D = $CollisionShape3D
-@onready var spring_area: Area3D = $SpringArea
-@onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
-
-
 enum FloorType {
 	NORMAL,
 	SPRING,
 	FALLING,
-	MOVING
+	SPINNING
 }
 
-@export var floor_type: FloorType = FloorType.NORMAL
+enum SpinDirection {
+	RIGHT,
+	LEFT
+}
 
 # Spring Floor Variables
-@export_group("Spring Floor Settings")
+@export var floor_type: FloorType = FloorType.NORMAL
 @export var spring_force: float = 20.0
 @export var spring_cooldown: float = 0.5
 @export var spring_tween_duration: float = 0.1
 
 # Falling Floor Variables
-@export_group("Falling Floor Settings")
 @export var fall_speed: float = 5.0
 @export var fall_duration: float = 3.0
 @export var respawn_delay: float = 2.0
 @export var shake_intensity: float = 0.35
 @export var shake_duration: float = 1.0
+
+# Spinning Floor Variables
+@export var spin_speed: float = 90.0  # Degrees per second
+@export var spin_direction: SpinDirection = SpinDirection.RIGHT
+
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+@onready var spring_area: Area3D = $SpringArea
+@onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
+
 var players_on_floor: Array[CharacterBody3D] = []
 var spring_cooldown_timer: float = 0.0
 var fall_timer: float = 0.0
@@ -38,27 +44,8 @@ var fall_triggered: bool = false
 var original_position: Vector3
 var fall_tween: Tween
 
-# Moving Floor Variables
-@export_group("Moving Floor Settings")
-@export var movement_axis: Vector3 = Vector3(10, 0, 0)  # Distance to move in each axis
-@export var movement_duration: float = 3.0  # Time to complete one movement cycle
-@export var movement_repeat: bool = true  # Whether to repeat the movement
-@export var movement_delay: float = 0.0  # Delay before starting movement
-@export var movement_easing: Tween.EaseType = Tween.EASE_IN_OUT
-@export var movement_transition: Tween.TransitionType = Tween.TRANS_SINE
-var movement_tween: Tween
-var start_position: Vector3
-var end_position: Vector3
-var is_moving: bool = false
-var players_to_move: Array[CharacterBody3D] = []
-var last_floor_position: Vector3
-
-
 func _ready():
 	original_position = global_position
-	start_position = global_position
-	end_position = global_position + movement_axis
-	last_floor_position = global_position
 	setup_floor_type()
 	
 	# Connect spring area signals
@@ -82,9 +69,9 @@ func _process(delta):
 			fall_triggered = true
 			start_falling()
 	
-	# Handle moving floor - move players with the floor
-	if floor_type == FloorType.MOVING and is_moving:
-		move_players_with_floor()
+	# Handle spinning floor logic
+	if floor_type == FloorType.SPINNING:
+		handle_spinning(delta)
 
 func setup_floor_type():
 	"""Setup the floor based on the selected type"""
@@ -95,8 +82,8 @@ func setup_floor_type():
 			setup_spring_floor()
 		FloorType.FALLING:
 			setup_falling_floor()
-		FloorType.MOVING:
-			setup_moving_floor()
+		FloorType.SPINNING:
+			setup_spinning_floor()
 
 func setup_normal_floor():
 	"""Setup a normal floor"""
@@ -160,14 +147,14 @@ func setup_falling_floor():
 				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
 				spring_collision.position.y = floor_shape.size.y * 0.25
 
-func setup_moving_floor():
-	"""Setup a moving floor"""
-	# Set moving floor color (blue)
+func setup_spinning_floor():
+	"""Setup a spinning floor"""
+	# Set spinning floor color (purple/magenta)
 	var material = mesh_instance.get_surface_override_material(0)
 	if not material:
 		material = StandardMaterial3D.new()
 		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.2, 0.5, 1.0, 1)  # Blue
+	material.albedo_color = Color(0.6, 0.2, 0.8, 1)  # Purple
 	material.metallic = 0.3
 	material.roughness = 0.2
 	
@@ -183,142 +170,52 @@ func setup_moving_floor():
 			if spring_shape:
 				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
 				spring_collision.position.y = floor_shape.size.y * 0.25
-	
-	# Start moving after initial delay (if any)
-	if movement_delay > 0:
-		await get_tree().create_timer(movement_delay).timeout
-	start_moving()
 
-func start_moving():
-	"""Start the moving floor sequence"""
-	if is_moving:
+func handle_spinning(delta):
+	"""Handle the spinning floor rotation"""
+	# Calculate rotation amount for this frame
+	var rotation_amount = spin_speed * delta
+	
+	# Apply rotation based on the spin direction (Y-axis only)
+	var rotation_radians = deg_to_rad(rotation_amount)
+	if spin_direction == SpinDirection.LEFT:
+		rotation_radians = -rotation_radians
+	
+	rotate_y(rotation_radians)
+	
+	# Move players with the spinning floor
+	move_players_with_floor(rotation_radians)
+
+func move_players_with_floor(rotation_radians: float):
+	"""Move players to follow the floor's rotation"""
+	if players_on_floor.size() == 0:
 		return
 	
-	is_moving = true
-	last_floor_position = global_position
+	var center = global_position
 	
-	if movement_repeat:
-		# For repeating movement, use a custom loop with delays
-		_start_movement_loop()
-	else:
-		# For single movement, use simple tween
-		_create_single_movement()
-	
-	print("Moving floor started! Moving from ", start_position, " to ", end_position)
-
-func _start_movement_loop():
-	"""Start the repeating movement loop with delays"""
-	_create_movement_cycle()
-
-func _create_movement_cycle():
-	"""Create one complete movement cycle (start->end->start) with delays"""
-	if not is_moving:
-		return
-	
-	# Move from start to end position
-	movement_tween = create_tween()
-	movement_tween.set_trans(movement_transition)
-	movement_tween.set_ease(movement_easing)
-	movement_tween.tween_property(self, "global_position", end_position, movement_duration)
-	
-	# Wait for movement to complete, then add delay and continue
-	movement_tween.tween_callback(func(): _handle_mid_cycle_delay())
-
-func _handle_mid_cycle_delay():
-	"""Handle delay between start->end and end->start movement"""
-	if movement_delay > 0:
-		await get_tree().create_timer(movement_delay).timeout
-	
-	if not is_moving:
-		return
-	
-	# Move from end back to start position
-	movement_tween = create_tween()
-	movement_tween.set_trans(movement_transition)
-	movement_tween.set_ease(movement_easing)
-	movement_tween.tween_property(self, "global_position", start_position, movement_duration)
-	
-	# Wait for movement to complete, then add delay and start next cycle
-	movement_tween.tween_callback(func(): _handle_end_cycle_delay())
-
-func _handle_end_cycle_delay():
-	"""Handle delay at the end of a complete cycle before starting next cycle"""
-	if movement_delay > 0:
-		await get_tree().create_timer(movement_delay).timeout
-	
-	if not is_moving:
-		return
-	
-	# Start the next cycle
-	_create_movement_cycle()
-
-func _create_single_movement():
-	"""Create a single movement cycle without looping"""
-	movement_tween = create_tween()
-	movement_tween.set_trans(movement_transition)
-	movement_tween.set_ease(movement_easing)
-	
-	# Move from start to end position
-	movement_tween.tween_property(self, "global_position", end_position, movement_duration)
-	movement_tween.tween_callback(func(): _handle_single_movement_delay())
-
-func _handle_single_movement_delay():
-	"""Handle delay in single movement mode"""
-	if movement_delay > 0:
-		await get_tree().create_timer(movement_delay).timeout
-	
-	if not is_moving:
-		return
-	
-	# Move from end back to start position
-	movement_tween = create_tween()
-	movement_tween.set_trans(movement_transition)
-	movement_tween.set_ease(movement_easing)
-	movement_tween.tween_property(self, "global_position", start_position, movement_duration)
-	
-	# Mark as finished
-	movement_tween.tween_callback(func(): is_moving = false)
-
-func move_players_with_floor():
-	"""Move players that are on the floor along with the floor"""
-	var floor_delta = global_position - last_floor_position
-	
-	# Only move players if the floor actually moved
-	if floor_delta.length() > 0.001:  # Small threshold to avoid floating point errors
-		for player in players_on_floor:
-			if player and is_instance_valid(player):
-				# Check if player is actually on the floor (not jumping/falling)
-				if player.is_on_floor() or player.velocity.y <= 0.1:
-					player.global_position += floor_delta
-	
-	last_floor_position = global_position
-
-func stop_moving():
-	"""Stop the moving floor"""
-	if movement_tween:
-		movement_tween.kill()
-	is_moving = false
-	print("Moving floor stopped")
+	for player in players_on_floor:
+		if player and is_instance_valid(player):
+			# Get player's current position relative to floor center
+			var player_pos = player.global_position
+			var relative_pos = player_pos - center
+			
+			# Only rotate the X and Z components (keep Y unchanged)
+			var rotated_x = relative_pos.x * cos(rotation_radians) + relative_pos.z * sin(rotation_radians)
+			var rotated_z = -relative_pos.x * sin(rotation_radians) + relative_pos.z * cos(rotation_radians)
+			
+			# Set the new position
+			player.global_position = center + Vector3(rotated_x, relative_pos.y, rotated_z)
 
 func _on_spring_area_body_entered(body):
 	"""When a player enters the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
 		if not players_on_floor.has(body):
 			players_on_floor.append(body)
-			
-			# For moving floors, also add to players to move
-			if floor_type == FloorType.MOVING:
-				if not players_to_move.has(body):
-					players_to_move.append(body)
 
 func _on_spring_area_body_exited(body):
 	"""When a player exits the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
 		players_on_floor.erase(body)
-		
-		# For moving floors, also remove from players to move
-		if floor_type == FloorType.MOVING:
-			players_to_move.erase(body)
 		
 		# DON'T reset fall timer - once triggered, the floor will fall regardless
 
