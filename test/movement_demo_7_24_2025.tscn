@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3 uid="uid://1xtg2gv8rted"]
+
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
+[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="3_e5bud"]
+[ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="3_tf372"]
+
+[node name="Movement_Demo_7_24_2025" type="Node3D"]
+
+[node name="Inke" parent="." instance=ExtResource("2_ontye")]
+
+[node name="ResetPlane" parent="." instance=ExtResource("3_tf372")]
+
+[node name="Floors" type="Node3D" parent="."]
+
+[node name="Floor" parent="Floors" instance=ExtResource("1_122qs")]
+
+[node name="WSAD" parent="Floors/Floor" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+sign_text = "Press WSAD to move and Spacebar to Jump"
+dialogic_timeline = "WSAD-Sign"
+use_dialogic = true
