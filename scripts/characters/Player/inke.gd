@@ -15,7 +15,7 @@ var can_double_jump: bool = false
 # Wall jump variables
 var wall_jump_unlocked: bool = false
 var wall_jump_cooldown: float = 0.0
-var wall_jump_cooldown_time: float = 0.1  # Prevent spam wall jumping
+var wall_jump_cooldown_time: float = 0.05  # Prevent spam wall jumping
 
 # Coyote time variables
 var coyote_time_duration: float = 0.15  # How long after leaving ground player can still jump
@@ -228,7 +228,7 @@ func check_for_wall_jump():
 	# Only check for wall jump if player pressed jump and can wall jump
 	if Input.is_action_just_pressed("jump") and can_perform_wall_jump():
 		var wall_normal = get_wall_jump_direction()
-		if wall_normal.length() > 0:
+		if wall_normal.length() > 0.1:
 			# Start wall jump
 			var wall_jump_state = state_machine.states.get("walljumpingstate")
 			if wall_jump_state:

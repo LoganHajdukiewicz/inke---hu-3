@@ -1,22 +1,49 @@
-[gd_scene load_steps=5 format=3 uid="uid://1xtg2gv8rted"]
+[gd_scene load_steps=8 format=3 uid="uid://1xtg2gv8rted"]
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="3_e5bud"]
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="3_tf372"]
 
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
+sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
+sky_horizon_color = Color(0.618941, 0.639129, 0.727188, 1)
+ground_horizon_color = Color(0.618941, 0.639129, 0.727188, 1)
+energy_multiplier = 1.5
+
+[sub_resource type="Sky" id="Sky_n7jej"]
+sky_material = SubResource("ProceduralSkyMaterial_e5bud")
+
+[sub_resource type="Environment" id="Environment_16sj7"]
+background_mode = 2
+sky = SubResource("Sky_n7jej")
+tonemap_mode = 2
+glow_enabled = true
+
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
 
-[node name="ResetPlane" parent="." instance=ExtResource("3_tf372")]
+[node name="EnvironmentsAndFloors" type="Node" parent="."]
 
-[node name="Floors" type="Node3D" parent="."]
+[node name="Environments" type="Node" parent="EnvironmentsAndFloors"]
 
-[node name="Floor" parent="Floors" instance=ExtResource("1_122qs")]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="EnvironmentsAndFloors/Environments"]
+environment = SubResource("Environment_16sj7")
+
+[node name="ResetPlane" parent="EnvironmentsAndFloors/Environments" instance=ExtResource("3_tf372")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="EnvironmentsAndFloors/Environments"]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+light_color = Color(1, 1, 0.211765, 1)
+shadow_enabled = true
+
+[node name="Floors" type="Node3D" parent="EnvironmentsAndFloors"]
+
+[node name="Floor" parent="EnvironmentsAndFloors/Floors" instance=ExtResource("1_122qs")]
 spin_direction = 1
 
-[node name="WSAD" parent="Floors/Floor" instance=ExtResource("3_e5bud")]
+[node name="WSAD" parent="EnvironmentsAndFloors/Floors/Floor" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
 use_dialogic = true
 dialogic_timeline = "WSAD-Sign"
