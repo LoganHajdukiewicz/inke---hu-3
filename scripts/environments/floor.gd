@@ -9,12 +9,28 @@ enum FloorType {
 	MOVING
 }
 
+enum FloorShape {
+	BOX,
+	CYLINDER
+}
+
 enum SpinDirection {
 	RIGHT,
 	LEFT
 }
 
 @export var floor_type: FloorType = FloorType.NORMAL
+
+
+# Shape and Dimension Settings
+@export_group("Shape & Dimensions")
+@export var floor_shape: FloorShape = FloorShape.BOX
+@export var floor_size: Vector3 = Vector3(10, 0.5, 10)  # X, Y, Z dimensions for box
+@export var cylinder_radius: float = 5.0  # Radius for cylinder
+@export var cylinder_height: float = 0.5  # Height for cylinder
+@export var cylinder_segments: int = 32  # Number of segments for cylinder smoothness
+
+
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 
@@ -59,27 +75,76 @@ var is_moving: bool = false
 var players_to_move: Array[CharacterBody3D] = []
 var last_floor_position: Vector3
 
-
 # Spinning Floor Variables
 @export_group("Spinning Floor Settings")
 @export var spin_speed: float = 90.0  # degrees per second
 @export var spin_direction: SpinDirection = SpinDirection.RIGHT
-
-
-
-
 
 func _ready():
 	original_position = global_position
 	start_position = global_position
 	end_position = global_position + movement_axis
 	last_floor_position = global_position
+	
+	# Create the mesh and collision based on shape and dimensions
+	setup_floor_geometry()
 	setup_floor_type()
 	
 	# Connect spring area signals
 	if spring_area:
 		spring_area.body_entered.connect(_on_spring_area_body_entered)
 		spring_area.body_exited.connect(_on_spring_area_body_exited)
+
+func setup_floor_geometry():
+	"""Setup the floor's mesh and collision based on shape and dimensions"""
+	match floor_shape:
+		FloorShape.BOX:
+			setup_box_geometry()
+		FloorShape.CYLINDER:
+			setup_cylinder_geometry()
+
+func setup_box_geometry():
+	"""Setup box-shaped floor geometry"""
+	# Create box mesh
+	var box_mesh = BoxMesh.new()
+	box_mesh.size = floor_size
+	mesh_instance.mesh = box_mesh
+	
+	# Create box collision shape
+	var box_shape = BoxShape3D.new()
+	box_shape.size = floor_size
+	collision_shape.shape = box_shape
+	
+	# Setup spring area collision to match
+	if spring_collision:
+		var spring_shape = BoxShape3D.new()
+		spring_shape.size = Vector3(floor_size.x, floor_size.y + 0.5, floor_size.z)
+		spring_collision.shape = spring_shape
+		spring_collision.position.y = floor_size.y * 0.25
+
+func setup_cylinder_geometry():
+	"""Setup cylinder-shaped floor geometry"""
+	# Create cylinder mesh
+	var cylinder_mesh = CylinderMesh.new()
+	cylinder_mesh.bottom_radius = cylinder_radius
+	cylinder_mesh.top_radius = cylinder_radius
+	cylinder_mesh.height = cylinder_height
+	cylinder_mesh.radial_segments = cylinder_segments
+	mesh_instance.mesh = cylinder_mesh
+	
+	# Create cylinder collision shape
+	var cylinder_shape = CylinderShape3D.new()
+	cylinder_shape.radius = cylinder_radius
+	cylinder_shape.height = cylinder_height
+	collision_shape.shape = cylinder_shape
+	
+	# Setup spring area collision to match
+	if spring_collision:
+		var spring_shape = CylinderShape3D.new()
+		spring_shape.radius = cylinder_radius
+		spring_shape.height = cylinder_height + 0.5
+		spring_collision.shape = spring_shape
+		spring_collision.position.y = cylinder_height * 0.25
 
 func _process(delta):
 	if spring_cooldown_timer > 0:
@@ -148,14 +213,6 @@ func setup_spring_floor():
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
-		
-		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
-			var spring_shape = spring_collision.shape as BoxShape3D
-			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
 
 func setup_falling_floor():
 	"""Setup a falling floor"""
@@ -168,18 +225,11 @@ func setup_falling_floor():
 	material.metallic = 0.1
 	material.roughness = 0.4
 	
-	# Enable spring area for detection (reuse the same area)
+	# Enable spring area for detection
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
-		
-		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
-			var spring_shape = spring_collision.shape as BoxShape3D
-			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+
 func setup_moving_floor():
 	"""Setup a moving floor"""
 	# Set moving floor color (blue)
@@ -195,19 +245,27 @@ func setup_moving_floor():
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
-		
-		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
-			var spring_shape = spring_collision.shape as BoxShape3D
-			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
 	
 	# Start moving after initial delay (if any)
 	if movement_delay > 0:
 		await get_tree().create_timer(movement_delay).timeout
 	start_moving()
+
+func setup_spinning_floor():
+	"""Setup a spinning floor"""
+	# Set spinning floor color (purple/magenta)
+	var material = mesh_instance.get_surface_override_material(0)
+	if not material:
+		material = StandardMaterial3D.new()
+		mesh_instance.set_surface_override_material(0, material)
+	material.albedo_color = Color(0.6, 0.2, 0.8, 1)  # Purple
+	material.metallic = 0.3
+	material.roughness = 0.2
+	
+	# Enable spring area for player detection
+	if spring_area:
+		spring_area.monitoring = true
+		spring_area.visible = true
 
 func start_moving():
 	"""Start the moving floor sequence"""
@@ -320,43 +378,6 @@ func stop_moving():
 	is_moving = false
 	print("Moving floor stopped")
 
-func _on_spring_area_body_entered(body):
-	"""When a player enters the spring area"""
-	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
-		if not players_on_floor.has(body):
-			players_on_floor.append(body)
-			
-			# For moving floors, also add to players to move
-			if floor_type == FloorType.MOVING:
-				if not players_to_move.has(body):
-					players_to_move.append(body)
-
-
-
-func setup_spinning_floor():
-	"""Setup a spinning floor"""
-	# Set spinning floor color (purple/magenta)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.6, 0.2, 0.8, 1)  # Purple
-	material.metallic = 0.3
-	material.roughness = 0.2
-	
-	# Enable spring area for player detection
-	if spring_area:
-		spring_area.monitoring = true
-		spring_area.visible = true
-		
-		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
-			var spring_shape = spring_collision.shape as BoxShape3D
-			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
-
 func handle_spinning(delta):
 	"""Handle the spinning floor rotation"""
 	# Calculate rotation amount for this frame
@@ -392,6 +413,17 @@ func spin_players_with_floor(rotation_radians: float):
 			# Set the new position
 			player.global_position = center + Vector3(rotated_x, relative_pos.y, rotated_z)
 
+func _on_spring_area_body_entered(body):
+	"""When a player enters the spring area"""
+	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
+		if not players_on_floor.has(body):
+			players_on_floor.append(body)
+			
+			# For moving floors, also add to players to move
+			if floor_type == FloorType.MOVING:
+				if not players_to_move.has(body):
+					players_to_move.append(body)
+
 func _on_spring_area_body_exited(body):
 	"""When a player exits the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
@@ -399,9 +431,6 @@ func _on_spring_area_body_exited(body):
 		
 		if floor_type == FloorType.MOVING:
 			players_to_move.erase(body)
-		
-		
-		# DON'T reset fall timer - once triggered, the floor will fall regardless
 
 func activate_spring():
 	"""Activate the spring effect for all players on the floor"""
@@ -557,3 +586,31 @@ func create_respawn_effect():
 		var original_color = material.albedo_color
 		material.albedo_color = Color.WHITE
 		respawn_tween.tween_property(material, "albedo_color", original_color, 0.3)
+
+# Editor property updates (for real-time preview in editor)
+func _validate_property(property):
+	# Hide cylinder properties when using box shape
+	if property.name in ["cylinder_radius", "cylinder_height", "cylinder_segments"]:
+		if floor_shape != FloorShape.CYLINDER:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
+	
+	# Hide floor_size when using cylinder shape
+	if property.name == "floor_size":
+		if floor_shape != FloorShape.BOX:
+			property.usage = PROPERTY_USAGE_NO_EDITOR
+
+# Update geometry when properties change in editor
+func _set(property, _value):
+	match property:
+		"floor_shape", "floor_size", "cylinder_radius", "cylinder_height", "cylinder_segments":
+			# Update geometry when shape or dimension properties change
+			if is_inside_tree():
+				call_deferred("setup_floor_geometry")
+			return true
+		"floor_type":
+			# Update floor type when it changes
+			if is_inside_tree():
+				call_deferred("setup_floor_type")
+			return true
+	
+	return false

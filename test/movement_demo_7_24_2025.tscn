@@ -14,9 +14,10 @@
 [node name="Floors" type="Node3D" parent="."]
 
 [node name="Floor" parent="Floors" instance=ExtResource("1_122qs")]
+spin_direction = 1
 
 [node name="WSAD" parent="Floors/Floor" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
-sign_text = "Press WSAD to move and Spacebar to Jump"
-dialogic_timeline = "WSAD-Sign"
 use_dialogic = true
+dialogic_timeline = "WSAD-Sign"
+sign_text = "Press WSAD to move and Spacebar to Jump"

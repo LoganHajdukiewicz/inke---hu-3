@@ -71,52 +71,70 @@ environment = SubResource("Environment_dbelr")
 
 [node name="Floor" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -61.2234)
+floor_size = Vector3(10, 0.5, 15)
+spin_direction = 1
 
 [node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -0.0792542)
 floor_type = 3
+spin_direction = 1
 
 [node name="Floor16" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, 16.3363)
+spin_direction = 1
 
 [node name="Floor11" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -43.76)
+spin_direction = 1
 
 [node name="Floor12" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -28.7888)
+spin_direction = 1
 
 [node name="Floor13" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -29.5316)
+spin_direction = 1
 
 [node name="Floor14" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -17.8142)
+cylinder_segments = 30
+spin_direction = 1
 
 [node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -88.8933)
+spin_direction = 1
 
 [node name="Floor3" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -127.462)
+spin_direction = 1
 
 [node name="Floor4" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -144.17)
+spin_direction = 1
 
 [node name="Floor5" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -175.77)
+spin_direction = 1
 
 [node name="Floor6" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -190.474)
+spin_direction = 1
 
 [node name="Floor15" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -190.474)
+spin_direction = 1
 
 [node name="Floor7" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -205.265)
+spin_direction = 1
 
 [node name="Floor8" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, 16.7126, -220.393)
+spin_direction = 1
 
 [node name="Floor9" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.5, 0, 0, 0, 0.113, 0, 0, 0, 0.528, -0.0169895, 16.7126, -269.137)
+spin_direction = 1
 
 [node name="Walls" type="Node" parent="Environment/Platforms"]
 
@@ -163,9 +181,9 @@ transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 
 
 [node name="WSAD" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
-sign_text = "Press WSAD to move and Spacebar to Jump"
-dialogic_timeline = "WSAD-Sign"
 use_dialogic = true
+dialogic_timeline = "WSAD-Sign"
+sign_text = "Press WSAD to move and Spacebar to Jump"
 
 [node name="Gears" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -17.4829)
@@ -181,9 +199,9 @@ sign_text = "Make sure to jump on the rail for a cool rail grind!"
 
 [node name="Merchant3" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -147.128)
-sign_text = "This next jump looks crazy. You might want to buy a double jump powerup from the Merchant"
-dialogic_timeline = "Merchant-DJ"
 use_dialogic = true
+dialogic_timeline = "Merchant-DJ"
+sign_text = "This next jump looks crazy. You might want to buy a double jump powerup from the Merchant"
 
 [node name="Merchant4" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -204.42)
