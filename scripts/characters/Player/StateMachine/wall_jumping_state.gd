@@ -46,7 +46,7 @@ func physics_update(delta: float):
 		if wall_normal.length() > 0:
 			# Check if this is a different wall or enough time has passed
 			var wall_angle_difference = wall_direction.angle_to(wall_normal)
-			if wall_angle_difference > 0.5 or wall_jump_timer > 0.2:  # Different wall or enough time
+			if wall_angle_difference > 0.5 or wall_jump_timer > 0.01:  # Different wall or enough time
 				setup_wall_jump(wall_normal)
 				# Reset state to perform another wall jump
 				wall_jump_timer = 0.0

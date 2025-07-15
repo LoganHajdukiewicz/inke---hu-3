@@ -1,23 +1,26 @@
 extends StaticBody3D
 
-# Export variable so you can set different text for each sign in the editor
-@export_multiline var sign_text: String = "Welcome to the adventure!\nPress E to continue your journey."
-
-# NEW: Export variable for Dialogic timeline
+@export var use_dialogic: bool = false
 @export var dialogic_timeline: String = ""
 
-# Option to choose between regular text or Dialogic
-@export var use_dialogic: bool = false
+# Export variable so you can set different text for each sign in the editor
+@export_multiline var sign_text: String = "Welcome to the adventure!\nPress E to continue your journey."
 
 # Reference to the player when they're in range
 var player_in_range: bool = false
 var player_reference: Node = null
 
 # UI elements
-var interaction_label: Label
+var interaction_button: Control
 var sign_ui: Control
 var sign_label: Label
 var background_panel: Panel
+
+# 3D floating button variables
+var floating_button: Node3D
+var button_mesh: MeshInstance3D
+var button_label: Label3D
+var bob_tween: Tween
 
 func _ready():
 	# Connect the Area3D signals
@@ -25,22 +28,43 @@ func _ready():
 	area.body_entered.connect(_on_area_3d_body_entered)
 	area.body_exited.connect(_on_area_3d_body_exited)
 	
+	# Create floating 3D button
+	create_floating_button()
+	
 	# Create UI elements only if not using Dialogic
 	if not use_dialogic:
 		create_ui()
+
+func create_floating_button():
+	# Create the floating button node
+	floating_button = Node3D.new()
+	floating_button.name = "FloatingButton"
+	add_child(floating_button)
+	
+	# Position it above the sign
+	floating_button.position = Vector3(0, 2.5, 0)
+	
+	# Remove the background quad mesh completely - we don't want it anymore
+	
+	# Create the 3D label for 'E' with bold white text and black outline
+	button_label = Label3D.new()
+	button_label.text = "E"
+	button_label.font_size = 64
+	button_label.modulate = Color.WHITE
+	button_label.outline_size = 16  # Thicker black outline
+	button_label.outline_modulate = Color.BLACK
+	button_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	button_label.position = Vector3(0, 0, 0)  # Centered position
+	
+	floating_button.add_child(button_label)
+	
+	# Hide the button initially
+	floating_button.visible = false
 
 func create_ui():
 	# Create canvas layer for UI
 	var canvas_layer = CanvasLayer.new()
 	add_child(canvas_layer)
-	
-	# Interaction prompt (similar to merchant)
-	interaction_label = Label.new()
-	interaction_label.text = "Press E to read sign"
-	interaction_label.add_theme_font_size_override("font_size", 24)
-	interaction_label.position = Vector2(50, 50)
-	interaction_label.visible = false
-	canvas_layer.add_child(interaction_label)
 	
 	# Create the main sign UI container
 	sign_ui = Control.new()
@@ -100,6 +124,29 @@ func create_ui():
 	# Add sign UI to the canvas layer
 	canvas_layer.add_child(sign_ui)
 
+func start_bobbing_animation():
+	# Kill any existing tween
+	if bob_tween:
+		bob_tween.kill()
+	
+	# Create new tween for bobbing animation
+	bob_tween = create_tween()
+	bob_tween.set_loops()
+	
+	# Animate the floating button up and down
+	var start_pos = floating_button.position
+	var bob_height = 0.3
+	
+	bob_tween.tween_property(floating_button, "position", start_pos + Vector3(0, bob_height, 0), 1.0)
+	bob_tween.tween_property(floating_button, "position", start_pos - Vector3(0, bob_height, 0), 1.0)
+
+func stop_bobbing_animation():
+	if bob_tween:
+		bob_tween.kill()
+	
+	# Reset position
+	floating_button.position = Vector3(0, 2.5, 0)
+
 func _process(delta):
 	# Check for E key press when player is in range
 	if player_in_range and Input.is_action_just_pressed("interact"):
@@ -113,12 +160,9 @@ func _on_area_3d_body_entered(body):
 		player_in_range = true
 		player_reference = body
 		
-		# Create interaction label if using Dialogic and it doesn't exist
-		if use_dialogic and not interaction_label:
-			create_interaction_label()
-		
-		if interaction_label:
-			interaction_label.visible = true
+		# Show floating button and start bobbing
+		floating_button.visible = true
+		start_bobbing_animation()
 		
 		print("Player entered sign area - press E to read")
 
@@ -127,26 +171,14 @@ func _on_area_3d_body_exited(body):
 		player_in_range = false
 		player_reference = null
 		
-		if interaction_label:
-			interaction_label.visible = false
+		# Hide floating button and stop bobbing
+		floating_button.visible = false
+		stop_bobbing_animation()
 		
 		if not use_dialogic:
 			hide_sign()
 		
 		print("Player left sign area")
-
-func create_interaction_label():
-	# Create canvas layer for UI if it doesn't exist
-	var canvas_layer = CanvasLayer.new()
-	add_child(canvas_layer)
-	
-	# Create interaction prompt
-	interaction_label = Label.new()
-	interaction_label.text = "Press E to read sign"
-	interaction_label.add_theme_font_size_override("font_size", 24)
-	interaction_label.position = Vector2(50, 50)
-	interaction_label.visible = false
-	canvas_layer.add_child(interaction_label)
 
 # NEW: Function to start Dialogic timeline
 func start_dialogic_timeline():
@@ -195,9 +227,7 @@ func set_dialogic_timeline(timeline_name: String):
 # NEW: Function to switch between modes
 func set_use_dialogic(use_dialog: bool):
 	use_dialogic = use_dialog
-	if use_dialogic and not interaction_label:
-		create_interaction_label()
-	elif not use_dialogic and not sign_ui:
+	if not use_dialogic and not sign_ui:
 		create_ui()
 		
 # Function to get the current sign text (optional)

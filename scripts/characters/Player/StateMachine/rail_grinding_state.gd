@@ -11,9 +11,9 @@ var detached_from_rail: bool = false
 
 
 # Configuration
-var jump_velocity: float = 5.0
-var lerp_speed: float = 40.0
-var grind_exit_speed: float = 10.0
+var jump_velocity: float = 10.0
+var lerp_speed: float = 50.0
+var grind_exit_speed: float = 15.0
 
 func enter():
 	print("Entered Rail Grinding State")
@@ -135,7 +135,7 @@ func disable_grind_raycasts():
 		timer.timeout.connect(enable_grind_raycasts)
 		player.add_child(timer)
 		timer.start()
-# Add this to your rail_grinding_state.gd exit() function:
+
 
 func exit():
 	print("Exited Rail Grinding State")
