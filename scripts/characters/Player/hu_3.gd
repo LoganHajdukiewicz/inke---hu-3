@@ -99,7 +99,6 @@ func get_dynamic_follow_speed(distance_to_target: float) -> float:
 	# If we're too far behind, activate catchup mode
 	if distance_to_target > catchup_distance:
 		target_speed = player_speed * catchup_speed_multiplier
-		print("HU-3: Catchup mode activated - Distance: ", distance_to_target)
 	
 	# Cap the maximum speed
 	target_speed = min(target_speed, max_follow_speed)

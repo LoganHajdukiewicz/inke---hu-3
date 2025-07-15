@@ -21,11 +21,7 @@ func populate_rail():
 	
 	# Calculate the progress increment to distribute nodes evenly
 	var progress_increment = path_length / float(point_total - 1)  # -1 to include both ends
-	
-	print("Rail length: ", path_length)
-	print("Progress increment: ", progress_increment)
-	print("Total points to spawn: ", point_total)
-	
+
 	for i in range(point_total):
 		var object_instance = rail_follower.instantiate()
 		
@@ -39,8 +35,6 @@ func populate_rail():
 		add_child(object_instance)
 		
 		pointCount += 1.0
-		
-		print("Spawned node ", i, " at progress: ", current_progress)
+
 	
 	hasSpawnedPoints = true
-	print("Finished spawning ", pointCount, " rail nodes")

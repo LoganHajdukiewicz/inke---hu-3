@@ -8,26 +8,29 @@ albedo_color = Color(0, 0.41793, 0, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_hwtdh"]
 resource_local_to_scene = true
 material = SubResource("StandardMaterial3D_ls30l")
-size = Vector3(100, 0.5, 100)
+size = Vector3(10, 0.5, 10)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_8rkqs"]
-size = Vector3(100, 0.5, 100)
+size = Vector3(9.99167, 0.5, 10.005)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_spring"]
-size = Vector3(100, 1, 100)
+size = Vector3(10, 0.5, 10)
 
 [node name="Floor" type="StaticBody3D"]
 script = ExtResource("1_floor")
+spin_direction = 1
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 mesh = SubResource("BoxMesh_hwtdh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 shape = SubResource("BoxShape3D_8rkqs")
 
 [node name="SpringArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 monitoring = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SpringArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
 shape = SubResource("BoxShape3D_spring")

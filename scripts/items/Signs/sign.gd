@@ -3,6 +3,12 @@ extends StaticBody3D
 # Export variable so you can set different text for each sign in the editor
 @export_multiline var sign_text: String = "Welcome to the adventure!\nPress E to continue your journey."
 
+# NEW: Export variable for Dialogic timeline
+@export var dialogic_timeline: String = ""
+
+# Option to choose between regular text or Dialogic
+@export var use_dialogic: bool = false
+
 # Reference to the player when they're in range
 var player_in_range: bool = false
 var player_reference: Node = null
@@ -19,8 +25,9 @@ func _ready():
 	area.body_entered.connect(_on_area_3d_body_entered)
 	area.body_exited.connect(_on_area_3d_body_exited)
 	
-	# Create UI elements
-	create_ui()
+	# Create UI elements only if not using Dialogic
+	if not use_dialogic:
+		create_ui()
 
 func create_ui():
 	# Create canvas layer for UI
@@ -94,25 +101,62 @@ func create_ui():
 	canvas_layer.add_child(sign_ui)
 
 func _process(delta):
-	# Check for E key press when player is in range (similar to merchant)
+	# Check for E key press when player is in range
 	if player_in_range and Input.is_action_just_pressed("interact"):
-		toggle_sign()
+		if use_dialogic:
+			start_dialogic_timeline()
+		else:
+			toggle_sign()
 
 func _on_area_3d_body_entered(body):
 	if body.is_in_group("Player"):
 		player_in_range = true
 		player_reference = body
-		interaction_label.visible = true
+		
+		# Create interaction label if using Dialogic and it doesn't exist
+		if use_dialogic and not interaction_label:
+			create_interaction_label()
+		
+		if interaction_label:
+			interaction_label.visible = true
+		
 		print("Player entered sign area - press E to read")
 
 func _on_area_3d_body_exited(body):
 	if body.is_in_group("Player"):
 		player_in_range = false
 		player_reference = null
-		interaction_label.visible = false
-		hide_sign()
+		
+		if interaction_label:
+			interaction_label.visible = false
+		
+		if not use_dialogic:
+			hide_sign()
+		
 		print("Player left sign area")
 
+func create_interaction_label():
+	# Create canvas layer for UI if it doesn't exist
+	var canvas_layer = CanvasLayer.new()
+	add_child(canvas_layer)
+	
+	# Create interaction prompt
+	interaction_label = Label.new()
+	interaction_label.text = "Press E to read sign"
+	interaction_label.add_theme_font_size_override("font_size", 24)
+	interaction_label.position = Vector2(50, 50)
+	interaction_label.visible = false
+	canvas_layer.add_child(interaction_label)
+
+# NEW: Function to start Dialogic timeline
+func start_dialogic_timeline():
+	if dialogic_timeline != "":
+		Dialogic.start(dialogic_timeline)
+		print("Started Dialogic timeline: " + dialogic_timeline)
+	else:
+		print("No Dialogic timeline set for this sign!")
+
+# Original sign functions (for non-Dialogic mode)
 func toggle_sign():
 	if sign_ui.visible:
 		hide_sign()
@@ -142,6 +186,19 @@ func set_sign_text(new_text: String):
 	sign_text = new_text
 	if sign_label:
 		sign_label.text = sign_text
+
+# NEW: Function to set Dialogic timeline dynamically
+func set_dialogic_timeline(timeline_name: String):
+	dialogic_timeline = timeline_name
+	use_dialogic = true
+
+# NEW: Function to switch between modes
+func set_use_dialogic(use_dialog: bool):
+	use_dialogic = use_dialog
+	if use_dialogic and not interaction_label:
+		create_interaction_label()
+	elif not use_dialogic and not sign_ui:
+		create_ui()
 		
 # Function to get the current sign text (optional)
 func get_sign_text() -> String:

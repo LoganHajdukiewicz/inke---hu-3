@@ -70,29 +70,29 @@ environment = SubResource("Environment_dbelr")
 [node name="Floors" type="Node" parent="Environment/Platforms"]
 
 [node name="Floor" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -61.2234)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -61.2234)
 
 [node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -0.0792542)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -0.0792542)
+floor_type = 3
 
 [node name="Floor16" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, 16.3363)
-floor_type = 2
+transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, 16.3363)
 
 [node name="Floor11" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -43.76)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -43.76)
 
 [node name="Floor12" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -28.7888)
 
 [node name="Floor13" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -29.5316)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -29.5316)
 
 [node name="Floor14" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -17.8142)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -17.8142)
 
 [node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -88.8933)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -88.8933)
 
 [node name="Floor3" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -127.462)
@@ -164,10 +164,12 @@ transform = Transform3D(-8.74228e-09, 0, 0.2, 0, 0.2, 0, -0.2, 0, -8.74228e-09, 
 [node name="WSAD" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
 sign_text = "Press WSAD to move and Spacebar to Jump"
+dialogic_timeline = "WSAD-Sign"
+use_dialogic = true
 
 [node name="Gears" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -17.4829)
-sign_text = "Up ahead is a stack of GEARs. Collect all the GEARs you can! Merchants use them as currency. "
+sign_text = "Up ahead is a stack of GEARs. Robots LOVE to gather as many as they can! "
 
 [node name="Running" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -65.2932)
@@ -180,6 +182,8 @@ sign_text = "Make sure to jump on the rail for a cool rail grind!"
 [node name="Merchant3" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.0488, 0.00799988, -147.128)
 sign_text = "This next jump looks crazy. You might want to buy a double jump powerup from the Merchant"
+dialogic_timeline = "Merchant-DJ"
+use_dialogic = true
 
 [node name="Merchant4" parent="Environment/Signs" instance=ExtResource("5_2acrq")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.46209, 0.0179829, -204.42)
