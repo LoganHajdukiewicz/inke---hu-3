@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Inke & HU-3"
-run/main_scene="uid://dwo2hshdwc4i"
+run/main_scene="uid://1xtg2gv8rted"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -26,8 +26,23 @@ directories/dch_directory={
 "unit_test_character": "res://Tests/Resources/unit_test_character.dch"
 }
 directories/dtl_directory={
+"Acrobat": "res://dialogue/demo-7-24-2025/Acrobat.dtl",
+"CRED": "res://dialogue/demo-7-24-2025/CRED.dtl",
+"Congrats": "res://dialogue/demo-7-24-2025/Congrats.dtl",
+"Falling-Platform-Ahead": "res://dialogue/demo-7-24-2025/Falling-Platform-Ahead.dtl",
+"Fun Shapes": "res://dialogue/demo-7-24-2025/Fun Shapes.dtl",
+"Gears": "res://dialogue/demo-7-24-2025/Gears.dtl",
+"HU-3-Intro": "res://dialogue/demo-7-24-2025/HU-3-Intro.dtl",
+"LOL-XD": "res://dialogue/demo-7-24-2025/LOL-XD.dtl",
 "Merchant-DJ": "res://dialogue/Merchant-DJ.dtl",
-"WSAD-Sign": "res://dialogue/WSAD-Sign.dtl"
+"Merchant-Intro": "res://dialogue/demo-7-24-2025/Merchant-Intro.dtl",
+"Merchant-Intro-Cont": "res://dialogue/demo-7-24-2025/Merchant-Intro-Cont.dtl",
+"Moving-Platform": "res://dialogue/demo-7-24-2025/Moving-Platform.dtl",
+"Rail-Grind": "res://dialogue/demo-7-24-2025/Rail-Grind.dtl",
+"Sorry": "res://dialogue/demo-7-24-2025/Sorry.dtl",
+"Spring-Platform": "res://dialogue/demo-7-24-2025/Spring-Platform.dtl",
+"Storytime": "res://dialogue/demo-7-24-2025/Storytime.dtl",
+"WSAD-Sign": "res://dialogue/demo-7-24-2025/WSAD-Sign.dtl"
 }
 layout/style_list=["res://assets/styles/S-1GN style.tres"]
 layout/default_style="res://assets/styles/S-1GN style.tres"

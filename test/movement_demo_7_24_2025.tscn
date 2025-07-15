@@ -27,7 +27,7 @@ glow_enabled = true
 [sub_resource type="Curve3D" id="Curve3D_16sj7"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.57366, -0.0296144, -15.2189, 0, 0, 0, 0, 0, 0, -1.19843, 1.43125, -27.1522, 0, 0, 0, 0, 0, 0, -1.53995, 2.75854, -43.8581, 0, 0, 0, 0, 0, 0, -0.884139, 3.67018, -52.1658, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -126.713),
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.57366, 0.832603, -15.2189, 0, 0, 0, 0, 0, 0, -1.19843, 1.32761, -27.1522, 0, 0, 0, 0, 0, 0, -1.53995, 2.75854, -43.8581, 0, 0, 0, 0, 0, 0, -0.884139, 3.67018, -52.1658, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -121.556),
 "tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
 }
 point_count = 6
@@ -35,7 +35,7 @@ point_count = 6
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78247, 0.667877)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.155526, 0.667877)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -72,6 +72,8 @@ spin_direction = 1
 
 [node name="Moving Platform Ahead" parent="Tutorial/Floors/Floor2" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+use_dialogic = true
+dialogic_timeline = "Moving-Platform"
 sign_text = "Wow! Great job hero!!! Your next big accomplishment is to see if you can get past this next puzzle. Let me know if you need help! "
 
 [node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -86,8 +88,10 @@ spin_direction = 1
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -55)
 spin_direction = 1
 
-[node name="Spring Platform Ahead" parent="Tutorial/Floors/Floor4" instance=ExtResource("3_e5bud")]
+[node name="Spring Platform" parent="Tutorial/Floors/Floor4" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+use_dialogic = true
+dialogic_timeline = "Spring-Platform"
 sign_text = "Dang, I knew there was a reason I felt special about you. But this next one sure will put a SPRING in your step. Spring.  kehehehe"
 
 [node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -102,14 +106,18 @@ spin_direction = 1
 
 [node name="LOL XD" parent="Tutorial/Floors/Floor6" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "LOL-XD"
 sign_text = "AHAHAHA YOU SHOULD'VE SEEN YOUR DUMB FACE LOL XD YOU THOUGHT YOU WERE GONNA DIE "
 
 [node name="Floor7" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -91.7888)
 spin_direction = 1
 
-[node name="Falling Platform Ahead2" parent="Tutorial/Floors/Floor7" instance=ExtResource("3_e5bud")]
+[node name="Falling Platform Ahead" parent="Tutorial/Floors/Floor7" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Falling-Platform-Ahead"
 sign_text = "Okay, okay. I am sorry. Here let me make it up to you. This next platform is totally chill. And it smells like roses. Take a while, smell the roses. "
 
 [node name="Floor8" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -120,6 +128,8 @@ spin_direction = 1
 
 [node name="Storytime" parent="Tutorial/Floors/Floor8" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Storytime"
 sign_text = "Oh hey! Wow, you actually stopped to read me—how polite! Most people just barge right through like they’re too good for heartfelt woodland signage. Not you, though. You’ve got that sweet, curious energy. I like that. Anyway, hi! I’m Bunbun. Yes, that Bunbun. Best ever, flower collector, devoted mama’s boy. Every morning I’d hop through this forest delivering dandelions to my mom. She’d ruffle my ears and call me her “brave little fluff,” even though I was afraid of, like, everything—including pinecones. One day she got sick, so I built her this cozy little sanctuary. Right here. Handcrafted it myself. With no thumbs. Think about that. We lived peacefully for years, just the two of us, until outsiders came stomping through like they owned the place. Chopping trees. Scaring squirrels. And I said, “No more.” So I made this place a bit more exclusive. A sanctuary... with boundaries. You understand. You get me. And now here you are, reading my story like a good little camper. Gosh, I hope you were emotionally invested, because—oopsie!—the floor’s gone. Yeah. It started crumbling like, 30 seconds ago. But hey, thanks for being part of my tragic bunny backstory! Say hi to gravity for me, sweetheart."
 
 [node name="Floor9" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -128,6 +138,8 @@ spin_direction = 1
 
 [node name="Sorry" parent="Tutorial/Floors/Floor9" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Sorry"
 sign_text = "I have NO IDEA how that happened. I am so sorry. Hey to make it up. The next platforms a different shape. That's fun!"
 
 [node name="Floor10" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -137,7 +149,9 @@ spin_direction = 1
 
 [node name="Fun Shapes" parent="Tutorial/Floors/Floor10" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-sign_text = "Fun shapes ahead!!!"
+use_dialogic = true
+dialogic_timeline = "Fun Shapes"
+sign_text = ""
 
 [node name="Floor11" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -140.557)
@@ -156,17 +170,17 @@ floor_shape = 1
 spin_direction = 1
 
 [node name="Floor14" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.371768, 5.60629, -174.656)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.371768, 5.60629, -174.767)
 floor_type = 3
 floor_shape = 1
 spin_speed = 180.0
+spin_direction = 1
 
 [node name="Floor15" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.26157, 5.60629, -186.654)
 floor_type = 3
 floor_shape = 1
-spin_speed = 270.0
-spin_direction = 1
+spin_speed = 240.0
 
 [node name="Floor16" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.606, -197.833)
@@ -179,14 +193,18 @@ spin_direction = 1
 
 [node name="Acrobat" parent="Tutorial/Floors/Floor17" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Acrobat"
 sign_text = "Wow! What a great little acrobat you are! You are so talented! I can't believe you got past that last one! "
 
 [node name="Floor18" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -224.865)
 spin_direction = 1
 
-[node name="Acrobat" parent="Tutorial/Floors/Floor18" instance=ExtResource("3_e5bud")]
+[node name="RailGrind" parent="Tutorial/Floors/Floor18" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Rail-Grind"
 sign_text = "Give Rail Grinding a try! muahahahahaha "
 
 [node name="Floor19" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -195,6 +213,8 @@ spin_direction = 1
 
 [node name="Congrats" parent="Tutorial/Floors/Floor19" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Congrats"
 sign_text = "wow...great job...congrats. "
 
 [node name="Floor20" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -203,6 +223,8 @@ spin_direction = 1
 
 [node name="HU-3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "HU-3-Intro"
 sign_text = "You ever wonder what that floating THING is next to your head? His name is HU-3. We went to high school together...he was a jerk. He also emits 3,000,000 mSv worth of radiation to anything near it. Hopefully that hat is made of lead."
 
 [node name="Floor21" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -212,6 +234,8 @@ spin_direction = 1
 
 [node name="Gears" parent="Tutorial/Floors/Floor21" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, 11.0899)
+use_dialogic = true
+dialogic_timeline = "Gears"
 sign_text = "Up ahead is GEARs. HU-3 loves to munch on them. Look! "
 
 [node name="Gears2" type="Node3D" parent="Tutorial/Floors/Floor21"]
@@ -1195,6 +1219,8 @@ spin_direction = 1
 
 [node name="Merchant-Intro" parent="Tutorial/Floors/Floor22" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Merchant-Intro"
 sign_text = "You can find merchants everywhere selling cool upgrades for the gears HU-3 eats. "
 
 [node name="Merchant" parent="Tutorial/Floors/Floor22" instance=ExtResource("7_lnigw")]
@@ -1206,6 +1232,8 @@ spin_direction = 1
 
 [node name="Merchant-Intro-Cont" parent="Tutorial/Floors/Floor23" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+use_dialogic = true
+dialogic_timeline = "Merchant-Intro-Cont"
 sign_text = "This one sells a wall jump......jump off of a wall..."
 
 [node name="Merchant" parent="Tutorial/Floors/Floor23" instance=ExtResource("7_lnigw")]
@@ -1230,8 +1258,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
 floor_size = Vector3(10, 0.5, 50)
 spin_direction = 1
 
-[node name="CRED-intro" parent="Tutorial/Floors/Floor24/Floor25" instance=ExtResource("3_e5bud")]
+[node name="CRED" parent="Tutorial/Floors/Floor24/Floor25" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -3.52432, -0.016468, -19.7253)
+use_dialogic = true
+dialogic_timeline = "CRED"
 sign_text = "GEARs may get you some upgrades here and there but in this world CRED is everything. Without it you're a nobody. Do you have any? Oh you poor pitiful nobody. Maybe if you finished this obstacle course I could part with some of my massive horde of CRED for you. You know, like charity. "
 
 [node name="ObstacleCourse" type="Node" parent="."]
