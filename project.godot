@@ -22,9 +22,11 @@ Dialogic="*res://addons/dialogic/Core/DialogicGameHandler.gd"
 [dialogic]
 
 directories/dch_directory={
-"S-1GN": "res://dialogue/S-1GN.dch"
+"S-1GN": "res://dialogue/S-1GN.dch",
+"unit_test_character": "res://Tests/Resources/unit_test_character.dch"
 }
 directories/dtl_directory={
+"Merchant-DJ": "res://dialogue/Merchant-DJ.dtl",
 "WSAD-Sign": "res://dialogue/WSAD-Sign.dtl"
 }
 layout/style_list=["res://assets/styles/S-1GN style.tres"]

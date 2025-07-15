@@ -1,33 +1,22 @@
-[gd_scene load_steps=6 format=3 uid="uid://b60dbcg2q5bp3"]
+[gd_scene load_steps=3 format=3 uid="uid://b60dbcg2q5bp3"]
 
 [ext_resource type="Script" uid="uid://ejbw8fubfr73" path="res://scripts/environments/floor.gd" id="1_floor"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ls30l"]
 albedo_color = Color(0, 0.41793, 0, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_hwtdh"]
-resource_local_to_scene = true
-material = SubResource("StandardMaterial3D_ls30l")
-size = Vector3(100, 0.5, 100)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_8rkqs"]
-size = Vector3(100, 0.5, 100)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_spring"]
-size = Vector3(100, 1, 100)
-
 [node name="Floor" type="StaticBody3D"]
 script = ExtResource("1_floor")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("BoxMesh_hwtdh")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+material_override = SubResource("StandardMaterial3D_ls30l")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("BoxShape3D_8rkqs")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
 [node name="SpringArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 monitoring = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SpringArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
-shape = SubResource("BoxShape3D_spring")
