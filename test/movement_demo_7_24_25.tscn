@@ -71,7 +71,6 @@ environment = SubResource("Environment_dbelr")
 
 [node name="Floor" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -61.2234)
-floor_size = Vector3(10, 0.5, 15)
 spin_direction = 1
 
 [node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
@@ -97,27 +96,27 @@ spin_direction = 1
 
 [node name="Floor14" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -17.8142)
-cylinder_segments = 30
 spin_direction = 1
 
 [node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -88.8933)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -85.3666)
+floor_size = Vector3(10, 0.5, 20)
 spin_direction = 1
 
 [node name="Floor3" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -127.462)
+transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -127.462)
 spin_direction = 1
 
 [node name="Floor4" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -144.17)
+transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -144.17)
 spin_direction = 1
 
 [node name="Floor5" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -175.77)
+transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -175.77)
 spin_direction = 1
 
 [node name="Floor6" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -190.474)
+transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -190.474)
 spin_direction = 1
 
 [node name="Floor15" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]

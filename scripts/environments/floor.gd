@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 class_name Floor
 
@@ -19,17 +20,16 @@ enum SpinDirection {
 	LEFT
 }
 
-@export var floor_type: FloorType = FloorType.NORMAL
+@export var floor_type: FloorType = FloorType.NORMAL : set = _set_floor_type
 
 
 # Shape and Dimension Settings
 @export_group("Shape & Dimensions")
-@export var floor_shape: FloorShape = FloorShape.BOX
-@export var floor_size: Vector3 = Vector3(10, 0.5, 10)  # X, Y, Z dimensions for box
-@export var cylinder_radius: float = 5.0  # Radius for cylinder
-@export var cylinder_height: float = 0.5  # Height for cylinder
-@export var cylinder_segments: int = 32  # Number of segments for cylinder smoothness
-
+@export var floor_shape: FloorShape = FloorShape.BOX : set = _set_floor_shape
+@export var floor_size: Vector3 = Vector3(10, 0.5, 10) : set = _set_floor_size  # X, Y, Z dimensions for box
+@export var cylinder_radius: float = 5.0 : set = _set_cylinder_radius  # Radius for cylinder
+@export var cylinder_height: float = 0.5 : set = _set_cylinder_height  # Height for cylinder
+@export var cylinder_segments: int = 32 : set = _set_cylinder_segments  # Number of segments for cylinder smoothness
 
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
@@ -80,7 +80,106 @@ var last_floor_position: Vector3
 @export var spin_speed: float = 90.0  # degrees per second
 @export var spin_direction: SpinDirection = SpinDirection.RIGHT
 
+# Editor preview variables
+var editor_material: StandardMaterial3D
+var runtime_material: StandardMaterial3D
+
+# Property setters that work in editor
+func _set_floor_type(value: FloorType):
+	floor_type = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_floor_shape(value: FloorShape):
+	floor_shape = value
+	if Engine.is_editor_hint():
+		_ensure_nodes_exist()
+		setup_floor_geometry()
+		_update_editor_preview()
+
+func _set_floor_size(value: Vector3):
+	floor_size = value
+	if Engine.is_editor_hint() and floor_shape == FloorShape.BOX:
+		_ensure_nodes_exist()
+		setup_box_geometry()
+		_update_editor_preview()
+
+func _set_cylinder_radius(value: float):
+	cylinder_radius = value
+	if Engine.is_editor_hint() and floor_shape == FloorShape.CYLINDER:
+		_ensure_nodes_exist()
+		setup_cylinder_geometry()
+		_update_editor_preview()
+
+func _set_cylinder_height(value: float):
+	cylinder_height = value
+	if Engine.is_editor_hint() and floor_shape == FloorShape.CYLINDER:
+		_ensure_nodes_exist()
+		setup_cylinder_geometry()
+		_update_editor_preview()
+
+func _set_cylinder_segments(value: int):
+	cylinder_segments = value
+	if Engine.is_editor_hint() and floor_shape == FloorShape.CYLINDER:
+		_ensure_nodes_exist()
+		setup_cylinder_geometry()
+		_update_editor_preview()
+
+func _ensure_nodes_exist():
+	"""Ensure required nodes exist for editor preview"""
+	if not mesh_instance:
+		mesh_instance = get_node_or_null("MeshInstance3D")
+		if not mesh_instance:
+			mesh_instance = MeshInstance3D.new()
+			mesh_instance.name = "MeshInstance3D"
+			add_child(mesh_instance)
+	
+	if not collision_shape:
+		collision_shape = get_node_or_null("CollisionShape3D")
+		if not collision_shape:
+			collision_shape = CollisionShape3D.new()
+			collision_shape.name = "CollisionShape3D"
+			add_child(collision_shape)
+
+# Update the editor preview with debug colors
+func _update_editor_preview():
+	_ensure_nodes_exist()
+	
+	if not mesh_instance:
+		return
+	
+	# Get or create editor material
+	if not editor_material:
+		editor_material = StandardMaterial3D.new()
+		editor_material.flags_transparent = true
+		editor_material.flags_unshaded = true  # Makes it appear more like a debug overlay
+		editor_material.albedo_color.a = 0.8  # Slightly transparent to show it's debug
+	
+	# Set debug color based on floor type
+	match floor_type:
+		FloorType.NORMAL:
+			editor_material.albedo_color = Color(0, 0.8, 0, 0.8)  # Bright Green
+		FloorType.SPRING:
+			editor_material.albedo_color = Color(1.0, 0.5, 0.0, 0.8)  # Orange
+		FloorType.FALLING:
+			editor_material.albedo_color = Color(1.0, 0.2, 0.2, 0.8)  # Bright Red
+		FloorType.SPINNING:
+			editor_material.albedo_color = Color(0.8, 0.2, 1.0, 0.8)  # Bright Purple
+		FloorType.MOVING:
+			editor_material.albedo_color = Color(0.2, 0.7, 1.0, 0.8)  # Bright Blue
+	
+	# Apply the editor material
+	mesh_instance.set_surface_override_material(0, editor_material)
+
 func _ready():
+	# In editor, setup preview and return
+	if Engine.is_editor_hint():
+		_ensure_nodes_exist()
+		setup_floor_geometry()
+		_update_editor_preview()
+		return
+	
+	# Runtime initialization
 	original_position = global_position
 	start_position = global_position
 	end_position = global_position + movement_axis
@@ -115,8 +214,8 @@ func setup_box_geometry():
 	box_shape.size = floor_size
 	collision_shape.shape = box_shape
 	
-	# Setup spring area collision to match
-	if spring_collision:
+	# Setup spring area collision to match (only in runtime)
+	if not Engine.is_editor_hint() and spring_collision:
 		var spring_shape = BoxShape3D.new()
 		spring_shape.size = Vector3(floor_size.x, floor_size.y + 0.5, floor_size.z)
 		spring_collision.shape = spring_shape
@@ -138,15 +237,20 @@ func setup_cylinder_geometry():
 	cylinder_shape.height = cylinder_height
 	collision_shape.shape = cylinder_shape
 	
-	# Setup spring area collision to match
-	if spring_collision:
+	# Setup spring area collision to match (only in runtime)
+	if not Engine.is_editor_hint() and spring_collision:
 		var spring_shape = CylinderShape3D.new()
 		spring_shape.radius = cylinder_radius
 		spring_shape.height = cylinder_height + 0.5
 		spring_collision.shape = spring_shape
 		spring_collision.position.y = cylinder_height * 0.25
 
+# [Rest of the script remains the same...]
 func _process(delta):
+	# Don't run game logic in editor
+	if Engine.is_editor_hint():
+		return
+	
 	if spring_cooldown_timer > 0:
 		spring_cooldown_timer -= delta
 	
@@ -213,6 +317,14 @@ func setup_spring_floor():
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
+		
+		# Make sure the collision shape matches the floor size
+		var floor_shape = collision_shape.shape as BoxShape3D
+		if floor_shape and spring_collision:
+			var spring_shape = spring_collision.shape as BoxShape3D
+			if spring_shape:
+				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
+				spring_collision.position.y = floor_shape.size.y * 0.25
 
 func setup_falling_floor():
 	"""Setup a falling floor"""
@@ -225,10 +337,18 @@ func setup_falling_floor():
 	material.metallic = 0.1
 	material.roughness = 0.4
 	
-	# Enable spring area for detection
+	# Enable spring area for detection (reuse the same area)
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
+		
+		# Make sure the collision shape matches the floor size
+		var floor_shape = collision_shape.shape as BoxShape3D
+		if floor_shape and spring_collision:
+			var spring_shape = spring_collision.shape as BoxShape3D
+			if spring_shape:
+				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
+				spring_collision.position.y = floor_shape.size.y * 0.25
 
 func setup_moving_floor():
 	"""Setup a moving floor"""
@@ -245,6 +365,14 @@ func setup_moving_floor():
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
+		
+		# Make sure the collision shape matches the floor size
+		var floor_shape = collision_shape.shape as BoxShape3D
+		if floor_shape and spring_collision:
+			var spring_shape = spring_collision.shape as BoxShape3D
+			if spring_shape:
+				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
+				spring_collision.position.y = floor_shape.size.y * 0.25
 	
 	# Start moving after initial delay (if any)
 	if movement_delay > 0:
@@ -431,6 +559,8 @@ func _on_spring_area_body_exited(body):
 		
 		if floor_type == FloorType.MOVING:
 			players_to_move.erase(body)
+		
+		# DON'T reset fall timer - once triggered, the floor will fall regardless
 
 func activate_spring():
 	"""Activate the spring effect for all players on the floor"""
@@ -586,31 +716,3 @@ func create_respawn_effect():
 		var original_color = material.albedo_color
 		material.albedo_color = Color.WHITE
 		respawn_tween.tween_property(material, "albedo_color", original_color, 0.3)
-
-# Editor property updates (for real-time preview in editor)
-func _validate_property(property):
-	# Hide cylinder properties when using box shape
-	if property.name in ["cylinder_radius", "cylinder_height", "cylinder_segments"]:
-		if floor_shape != FloorShape.CYLINDER:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-	
-	# Hide floor_size when using cylinder shape
-	if property.name == "floor_size":
-		if floor_shape != FloorShape.BOX:
-			property.usage = PROPERTY_USAGE_NO_EDITOR
-
-# Update geometry when properties change in editor
-func _set(property, _value):
-	match property:
-		"floor_shape", "floor_size", "cylinder_radius", "cylinder_height", "cylinder_segments":
-			# Update geometry when shape or dimension properties change
-			if is_inside_tree():
-				call_deferred("setup_floor_geometry")
-			return true
-		"floor_type":
-			# Update floor type when it changes
-			if is_inside_tree():
-				call_deferred("setup_floor_type")
-			return true
-	
-	return false
