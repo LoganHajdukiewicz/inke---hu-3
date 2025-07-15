@@ -77,7 +77,9 @@ sign_text = "Wow! Great job hero!!! Your next big accomplishment is to see if yo
 [node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -25)
 floor_type = 4
-movement_axis = Vector3(0, 0, -15)
+movement_axis = Vector3(0, 0, -16)
+movement_duration = 2.0
+movement_delay = 1.0
 spin_direction = 1
 
 [node name="Floor4" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -113,6 +115,7 @@ sign_text = "Okay, okay. I am sorry. Here let me make it up to you. This next pl
 [node name="Floor8" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -103.809)
 floor_type = 2
+shake_intensity = 0.5
 spin_direction = 1
 
 [node name="Storytime" parent="Tutorial/Floors/Floor8" instance=ExtResource("3_e5bud")]
