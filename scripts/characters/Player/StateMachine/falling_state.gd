@@ -18,6 +18,14 @@ func physics_update(delta: float):
 				player.wall_jump_cooldown = player.wall_jump_cooldown_time
 				return
 	
+	# Check for coyote time jump (regular jump when not on floor but within coyote time)
+	if Input.is_action_just_pressed("jump") and player.can_coyote_jump():
+		player.consume_coyote_time()
+		print("Coyote Jumped!")
+		change_to("JumpingState")
+		return
+	
+	# Check for double jump input
 	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
 		player.perform_double_jump()
 		change_to("JumpingState")
