@@ -1,9 +1,13 @@
-[gd_scene load_steps=8 format=3 uid="uid://1xtg2gv8rted"]
+[gd_scene load_steps=13 format=3 uid="uid://1xtg2gv8rted"]
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="3_e5bud"]
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="3_tf372"]
+[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="5_n7jej"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="6_16sj7"]
+[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="7_lnigw"]
+[ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="8_6mnhf"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -20,31 +24,1214 @@ sky = SubResource("Sky_n7jej")
 tonemap_mode = 2
 glow_enabled = true
 
+[sub_resource type="Curve3D" id="Curve3D_16sj7"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.57366, -0.0296144, -15.2189, 0, 0, 0, 0, 0, 0, -1.19843, 1.43125, -27.1522, 0, 0, 0, 0, 0, 0, -1.53995, 2.75854, -43.8581, 0, 0, 0, 0, 0, 0, -0.884139, 3.67018, -52.1658, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -126.713),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+}
+point_count = 6
+
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78247, 0.667877)
 
-[node name="EnvironmentsAndFloors" type="Node" parent="."]
+[node name="Environments" type="Node" parent="."]
 
-[node name="Environments" type="Node" parent="EnvironmentsAndFloors"]
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="EnvironmentsAndFloors/Environments"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environments"]
 environment = SubResource("Environment_16sj7")
 
-[node name="ResetPlane" parent="EnvironmentsAndFloors/Environments" instance=ExtResource("3_tf372")]
+[node name="ResetPlane" parent="Environments" instance=ExtResource("3_tf372")]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="EnvironmentsAndFloors/Environments"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environments"]
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 light_color = Color(1, 1, 0.211765, 1)
 shadow_enabled = true
 
-[node name="Floors" type="Node3D" parent="EnvironmentsAndFloors"]
+[node name="Tutorial" type="Node" parent="."]
 
-[node name="Floor" parent="EnvironmentsAndFloors/Floors" instance=ExtResource("1_122qs")]
+[node name="Rail" parent="Tutorial" instance=ExtResource("5_n7jej")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.221533, 5.91196, -229.235)
+curve = SubResource("Curve3D_16sj7")
+
+[node name="Floors" type="Node3D" parent="Tutorial"]
+
+[node name="Floor" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 spin_direction = 1
 
-[node name="WSAD" parent="EnvironmentsAndFloors/Floors/Floor" instance=ExtResource("3_e5bud")]
+[node name="WSAD" parent="Tutorial/Floors/Floor" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
 use_dialogic = true
 dialogic_timeline = "WSAD-Sign"
 sign_text = "Press WSAD to move and Spacebar to Jump"
+
+[node name="Floor2" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.3503)
+spin_direction = 1
+
+[node name="Moving Platform Ahead" parent="Tutorial/Floors/Floor2" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+sign_text = "Wow! Great job hero!!! Your next big accomplishment is to see if you can get past this next puzzle. Let me know if you need help! "
+
+[node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -25)
+floor_type = 4
+movement_axis = Vector3(0, 0, -15)
+spin_direction = 1
+
+[node name="Floor4" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -55)
+spin_direction = 1
+
+[node name="Spring Platform Ahead" parent="Tutorial/Floors/Floor4" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+sign_text = "Dang, I knew there was a reason I felt special about you. But this next one sure will put a SPRING in your step. Spring.  kehehehe"
+
+[node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
+floor_type = 1
+spring_force = 15.0
+spin_direction = 1
+
+[node name="Floor6" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -79.3774)
+spin_direction = 1
+
+[node name="LOL XD" parent="Tutorial/Floors/Floor6" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "AHAHAHA YOU SHOULD'VE SEEN YOUR DUMB FACE LOL XD YOU THOUGHT YOU WERE GONNA DIE "
+
+[node name="Floor7" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -91.7888)
+spin_direction = 1
+
+[node name="Falling Platform Ahead2" parent="Tutorial/Floors/Floor7" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "Okay, okay. I am sorry. Here let me make it up to you. This next platform is totally chill. And it smells like roses. Take a while, smell the roses. "
+
+[node name="Floor8" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -103.809)
+floor_type = 2
+spin_direction = 1
+
+[node name="Storytime" parent="Tutorial/Floors/Floor8" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "Oh hey! Wow, you actually stopped to read me—how polite! Most people just barge right through like they’re too good for heartfelt woodland signage. Not you, though. You’ve got that sweet, curious energy. I like that. Anyway, hi! I’m Bunbun. Yes, that Bunbun. Best ever, flower collector, devoted mama’s boy. Every morning I’d hop through this forest delivering dandelions to my mom. She’d ruffle my ears and call me her “brave little fluff,” even though I was afraid of, like, everything—including pinecones. One day she got sick, so I built her this cozy little sanctuary. Right here. Handcrafted it myself. With no thumbs. Think about that. We lived peacefully for years, just the two of us, until outsiders came stomping through like they owned the place. Chopping trees. Scaring squirrels. And I said, “No more.” So I made this place a bit more exclusive. A sanctuary... with boundaries. You understand. You get me. And now here you are, reading my story like a good little camper. Gosh, I hope you were emotionally invested, because—oopsie!—the floor’s gone. Yeah. It started crumbling like, 30 seconds ago. But hey, thanks for being part of my tragic bunny backstory! Say hi to gravity for me, sweetheart."
+
+[node name="Floor9" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -115.935)
+spin_direction = 1
+
+[node name="Sorry" parent="Tutorial/Floors/Floor9" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "I have NO IDEA how that happened. I am so sorry. Hey to make it up. The next platforms a different shape. That's fun!"
+
+[node name="Floor10" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -128.132)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Fun Shapes" parent="Tutorial/Floors/Floor10" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "Fun shapes ahead!!!"
+
+[node name="Floor11" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -140.557)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor12" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -151.891)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor13" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.62099, 5.60629, -163.571)
+floor_type = 3
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor14" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.371768, 5.60629, -174.656)
+floor_type = 3
+floor_shape = 1
+spin_speed = 180.0
+
+[node name="Floor15" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.26157, 5.60629, -186.654)
+floor_type = 3
+floor_shape = 1
+spin_speed = 270.0
+spin_direction = 1
+
+[node name="Floor16" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.606, -197.833)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor17" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -211.294)
+spin_direction = 1
+
+[node name="Acrobat" parent="Tutorial/Floors/Floor17" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "Wow! What a great little acrobat you are! You are so talented! I can't believe you got past that last one! "
+
+[node name="Floor18" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -224.865)
+spin_direction = 1
+
+[node name="Acrobat" parent="Tutorial/Floors/Floor18" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "Give Rail Grinding a try! muahahahahaha "
+
+[node name="Floor19" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -365.792)
+spin_direction = 1
+
+[node name="Congrats" parent="Tutorial/Floors/Floor19" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "wow...great job...congrats. "
+
+[node name="Floor20" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -378.734)
+spin_direction = 1
+
+[node name="HU-3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "You ever wonder what that floating THING is next to your head? His name is HU-3. We went to high school together...he was a jerk. He also emits 3,000,000 mSv worth of radiation to anything near it. Hopefully that hat is made of lead."
+
+[node name="Floor21" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -402.151)
+floor_size = Vector3(10, 0.5, 30)
+spin_direction = 1
+
+[node name="Gears" parent="Tutorial/Floors/Floor21" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, 11.0899)
+sign_text = "Up ahead is GEARs. HU-3 loves to munch on them. Look! "
+
+[node name="Gears2" type="Node3D" parent="Tutorial/Floors/Floor21"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.429099, 0)
+
+[node name="SixTeethGear" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -9.45291)
+
+[node name="SixTeethGear2" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.8761)
+
+[node name="SixTeethGear3" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -9.17377)
+
+[node name="SixTeethGear4" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.39716)
+
+[node name="SixTeethGear5" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.6377)
+
+[node name="SixTeethGear6" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.02658)
+
+[node name="SixTeethGear7" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -7.42941)
+
+[node name="SixTeethGear8" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -7.64578)
+
+[node name="SixTeethGear9" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -7.64578)
+
+[node name="SixTeethGear10" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.227716, 0.15, -9.87582)
+
+[node name="SixTeethGear11" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.521104, 0.15, -9.37921)
+
+[node name="SixTeethGear12" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.369699, 0.15, -9.6355)
+
+[node name="SixTeethGear13" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.764711, 0.15, -8.96683)
+
+[node name="SixTeethGear14" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.642364, 0.15, -9.17395)
+
+[node name="SixTeethGear15" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.953199, 0.15, -8.6478)
+
+[node name="SixTeethGear16" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -1.25694, 0.15, -8.13364)
+
+[node name="SixTeethGear17" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -1.14689, 0.15, -8.31992)
+
+[node name="SixTeethGear18" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -1.14689, 0.15, -8.31992)
+
+[node name="SixTeethGear19" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -1.07751, 0.182489, -9.98538)
+
+[node name="SixTeethGear20" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.920329, 0.165264, -8.7612)
+
+[node name="SixTeethGear21" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -1.00144, 0.174153, -9.71695)
+
+[node name="SixTeethGear22" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.789793, 0.150959, -8.97006)
+
+[node name="SixTeethGear23" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.217236, 0.158143, -8.59659)
+
+[node name="SixTeethGear24" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.688819, 0.139893, -8.61371)
+
+[node name="SixTeethGear25" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.52608, 0.122059, -8.0394)
+
+[node name="SixTeethGear26" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.585043, 0.12852, -8.2475)
+
+[node name="SixTeethGear27" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.585043, 0.12852, -8.2475)
+
+[node name="SixTeethGear28" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, 0.102921, 0.15, -8.46085)
+
+[node name="SixTeethGear29" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.383677, 0.15, -8.15112)
+
+[node name="SixTeethGear30" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.132564, 0.15, -8.31097)
+
+[node name="SixTeethGear31" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.787712, 0.15, -7.89395)
+
+[node name="SixTeethGear32" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.584793, 0.15, -8.0231)
+
+[node name="SixTeethGear33" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.10033, 0.15, -7.69495)
+
+[node name="SixTeethGear34" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.6041, 0.15, -7.3743)
+
+[node name="SixTeethGear35" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.42157, 0.15, -7.49048)
+
+[node name="SixTeethGear36" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.42157, 0.15, -7.49048)
+
+[node name="SixTeethGear37" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, 0.571661, 0.15, -8.51205)
+
+[node name="SixTeethGear38" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.0048219, 0.15, -8.49289)
+
+[node name="SixTeethGear39" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, 0.292682, 0.15, -8.50278)
+
+[node name="SixTeethGear40" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.483519, 0.15, -8.47693)
+
+[node name="SixTeethGear41" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.243094, 0.15, -8.48495)
+
+[node name="SixTeethGear42" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.853866, 0.15, -8.46463)
+
+[node name="SixTeethGear43" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -1.45071, 0.15, -8.44479)
+
+[node name="SixTeethGear44" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -1.23447, 0.15, -8.45197)
+
+[node name="SixTeethGear45" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -1.23447, 0.15, -8.45197)
+
+[node name="SixTeethGear46" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, 0.207765, 0.182489, -9.28775)
+
+[node name="SixTeethGear47" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.74055, 0.165264, -8.4978)
+
+[node name="SixTeethGear48" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, 0.0221649, 0.174153, -9.07944)
+
+[node name="SixTeethGear49" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.494259, 0.150959, -8.49985)
+
+[node name="SixTeethGear50" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.501872, 0.158143, -7.81628)
+
+[node name="SixTeethGear51" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.740657, 0.139893, -8.2233)
+
+[node name="SixTeethGear52" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -1.13776, 0.122059, -7.77762)
+
+[node name="SixTeethGear53" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.993867, 0.12852, -7.93912)
+
+[node name="SixTeethGear54" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.993867, 0.12852, -7.93912)
+
+[node name="SixTeethGear55" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, 0.61998, 0.15, -8.47156)
+
+[node name="SixTeethGear56" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, 0.0814694, 0.15, -8.26483)
+
+[node name="SixTeethGear57" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, 0.359381, 0.15, -8.37152)
+
+[node name="SixTeethGear58" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -0.365652, 0.15, -8.09323)
+
+[node name="SixTeethGear59" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -0.141087, 0.15, -8.17944)
+
+[node name="SixTeethGear60" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -0.711617, 0.15, -7.96042)
+
+[node name="SixTeethGear61" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -1.26913, 0.15, -7.74643)
+
+[node name="SixTeethGear62" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -1.06713, 0.15, -7.82397)
+
+[node name="SixTeethGear63" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -1.06713, 0.15, -7.82397)
+
+[node name="SixTeethGear64" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 1.08953, 0.15, -8.42844)
+
+[node name="SixTeethGear65" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.520764, 0.15, -8.52438)
+
+[node name="SixTeethGear66" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.814283, 0.15, -8.47485)
+
+[node name="SixTeethGear67" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.0484736, 0.15, -8.60403)
+
+[node name="SixTeethGear68" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.28568, 0.15, -8.56403)
+
+[node name="SixTeethGear69" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.316915, 0.15, -8.66568)
+
+[node name="SixTeethGear70" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.905771, 0.15, -8.76498)
+
+[node name="SixTeethGear71" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.692436, 0.15, -8.72897)
+
+[node name="SixTeethGear72" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.692436, 0.15, -8.72897)
+
+[node name="SixTeethGear73" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, 0.887287, 0.182489, -9.26105)
+
+[node name="SixTeethGear74" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.199273, 0.165264, -8.6756)
+
+[node name="SixTeethGear75" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, 0.663948, 0.174153, -9.09384)
+
+[node name="SixTeethGear76" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, 0.0424954, 0.150959, -8.62857)
+
+[node name="SixTeethGear77" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.100996, 0.158143, -7.96024)
+
+[node name="SixTeethGear78" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.253999, 0.139893, -8.40662)
+
+[node name="SixTeethGear79" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.731846, 0.122059, -8.04889)
+
+[node name="SixTeethGear80" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.558695, 0.12852, -8.17853)
+
+[node name="SixTeethGear81" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.558695, 0.12852, -8.17853)
+
+[node name="SixTeethGear82" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.11299, 0.15, -7.6127)
+
+[node name="SixTeethGear83" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.576519, 0.15, -7.95596)
+
+[node name="SixTeethGear84" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.337303, 0.15, -7.77881)
+
+[node name="SixTeethGear85" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.96139, 0.15, -8.24103)
+
+[node name="SixTeethGear86" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.768106, 0.15, -8.09787)
+
+[node name="SixTeethGear87" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.2592, 0.15, -8.46158)
+
+[node name="SixTeethGear88" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.73909, 0.15, -8.81699)
+
+[node name="SixTeethGear89" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.56522, 0.15, -8.6882)
+
+[node name="SixTeethGear90" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.56522, 0.15, -8.6882)
+
+[node name="SixTeethGear91" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, 0.102789, 0.15, -7.19342)
+
+[node name="SixTeethGear92" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.121684, 0.15, -7.72476)
+
+[node name="SixTeethGear93" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.00584581, 0.15, -7.45056)
+
+[node name="SixTeethGear94" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.308136, 0.15, -8.16592)
+
+[node name="SixTeethGear95" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.214471, 0.15, -7.94437)
+
+[node name="SixTeethGear96" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.452331, 0.15, -8.50729)
+
+[node name="SixTeethGear97" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.684725, 0.15, -9.05737)
+
+[node name="SixTeethGear98" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.600544, 0.15, -8.85806)
+
+[node name="SixTeethGear99" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.600544, 0.15, -8.85806)
+
+[node name="SixTeethGear100" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, 0.696569, 0.182489, -7.81113)
+
+[node name="SixTeethGear101" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.380745, 0.165264, -8.41339)
+
+[node name="SixTeethGear102" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, 0.435576, 0.174153, -7.90976)
+
+[node name="SixTeethGear103" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.290579, 0.150959, -8.18417)
+
+[node name="SixTeethGear104" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.931466, 0.158143, -7.94635)
+
+[node name="SixTeethGear105" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.637055, 0.139893, -8.31512)
+
+[node name="SixTeethGear106" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -1.19544, 0.122059, -8.52612)
+
+[node name="SixTeethGear107" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.993102, 0.12852, -8.44968)
+
+[node name="SixTeethGear108" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.993102, 0.12852, -8.44968)
+
+[node name="SixTeethGear109" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, 0.349974, 0.15, -9.01093)
+
+[node name="SixTeethGear110" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, 0.0257663, 0.15, -8.53381)
+
+[node name="SixTeethGear111" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, 0.19308, 0.15, -8.78003)
+
+[node name="SixTeethGear112" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, -0.243445, 0.15, -8.13773)
+
+[node name="SixTeethGear113" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, -0.10825, 0.15, -8.3367)
+
+[node name="SixTeethGear114" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, -0.451731, 0.15, -7.83121)
+
+[node name="SixTeethGear115" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, -0.7874, 0.15, -7.33731)
+
+[node name="SixTeethGear116" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, -0.665787, 0.15, -7.51627)
+
+[node name="SixTeethGear117" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.82708, -0.562083, 2.45695e-08, -1.65838e-15, -4.37114e-08, -1, 0.562083, 0.82708, -3.61528e-08, -0.665787, 0.15, -7.51627)
+
+[node name="SixTeethGear118" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, 0.760149, 0.15, -9.2435)
+
+[node name="SixTeethGear119" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, 0.238354, 0.15, -8.99768)
+
+[node name="SixTeethGear120" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, 0.507643, 0.15, -9.12451)
+
+[node name="SixTeethGear121" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, -0.19492, 0.15, -8.79352)
+
+[node name="SixTeethGear122" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, 0.0226929, 0.15, -8.89606)
+
+[node name="SixTeethGear123" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, -0.530138, 0.15, -8.63562)
+
+[node name="SixTeethGear124" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, -1.07035, 0.15, -8.38107)
+
+[node name="SixTeethGear125" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, -0.874617, 0.15, -8.47327)
+
+[node name="SixTeethGear126" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.426206, -0.904626, 3.95425e-08, -5.90892e-16, -4.37114e-08, -1, 0.904626, 0.426206, -1.86301e-08, -0.874617, 0.15, -8.47327)
+
+[node name="SixTeethGear127" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, 0.118887, 0.182489, -9.81177)
+
+[node name="SixTeethGear128" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, -0.439198, 0.165264, -8.71088)
+
+[node name="SixTeethGear129" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, 0.0309234, 0.174153, -9.547)
+
+[node name="SixTeethGear130" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, -0.213833, 0.150959, -8.81027)
+
+[node name="SixTeethGear131" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, 0.0497784, 0.158143, -8.17957)
+
+[node name="SixTeethGear132" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, -0.330621, 0.139893, -8.4588)
+
+[node name="SixTeethGear133" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, -0.518834, 0.122059, -7.89233)
+
+[node name="SixTeethGear134" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, -0.450642, 0.12852, -8.0976)
+
+[node name="SixTeethGear135" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.944752, -0.31516, -0.0900991, -0.104763, -0.0298643, -0.994049, 0.310593, 0.948569, -0.0612313, -0.450642, 0.12852, -8.0976)
+
+[node name="SixTeethGear136" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, 0.238277, 0.15, -7.88736)
+
+[node name="SixTeethGear137" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -0.338254, 0.15, -7.90466)
+
+[node name="SixTeethGear138" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -0.0407171, 0.15, -7.89572)
+
+[node name="SixTeethGear139" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -0.816981, 0.15, -7.9191)
+
+[node name="SixTeethGear140" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -0.576564, 0.15, -7.91183)
+
+[node name="SixTeethGear141" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -1.1874, 0.15, -7.93021)
+
+[node name="SixTeethGear142" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -1.78429, 0.15, -7.94818)
+
+[node name="SixTeethGear143" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -1.56802, 0.15, -7.94165)
+
+[node name="SixTeethGear144" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.0300502, -0.999548, 4.36917e-08, 0, -4.37114e-08, -1, 0.999548, -0.0300502, 1.31353e-09, -1.56802, 0.15, -7.94165)
+
+[node name="SixTeethGear145" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, 0.654757, 0.15, -7.6662)
+
+[node name="SixTeethGear146" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, 0.167182, 0.15, -7.9744)
+
+[node name="SixTeethGear147" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, 0.418795, 0.15, -7.81537)
+
+[node name="SixTeethGear148" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, -0.237705, 0.15, -8.23026)
+
+[node name="SixTeethGear149" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, -0.0343435, 0.15, -8.10178)
+
+[node name="SixTeethGear150" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, -0.550938, 0.15, -8.42825)
+
+[node name="SixTeethGear151" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, -1.05571, 0.15, -8.74731)
+
+[node name="SixTeethGear152" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, -0.872836, 0.15, -8.63171)
+
+[node name="SixTeethGear153" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.534279, -0.845308, 3.69496e-08, 0, -4.37114e-08, -1, 0.845308, -0.534279, 2.33541e-08, -0.872836, 0.15, -8.63171)
+
+[node name="SixTeethGear154" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, 0.789791, 0.182489, -8.51233)
+
+[node name="SixTeethGear155" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -0.438563, 0.165264, -8.392)
+
+[node name="SixTeethGear156" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, 0.519186, 0.174153, -8.44437)
+
+[node name="SixTeethGear157" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -0.233704, 0.150959, -8.25525)
+
+[node name="SixTeethGear158" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -0.624229, 0.158143, -7.69418)
+
+[node name="SixTeethGear159" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -0.592946, 0.139893, -8.16504)
+
+[node name="SixTeethGear160" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -1.17188, 0.122059, -8.01962)
+
+[node name="SixTeethGear161" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -0.962103, 0.12852, -8.07233)
+
+[node name="SixTeethGear162" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.245293, -0.969444, 0.0032736, -0.104763, -0.0298642, -0.994049, 0.963772, 0.243491, -0.108887, -0.962103, 0.12852, -8.07233)
+
+[node name="SixTeethGear163" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.22346, 0.15, -9.42633)
+
+[node name="SixTeethGear164" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.336267, 0.15, -8.86066)
+
+[node name="SixTeethGear165" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.278052, 0.15, -9.15256)
+
+[node name="SixTeethGear166" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.429933, 0.15, -8.39096)
+
+[node name="SixTeethGear167" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.382891, 0.15, -8.62686)
+
+[node name="SixTeethGear168" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.502407, 0.15, -8.02753)
+
+[node name="SixTeethGear169" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.619194, 0.15, -7.44189)
+
+[node name="SixTeethGear170" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.576879, 0.15, -7.65408)
+
+[node name="SixTeethGear171" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.98069, -0.19557, 8.54862e-09, 0, -4.37114e-08, -1, 0.19557, 0.98069, -4.28673e-08, -0.576879, 0.15, -7.65408)
+
+[node name="SixTeethGear172" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, 0.0637458, 0.15, -9.80029)
+
+[node name="SixTeethGear173" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -0.321099, 0.15, -9.37064)
+
+[node name="SixTeethGear174" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -0.122496, 0.15, -9.59238)
+
+[node name="SixTeethGear175" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -0.640652, 0.15, -9.01385)
+
+[node name="SixTeethGear176" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -0.480161, 0.15, -9.19305)
+
+[node name="SixTeethGear177" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -0.887893, 0.15, -8.73785)
+
+[node name="SixTeethGear178" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -1.28632, 0.15, -8.29303)
+
+[node name="SixTeethGear179" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -1.14196, 0.15, -8.45419)
+
+[node name="SixTeethGear180" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.744882, -0.667196, 2.91641e-08, 0, -4.37114e-08, -1, 0.667196, 0.744882, -3.25599e-08, -1.14196, 0.15, -8.45419)
+
+[node name="SixTeethGear181" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.748213, 0.182489, -10.0739)
+
+[node name="SixTeethGear182" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.83348, 0.165264, -8.84265)
+
+[node name="SixTeethGear183" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.726107, 0.174153, -9.79581)
+
+[node name="SixTeethGear184" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.664616, 0.150959, -9.02194)
+
+[node name="SixTeethGear185" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.176156, 0.158143, -8.5437)
+
+[node name="SixTeethGear186" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.635284, 0.139893, -8.65271)
+
+[node name="SixTeethGear187" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.588006, 0.122059, -8.05768)
+
+[node name="SixTeethGear188" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.605132, 0.12852, -8.27328)
+
+[node name="SixTeethGear189" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.99112, 0.079173, -0.106833, -0.104763, -0.0298643, -0.994049, -0.0818923, 0.996413, -0.0213047, -0.605132, 0.12852, -8.27328)
+
+[node name="SixTeethGear190" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, 0.111272, 0.15, -8.34796)
+
+[node name="SixTeethGear191" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -0.426502, 0.15, -8.1394)
+
+[node name="SixTeethGear192" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -0.148977, 0.15, -8.24704)
+
+[node name="SixTeethGear193" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -0.87303, 0.15, -7.96622)
+
+[node name="SixTeethGear194" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -0.648772, 0.15, -8.05316)
+
+[node name="SixTeethGear195" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -1.21853, 0.15, -7.83218)
+
+[node name="SixTeethGear196" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -1.77528, 0.15, -7.61624)
+
+[node name="SixTeethGear197" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -1.57355, 0.15, -7.69449)
+
+[node name="SixTeethGear198" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.361624, -0.932324, 4.07532e-08, 0, -4.37114e-08, -1, 0.932324, 0.361624, -1.58071e-08, -1.57355, 0.15, -7.69449)
+
+[node name="SixTeethGear199" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, 0.580975, 0.15, -8.30652)
+
+[node name="SixTeethGear200" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, 0.0118758, 0.15, -8.40045)
+
+[node name="SixTeethGear201" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, 0.305568, 0.15, -8.35199)
+
+[node name="SixTeethGear202" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, -0.460699, 0.15, -8.47842)
+
+[node name="SixTeethGear203" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, -0.223347, 0.15, -8.43927)
+
+[node name="SixTeethGear204" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, -0.8263, 0.15, -8.53879)
+
+[node name="SixTeethGear205" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, -1.4155, 0.15, -8.63608)
+
+[node name="SixTeethGear206" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, -1.20203, 0.15, -8.6008)
+
+[node name="SixTeethGear207" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.162861, -0.986649, 4.31278e-08, 0, -4.37114e-08, -1, 0.986649, -0.162861, 7.11889e-09, -1.20203, 0.15, -8.6008)
+
+[node name="SixTeethGear208" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, 0.375809, 0.182489, -9.1384)
+
+[node name="SixTeethGear209" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -0.708684, 0.165264, -8.54916)
+
+[node name="SixTeethGear210" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, 0.153052, 0.174153, -8.9704)
+
+[node name="SixTeethGear211" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -0.466749, 0.150959, -8.50302)
+
+[node name="SixTeethGear212" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -0.607899, 0.158143, -7.83414)
+
+[node name="SixTeethGear213" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -0.762475, 0.139893, -8.28)
+
+[node name="SixTeethGear214" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -1.23907, 0.122059, -7.92056)
+
+[node name="SixTeethGear215" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -1.06637, 0.12852, -8.05081)
+
+[node name="SixTeethGear216" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.601291, -0.798058, -0.039394, -0.104763, -0.0298642, -0.994049, 0.792132, 0.60184, -0.101564, -1.06637, 0.12852, -8.05081)
+
+[node name="SixTeethGear217" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, 0.620441, 0.15, -8.25735)
+
+[node name="SixTeethGear218" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, 0.0518996, 0.15, -8.15994)
+
+[node name="SixTeethGear219" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, 0.34531, 0.15, -8.21021)
+
+[node name="SixTeethGear220" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, -0.420147, 0.15, -8.0791)
+
+[node name="SixTeethGear221" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, -0.183059, 0.15, -8.11972)
+
+[node name="SixTeethGear222" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, -0.785406, 0.15, -8.01651)
+
+[node name="SixTeethGear223" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, -1.37401, 0.15, -7.91568)
+
+[node name="SixTeethGear224" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, -1.16074, 0.15, -7.95221)
+
+[node name="SixTeethGear225" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.168851, -0.985642, 4.30838e-08, -1.65838e-15, -4.37114e-08, -1, 0.985642, 0.168851, -7.3807e-09, -1.16074, 0.15, -7.95221)
+
+[node name="SixTeethGear226" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, 1.07249, 0.15, -8.12323)
+
+[node name="SixTeethGear227" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, 0.533472, 0.15, -8.32855)
+
+[node name="SixTeethGear228" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, 0.811636, 0.15, -8.2226)
+
+[node name="SixTeethGear229" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, 0.0858788, 0.15, -8.49905)
+
+[node name="SixTeethGear230" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, 0.31068, 0.15, -8.41342)
+
+[node name="SixTeethGear231" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, -0.260399, 0.15, -8.63095)
+
+[node name="SixTeethGear232" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, -0.818463, 0.15, -8.84351)
+
+[node name="SixTeethGear233" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, -0.61629, 0.15, -8.76648)
+
+[node name="SixTeethGear234" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.355955, -0.934503, 4.08484e-08, -5.90892e-16, -4.37114e-08, -1, 0.934503, -0.355955, 1.55593e-08, -0.61629, 0.15, -8.76648)
+
+[node name="SixTeethGear235" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, 1.03699, 0.182489, -8.97931)
+
+[node name="SixTeethGear236" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, -0.143088, 0.165264, -8.61768)
+
+[node name="SixTeethGear237" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, 0.78526, 0.174153, -8.85901)
+
+[node name="SixTeethGear238" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, 0.0848145, 0.150959, -8.52426)
+
+[node name="SixTeethGear239" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, -0.186612, 0.158143, -7.89691)
+
+[node name="SixTeethGear240" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, -0.249362, 0.139893, -8.36459)
+
+[node name="SixTeethGear241" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, -0.787942, 0.122059, -8.10721)
+
+[node name="SixTeethGear242" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, -0.592782, 0.12852, -8.2005)
+
+[node name="SixTeethGear243" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.431623, -0.901867, -0.0183939, -0.104763, -0.0298643, -0.994049, 0.89595, 0.430981, -0.107372, -0.592782, 0.12852, -8.2005)
+
+[node name="SixTeethGear244" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -0.266341, 0.15, -7.55844)
+
+[node name="SixTeethGear245" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -0.653788, 0.15, -7.98572)
+
+[node name="SixTeethGear246" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -0.453837, 0.15, -7.7652)
+
+[node name="SixTeethGear247" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -0.975477, 0.15, -8.34055)
+
+[node name="SixTeethGear248" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -0.813923, 0.15, -8.16235)
+
+[node name="SixTeethGear249" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -1.22441, 0.15, -8.61508)
+
+[node name="SixTeethGear250" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -1.62552, 0.15, -9.05746)
+
+[node name="SixTeethGear251" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -1.48019, 0.15, -8.89719)
+
+[node name="SixTeethGear252" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.740816, -0.671708, 2.93613e-08, 0, -4.37114e-08, -1, 0.671708, -0.740816, 3.23821e-08, -1.48019, 0.15, -8.89719)
+
+[node name="SixTeethGear253" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.136728, 0.15, -7.10504)
+
+[node name="SixTeethGear254" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.252952, 0.15, -7.67001)
+
+[node name="SixTeethGear255" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.192976, 0.15, -7.37848)
+
+[node name="SixTeethGear256" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.349526, 0.15, -8.13913)
+
+[node name="SixTeethGear257" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.300999, 0.15, -7.90353)
+
+[node name="SixTeethGear258" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.424175, 0.15, -8.50211)
+
+[node name="SixTeethGear259" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.544502, 0.15, -9.08701)
+
+[node name="SixTeethGear260" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.500926, 0.15, -8.87509)
+
+[node name="SixTeethGear261" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.979484, -0.201522, 8.80883e-09, 0, -4.37114e-08, -1, 0.201522, -0.979484, 4.28146e-08, -0.500926, 0.15, -8.87509)
+
+[node name="SixTeethGear262" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, 0.566391, 0.182489, -7.5947)
+
+[node name="SixTeethGear263" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -0.372335, 0.165264, -8.39603)
+
+[node name="SixTeethGear264" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, 0.329727, 0.174153, -7.74246)
+
+[node name="SixTeethGear265" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -0.328739, 0.150959, -8.15359)
+
+[node name="SixTeethGear266" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -1.00376, 0.158143, -8.04572)
+
+[node name="SixTeethGear267" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -0.642914, 0.139893, -8.34979)
+
+[node name="SixTeethGear268" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -1.14925, 0.122059, -8.66589)
+
+[node name="SixTeethGear269" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -0.965772, 0.12852, -8.55136)
+
+[node name="SixTeethGear270" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.52405, -0.847855, 0.0807018, -0.104763, -0.0298642, -0.994049, 0.845219, -0.529386, -0.0731733, -0.965772, 0.12852, -8.55136)
+
+[node name="SixTeethGear271" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, 0.461133, 0.15, -8.83911)
+
+[node name="SixTeethGear272" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, 0.0498769, 0.15, -8.43463)
+
+[node name="SixTeethGear273" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, 0.262112, 0.15, -8.64337)
+
+[node name="SixTeethGear274" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, -0.291599, 0.15, -8.09882)
+
+[node name="SixTeethGear275" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, -0.120101, 0.15, -8.26752)
+
+[node name="SixTeethGear276" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, -0.555809, 0.15, -7.83896)
+
+[node name="SixTeethGear277" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, -0.981586, 0.15, -7.42026)
+
+[node name="SixTeethGear278" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, -0.827324, 0.15, -7.57196)
+
+[node name="SixTeethGear279" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.701183, -0.712981, 3.11654e-08, -3.6553e-15, -4.37114e-08, -1, 0.712981, 0.701183, -3.06497e-08, -0.827324, 0.15, -7.57196)
+
+[node name="SixTeethGear280" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, 0.908872, 0.15, -8.98697)
+
+[node name="SixTeethGear281" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, 0.349078, 0.15, -8.84796)
+
+[node name="SixTeethGear282" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, 0.637971, 0.15, -8.91968)
+
+[node name="SixTeethGear283" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, -0.115758, 0.15, -8.73245)
+
+[node name="SixTeethGear284" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, 0.117707, 0.15, -8.79047)
+
+[node name="SixTeethGear285" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, -0.475383, 0.15, -8.64319)
+
+[node name="SixTeethGear286" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, -1.05494, 0.15, -8.49921)
+
+[node name="SixTeethGear287" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, -0.844961, 0.15, -8.55133)
+
+[node name="SixTeethGear288" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.241058, -0.970511, 4.24224e-08, 9.23295e-16, -4.37114e-08, -1, 0.970511, 0.241058, -1.0537e-08, -0.844961, 0.15, -8.55133)
+
+[node name="SixTeethGear289" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, 0.391128, 0.182489, -9.66968)
+
+[node name="SixTeethGear290" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, -0.371481, 0.165264, -8.69919)
+
+[node name="SixTeethGear291" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, 0.253082, 0.174153, -9.42722)
+
+[node name="SixTeethGear292" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, -0.131029, 0.150959, -8.75259)
+
+[node name="SixTeethGear293" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, 0.00414515, 0.158143, -8.08252)
+
+[node name="SixTeethGear294" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, -0.314298, 0.139893, -8.43076)
+
+[node name="SixTeethGear295" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, -0.609661, 0.122059, -7.91202)
+
+[node name="SixTeethGear296" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, -0.502643, 0.12852, -8.10001)
+
+[node name="SixTeethGear297" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.865766, -0.494585, -0.0763843, -0.104763, -0.0298643, -0.994049, 0.48936, 0.868616, -0.0776696, -0.502643, 0.12852, -8.10001)
+
+[node name="SixTeethGear298" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, 0.131857, 0.15, -7.75909)
+
+[node name="SixTeethGear299" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -0.430157, 0.15, -7.88879)
+
+[node name="SixTeethGear300" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -0.140114, 0.15, -7.82184)
+
+[node name="SixTeethGear301" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -0.896817, 0.15, -7.99658)
+
+[node name="SixTeethGear302" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -0.662462, 0.15, -7.94244)
+
+[node name="SixTeethGear303" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -1.25791, 0.15, -8.07993)
+
+[node name="SixTeethGear304" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -1.83976, 0.15, -8.21429)
+
+[node name="SixTeethGear305" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -1.62895, 0.15, -8.16559)
+
+[node name="SixTeethGear306" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.224951, -0.97437, 4.25911e-08, 0, -4.37114e-08, -1, 0.97437, -0.224951, 9.83293e-09, -1.62895, 0.15, -8.16559)
+
+[node name="SixTeethGear307" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, 0.497042, 0.15, -7.46075)
+
+[node name="SixTeethGear308" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, 0.0791565, 0.15, -7.85834)
+
+[node name="SixTeethGear309" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, 0.29481, 0.15, -7.65317)
+
+[node name="SixTeethGear310" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, -0.267874, 0.15, -8.18845)
+
+[node name="SixTeethGear311" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, -0.0935656, 0.15, -8.02267)
+
+[node name="SixTeethGear312" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, -0.536335, 0.15, -8.44388)
+
+[node name="SixTeethGear313" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, -0.968963, 0.15, -8.8555)
+
+[node name="SixTeethGear314" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, -0.812227, 0.15, -8.70636)
+
+[node name="SixTeethGear315" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(-0.689278, -0.724497, 3.16688e-08, 1.89814e-15, -4.37114e-08, -1, 0.724497, -0.689278, 3.01293e-08, -0.812227, 0.15, -8.70636)
+
+[node name="SixTeethGear316" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, 0.794947, 0.182489, -8.26413)
+
+[node name="SixTeethGear317" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -0.433221, 0.165264, -8.38635)
+
+[node name="SixTeethGear318" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, 0.516276, 0.174153, -8.2504)
+
+[node name="SixTeethGear319" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -0.259061, 0.150959, -8.21219)
+
+[node name="SixTeethGear320" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -0.751773, 0.158143, -7.73831)
+
+[node name="SixTeethGear321" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -0.629009, 0.139893, -8.19397)
+
+[node name="SixTeethGear322" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -1.2252, 0.122059, -8.16458)
+
+[node name="SixTeethGear323" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -1.00917, 0.12852, -8.17523)
+
+[node name="SixTeethGear324" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("6_16sj7")]
+transform = Transform3D(0.052072, -0.998343, 0.0245054, -0.104763, -0.0298642, -0.994049, 0.993133, 0.0491949, -0.106144, -1.00917, 0.12852, -8.17523)
+
+[node name="Floor22" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -423.85)
+spin_direction = 1
+
+[node name="Merchant-Intro" parent="Tutorial/Floors/Floor22" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "You can find merchants everywhere selling cool upgrades for the gears HU-3 eats. "
+
+[node name="Merchant" parent="Tutorial/Floors/Floor22" instance=ExtResource("7_lnigw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
+
+[node name="Floor23" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -451.777)
+spin_direction = 1
+
+[node name="Merchant-Intro-Cont" parent="Tutorial/Floors/Floor23" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+sign_text = "This one sells a wall jump......jump off of a wall..."
+
+[node name="Merchant" parent="Tutorial/Floors/Floor23" instance=ExtResource("7_lnigw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
+powerup_type = 1
+powerup_name = "Wall Jump"
+powerup_description = "Allows you to wall jump"
+
+[node name="Floor24" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
+floor_size = Vector3(20, 0.5, 50)
+spin_direction = 1
+
+[node name="Wall" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.3421, 0.463201, -14.8447)
+
+[node name="Wall2" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.24994, 0.463201, -14.8447)
+
+[node name="Floor25" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
+floor_size = Vector3(10, 0.5, 50)
+spin_direction = 1
+
+[node name="CRED-intro" parent="Tutorial/Floors/Floor24/Floor25" instance=ExtResource("3_e5bud")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -3.52432, -0.016468, -19.7253)
+sign_text = "GEARs may get you some upgrades here and there but in this world CRED is everything. Without it you're a nobody. Do you have any? Oh you poor pitiful nobody. Maybe if you finished this obstacle course I could part with some of my massive horde of CRED for you. You know, like charity. "
+
+[node name="ObstacleCourse" type="Node" parent="."]
+
+[node name="Checkpoint" type="Node3D" parent="ObstacleCourse"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.51595, 27.7167, -540.782)
