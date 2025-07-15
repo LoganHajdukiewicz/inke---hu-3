@@ -652,10 +652,14 @@ func start_falling():
 func create_warning_shake():
 	"""Create a warning shake effect"""
 	var shake_tween = create_tween()
-	var shake_loops = int(shake_duration / 0.1)  # Calculate loops based on duration
+	var shake_loops = int(shake_duration / 0.1)
+	var offset_x = 0.44
+	var offset_z = 0.45
 	shake_tween.set_loops(shake_loops)
+	
+	
 	shake_tween.tween_property(self, "global_position", 
-		original_position + Vector3(randf_range(-shake_intensity, shake_intensity), 0, randf_range(-shake_intensity, shake_intensity)), 0.05)
+		original_position + Vector3(offset_x, 0, offset_z), 0.05)
 	shake_tween.tween_property(self, "global_position", original_position, 0.05)
 
 func _on_fall_complete():
