@@ -75,25 +75,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -61
 [node name="Floor10" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -0.0792542)
 floor_type = 3
-spin_direction = 1
 
 [node name="Floor16" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.946, 0, 0, 0, 0.215, 0, 0, 0, 1, -0.0169895, -1.19209e-07, 16.3363)
 
 [node name="Floor11" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -43.76)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -43.76)
 
 [node name="Floor12" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -28.7888)
 
 [node name="Floor13" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -29.5316)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -29.5316)
 
 [node name="Floor14" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -17.8142)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -17.8142)
 
 [node name="Floor2" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
-transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -88.8933)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0169895, -1.19209e-07, -88.8933)
 
 [node name="Floor3" parent="Environment/Platforms/Floors" instance=ExtResource("1_raww5")]
 transform = Transform3D(0.1408, 0, 0, 0, 0.032, 0, 0, 0, 0.1488, -0.0169895, -1.19209e-07, -127.462)
