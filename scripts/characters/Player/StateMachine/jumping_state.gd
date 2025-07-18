@@ -1,7 +1,7 @@
 extends State
 class_name JumpingState
 
-var jump_velocity : float = 5.0
+var jump_velocity : float = 10.0
 
 func enter():
 	print("Entered Jumping State")
@@ -26,7 +26,6 @@ func physics_update(delta: float):
 	# Check for double jump input
 	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
 		player.perform_double_jump()
-		# Stay in jumping state for the double jump
 		return
 
 	var input_dir = Input.get_vector("left", "right", "forward", "back")

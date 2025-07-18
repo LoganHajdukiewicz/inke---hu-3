@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://d2iuuu7okc6bg"]
+
+[ext_resource type="Script" uid="uid://8gniq22arxa7" path="res://scripts/environments/checkpoint.gd" id="1_eoo6j"]
+
+[node name="Checkpoint" type="Node3D" groups=["Checkpoint"]]
+script = ExtResource("1_eoo6j")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]

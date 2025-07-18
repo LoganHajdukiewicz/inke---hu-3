@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 Dialogic="*res://addons/dialogic/Core/DialogicGameHandler.gd"
+CheckpointManager="*res://autoloaded_scripts/checkpoint_manager.gd"
+GameManager="*res://autoloaded_scripts/game_manager.gd"
 
 [dialogic]
 
@@ -73,7 +75,7 @@ text/autopauses={}
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=3
+window/size/mode=2
 
 [editor]
 
