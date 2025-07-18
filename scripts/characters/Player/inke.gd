@@ -23,7 +23,7 @@ var coyote_time_counter: float = 0.0
 var was_on_floor: bool = false
 
 @export var grindrays: Node3D
-@export var wall_jump_rays: Node3D  # Add wall jump raycasts
+@export var wall_jump_rays: Node3D 
 
 # HU-3 Companion
 @onready var hu3_companion: CharacterBody3D = null
