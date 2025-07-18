@@ -1226,6 +1226,10 @@ sign_text = "You can find merchants everywhere selling cool upgrades for the gea
 
 [node name="Merchant" parent="Tutorial/Floors/Floor22" instance=ExtResource("7_lnigw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
+powerup_type = null
+powerup_name = null
+powerup_description = null
+powerup_cost = null
 
 [node name="Floor23" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -451.777)
@@ -1242,6 +1246,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
 powerup_type = 1
 powerup_name = "Wall Jump"
 powerup_description = "Allows you to wall jump"
+powerup_cost = null
 
 [node name="Floor24" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
