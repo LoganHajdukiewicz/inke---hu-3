@@ -1,9 +1,8 @@
 extends State
 class_name JumpingState
 
-# Exported variables for quick, snappy jumps
-@export var jump_velocity : float = 12.0  # Much higher for instant pop
-@export var quick_jump_gravity_multiplier : float = 0.8  # Slightly reduced gravity for better arc
+var jump_velocity : float = 10.0
+
 
 func enter():
 	print("Entered Jumping State")
@@ -39,7 +38,6 @@ func physics_update(delta: float):
 	# Check for double jump input - transition to the fancy double jump state
 	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
 		player.perform_double_jump()
-		change_to("DoubleJumpState")  # Use the fancy double jump state
 		return
 
 	# Simple air control - maintains momentum from ground movement

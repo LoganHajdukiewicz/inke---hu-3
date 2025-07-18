@@ -110,6 +110,48 @@ transform = Transform3D(1, 0, 0, 0, 0.882628, -0.470072, 0, 0.470072, 0.882628, 
 collision_mask = 2
 collide_with_areas = true
 
+[node name="RailRaycast6" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(1, 0, 0, 0, 0.617819, -0.786321, 0, 0.786321, 0.617819, 0, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="RailRaycast9" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(0.984087, 0.139718, 0.109778, 0, 0.617819, -0.786321, -0.177686, 0.773808, 0.607987, 0, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="RailRaycast10" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(0.98727, -0.125068, -0.0982666, 3.25888e-09, 0.617819, -0.786321, 0.159054, 0.776311, 0.609954, 0, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="RailRaycast7" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(0.96118, -0.216964, -0.17047, 0, 0.617819, -0.786321, 0.275923, 0.755796, 0.593835, 0, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="RailRaycast12" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(0.900675, -0.34165, -0.268438, 3.2825e-08, 0.617819, -0.786321, 0.434492, 0.70822, 0.556454, 0.0582644, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="RailRaycast8" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(0.907029, 0.331094, 0.260143, 8.22313e-09, 0.617819, -0.786321, -0.421067, 0.713216, 0.56038, 0, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="RailRaycast11" type="RayCast3D" parent="Grindrays"]
+transform = Transform3D(0.831751, 0.436526, 0.342982, 3.42877e-08, 0.617819, -0.786321, -0.555149, 0.654023, 0.513871, -0.109753, 0.153078, 0)
+target_position = Vector3(0, -1.5, 0)
+collision_mask = 2
+collide_with_areas = true
+
 [node name="WallJumpRays" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.792745, 0)
 

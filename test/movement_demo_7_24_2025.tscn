@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://1xtg2gv8rted"]
+[gd_scene load_steps=14 format=3 uid="uid://1xtg2gv8rted"]
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="6_16sj7"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="7_lnigw"]
 [ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="8_6mnhf"]
+[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="9_bd3gf"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -27,15 +28,15 @@ glow_enabled = true
 [sub_resource type="Curve3D" id="Curve3D_16sj7"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.57366, 0.832603, -15.2189, 0, 0, 0, 0, 0, 0, -1.19843, 1.32761, -27.1522, 0, 0, 0, 0, 0, 0, -1.53995, 2.75854, -43.8581, 0, 0, 0, 0, 0, 0, -0.884139, 3.67018, -52.1658, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -121.556),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.57366, 0.832603, -15.2189, 0, 0, 0, 0, 0, 0, -1.19843, 1.32761, -27.1522, 0, 0, 0, 0, 0, 0, -0.884139, 1.2493, -52.1658, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -121.556),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
 }
-point_count = 6
+point_count = 5
 
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.155526, 0.667877)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.37925, -410.52)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -1266,5 +1267,5 @@ sign_text = "GEARs may get you some upgrades here and there but in this world CR
 
 [node name="ObstacleCourse" type="Node" parent="."]
 
-[node name="Checkpoint" type="Node3D" parent="ObstacleCourse"]
+[node name="Checkpoint" parent="ObstacleCourse" instance=ExtResource("9_bd3gf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.51595, 27.7167, -540.782)

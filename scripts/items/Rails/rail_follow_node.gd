@@ -12,7 +12,7 @@ var local_starting_progress = 0.0
 @onready var direction_selected = false
 @onready var detach = false
 
-@export var move_speed = 12.0
+@export var move_speed = 15.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
