@@ -7,10 +7,6 @@ extends Area3D
 @export var bob_height: float = 0.2
 @export var bob_speed: float = 2.0
 
-var gear_count = GameManager.get_gear_count()
-
-
-
 var initial_position: Vector3
 var time_passed: float = 0.0
 var collected: bool = false  # Prevent double collection
@@ -21,6 +17,10 @@ func _ready():
 	
 	# Add this gear to the "Gear" group so HU-3 can find it
 	add_to_group("Gear")
+	
+	# Connect to GameManager if it exists
+	if not GameManager:
+		print("Warning: GameManager not found!")
 	
 func _process(delta):
 	# Don't update if already collected
@@ -46,13 +46,11 @@ func collect_gear_by_player():
 		return
 		
 	collected = true
-	gear_count += 1
-	print("Player collected gear directly! Total gears: " + str(gear_count))
 	
-	# Also update the player's gear count
-	var player = get_tree().get_first_node_in_group("Player")
-	if player and player.has_method("add_gear_count"):
-		player.add_gear_count(1)
+	# Add gear through GameManager
+	GameManager.add_gear(1)
+	
+	print("Player collected gear directly!")
 	
 	# Remove the gear from the scene
 	queue_free()
@@ -63,8 +61,11 @@ func collect_gear_by_hu3():
 		return
 		
 	collected = true
-	gear_count += 1
-	print("HU-3 collected gear! Total gears: " + str(gear_count))
+	
+	# Add gear through GameManager specifically for HU-3
+	GameManager.add_hu3_gear()
+	
+	print("HU-3 collected gear!")
 	
 	# Remove the gear from the scene
 	queue_free()

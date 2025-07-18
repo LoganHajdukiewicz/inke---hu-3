@@ -26,54 +26,38 @@ enum PowerupType {
 var player_in_range: bool = false
 var current_player: CharacterBody3D = null
 
-# Global upgrade tracking
-static var double_jump_purchased: bool = false
-static var wall_jump_purchased: bool = false
-static var dash_purchased: bool = false
-static var speed_upgrade_purchased: bool = false
-static var health_upgrade_purchased: bool = false
-static var damage_upgrade_purchased: bool = false
-
 func _ready():
 	setup_powerup_defaults()
-
 	setup_ui()
 	
 	$Area3D.body_entered.connect(_on_area_3d_body_entered)
 	$Area3D.body_exited.connect(_on_area_3d_body_exited)
 
 func setup_powerup_defaults():
+	# Get upgrade info from GameManager if not manually configured
+	var upgrade_key = get_upgrade_key()
+	if powerup_name == "Double Jump Upgrade" and upgrade_key != "":  # Only set if not manually configured
+		powerup_name = GameManager.get_upgrade_name(upgrade_key)
+		powerup_description = GameManager.get_upgrade_description(upgrade_key)
+		powerup_cost = GameManager.get_upgrade_cost(upgrade_key)
+
+func get_upgrade_key() -> String:
+	"""Convert PowerupType enum to string key for GameManager"""
 	match powerup_type:
 		PowerupType.DOUBLE_JUMP:
-			if powerup_name == "Double Jump Upgrade":  # Only set if not manually configured
-				powerup_name = "Double Jump Upgrade"
-				powerup_description = "Allows you to jump again while in mid-air"
-				powerup_cost = 3
+			return "double_jump"
 		PowerupType.WALL_JUMP:
-			if powerup_name == "Double Jump Upgrade":  # Only set if not manually configured
-				powerup_name = "Wall Jump Upgrade"
-				powerup_description = "Allows you to jump between close walls"
-				powerup_cost = 4
+			return "wall_jump"
 		PowerupType.DASH:
-			if powerup_name == "Double Jump Upgrade":  # Only set if not manually configured
-				powerup_name = "Dash"
-				powerup_description = "Allows you to dash past your enemies"
-				powerup_cost = 3
+			return "dash"
 		PowerupType.SPEED_UPGRADE:
-			if powerup_name == "Double Jump Upgrade":  # Only set if not manually configured
-				powerup_name = "Speed Upgrade"
-				powerup_description = "Allows you to zoom around"
-				powerup_cost = 3
+			return "speed_upgrade"
 		PowerupType.HEALTH_UPGRADE:
-			if powerup_name == "Double Jump Upgrade":  # Only set if not manually configured
-				powerup_name = "Health Upgrade"
-				powerup_description = "Allows you to take a harder hit"
-				powerup_cost = 3
+			return "health_upgrade"
 		PowerupType.DAMAGE_UPGRADE:
-			if powerup_name == "Double Jump Upgrade":  # Only set if not manually configured
-				powerup_name = "Damage Upgrade"
-				powerup_description = "Allows you to hit those evil robots harder"
-				powerup_cost = 3
+			return "damage_upgrade"
+		_:
+			return ""
 
 func setup_ui():
 	# Create UI elements as children of the merchant
@@ -169,12 +153,14 @@ func open_shop():
 		return
 		
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	# Update gear count display
-	var player_gears = get_player_gear_count()
+	
+	# Update gear count display from GameManager
+	var player_gears = GameManager.get_gear_count()
 	gear_count_label.text = "Your gears: " + str(player_gears)
 	
 	# Update purchase button state based on powerup type
-	var is_purchased = is_powerup_purchased()
+	var upgrade_key = get_upgrade_key()
+	var is_purchased = GameManager.is_upgrade_purchased(upgrade_key)
 	
 	if is_purchased:
 		purchase_button.text = "Already Purchased"
@@ -194,64 +180,27 @@ func close_shop():
 	purchase_panel.visible = false
 	get_tree().paused = false
 
-func is_powerup_purchased() -> bool:
-	match powerup_type:
-		PowerupType.DOUBLE_JUMP:
-			return double_jump_purchased
-		PowerupType.WALL_JUMP:
-			return wall_jump_purchased
-		PowerupType.DASH:
-			return dash_purchased 
-		PowerupType.SPEED_UPGRADE:
-			return speed_upgrade_purchased
-		PowerupType.HEALTH_UPGRADE:
-			return health_upgrade_purchased
-		PowerupType.DAMAGE_UPGRADE:
-			return damage_upgrade_purchased
-		_:
-			return false
-
 func _on_purchase_pressed():
-	if not current_player or is_powerup_purchased():
+	if not current_player:
 		return
 	
-	var player_gears = get_player_gear_count()
-	if player_gears >= powerup_cost:
-		# Deduct gears
-		spend_player_gears(powerup_cost)
-		
-		# Grant the appropriate ability
-		match powerup_type:
-			PowerupType.DOUBLE_JUMP:
-				double_jump_purchased = true
-				if current_player.has_method("unlock_double_jump"):
-					current_player.unlock_double_jump()
-				print("Double jump purchased!")
-			PowerupType.WALL_JUMP:
-				wall_jump_purchased = true
-				if current_player.has_method("unlock_wall_jump"):
-					current_player.unlock_wall_jump()
-				print("Wall jump purchased!")
-		
+	var upgrade_key = get_upgrade_key()
+	if GameManager.is_upgrade_purchased(upgrade_key):
+		return
+	
+	# Attempt to purchase the upgrade through GameManager
+	if GameManager.purchase_upgrade(upgrade_key):
 		# Update UI
 		purchase_button.text = "Already Purchased"
 		purchase_button.disabled = true
 		
 		# Update gear count display
-		gear_count_label.text = "Your gears: " + str(get_player_gear_count())
+		gear_count_label.text = "Your gears: " + str(GameManager.get_gear_count())
 		
+		print(powerup_name + " purchased successfully!")
 		close_shop()
+	else:
+		print("Failed to purchase " + powerup_name)
 
 func _on_close_pressed():
 	close_shop()
-
-func get_player_gear_count() -> int:
-	var gears_script = load("res://scripts/items/Gears/gears.gd")
-	if gears_script:
-		return gears_script.gear_count
-	return 0
-
-func spend_player_gears(amount: int):
-	var gears_script = load("res://scripts/items/Gears/gears.gd")
-	if gears_script:
-		gears_script.gear_count = max(0, gears_script.gear_count - amount)

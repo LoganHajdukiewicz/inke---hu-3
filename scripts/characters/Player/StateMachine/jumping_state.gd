@@ -22,7 +22,7 @@ func enter():
 
 func physics_update(delta: float):
 	# Apply slightly reduced gravity for better arc
-	player.velocity += player.get_gravity() * delta * quick_jump_gravity_multiplier
+	player.velocity += player.get_gravity() * delta * 1.2
 	
 	# Check for wall jump input first (highest priority)
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
