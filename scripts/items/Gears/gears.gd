@@ -7,8 +7,9 @@ extends Area3D
 @export var bob_height: float = 0.2
 @export var bob_speed: float = 2.0
 
-##TODO: Turn this into a GameStateManager type Inventory system. 
-static var gear_count: int = 0
+var gear_count = GameManager.get_gear_count()
+
+
 
 var initial_position: Vector3
 var time_passed: float = 0.0
