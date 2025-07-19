@@ -5,15 +5,12 @@ var running: bool = false
 var gravity: float = 9.8
 var gravity_default: float = 9.8
 var jump_velocity: float = 5.0
-var gear_count: int = 0
 
 # Double jump variables
-var double_jump_unlocked: bool = false
 var has_double_jumped: bool = false
 var can_double_jump: bool = false
 
 # Wall jump variables
-var wall_jump_unlocked: bool = false
 var wall_jump_cooldown: float = 0.0
 var wall_jump_cooldown_time: float = 0.05  # Prevent spam wall jumping
 
@@ -25,10 +22,6 @@ var was_on_floor: bool = false
 @export var grindrays: Node3D
 @export var wall_jump_rays: Node3D 
 
-# HU-3 Companion
-@onready var hu3_companion: CharacterBody3D = null
-var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
-
 # References
 @onready var player = self
 #@onready var animation_player: AnimationPlayer = $AnimationPlayer
@@ -36,38 +29,19 @@ var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
 # Initialize the State Machine
 @onready var state_machine: StateMachine = $StateMachine
 
+# GameManager reference
+var game_manager: Node = null
+
 func _ready():
 	$CameraController.initialize_camera()
 	
-	# Load upgrade statuses from merchant
-	var merchant_script = load("res://scripts/characters/NPCs/Friendly NPCs/merchant.gd")
-	if merchant_script:
-		double_jump_unlocked = merchant_script.double_jump_purchased
-		wall_jump_unlocked = merchant_script.wall_jump_purchased
-	
-	# Spawn HU-3 companion
-	spawn_hu3_companion()
-
-func spawn_hu3_companion():
-	"""Spawn HU-3 companion robot"""
-	if hu3_scene:
-		hu3_companion = hu3_scene.instantiate()
-		
-		# Add HU-3 script if it doesn't have one
-		if not hu3_companion.has_method("follow_player"):
-			var hu3_script = load("res://scripts/characters/Player/hu3_companion.gd")
-			if hu3_script:
-				hu3_companion.set_script(hu3_script)
-		
-		# Position HU-3 to the right and above player (out of camera view)
-		hu3_companion.global_position = global_position + Vector3(1.5, 1.5, 1.0)
-		
-		# Add to scene
-		get_parent().add_child.call_deferred(hu3_companion)
-		
-		print("HU-3 companion spawned!")
+	# Get GameManager reference
+	game_manager = get_node("/root/GameManager")
+	if game_manager:
+		game_manager.register_player(self)
+		print("Player: Registered with GameManager")
 	else:
-		print("Could not load HU-3 scene!")
+		print("Player: GameManager not found!")
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
@@ -125,19 +99,13 @@ func _process(_delta):
 func get_player_speed():
 	return state_machine.current_state.get_speed()
 
-func unlock_double_jump():
-	"""Called by the merchant when double jump is purchased"""
-	double_jump_unlocked = true
-	print("Double jump unlocked!")
 
-func unlock_wall_jump():
-	"""Called by the merchant when wall jump is purchased"""
-	wall_jump_unlocked = true
-	print("Wall jump unlocked!")
+# === ABILITY CHECK METHODS (Using GameManager) ===
 
 func can_perform_double_jump() -> bool:
 	"""Check if the player can perform a double jump"""
-	return double_jump_unlocked and not has_double_jumped and can_double_jump and not is_on_floor()
+	var can_double_jump_ability = game_manager.can_double_jump() if game_manager else false
+	return can_double_jump_ability and not has_double_jumped and can_double_jump and not is_on_floor()
 
 func perform_double_jump():
 	"""Execute the double jump"""
@@ -152,7 +120,8 @@ func perform_double_jump():
 func can_perform_wall_jump() -> bool:
 	"""Check if the player can perform a wall jump"""
 	var current_state_name = state_machine.current_state.get_script().get_global_name()
-	return (wall_jump_unlocked and 
+	var can_wall_jump_ability = game_manager.can_wall_jump() if game_manager else false
+	return (can_wall_jump_ability and 
 			not is_on_floor() and 
 			wall_jump_cooldown <= 0 and
 			(current_state_name == "FallingState" or current_state_name == "JumpingState"))
@@ -172,27 +141,43 @@ func get_wall_jump_direction() -> Vector3:
 	
 	return Vector3.ZERO
 
-# HU-3 Companion Methods
+
+
+# === HEALTH METHODS ===
+
+func set_health(new_health: int):
+	"""Set player health (called by GameManager)"""
+	print("Player: Health set to ", new_health)
+	# Update any player-specific health UI or effects here
+
+func take_damage(amount: int):
+	"""Player takes damage"""
+	if game_manager:
+		game_manager.damage_player(amount)
+
+func heal(amount: int):
+	"""Player heals"""
+	if game_manager:
+		game_manager.heal_player(amount)
+
+func get_health() -> int:
+	"""Get current health from GameManager"""
+	return game_manager.get_player_health() if game_manager else 3
+
+# === GEAR/CURRENCY METHODS ===
+
 func add_gear_count(amount: int):
-	"""Called by HU-3 when it collects gears"""
-	gear_count += amount
-	print("Player gear count increased to: ", gear_count)
+	"""Called when gears are collected (forwards to GameManager)"""
+	if game_manager:
+		game_manager.add_gear(amount)
 
-func get_hu3_companion() -> CharacterBody3D:
-	"""Get reference to HU-3 companion"""
-	return hu3_companion
+func get_gear_count() -> int:
+	"""Get total gear count from GameManager"""
+	return game_manager.get_gear_count() if game_manager else 0
 
-func get_hu3_health() -> float:
-	"""Get HU-3's health percentage"""
-	if hu3_companion and hu3_companion.has_method("get_health_percentage"):
-		return hu3_companion.get_health_percentage()
-	return 0.0
-
-func get_hu3_gear_count() -> int:
-	"""Get number of gears collected by HU-3"""
-	if hu3_companion and hu3_companion.has_method("get_gear_count"):
-		return hu3_companion.get_gear_count()
-	return 0
+func get_CRED_count() -> int:
+	"""Get CRED count from GameManager"""
+	return game_manager.get_CRED_count() if game_manager else 0
 
 ## Rail Grinding Logic
 

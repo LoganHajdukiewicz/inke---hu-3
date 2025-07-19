@@ -65,5 +65,3 @@ func play_activation_effect():
 		tween.tween_property(mesh_instance, "scale", Vector3(1.2, 1.2, 1.2), 0.2)
 		tween.tween_property(mesh_instance, "scale", Vector3(1.0, 1.0, 1.0), 0.2)
 	
-	# You can add sound effects here too
-	# audio_player.play()

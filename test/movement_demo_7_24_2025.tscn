@@ -36,7 +36,7 @@ point_count = 5
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.37925, -410.52)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.37925, -392.283)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -1268,4 +1268,5 @@ sign_text = "GEARs may get you some upgrades here and there but in this world CR
 [node name="ObstacleCourse" type="Node" parent="."]
 
 [node name="Checkpoint" parent="ObstacleCourse" instance=ExtResource("9_bd3gf")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.51595, 27.7167, -540.782)
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.0920126, 30.1849, -527.603)
+checkpoint_id = "ObstacleCourse"

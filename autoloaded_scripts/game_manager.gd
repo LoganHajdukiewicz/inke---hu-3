@@ -8,9 +8,6 @@ extends Node
 @export var player_health: int = 3
 @export var player_max_health: int = 3
 
-# HU-3 Companion Stats
-@export var hu3_collected_gears: int = 0
-
 # Upgrade System
 @export_group("Upgrades Purchased")
 @export var double_jump_purchased: bool = false
@@ -22,16 +19,19 @@ extends Node
 
 # Upgrade Costs
 @export_group("Upgrade Costs")
-@export var double_jump_cost: int = 3
-@export var wall_jump_cost: int = 4
-@export var dash_cost: int = 3
-@export var speed_upgrade_cost: int = 3
-@export var health_upgrade_cost: int = 3
-@export var damage_upgrade_cost: int = 3
+@export var double_jump_cost: int = 50
+@export var wall_jump_cost: int = 50
+@export var dash_cost: int = 50
+@export var speed_upgrade_cost: int = 50
+@export var health_upgrade_cost: int = 50
+@export var damage_upgrade_cost: int = 50
 
 # Player Reference
 var player: CharacterBody3D = null
 var hu3_companion: CharacterBody3D = null
+
+# HU-3 Companion Scene
+var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
 
 # Signals
 signal gear_collected(total_gears: int)
@@ -39,6 +39,8 @@ signal cred_collected(amount: int, total_cred: int)
 signal upgrade_purchased(upgrade_type: String)
 signal health_changed(new_health: int, max_health: int)
 signal hu3_health_changed(new_health: int, max_health: int)
+signal player_spawned(player: CharacterBody3D)
+signal hu3_spawned(hu3: CharacterBody3D)
 
 func _ready():
 	# Find player reference
@@ -47,14 +49,101 @@ func _ready():
 	# Connect to player's HU-3 companion if it exists
 	if player and player.has_method("get_hu3_companion"):
 		hu3_companion = player.get_hu3_companion()
+	
+	# Apply any purchased upgrades to the player
+	apply_purchased_upgrades()
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		player = players[0]
 		print("GameManager: Found player: ", player.name)
+		player_spawned.emit(player)
 	else:
 		print("GameManager: No player found in scene!")
+
+# === PLAYER INITIALIZATION ===
+
+func initialize_player():
+	"""Initialize player with current game state"""
+	if not player:
+		find_player()
+		return
+	
+	# Apply purchased upgrades
+	apply_purchased_upgrades()
+	
+	# Set health
+	if player.has_method("set_health"):
+		player.set_health(player_health)
+	
+	# Spawn HU-3 if it doesn't exist
+	if not hu3_companion:
+		spawn_hu3_companion()
+
+func apply_purchased_upgrades():
+	"""Apply all purchased upgrades to the player"""
+	if not player:
+		return
+	
+	if double_jump_purchased and player.has_method("unlock_double_jump"):
+		player.unlock_double_jump()
+		print("GameManager: Applied double jump upgrade to player")
+	
+	if wall_jump_purchased and player.has_method("unlock_wall_jump"):
+		player.unlock_wall_jump()
+		print("GameManager: Applied wall jump upgrade to player")
+	
+	if dash_purchased and player.has_method("unlock_dash"):
+		player.unlock_dash()
+		print("GameManager: Applied dash upgrade to player")
+	
+	if speed_upgrade_purchased and player.has_method("unlock_speed_upgrade"):
+		player.unlock_speed_upgrade()
+		print("GameManager: Applied speed upgrade to player")
+	
+	if health_upgrade_purchased and player.has_method("unlock_health_upgrade"):
+		player.unlock_health_upgrade()
+		# Also increase max health
+		player_max_health = 5  # Or whatever the upgraded value should be
+	
+	if damage_upgrade_purchased and player.has_method("unlock_damage_upgrade"):
+		player.unlock_damage_upgrade()
+
+# === HU-3 COMPANION MANAGEMENT ===
+
+func spawn_hu3_companion():
+	"""Spawn HU-3 companion robot"""
+	if not player:
+		print("GameManager: Cannot spawn HU-3 without player reference")
+		return
+	
+	if hu3_companion and is_instance_valid(hu3_companion):
+		print("GameManager: HU-3 already exists")
+		return
+	
+	if hu3_scene:
+		hu3_companion = hu3_scene.instantiate()
+		
+		# Position HU-3 to the right and above player
+		hu3_companion.global_position = player.global_position + Vector3(1.5, 1.5, 1.0)
+		
+		# Add to scene
+		player.get_parent().add_child.call_deferred(hu3_companion)
+		
+		# Set up HU-3's reference to player
+		if hu3_companion.has_method("set_player_reference"):
+			hu3_companion.set_player_reference(player)
+		
+		
+		print("GameManager: HU-3 companion spawned!")
+		hu3_spawned.emit(hu3_companion)
+	else:
+		print("GameManager: Could not load HU-3 scene!")
+
+func get_hu3_companion() -> CharacterBody3D:
+	"""Get reference to HU-3 companion"""
+	return hu3_companion
 
 # === GEAR MANAGEMENT ===
 
@@ -77,17 +166,13 @@ func get_gear_count() -> int:
 
 func add_hu3_gear():
 	"""Called when HU-3 collects a gear"""
-	hu3_collected_gears += 1
 	add_gear(1)  # Still counts toward total gear count
-	print("HU-3 collected gear! HU-3 gears: ", hu3_collected_gears)
 
-func get_hu3_gear_count() -> int:
-	return hu3_collected_gears
 
 # === CRED MANAGEMENT ===
 
 func add_CRED(reward: int):
-	"""Add CRED to Inke"""
+	"""Add XP/CRED to Inke"""
 	CRED += reward
 	print("CRED Received! CRED added: ", reward)
 	print("Total CRED: ", CRED)
@@ -134,6 +219,7 @@ func purchase_upgrade(upgrade_type: String) -> bool:
 				player.unlock_speed_upgrade()
 		"health_upgrade":
 			health_upgrade_purchased = true
+			player_max_health = 5  # Upgrade max health
 			if player and player.has_method("unlock_health_upgrade"):
 				player.unlock_health_upgrade()
 		"damage_upgrade":
@@ -223,6 +309,10 @@ func set_player_health(new_health: int):
 	"""Set player's health"""
 	player_health = clamp(new_health, 0, player_max_health)
 	health_changed.emit(player_health, player_max_health)
+	
+	# Also update player's health if they have the method
+	if player and player.has_method("set_health"):
+		player.set_health(player_health)
 
 func damage_player(amount: int):
 	"""Deal damage to player"""
@@ -243,6 +333,31 @@ func get_player_max_health() -> int:
 func get_player_health_percentage() -> float:
 	return float(player_health) / float(player_max_health)
 
+# === PLAYER ABILITY CHECKS ===
+
+func can_double_jump() -> bool:
+	"""Check if player has double jump ability"""
+	return double_jump_purchased
+
+func can_wall_jump() -> bool:
+	"""Check if player has wall jump ability"""
+	return wall_jump_purchased
+
+func can_dash() -> bool:
+	"""Check if player has dash ability"""
+	return dash_purchased
+
+func has_speed_upgrade() -> bool:
+	"""Check if player has speed upgrade"""
+	return speed_upgrade_purchased
+
+func has_health_upgrade() -> bool:
+	"""Check if player has health upgrade"""
+	return health_upgrade_purchased
+
+func has_damage_upgrade() -> bool:
+	"""Check if player has damage upgrade"""
+	return damage_upgrade_purchased
 
 # === SAVE/LOAD SYSTEM ===
 
@@ -253,7 +368,6 @@ func save_game_state() -> Dictionary:
 		"CRED": CRED,
 		"player_health": player_health,
 		"player_max_health": player_max_health,
-		"hu3_collected_gears": hu3_collected_gears,
 		"double_jump_purchased": double_jump_purchased,
 		"wall_jump_purchased": wall_jump_purchased,
 		"dash_purchased": dash_purchased,
@@ -268,7 +382,6 @@ func load_game_state(state: Dictionary):
 	CRED = state.get("CRED", 0)
 	player_health = state.get("player_health", 3)
 	player_max_health = state.get("player_max_health", 3)
-	hu3_collected_gears = state.get("hu3_collected_gears", 0)
 	double_jump_purchased = state.get("double_jump_purchased", false)
 	wall_jump_purchased = state.get("wall_jump_purchased", false)
 	dash_purchased = state.get("dash_purchased", false)
@@ -277,12 +390,12 @@ func load_game_state(state: Dictionary):
 	damage_upgrade_purchased = state.get("damage_upgrade_purchased", false)
 	
 	# Apply upgrades to player if they exist
-	if player:
-		if double_jump_purchased and player.has_method("unlock_double_jump"):
-			player.unlock_double_jump()
-		if wall_jump_purchased and player.has_method("unlock_wall_jump"):
-			player.unlock_wall_jump()
-		# Add other upgrades as needed
+	apply_purchased_upgrades()
+	
+	# Update player health
+	if player and player.has_method("set_health"):
+		player.set_health(player_health)
+	
 	
 	print("GameManager: Game state loaded")
 
@@ -293,7 +406,7 @@ func reset_game_state():
 	gear_count = 0
 	CRED = 0
 	player_health = 3
-	hu3_collected_gears = 0
+	player_max_health = 3
 	double_jump_purchased = false
 	wall_jump_purchased = false
 	dash_purchased = false
@@ -307,8 +420,6 @@ func get_game_stats() -> Dictionary:
 	"""Get current game statistics"""
 	return {
 		"total_gears": gear_count,
-		"hu3_gears": hu3_collected_gears,
-		"player_gears": gear_count - hu3_collected_gears,
 		"total_cred": CRED,
 		"player_health_percent": get_player_health_percentage(),
 		"upgrades_purchased": get_purchased_upgrades().size(),
@@ -331,3 +442,20 @@ func get_purchased_upgrades() -> Array:
 	if damage_upgrade_purchased:
 		upgrades.append("damage_upgrade")
 	return upgrades
+
+# === PUBLIC API FOR OTHER SCRIPTS ===
+
+func register_player(player_node: CharacterBody3D):
+	"""Register the player node with GameManager"""
+	player = player_node
+	print("GameManager: Player registered: ", player.name)
+	initialize_player()
+
+func register_hu3(hu3_node: CharacterBody3D):
+	"""Register HU-3 companion with GameManager"""
+	hu3_companion = hu3_node
+	print("GameManager: HU-3 registered: ", hu3_companion.name)
+
+func get_player() -> CharacterBody3D:
+	"""Get player reference"""
+	return player
