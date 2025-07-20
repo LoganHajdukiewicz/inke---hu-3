@@ -19,6 +19,10 @@ var coyote_time_duration: float = 0.15  # How long after leaving ground player c
 var coyote_time_counter: float = 0.0
 var was_on_floor: bool = false
 
+# Gear collection variables
+var gear_collection_area: Area3D = null
+var gear_collection_distance: float = 0.5 # Collection radius for Inke
+
 @export var grindrays: Node3D
 @export var wall_jump_rays: Node3D 
 
@@ -42,6 +46,29 @@ func _ready():
 		print("Player: Registered with GameManager")
 	else:
 		print("Player: GameManager not found!")
+	
+	# Set up gear collection area
+	setup_gear_collection()
+
+func setup_gear_collection():
+	"""Set up Area3D for gear collection"""
+	# Create Area3D for gear detection if it doesn't exist
+	gear_collection_area = Area3D.new()
+	gear_collection_area.name = "GearCollectionArea"
+	add_child(gear_collection_area)
+	
+	# Create CollisionShape3D for the Area3D
+	var collision_shape = CollisionShape3D.new()
+	var sphere_shape = SphereShape3D.new()
+	sphere_shape.radius = gear_collection_distance
+	collision_shape.shape = sphere_shape
+	gear_collection_area.add_child(collision_shape)
+	
+	# Connect signals
+	gear_collection_area.body_entered.connect(_on_gear_body_entered)
+	gear_collection_area.area_entered.connect(_on_gear_area_entered)
+	
+	print("Inke: Gear collection system initialized with radius: ", gear_collection_distance)
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
@@ -52,6 +79,9 @@ func _physics_process(delta: float) -> void:
 	# Update wall jump cooldown
 	if wall_jump_cooldown > 0:
 		wall_jump_cooldown -= delta
+	
+	# Check for nearby gears to collect
+	check_for_nearby_gears()
 	
 	# Check for rail grinding opportunity (only if not already grinding and timer is complete)
 	check_for_rail_grinding()
@@ -65,6 +95,67 @@ func _physics_process(delta: float) -> void:
 		can_double_jump = true
 	
 	$CameraController.follow_character(position, velocity)
+
+func check_for_nearby_gears():
+	"""Check for gears within collection distance and collect them"""
+	var gears = get_tree().get_nodes_in_group("Gear")
+	
+	for gear in gears:
+		if not is_instance_valid(gear):
+			continue
+		
+		# Skip if gear is already collected
+		if gear.has_method("get") and gear.get("collected"):
+			continue
+		
+		# Check distance
+		var distance = global_position.distance_to(gear.global_position)
+		if distance <= gear_collection_distance:
+			collect_gear(gear)
+
+func collect_gear(gear: Node):
+	"""Collect a gear as Inke"""
+	if not gear or not is_instance_valid(gear):
+		return
+	
+	# Check if gear has already been collected
+	if gear.has_method("get") and gear.get("collected"):
+		return
+	
+	# Try to collect using gear's method
+	if gear.has_method("collect_gear"):
+		# Standard gear collection method
+		gear.collect_gear()
+	elif gear.has_method("collect_gear_by_player"):
+		# Player-specific collection method
+		gear.collect_gear_by_player()
+	else:
+		# Fallback - mark as collected and remove
+		if gear.has_method("set"):
+			gear.set("collected", true)
+		gear.queue_free()
+	
+	# Add to GameManager's gear count
+	if game_manager:
+		game_manager.add_gear(1)
+	
+	print("Inke: Collected gear! Total gears: ", get_gear_count())
+
+func _on_gear_body_entered(body: Node3D):
+	"""Handle when a gear body enters collection area"""
+	if body.is_in_group("Gear"):
+		collect_gear(body)
+
+func _on_gear_area_entered(area: Area3D):
+	"""Handle when a gear area enters collection area"""
+	if area.is_in_group("Gear"):
+		# Get the gear node (usually the parent of the area)
+		var gear_node = area.get_parent()
+		if gear_node and gear_node.is_in_group("Gear"):
+			collect_gear(gear_node)
+		else:
+			# If the area itself is the gear
+			collect_gear(area)
 
 func update_coyote_time(delta: float):
 	"""Update coyote time counter"""

@@ -36,7 +36,7 @@ point_count = 2
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.564602, -0.626984)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.228451, 5.79573, -392.851)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -1245,13 +1245,14 @@ spin_direction = 1
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
 use_dialogic = true
 dialogic_timeline = "Merchant-Intro-Cont"
-sign_text = "This one sells a wall jump......jump off of a wall..."
+sign_text = "This one sells a wall jump. "
 
 [node name="Merchant" parent="Tutorial/Floors/Floor23" instance=ExtResource("7_lnigw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
 powerup_type = 1
 powerup_name = "Wall Jump"
 powerup_description = "Allows you to wall jump"
+powerup_cost = 50
 
 [node name="Floor24" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
