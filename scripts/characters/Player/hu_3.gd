@@ -2,40 +2,41 @@ extends CharacterBody3D
 
 @onready var player: CharacterBody3D = null
 @onready var area_3d: Area3D = $Area3D
-@onready var health_indicator: MeshInstance3D = $Mesh/HealthIndicator
 
-# Following behavior
+# Following behavior - simplified, let GameManager configure these
 var follow_distance: float = 2.0
-var base_follow_speed: float = 9.0  # Base speed when player is idle/walking
-var follow_speed_multiplier: float = 1.2  # Multiplier for player speed (20% faster to catch up)
-var max_follow_speed: float = 40.0  # Maximum speed cap
+var base_follow_speed: float = 9.0
+var follow_speed_multiplier: float = 1.2
+var max_follow_speed: float = 40.0
 var hover_height: float = 1.5
 var hover_amplitude: float = 0.3
 var hover_frequency: float = 2.0
-var side_offset: float = 1.5  # Offset to the right of player
-var forward_offset: float = 1.0  # Slight forward offset
-var catchup_distance: float = 5.0  # Distance at which HU-3 goes into "catchup mode"
-var catchup_speed_multiplier: float = 2.5  # Speed multiplier when catching up
+var side_offset: float = 1.5
+var forward_offset: float = 1.0
+var catchup_distance: float = 5.0
+var catchup_speed_multiplier: float = 2.5
 
-# Gear collection
-var gear_collection_distance: float = 8.0  # Increased detection range
-var gear_collection_speed: float = 15.0  # Increased collection speed
-var collected_gears: Array[Node] = []
+# Gear collection - let GameManager handle the logic
+var gear_collection_distance: float = 8.0
+var gear_collection_speed: float = 15.0
 
-# Internal state
+# Internal state - minimal, most logic moved to GameManager
 var hover_time: float = 0.0
 var is_collecting_gear: bool = false
 var target_gear: Node = null
 var collection_timer: float = 0.0
-var collection_timeout: float = 5.0  # Give up after 5 seconds
-
-# Health/status
-var health: int = 100
-var max_health: int = 100
+var collection_timeout: float = 5.0
 
 func _ready():
-	# Find the player in the scene
-	find_player()
+	# Register with GameManager instead of finding player directly
+	if GameManager:
+		GameManager.register_hu3(self)
+		player = GameManager.get_player()
+		
+		# Let GameManager know we're ready
+		if not player:
+			# Wait for player to be registered
+			GameManager.player_spawned.connect(_on_player_spawned)
 	
 	# Connect area signals for gear detection
 	if area_3d:
@@ -43,22 +44,19 @@ func _ready():
 		area_3d.body_exited.connect(_on_gear_exited)
 		area_3d.area_entered.connect(_on_gear_area_entered)
 		area_3d.area_exited.connect(_on_gear_area_exited)
-	
-	# Set initial health indicator
-	update_health_indicator()
 
-func find_player():
-	# Look for player in the scene
-	var players = get_tree().get_nodes_in_group("Player")
-	if players.size() > 0:
-		player = players[0]
-		print("HU-3: Found player: ", player.name)
-	else:
-		print("HU-3: No player found in scene!")
+func _on_player_spawned(player_node: CharacterBody3D):
+	"""Called when GameManager finds the player"""
+	player = player_node
+	print("HU-3: Player reference received from GameManager")
+
+func set_player_reference(player_node: CharacterBody3D):
+	"""Called by GameManager to set player reference"""
+	player = player_node
+	print("HU-3: Player reference set by GameManager")
 
 func _physics_process(delta: float):
 	if not player:
-		find_player()
 		return
 	
 	# Update hover animation
@@ -68,7 +66,6 @@ func _physics_process(delta: float):
 	if is_collecting_gear:
 		collection_timer += delta
 		if collection_timer > collection_timeout:
-			# Give up on current gear and find another
 			print("HU-3: Timeout collecting gear, finding new target")
 			reset_collection_state()
 	
@@ -117,8 +114,8 @@ func follow_player(delta: float):
 	var player_basis = player.global_transform.basis
 	
 	# Calculate follow position (slightly up, to the right, and a bit forward)
-	var right_offset = player_basis.x * side_offset  # Player's right direction
-	var forward_offset_vec = player_basis.z * -forward_offset  # Player's forward direction (negative z)
+	var right_offset = player_basis.x * side_offset
+	var forward_offset_vec = player_basis.z * -forward_offset
 	var follow_pos = player_pos + Vector3(0, hover_height, 0) + right_offset + forward_offset_vec
 	
 	# Add subtle hovering motion
@@ -149,7 +146,7 @@ func find_nearest_gear():
 	
 	for gear in gears:
 		# Skip if already collected or invalid
-		if not is_instance_valid(gear) or gear in collected_gears:
+		if not is_instance_valid(gear):
 			continue
 		
 		# Skip if gear is already collected (check gear's collected flag)
@@ -188,7 +185,7 @@ func move_to_gear(delta: float):
 	
 	# Check if we're close enough to collect
 	var distance = global_position.distance_to(target_gear.global_position)
-	if distance < 1.5:  # Increased collection radius
+	if distance < 1.5:
 		collect_gear(target_gear)
 
 func collect_gear(gear: Node):
@@ -201,21 +198,18 @@ func collect_gear(gear: Node):
 		reset_collection_state()
 		return
 	
-	# Collect the gear
+	# Let GameManager handle the gear collection logic
+	if GameManager:
+		GameManager.add_hu3_gear()
+	
+	# Collect the gear through the gear's method
 	if gear.has_method("collect_gear_by_hu3"):
 		gear.collect_gear_by_hu3()
 	else:
 		# Fallback - mark as collected and remove
 		gear.queue_free()
 	
-	# Update player's gear count
-	if player and player.has_method("add_gear_count"):
-		player.add_gear_count(1)
-	
-	# Mark as collected
-	collected_gears.append(gear)
-	
-	print("HU-3: Collected gear! Total collected by HU-3: ", collected_gears.size())
+	print("HU-3: Collected gear! Notified GameManager.")
 	
 	# Reset collection state
 	reset_collection_state()
@@ -236,43 +230,35 @@ func _on_gear_exited(body: Node3D):
 func _on_gear_area_entered(area: Area3D):
 	if area.is_in_group("Gear"):
 		print("HU-3: Gear area detected: ", area.name)
-		# Could trigger immediate collection if very close
 
 func _on_gear_area_exited(area: Area3D):
 	if area.is_in_group("Gear"):
 		print("HU-3: Gear area left detection range: ", area.name)
 
-func update_health_indicator():
-	if not health_indicator:
-		return
-	
-	# Update health indicator color based on health percentage
-	var health_percentage = float(health) / float(max_health)
-	var material = health_indicator.get_surface_override_material(0)
-	
-	if not material:
-		material = StandardMaterial3D.new()
-		health_indicator.set_surface_override_material(0, material)
-	
-	# Green to red gradient based on health
-	if health_percentage > 0.5:
-		material.albedo_color = Color.GREEN.lerp(Color.YELLOW, (1.0 - health_percentage) * 2.0)
-	else:
-		material.albedo_color = Color.YELLOW.lerp(Color.RED, (0.5 - health_percentage) * 2.0)
+# Configuration methods that GameManager can call
+func set_follow_distance(distance: float):
+	follow_distance = distance
 
-func take_damage(amount: int):
-	health = max(0, health - amount)
-	update_health_indicator()
-	print("HU-3: Took ", amount, " damage. Health: ", health, "/", max_health)
+func set_follow_speed(speed: float):
+	base_follow_speed = speed
 
-func heal(amount: int):
-	health = min(max_health, health + amount)
-	update_health_indicator()
-	print("HU-3: Healed ", amount, " health. Health: ", health, "/", max_health)
+func set_collection_distance(distance: float):
+	gear_collection_distance = distance
 
-# Public interface for player interaction
-func get_gear_count() -> int:
-	return collected_gears.size()
+func set_collection_speed(speed: float):
+	gear_collection_speed = speed
 
-func get_health_percentage() -> float:
-	return float(health) / float(max_health)
+func set_hover_height(height: float):
+	hover_height = height
+
+# Public interface for GameManager queries
+func get_current_target_gear() -> Node:
+	return target_gear
+
+func is_currently_collecting() -> bool:
+	return is_collecting_gear
+
+func get_distance_to_player() -> float:
+	if player:
+		return global_position.distance_to(player.global_position)
+	return 0.0

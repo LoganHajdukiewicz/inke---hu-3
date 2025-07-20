@@ -28,15 +28,15 @@ glow_enabled = true
 [sub_resource type="Curve3D" id="Curve3D_16sj7"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.57366, 0.832603, -15.2189, 0, 0, 0, 0, 0, 0, -1.19843, 1.32761, -27.1522, 0, 0, 0, 0, 0, 0, -0.884139, 1.2493, -52.1658, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -121.556),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -121.556),
+"tilts": PackedFloat32Array(0, 0)
 }
-point_count = 5
+point_count = 2
 
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.37925, -392.283)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.564602, -0.626984)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -51,6 +51,16 @@ light_color = Color(1, 1, 0.211765, 1)
 shadow_enabled = true
 
 [node name="Tutorial" type="Node" parent="."]
+
+[node name="Checkpoints" type="Node" parent="Tutorial"]
+
+[node name="FallingFloor" parent="Tutorial/Checkpoints" instance=ExtResource("9_bd3gf")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0.0332706, 6.49618, -77.3157)
+checkpoint_id = "FallingFloor"
+
+[node name="RailGrind" parent="Tutorial/Checkpoints" instance=ExtResource("9_bd3gf")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0.125772, 6.49618, -224.417)
+checkpoint_id = "RailGrind"
 
 [node name="Rail" parent="Tutorial" instance=ExtResource("5_n7jej")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.221533, 5.91196, -229.235)
@@ -1267,6 +1277,8 @@ sign_text = "GEARs may get you some upgrades here and there but in this world CR
 
 [node name="ObstacleCourse" type="Node" parent="."]
 
-[node name="Checkpoint" parent="ObstacleCourse" instance=ExtResource("9_bd3gf")]
+[node name="Checkpoints" type="Node" parent="ObstacleCourse"]
+
+[node name="ObstacleCourseStart" parent="ObstacleCourse/Checkpoints" instance=ExtResource("9_bd3gf")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.0920126, 30.1849, -527.603)
-checkpoint_id = "ObstacleCourse"
+checkpoint_id = "ObstacleCourseStart"
