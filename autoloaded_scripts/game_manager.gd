@@ -148,7 +148,7 @@ func get_hu3_companion() -> CharacterBody3D:
 # === GEAR MANAGEMENT ===
 
 func add_gear(amount: int = 1):
-	"""Add gears to the player's collection"""
+	"""Add gears to the player's collection - unified for all collectors"""
 	gear_count += amount
 	print("Gear collected! Total gears: ", gear_count)
 	gear_collected.emit(gear_count)
@@ -163,11 +163,6 @@ func spend_gears(amount: int) -> bool:
 
 func get_gear_count() -> int:
 	return gear_count
-
-func add_hu3_gear():
-	"""Called when HU-3 collects a gear"""
-	add_gear(1)  # Still counts toward total gear count
-
 
 # === CRED MANAGEMENT ===
 

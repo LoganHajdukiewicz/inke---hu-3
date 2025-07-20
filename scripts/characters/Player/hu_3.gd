@@ -20,7 +20,7 @@ var catchup_speed_multiplier: float = 2.5  # Speed multiplier when catching up
 # Gear collection
 var gear_collection_distance: float = 8.0  # Increased detection range
 var gear_collection_speed: float = 15.0  # Increased collection speed
-var collected_gears: Array[Node] = []
+var collected_gears: Array[Node] = []  # This tracks gears HU-3 has collected for internal purposes
 
 # Internal state
 var hover_time: float = 0.0
@@ -201,18 +201,14 @@ func collect_gear(gear: Node):
 		reset_collection_state()
 		return
 	
-	# Collect the gear
-	if gear.has_method("collect_gear_by_hu3"):
-		gear.collect_gear_by_hu3()
+	# Collect the gear using the unified method
+	if gear.has_method("collect_gear"):
+		gear.collect_gear()  # This will handle adding to GameManager
 	else:
 		# Fallback - mark as collected and remove
 		gear.queue_free()
 	
-	# Update player's gear count
-	if player and player.has_method("add_gear_count"):
-		player.add_gear_count(1)
-	
-	# Mark as collected
+	# Mark as collected by HU-3 for tracking purposes (optional - for statistics)
 	collected_gears.append(gear)
 	
 	print("HU-3: Collected gear! Total collected by HU-3: ", collected_gears.size())
