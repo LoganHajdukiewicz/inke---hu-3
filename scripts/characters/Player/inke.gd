@@ -12,7 +12,7 @@ var can_double_jump: bool = false
 
 # Wall jump variables
 var wall_jump_cooldown: float = 0.0
-var wall_jump_cooldown_time: float = 0.0 # Prevent spam wall jumping
+var wall_jump_cooldown_time: float = 0.0 
 
 # Coyote time variables
 var coyote_time_duration: float = 0.15  # How long after leaving ground player can still jump

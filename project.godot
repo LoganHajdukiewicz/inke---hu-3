@@ -43,7 +43,8 @@ directories/dtl_directory={
 "Sorry": "res://dialogue/demo-7-24-2025/Sorry.dtl",
 "Spring-Platform": "res://dialogue/demo-7-24-2025/Spring-Platform.dtl",
 "Storytime": "res://dialogue/demo-7-24-2025/Storytime.dtl",
-"WSAD-Sign": "res://dialogue/demo-7-24-2025/WSAD-Sign.dtl"
+"WSAD-Sign": "res://dialogue/demo-7-24-2025/WSAD-Sign.dtl",
+"You did it": "res://dialogue/demo-7-24-2025/You did it.dtl"
 }
 layout/style_list=["res://assets/styles/S-1GN style.tres"]
 layout/default_style="res://assets/styles/S-1GN style.tres"

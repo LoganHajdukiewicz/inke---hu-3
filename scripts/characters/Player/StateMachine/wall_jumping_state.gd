@@ -1,8 +1,8 @@
 extends State
 class_name WallJumpingState
 
-@export var wall_jump_upward_boost: float = 50.0
-@export var wall_jump_velocity: float = 15.0
+@export var wall_jump_velocity: float = 5.0
+@export var wall_jump_upward_boost: float = 2.0
 var wall_jump_horizontal_force: float = 12.0
 var wall_direction: Vector3 = Vector3.ZERO
 var wall_jump_timer: float = 0.0
@@ -10,7 +10,12 @@ var wall_jump_duration: float = 0.3  # Time to maintain wall jump momentum
 
 func enter():
 	print("Entered Wall Jump State")
-	player.can_double_jump = true
+	
+	# Cancel momentum going into the wall first
+	if wall_direction.length() > 0:
+		var velocity_into_wall = player.velocity.dot(-wall_direction)
+		if velocity_into_wall > 0:
+			player.velocity -= wall_direction * velocity_into_wall
 	
 	# Apply wall jump velocity with boost
 	player.velocity.y = wall_jump_velocity + wall_jump_upward_boost
@@ -28,9 +33,7 @@ func enter():
 	# Reset wall jump timer
 	wall_jump_timer = 0.0
 	
-	# Reset double jump availability
-	player.can_double_jump = true
-	player.has_double_jumped = false
+
 	
 	# Clear wall jump cooldown to allow immediate chaining
 	player.wall_jump_cooldown = 0.0
@@ -42,16 +45,23 @@ func physics_update(delta: float):
 	player.velocity += player.get_gravity() * delta
 	
 	# Check for wall jump input first (highest priority)
-	# Allow wall jumping after a small buffer time to prevent immediate re-jumping from same wall
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
 		var wall_normal = player.get_wall_jump_direction()
 		if wall_normal.length() > 0:
 			# Check if this is a different wall or enough time has passed
 			var wall_angle_difference = wall_direction.angle_to(wall_normal)
-			if wall_angle_difference > 0.5:  # Different wall or enough time
+			if wall_angle_difference > 0.5:  # Different wall
+				
+				# Cancel momentum going into the new wall
+				var velocity_into_wall = player.velocity.dot(-wall_normal)
+				if velocity_into_wall > 0:
+					player.velocity -= wall_normal * velocity_into_wall
+				
+				# Set up for new wall jump
 				setup_wall_jump(wall_normal)
-				# Reset state to perform another wall jump with boost
 				wall_jump_timer = 0.0
+				
+				# Apply new wall jump forces
 				player.velocity.y = wall_jump_velocity + wall_jump_upward_boost
 				
 				# Apply horizontal force away from the new wall
@@ -66,12 +76,6 @@ func physics_update(delta: float):
 				# Keep wall jump cooldown at 0 for infinite wall jumping
 				player.wall_jump_cooldown = 0.0
 				return
-	
-	# Check for double jump input
-	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
-		player.perform_double_jump()
-		# Stay in wall jump state for the double jump
-		return
 	
 	# Handle horizontal movement with reduced control during initial wall jump momentum
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
