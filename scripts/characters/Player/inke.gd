@@ -12,7 +12,7 @@ var can_double_jump: bool = false
 
 # Wall jump variables
 var wall_jump_cooldown: float = 0.0
-var wall_jump_cooldown_time: float = 0.05  # Prevent spam wall jumping
+var wall_jump_cooldown_time: float = 0.0 
 
 # Coyote time variables
 var coyote_time_duration: float = 0.15  # How long after leaving ground player can still jump
@@ -34,7 +34,7 @@ var gear_collection_distance: float = 0.5 # Collection radius for Inke
 @onready var state_machine: StateMachine = $StateMachine
 
 # GameManager reference
-var game_manager: Node = null
+@onready var game_manager = "/root/GameManager"
 
 func _ready():
 	$CameraController.initialize_camera()

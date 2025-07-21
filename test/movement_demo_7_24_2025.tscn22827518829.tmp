@@ -92,7 +92,7 @@ point_count = 2
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.228451, 0.0100448, -0.271717)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.228451, 5.6192, -402.192)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -1318,10 +1318,10 @@ floor_size = Vector3(20, 0.5, 50)
 spin_direction = 1
 
 [node name="Wall" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.8479, 0.463201, -14.8447)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.3421, 0.463201, -14.8447)
 
 [node name="Wall2" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.28245, 0.463201, -14.8447)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.24994, 0.463201, -14.8447)
 
 [node name="Floor25" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
@@ -1341,10 +1341,6 @@ sign_text = "GEARs may get you some upgrades here and there but in this world CR
 [node name="ObstacleCourseStart" parent="ObstacleCourse/Checkpoints" instance=ExtResource("9_bd3gf")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.0920126, 30.1849, -527.603)
 checkpoint_id = "ObstacleCourseStart"
-
-[node name="Bouncy" parent="ObstacleCourse/Checkpoints" instance=ExtResource("9_bd3gf")]
-transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, -0.0920126, 41.4217, -1102.45)
-checkpoint_id = "Bouncy"
 
 [node name="Floors" type="Node" parent="ObstacleCourse"]
 
@@ -1451,71 +1447,25 @@ floor_size = Vector3(3, 0.5, 5)
 spin_direction = 1
 
 [node name="Floor43" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1058.76)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1138.3)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
 
 [node name="Floor44" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1101.29)
-floor_type = 1
-floor_size = Vector3(40, 0.5, 40)
-spring_force = 40.0
-spin_direction = 1
-
-[node name="Floor45" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1142.73)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1049.59)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
 
-[node name="Floor46" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1235.01)
-floor_size = Vector3(30, 0.5, 30)
+[node name="Floor45" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1093.88)
+floor_type = 1
+floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
-movement_axis = Vector3(0, 0, -25)
-movement_delay = 3.0
 spin_direction = 1
-
-[node name="Floor47" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1269.75)
-floor_type = 4
-floor_size = Vector3(30, 0.5, 30)
-spring_force = 40.0
-movement_axis = Vector3(0, 0, -25)
-movement_delay = 3.0
-spin_direction = 1
-
-[node name="Floor48" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1326.69)
-floor_type = 4
-floor_size = Vector3(30, 0.5, 30)
-spring_force = 40.0
-movement_axis = Vector3(0, 0, -20)
-movement_duration = 4.0
-movement_delay = 2.5
-spin_direction = 1
-
-[node name="Floor49" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1379.52)
-floor_size = Vector3(30, 0.5, 30)
-spring_force = 40.0
-movement_axis = Vector3(0, 0, -20)
-spin_direction = 1
-
-[node name="You did it" parent="ObstacleCourse/Floors/Floor49" instance=ExtResource("3_e5bud")]
-transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.99175, -0.174267, 0.71167)
-use_dialogic = true
-dialogic_timeline = "You did it"
-sign_text = ""
-
-[node name="Wall5" parent="ObstacleCourse/Floors" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-6.55671e-08, 0, 1, 0, 2, 0, -1.5, 0, -4.37114e-08, 5.02928, 38.4391, -1209.85)
-
-[node name="Wall6" parent="ObstacleCourse/Floors" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-6.55671e-08, 0, 1, 0, 2, 0, -1.5, 0, -4.37114e-08, -6.25579, 38.4391, -1209.85)
 
 [node name="Rails" type="Node" parent="ObstacleCourse"]
 
@@ -1528,21 +1478,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.64126, 30.5084, -743.588)
 curve = SubResource("Curve3D_vfcgb")
 
 [node name="Rail3" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.06427, 30.5084, -743.588)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.69805, 30.5084, -743.588)
 curve = SubResource("Curve3D_gg4w3")
 
 [node name="Rail4" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.80057, 30.5084, -743.588)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.00922, 30.5084, -743.588)
 curve = SubResource("Curve3D_5db3f")
 
 [node name="Rail5" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.93515, 35.3032, -844.582)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.98445, 35.3032, -844.582)
 curve = SubResource("Curve3D_2et5m")
 
 [node name="Rail6" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.30499, 35.3032, -844.582)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.87272, 35.3032, -844.582)
 curve = SubResource("Curve3D_60c0s")
 
 [node name="Rail7" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7227, 36.5839, -938.056)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7227, 36.5839, -943.804)
 curve = SubResource("Curve3D_xom5s")

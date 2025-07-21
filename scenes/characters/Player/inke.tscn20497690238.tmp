@@ -156,20 +156,16 @@ collide_with_areas = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.792745, 0)
 
 [node name="Right" type="RayCast3D" parent="WallJumpRays"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.485969, 0)
-target_position = Vector3(1, 0, 0)
+target_position = Vector3(0.8, 0, 0)
 
 [node name="Left" type="RayCast3D" parent="WallJumpRays"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.524077, 0)
-target_position = Vector3(-1, 0, 0)
+target_position = Vector3(-0.8, 0, 0)
 
 [node name="Front" type="RayCast3D" parent="WallJumpRays"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.476682, 0)
-target_position = Vector3(0, 0, -1.5)
+target_position = Vector3(0, 0, -1)
 
 [node name="Back" type="RayCast3D" parent="WallJumpRays"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.564396, 0)
-target_position = Vector3(0, 0, 1.5)
+target_position = Vector3(0, 0, 1)
 
 [node name="HU-3Boundary" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98123, 0)

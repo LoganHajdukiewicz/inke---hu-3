@@ -3,29 +3,26 @@ class_name JumpingState
 
 var jump_velocity : float = 15.0  # Same upward speed
 var gravity_multiplier : float = 1.0
-var jump_time : float = 0.0
-var peak_time : float = 0.08  # Even shorter for lower jump
+var jump_time : float = 1.0
+var peak_time : float = 0.0  # Even shorter for lower jump
 
 func enter():
 	print("Entered Jumping State")
 	
-	# Instant, powerful jump - Jak and Daxter style
+	
 	player.velocity.y = jump_velocity
 	jump_time = 0.0
 	
-	# Halve horizontal momentum when jumping
-	player.velocity.x *= 0.5
-	player.velocity.z *= 0.5
+	
+	player.velocity.x *= 0.8
+	player.velocity.z *= 0.8
 	
 	if player.is_on_floor():
 		player.can_double_jump = true
+		
+
 	
-	# Subtle visual effect - less pronounced than before
-	var quick_tween = create_tween()
-	quick_tween.set_trans(Tween.TRANS_BACK)
-	quick_tween.set_ease(Tween.EASE_OUT)
-	quick_tween.tween_property(player, "scale", Vector3(1.02, 0.98, 1.02), 0.03)
-	quick_tween.tween_property(player, "scale", Vector3.ONE, 0.08)
+
 
 func physics_update(delta: float):
 	jump_time += delta
@@ -33,13 +30,13 @@ func physics_update(delta: float):
 	# Jak and Daxter gravity curve - quick up, brief pause, quick down
 	if jump_time < peak_time:
 		# Ascending - reduced gravity for quick rise
-		gravity_multiplier = 0.3
-	elif jump_time < peak_time + 0.03:
+		gravity_multiplier = 0.15
+	elif jump_time < peak_time + 0.0001:
 		# Very brief hang time at peak (even shorter)
 		gravity_multiplier = 0.1
 	else:
 		# Falling - increased gravity for quick descent
-		gravity_multiplier = 2.5
+		gravity_multiplier = 3
 	
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 	

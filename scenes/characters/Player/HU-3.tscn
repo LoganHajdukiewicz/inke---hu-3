@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dosj0vw8n4p01" path="res://scripts/characters/Player/hu_3.gd" id="1_gpibh"]
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_ehadf"]
+[sub_resource type="SphereShape3D" id="SphereShape3D_gpibh"]
+radius = 0.451726
 
 [sub_resource type="SphereMesh" id="SphereMesh_ehadf"]
 height = 0.5
@@ -35,7 +36,7 @@ motion_mode = 1
 script = ExtResource("1_gpibh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("SphereShape3D_ehadf")
+shape = SubResource("SphereShape3D_gpibh")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("SphereMesh_ehadf")

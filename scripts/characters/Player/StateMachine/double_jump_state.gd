@@ -38,7 +38,7 @@ func physics_update(delta: float):
 	jump_elapsed_time += delta
 	
 	# Jak and Daxter style gravity progression for double jump
-	var gravity_multiplier = get_jak_gravity_multiplier()
+	var gravity_multiplier = get_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 	
 	# Check for wall jump input first (highest priority)
@@ -64,7 +64,7 @@ func physics_update(delta: float):
 	
 	player.move_and_slide()
 
-func get_jak_gravity_multiplier() -> float:
+func get_gravity_multiplier() -> float:
 	# Jak and Daxter style double jump curve
 	if jump_elapsed_time < ascent_time:
 		# Quick ascent phase - minimal gravity
