@@ -38,7 +38,6 @@ signal gear_collected(total_gears: int)
 signal cred_collected(amount: int, total_cred: int)
 signal upgrade_purchased(upgrade_type: String)
 signal health_changed(new_health: int, max_health: int)
-signal hu3_health_changed(new_health: int, max_health: int)
 signal player_spawned(player: CharacterBody3D)
 signal hu3_spawned(hu3: CharacterBody3D)
 

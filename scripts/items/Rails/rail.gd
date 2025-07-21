@@ -13,7 +13,7 @@ var pointCount: float = 0.0
 func _ready():
 	populate_rail()
 	
-func _process(delta):
+func _process(_delta):
 	pass
  
 func populate_rail():

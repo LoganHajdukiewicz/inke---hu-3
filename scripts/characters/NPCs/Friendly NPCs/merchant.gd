@@ -131,7 +131,7 @@ func setup_ui():
 	close_button.pressed.connect(_on_close_pressed)
 	purchase_panel.add_child(close_button)
 	
-func _process(delta):
+func _process(_delta):
 	if player_in_range and Input.is_action_just_pressed("interact"):
 		open_shop()
 
