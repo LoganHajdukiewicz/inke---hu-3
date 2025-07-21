@@ -17,6 +17,7 @@ var grind_exit_speed: float = 15.0
 
 func enter():
 	print("Entered Rail Grinding State")
+	player.can_double_jump = true
 
 
 

@@ -10,6 +10,7 @@ var wall_jump_buffer_time: float = 0.1  # Small buffer to prevent immediate re-w
 
 func enter():
 	print("Entered Wall Jump State")
+	player.can_double_jump = true
 	
 	# Apply wall jump velocity
 	player.velocity.y = wall_jump_velocity
