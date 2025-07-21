@@ -1,19 +1,29 @@
-[gd_scene load_steps=3 format=3 uid="uid://b60dbcg2q5bp3"]
+[gd_scene load_steps=5 format=3 uid="uid://b60dbcg2q5bp3"]
 
 [ext_resource type="Script" uid="uid://ejbw8fubfr73" path="res://scripts/environments/floor.gd" id="1_floor"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ls30l"]
-albedo_color = Color(0, 0.41793, 0, 1)
+[sub_resource type="BoxMesh" id="BoxMesh_477kv"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0n407"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0, 0.8, 0, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pjg6j"]
+size = Vector3(10, 0.5, 10)
 
 [node name="Floor" type="StaticBody3D"]
 script = ExtResource("1_floor")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
-material_override = SubResource("StandardMaterial3D_ls30l")
+mesh = SubResource("BoxMesh_477kv")
+surface_material_override/0 = SubResource("StandardMaterial3D_0n407")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+shape = SubResource("BoxShape3D_pjg6j")
 
 [node name="SpringArea" type="Area3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)

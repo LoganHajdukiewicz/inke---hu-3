@@ -36,7 +36,7 @@ point_count = 2
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.228451, 5.79573, -392.851)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.228451, 5.6192, -402.192)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -88,11 +88,11 @@ dialogic_timeline = "Moving-Platform"
 sign_text = "Wow! Great job hero!!! Your next big accomplishment is to see if you can get past this next puzzle. Let me know if you need help! "
 
 [node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.6763)
 floor_type = 4
-movement_axis = Vector3(0, 0, -16)
-movement_duration = 2.0
-movement_delay = 1.0
+movement_axis = Vector3(0, 0, -17.5)
+movement_duration = 1.5
+movement_delay = 2.0
 spin_direction = 1
 
 [node name="Floor4" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -108,7 +108,7 @@ sign_text = "Dang, I knew there was a reason I felt special about you. But this 
 [node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
 floor_type = 1
-spring_force = 15.0
+spring_force = 35.0
 spin_direction = 1
 
 [node name="Floor6" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -219,7 +219,8 @@ dialogic_timeline = "Rail-Grind"
 sign_text = "Give Rail Grinding a try! muahahahahaha "
 
 [node name="Floor19" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -365.792)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -363.245)
+floor_size = Vector3(10, 0.5, 15)
 spin_direction = 1
 
 [node name="Congrats" parent="Tutorial/Floors/Floor19" instance=ExtResource("3_e5bud")]
@@ -1238,7 +1239,8 @@ sign_text = "You can find merchants everywhere selling cool upgrades for the gea
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
 
 [node name="Floor23" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -451.777)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -451.881)
+floor_size = Vector3(10, 0.5, 23)
 spin_direction = 1
 
 [node name="Merchant-Intro-Cont" parent="Tutorial/Floors/Floor23" instance=ExtResource("3_e5bud")]
@@ -1283,3 +1285,105 @@ sign_text = "GEARs may get you some upgrades here and there but in this world CR
 [node name="ObstacleCourseStart" parent="ObstacleCourse/Checkpoints" instance=ExtResource("9_bd3gf")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.0920126, 30.1849, -527.603)
 checkpoint_id = "ObstacleCourseStart"
+
+[node name="Floor26" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -553.231)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor27" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -558.214)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor28" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -563.231)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor29" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -568.222)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor30" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -573.21)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor31" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -578.193)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor32" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -583.21)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor33" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -588.201)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor34" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -588.201)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor35" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -599.361)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor36" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -604.345)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor37" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -609.362)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor38" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -614.353)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor39" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -619.341)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor40" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -624.324)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor41" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -629.341)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor42" parent="ObstacleCourse" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -634.332)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1

@@ -66,7 +66,7 @@ top_level = true
 script = ExtResource("2_hiafp")
 
 [node name="CameraTarget" type="Node3D" parent="CameraController"]
-transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 2.75, 3.5)
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 3.65233, 6.0191)
 
 [node name="Camera3D" type="Camera3D" parent="CameraController/CameraTarget"]
 

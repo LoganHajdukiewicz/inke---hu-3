@@ -179,6 +179,9 @@ func _ready():
 		_update_editor_preview()
 		return
 	
+	if mesh_instance:
+		mesh_instance.set_surface_override_material(0, null)
+	
 	# Runtime initialization
 	original_position = global_position
 	start_position = global_position
@@ -245,7 +248,6 @@ func setup_cylinder_geometry():
 		spring_collision.shape = spring_shape
 		spring_collision.position.y = cylinder_height * 0.25
 
-# [Rest of the script remains the same...]
 func _process(delta):
 	# Don't run game logic in editor
 	if Engine.is_editor_hint():
@@ -330,9 +332,8 @@ func setup_falling_floor():
 	"""Setup a falling floor"""
 	# Set falling floor color (warning red)
 	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
+	material = StandardMaterial3D.new()
+	mesh_instance.set_surface_override_material(0, material)
 	material.albedo_color = Color(0.8, 0.2, 0.2, 1)  # Red
 	material.metallic = 0.1
 	material.roughness = 0.4

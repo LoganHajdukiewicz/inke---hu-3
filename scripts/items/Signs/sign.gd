@@ -147,7 +147,7 @@ func stop_bobbing_animation():
 	# Reset position
 	floating_button.position = Vector3(0, 2.5, 0)
 
-func _process(delta):
+func _process(_delta):
 	# Check for E key press when player is in range
 	if player_in_range and Input.is_action_just_pressed("interact"):
 		if use_dialogic:
