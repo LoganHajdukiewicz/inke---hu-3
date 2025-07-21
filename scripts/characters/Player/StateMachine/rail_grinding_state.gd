@@ -9,7 +9,6 @@ var grind_timer_complete: bool = true
 var start_grind_timer: bool = false
 var detached_from_rail: bool = false
 
-
 # Configuration
 var jump_velocity: float = 10.0
 var lerp_speed: float = 50.0
@@ -17,14 +16,11 @@ var grind_exit_speed: float = 15.0
 
 func enter():
 	print("Entered Rail Grinding State")
+	# CHANGE: Restore double jump ability when starting rail grinding
 	player.can_double_jump = true
-
-
+	player.has_double_jumped = false
 
 func physics_update(delta: float):
-	
-
-	
 	# Handle the grinding movement and physics
 	if rail_grind_node:
 		# Smoothly move player to rail position
@@ -66,8 +62,6 @@ func physics_update(delta: float):
 	
 	# Update the grind timer
 	grind_timer(delta)
-	
-
 
 func grind_timer(delta: float):
 	if start_grind_timer and countdown_for_next_grind_time_left > 0:
@@ -122,7 +116,6 @@ func is_facing_same_direction(player_node: CharacterBody3D, path_follow: PathFol
 	const THRESHOLD = 0.5
 	return dot_product > THRESHOLD
 
-
 func disable_grind_raycasts():
 	if player.grindrays:
 		for grind_ray in player.grindrays.get_children():
@@ -136,7 +129,6 @@ func disable_grind_raycasts():
 		timer.timeout.connect(enable_grind_raycasts)
 		player.add_child(timer)
 		timer.start()
-
 
 func exit():
 	print("Exited Rail Grinding State")
@@ -195,5 +187,3 @@ func enable_grind_raycasts():
 
 func get_speed():
 	return grind_exit_speed
-	
-	

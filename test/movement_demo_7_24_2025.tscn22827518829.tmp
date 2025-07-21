@@ -1318,10 +1318,10 @@ floor_size = Vector3(20, 0.5, 50)
 spin_direction = 1
 
 [node name="Wall" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 3.73647, 0.463201, -14.8447)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.3421, 0.463201, -14.8447)
 
 [node name="Wall2" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.95535, 0.463201, -14.8447)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -4.24994, 0.463201, -14.8447)
 
 [node name="Floor25" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
@@ -1447,61 +1447,25 @@ floor_size = Vector3(3, 0.5, 5)
 spin_direction = 1
 
 [node name="Floor43" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1058.76)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1138.3)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
 
 [node name="Floor44" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1101.29)
-floor_type = 1
-floor_size = Vector3(40, 0.5, 40)
-spring_force = 40.0
-spin_direction = 1
-
-[node name="Floor45" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1142.73)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1049.59)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
 
-[node name="Floor46" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1238.3)
-floor_size = Vector3(30, 0.5, 30)
+[node name="Floor45" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1093.88)
+floor_type = 1
+floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
-
-[node name="Floor47" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1269.75)
-floor_type = 4
-floor_size = Vector3(30, 0.5, 30)
-spring_force = 40.0
-movement_axis = Vector3(0, 0, -25)
-movement_delay = 1.5
-spin_direction = 1
-
-[node name="Floor48" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1326.69)
-floor_type = 4
-floor_size = Vector3(30, 0.5, 30)
-spring_force = 40.0
-movement_axis = Vector3(0, 0, -20)
-spin_direction = 1
-
-[node name="Floor49" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1379.52)
-floor_size = Vector3(30, 0.5, 30)
-spring_force = 40.0
-movement_axis = Vector3(0, 0, -20)
-spin_direction = 1
-
-[node name="Wall3" parent="ObstacleCourse/Floors" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-6.55671e-08, 0, 1, 0, 1, 0, -1.5, 0, -4.37114e-08, 4.75339, 48.1644, -1209.85)
-
-[node name="Wall4" parent="ObstacleCourse/Floors" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-6.55671e-08, 0, 1, 0, 1, 0, -1.5, 0, -4.37114e-08, -5.23611, 49.0085, -1209.85)
 
 [node name="Rails" type="Node" parent="ObstacleCourse"]
 
