@@ -41,8 +41,7 @@ func _ready():
 		area_3d.area_entered.connect(_on_gear_area_entered)
 		area_3d.area_exited.connect(_on_gear_area_exited)
 	
-	# Set initial health indicator
-	update_health_indicator()
+
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")
@@ -209,10 +208,25 @@ func reset_collection_state():
 	is_collecting_gear = false
 	target_gear = null
 	collection_timer = 0.0
+	
+func _on_gear_entered(body: Node3D):
+	if body.is_in_group("Gear"):
+		pass
+
+func _on_gear_exited(body: Node3D):
+	if body.is_in_group("Gear"):
+		pass
+
+func _on_gear_area_entered(area: Area3D):
+	if area.is_in_group("Gear"):
+		pass
+
+func _on_gear_area_exited(area: Area3D):
+	if area.is_in_group("Gear"):
+		pass
+
+
 
 
 func get_gear_count() -> int:
 	return collected_gears.size()
-
-func get_health_percentage() -> float:
-	return float(health) / float(max_health)

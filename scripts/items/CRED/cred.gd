@@ -47,7 +47,6 @@ func _ready():
 	
 	# Get GameManager reference
 	game_manager = get_node("/root/GameManager")
-	if not game_manager:
 
 	setup_rainbow_material()
 	
