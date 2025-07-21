@@ -21,7 +21,7 @@ enum PowerupType {
 @export var powerup_type: PowerupType = PowerupType.DOUBLE_JUMP
 @export var powerup_name: String = "Double Jump Upgrade"
 @export var powerup_description: String = "Allows you to jump again while in mid-air"
-@export var powerup_cost: int = 3
+@export var powerup_cost: int = 50
 
 var player_in_range: bool = false
 var current_player: CharacterBody3D = null
@@ -154,7 +154,6 @@ func open_shop():
 		
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	
-	# Update gear count display from GameManager
 	var player_gears = GameManager.get_gear_count()
 	gear_count_label.text = "Your gears: " + str(player_gears)
 	

@@ -43,11 +43,9 @@ func _ready():
 	game_manager = get_node("/root/GameManager")
 	if game_manager:
 		game_manager.register_player(self)
-		print("Player: Registered with GameManager")
 	else:
 		print("Player: GameManager not found!")
 	
-	# Set up gear collection area
 	setup_gear_collection()
 
 func setup_gear_collection():
@@ -67,13 +65,10 @@ func setup_gear_collection():
 	# Connect signals
 	gear_collection_area.body_entered.connect(_on_gear_body_entered)
 	gear_collection_area.area_entered.connect(_on_gear_area_entered)
-	
-	print("Inke: Gear collection system initialized with radius: ", gear_collection_distance)
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
 	
-	# Update coyote time
 	update_coyote_time(delta)
 	
 	# Update wall jump cooldown
@@ -83,13 +78,13 @@ func _physics_process(delta: float) -> void:
 	# Check for nearby gears to collect
 	check_for_nearby_gears()
 	
-	# Check for rail grinding opportunity (only if not already grinding and timer is complete)
+	# Check for rail grinding opportunity
 	check_for_rail_grinding()
 	
 	# Check for wall jump opportunity
 	check_for_wall_jump()
 	
-	# Handle double jump reset when on floor
+	# Reset double jump on the floor
 	if is_on_floor():
 		has_double_jumped = false
 		can_double_jump = true
@@ -126,20 +121,13 @@ func collect_gear(gear: Node):
 	if gear.has_method("collect_gear"):
 		# Standard gear collection method
 		gear.collect_gear()
-	elif gear.has_method("collect_gear_by_player"):
-		# Player-specific collection method
-		gear.collect_gear_by_player()
 	else:
 		# Fallback - mark as collected and remove
 		if gear.has_method("set"):
 			gear.set("collected", true)
+		if game_manager:
+			game_manager.add_gear(1)
 		gear.queue_free()
-	
-	# Add to GameManager's gear count
-	if game_manager:
-		game_manager.add_gear(1)
-	
-	print("Inke: Collected gear! Total gears: ", get_gear_count())
 
 func _on_gear_body_entered(body: Node3D):
 	"""Handle when a gear body enters collection area"""
@@ -149,12 +137,10 @@ func _on_gear_body_entered(body: Node3D):
 func _on_gear_area_entered(area: Area3D):
 	"""Handle when a gear area enters collection area"""
 	if area.is_in_group("Gear"):
-		# Get the gear node (usually the parent of the area)
 		var gear_node = area.get_parent()
 		if gear_node and gear_node.is_in_group("Gear"):
 			collect_gear(gear_node)
 		else:
-			# If the area itself is the gear
 			collect_gear(area)
 
 func update_coyote_time(delta: float):

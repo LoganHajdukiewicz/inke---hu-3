@@ -40,7 +40,6 @@ signal cutscene_started(cred_node: CRED)
 signal cutscene_finished(cred_node: CRED)
 
 func _ready():
-	# Set up the area
 	add_to_group("CRED")
 	
 	# Store original position for floating animation
@@ -49,27 +48,20 @@ func _ready():
 	# Get GameManager reference
 	game_manager = get_node("/root/GameManager")
 	if not game_manager:
-		print("CRED: Warning - GameManager not found!")
-	
-	# Set up rainbow material
+
 	setup_rainbow_material()
 	
 	# Connect area signals
 	body_entered.connect(_on_body_entered)
 	area_entered.connect(_on_area_entered)
-	
-	# Connect to GameManager signals if available
+
 	if game_manager and game_manager.has_signal("player_spawned"):
 		game_manager.player_spawned.connect(_on_player_spawned)
-	
-	print("CRED initialized with value: ", cred_value)
+
 
 func setup_rainbow_material():
 	"""Create and apply rainbow shader material to the CRED sphere"""
-	if not mesh_instance:
-		print("CRED: No MeshInstance3D found for rainbow material!")
-		return
-	
+
 	# Store original material
 	if mesh_instance.get_surface_override_material_count() > 0:
 		original_material = mesh_instance.get_surface_override_material(0)

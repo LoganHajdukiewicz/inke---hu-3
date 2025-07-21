@@ -1,21 +1,20 @@
 extends State
 class_name JumpingState
 
-var jump_velocity : float = 15.0  # Same upward speed
+@export var jump_velocity : float = 15.0
 var gravity_multiplier : float = 1.0
 var jump_time : float = 1.0
-var peak_time : float = 0.0  # Even shorter for lower jump
+var peak_time : float = 0.0  
+var horizontal_movement_decel = 0.8 
 
 func enter():
 	print("Entered Jumping State")
-	
-	
+		
 	player.velocity.y = jump_velocity
 	jump_time = 0.0
 	
-	
-	player.velocity.x *= 0.8
-	player.velocity.z *= 0.8
+	player.velocity.x *= horizontal_movement_decel
+	player.velocity.z *= horizontal_movement_decel
 	
 	if player.is_on_floor():
 		player.can_double_jump = true

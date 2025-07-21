@@ -12,7 +12,7 @@ var local_starting_progress = 0.0
 @onready var direction_selected = false
 @onready var detach = false
 
-@export var grind_speed = 30.0  # Doubled from 15.0 to 30.0, now exported for easy adjustment
+@export var grind_speed = 30.0  # This is the speed you move across the rail grind. 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

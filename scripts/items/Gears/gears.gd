@@ -54,10 +54,6 @@ func collect_gear():
 	# Remove the gear from the scene
 	queue_free()
 
-# Method for HU-3 to call - now just calls the same collect_gear method
-func collect_gear_by_hu3():
-	"""Called when HU-3 collects the gear - same as regular collection"""
-	collect_gear()
 
 # Legacy method for compatibility
 func collect_gear_by_player():

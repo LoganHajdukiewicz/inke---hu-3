@@ -2,7 +2,7 @@ extends State
 class_name RunningState
 
 const SPEED : float = 15.0
-const ROTATION_SPEED : float = 12.0  # Slightly faster rotation for running
+const ROTATION_SPEED : float = 12.0  
 
 func enter():
 	print("Entered Running State")

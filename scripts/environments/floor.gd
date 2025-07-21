@@ -22,19 +22,14 @@ enum SpinDirection {
 
 @export var floor_type: FloorType = FloorType.NORMAL : set = _set_floor_type
 
-
-# Shape and Dimension Settings
-@export_group("Shape & Dimensions")
+@export_category("Shape & Dimensions")
 @export var floor_shape: FloorShape = FloorShape.BOX : set = _set_floor_shape
 @export var floor_size: Vector3 = Vector3(10, 0.5, 10) : set = _set_floor_size  # X, Y, Z dimensions for box
 @export var cylinder_radius: float = 5.0 : set = _set_cylinder_radius  # Radius for cylinder
 @export var cylinder_height: float = 0.5 : set = _set_cylinder_height  # Height for cylinder
 @export var cylinder_segments: int = 32 : set = _set_cylinder_segments  # Number of segments for cylinder smoothness
 
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var collision_shape: CollisionShape3D = $CollisionShape3D
 
-# Spring Floor Variables
 @export_group("Spring Floor Settings")
 @export var spring_force: float = 20.0
 @export var spring_cooldown: float = 0.5
@@ -42,7 +37,6 @@ enum SpinDirection {
 @onready var spring_area: Area3D = $SpringArea
 @onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
 
-# Falling Floor Variables
 @export_group("Falling Floor Settings")
 @export var fall_speed: float = 5.0
 @export var fall_duration: float = 3.0
@@ -50,16 +44,10 @@ enum SpinDirection {
 @export var shake_intensity: float = 0.35
 @export var shake_duration: float = 1.0
 
-var players_on_floor: Array[CharacterBody3D] = []
-var spring_cooldown_timer: float = 0.0
-var fall_timer: float = 0.0
-var is_falling: bool = false
-var has_fallen: bool = false
-var fall_triggered: bool = false
-var original_position: Vector3
-var fall_tween: Tween
+@export_group("Spinning Floor Settings")
+@export var spin_speed: float = 90.0  # degrees per second
+@export var spin_direction: SpinDirection = SpinDirection.RIGHT
 
-# Moving Floor Variables
 @export_group("Moving Floor Settings")
 @export var movement_axis: Vector3 = Vector3(10, 0, 0)  # Distance to move in each axis
 @export var movement_duration: float = 3.0  # Time to complete one movement cycle
@@ -68,17 +56,29 @@ var fall_tween: Tween
 @export var movement_easing: Tween.EaseType = Tween.EASE_IN_OUT
 @export var movement_transition: Tween.TransitionType = Tween.TRANS_SINE
 
+# General Variables
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+
+# Spring Floor Variables
+var players_on_floor: Array[CharacterBody3D] = []
+var spring_cooldown_timer: float = 0.0
+
+# Falling Floor Variables
+var fall_timer: float = 0.0
+var is_falling: bool = false
+var has_fallen: bool = false
+var fall_triggered: bool = false
+var original_position: Vector3
+var fall_tween: Tween
+
+# Spinning Floor Variables And Moving Floor Variables
 var movement_tween: Tween
 var start_position: Vector3
 var end_position: Vector3
 var is_moving: bool = false
 var players_to_move: Array[CharacterBody3D] = []
 var last_floor_position: Vector3
-
-# Spinning Floor Variables
-@export_group("Spinning Floor Settings")
-@export var spin_speed: float = 90.0  # degrees per second
-@export var spin_direction: SpinDirection = SpinDirection.RIGHT
 
 # Editor preview variables
 var editor_material: StandardMaterial3D
@@ -560,8 +560,6 @@ func _on_spring_area_body_exited(body):
 		
 		if floor_type == FloorType.MOVING:
 			players_to_move.erase(body)
-		
-		# DON'T reset fall timer - once triggered, the floor will fall regardless
 
 func activate_spring():
 	"""Activate the spring effect for all players on the floor"""
@@ -622,8 +620,6 @@ func _apply_spring_velocity(player: CharacterBody3D):
 		
 		# Also call move_and_slide to ensure the velocity is applied
 		player.move_and_slide()
-		
-		print("Spring activated! Player bounced with force: ", spring_force, " Current velocity.y: ", player.velocity.y)
 
 func start_falling():
 	"""Start the falling sequence"""

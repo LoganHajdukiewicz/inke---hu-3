@@ -2,7 +2,7 @@ extends State
 class_name WalkingState
 
 const SPEED : float = 10.0
-const ROTATION_SPEED : float = 10.0  # How fast the player rotates to face movement direction
+const ROTATION_SPEED : float = 10.0  
 
 func enter():
 	print("Entered Walking State")
