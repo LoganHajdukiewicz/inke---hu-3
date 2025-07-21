@@ -274,7 +274,6 @@ func end_cutscene():
 	collision_shape.disabled = true
 	
 	# Wait a moment then queue free
-	await get_tree().create_timer(0.5).timeout
 	queue_free()
 
 # === PUBLIC METHODS ===
