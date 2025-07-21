@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://bcxt1banj6acv"]
+
+[ext_resource type="Script" uid="uid://jfvdlwihmnu0" path="res://scripts/items/CRED/cred.gd" id="1_8pvcp"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_yawmh"]
+radius = 0.25785
+
+[sub_resource type="SphereMesh" id="SphereMesh_8pvcp"]
+radius = 0.25
+height = 0.5
+
+[node name="CRED" type="Area3D"]
+script = ExtResource("1_8pvcp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.269549, 0)
+shape = SubResource("SphereShape3D_yawmh")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.271494, 0)
+mesh = SubResource("SphereMesh_8pvcp")
