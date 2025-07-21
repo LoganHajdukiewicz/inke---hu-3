@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://1xtg2gv8rted"]
+[gd_scene load_steps=22 format=3 uid="uid://1xtg2gv8rted"]
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="7_lnigw"]
 [ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="8_6mnhf"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="9_bd3gf"]
+[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/CRED/cred.tscn" id="10_vfcgb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.302903, 0.414654, 0.802889, 1)
@@ -92,7 +93,7 @@ point_count = 2
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.228451, 0.0100448, -0.271717)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.262058, 0.61689, -0.11724)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -164,7 +165,6 @@ sign_text = "Dang, I knew there was a reason I felt special about you. But this 
 [node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
 floor_type = 1
-spring_force = 35.0
 spin_direction = 1
 
 [node name="Floor6" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -1546,3 +1546,6 @@ curve = SubResource("Curve3D_60c0s")
 [node name="Rail7" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7227, 36.5839, -938.056)
 curve = SubResource("Curve3D_xom5s")
+
+[node name="CRED" parent="." instance=ExtResource("10_vfcgb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22695, 36.1792, -1385.15)

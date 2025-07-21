@@ -12,7 +12,7 @@ var local_starting_progress = 0.0
 @onready var direction_selected = false
 @onready var detach = false
 
-@export var move_speed = 15.0
+@export var grind_speed = 30.0  # Doubled from 15.0 to 30.0, now exported for easy adjustment
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -22,9 +22,9 @@ func _process(delta):
 	# Only move if we're actively being used for grinding
 	if grinding and chosen:
 		if forward:
-			path_follow_3d.progress += move_speed * delta
+			path_follow_3d.progress += grind_speed * delta
 		elif !forward:
-			path_follow_3d.progress -= move_speed * delta
+			path_follow_3d.progress -= grind_speed * delta
 
 		# Get the total path length
 		var path_length = path_3d.curve.get_baked_length()

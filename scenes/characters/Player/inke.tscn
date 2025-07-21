@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://bdxo4fr0da0vb"]
+[gd_scene load_steps=20 format=3 uid="uid://bdxo4fr0da0vb"]
 
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://scripts/characters/Player/camera_controller.gd" id="2_hiafp"]
@@ -19,8 +19,20 @@ albedo_color = Color(0, 0, 1, 1)
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_hiafp"]
 height = 1.5
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v87o4"]
+albedo_color = Color(1, 0, 1, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_04s0v"]
-size = Vector3(0.8, 0.1, 1)
+material = SubResource("StandardMaterial3D_v87o4")
+size = Vector3(0.9, 0.05, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xnk82"]
+albedo_color = Color(1, 0, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_43ywd"]
+material = SubResource("StandardMaterial3D_xnk82")
+radius = 0.48
+height = 1.5
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_04s0v"]
 height = 1.5
@@ -76,8 +88,12 @@ material_overlay = SubResource("StandardMaterial3D_hiafp")
 mesh = SubResource("CapsuleMesh_hiafp")
 
 [node name="HatBrim" type="MeshInstance3D" parent="Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00622028, 0.342695, -0.244018)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00622028, 0.402546, -0.41257)
 mesh = SubResource("BoxMesh_04s0v")
+
+[node name="HatTop" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.142328, 0)
+mesh = SubResource("CapsuleMesh_43ywd")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.849195, 0)
