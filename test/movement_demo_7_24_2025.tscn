@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="5_n7jej"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="6_16sj7"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="7_lnigw"]
-[ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="8_6mnhf"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="9_bd3gf"]
 [ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/CRED/cred.tscn" id="10_vfcgb"]
 
@@ -90,10 +89,18 @@ _data = {
 }
 point_count = 2
 
+[sub_resource type="Curve3D" id="Curve3D_5lhnb"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175965, -0.00133514, 0.403198, 0, 0, 0, 0, 0, 0, 0.278286, -39.1883, -32.9379),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
 [node name="Movement_Demo_7_24_2025" type="Node3D"]
 
 [node name="Inke" parent="." groups=["player"] instance=ExtResource("2_ontye")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.262058, 0.61689, -0.11724)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.262058, 0.0950881, -0.11724)
 
 [node name="Environments" type="Node" parent="."]
 
@@ -159,6 +166,7 @@ dialogic_timeline = "Spring-Platform"
 [node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
 floor_type = 1
+spring_force = 25.0
 spin_direction = 1
 
 [node name="Floor6" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
@@ -1286,12 +1294,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
 floor_size = Vector3(20, 0.5, 50)
 spin_direction = 1
 
-[node name="Wall" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 4.8479, 0.463201, -14.8447)
-
-[node name="Wall2" parent="Tutorial/Floors/Floor24" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.28245, 0.463201, -14.8447)
-
 [node name="Floor25" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
 floor_size = Vector3(10, 0.5, 50)
@@ -1300,6 +1302,16 @@ spin_direction = 1
 [node name="CRED" parent="Tutorial/Floors/Floor24/Floor25" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -3.52432, -0.016468, -19.7253)
 dialogic_timeline = "CRED"
+
+[node name="Floor27" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.88514, 14.7637, -4.15894)
+floor_size = Vector3(30, 0.5, 10)
+spin_direction = 1
+
+[node name="Floor28" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -2.87117, 14.7637, -4.15894)
+floor_size = Vector3(30, 0.5, 10)
+spin_direction = 1
 
 [node name="ObstacleCourse" type="Node" parent="."]
 
@@ -1446,6 +1458,46 @@ spin_direction = 1
 movement_axis = Vector3(0, 0, -25)
 movement_delay = 3.0
 
+[node name="Floor50" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 76.6946, -1182.14)
+floor_size = Vector3(30, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor53" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.49396, 76.6946, -1172.13)
+floor_size = Vector3(11.2, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor54" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.46475, 76.6946, -1172.13)
+floor_size = Vector3(11.1, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor51" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -4.27974, 52.9715, -1162.28)
+floor_size = Vector3(50, 0.5, 10)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor52" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 3.77677, 52.9715, -1162.28)
+floor_size = Vector3(50, 0.5, 10)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
 [node name="Floor47" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1269.75)
 floor_type = 4
@@ -1476,12 +1528,6 @@ movement_axis = Vector3(0, 0, -20)
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.99175, -0.174267, 0.71167)
 dialogic_timeline = "You did it"
 
-[node name="Wall5" parent="ObstacleCourse/Floors" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-6.55671e-08, 0, 1, 0, 2, 0, -1.5, 0, -4.37114e-08, 5.02928, 38.4391, -1209.85)
-
-[node name="Wall6" parent="ObstacleCourse/Floors" instance=ExtResource("8_6mnhf")]
-transform = Transform3D(-6.55671e-08, 0, 1, 0, 2, 0, -1.5, 0, -4.37114e-08, -6.25579, 38.4391, -1209.85)
-
 [node name="Rails" type="Node" parent="ObstacleCourse"]
 
 [node name="Rail" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
@@ -1511,6 +1557,10 @@ curve = SubResource("Curve3D_60c0s")
 [node name="Rail7" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7227, 36.5839, -938.056)
 curve = SubResource("Curve3D_xom5s")
+
+[node name="Rail8" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77916, 77.7927, -1197.54)
+curve = SubResource("Curve3D_5lhnb")
 
 [node name="CRED" parent="ObstacleCourse" instance=ExtResource("10_vfcgb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22695, 36.1792, -1385.15)
