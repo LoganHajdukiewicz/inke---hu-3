@@ -13,7 +13,7 @@ func enter():
 	check_if_rotation_reset_needed()
 
 func physics_update(delta: float):
-	# Only reset rotation if we need to (e.g., after rail grinding)
+	# Only reset rotation if we are tilted
 	if should_reset_rotation:
 		reset_player_rotation(delta)
 	
@@ -61,7 +61,7 @@ func enable_rotation_reset():
 
 func check_if_rotation_reset_needed():
 	var up_dot = player.transform.basis.y.dot(Vector3.UP)
-	if up_dot < 0.99:
+	if up_dot < 1:
 		should_reset_rotation = true
 	else:
 		should_reset_rotation = false

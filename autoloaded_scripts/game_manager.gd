@@ -1,12 +1,12 @@
 extends Node
 
 # Game Resources
-@export var gear_count: int = 0
-@export var CRED: int = 0
+var gear_count: int = 0
+var CRED: int = 0
 
-# Player Stats
-@export var player_health: int = 3
-@export var player_max_health: int = 3
+# Health Stats
+var player_health: int = 3
+var player_max_health: int = 3
 
 # Upgrade System
 @export_group("Upgrades Purchased")
@@ -42,21 +42,17 @@ signal player_spawned(player: CharacterBody3D)
 signal hu3_spawned(hu3: CharacterBody3D)
 
 func _ready():
-	# Find player reference
 	find_player()
 	
-	# Connect to player's HU-3 companion if it exists
 	if player and player.has_method("get_hu3_companion"):
 		hu3_companion = player.get_hu3_companion()
 	
-	# Apply any purchased upgrades to the player
 	apply_purchased_upgrades()
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		player = players[0]
-		print("GameManager: Found player: ", player.name)
 		player_spawned.emit(player)
 	else:
 		print("GameManager: No player found in scene!")
@@ -69,14 +65,11 @@ func initialize_player():
 		find_player()
 		return
 	
-	# Apply purchased upgrades
 	apply_purchased_upgrades()
 	
-	# Set health
 	if player.has_method("set_health"):
 		player.set_health(player_health)
 	
-	# Spawn HU-3 if it doesn't exist
 	if not hu3_companion:
 		spawn_hu3_companion()
 
@@ -118,7 +111,6 @@ func spawn_hu3_companion():
 		return
 	
 	if hu3_companion and is_instance_valid(hu3_companion):
-		print("GameManager: HU-3 already exists")
 		return
 	
 	if hu3_scene:
@@ -135,7 +127,6 @@ func spawn_hu3_companion():
 			hu3_companion.set_player_reference(player)
 		
 		
-		print("GameManager: HU-3 companion spawned!")
 		hu3_spawned.emit(hu3_companion)
 	else:
 		print("GameManager: Could not load HU-3 scene!")
@@ -149,14 +140,12 @@ func get_hu3_companion() -> CharacterBody3D:
 func add_gear(amount: int = 1):
 	"""Add gears to the player's collection - unified for all collectors"""
 	gear_count += amount
-	print("Gear collected! Total gears: ", gear_count)
 	gear_collected.emit(gear_count)
 
 func spend_gears(amount: int) -> bool:
 	"""Spend gears if player has enough"""
 	if gear_count >= amount:
 		gear_count -= amount
-		print("Gears spent: ", amount, " Remaining: ", gear_count)
 		return true
 	return false
 
@@ -168,8 +157,6 @@ func get_gear_count() -> int:
 func add_CRED(reward: int):
 	"""Add XP/CRED to Inke"""
 	CRED += reward
-	print("CRED Received! CRED added: ", reward)
-	print("Total CRED: ", CRED)
 	cred_collected.emit(reward, CRED)
 	
 func get_CRED_count() -> int:
@@ -186,11 +173,9 @@ func purchase_upgrade(upgrade_type: String) -> bool:
 		return false
 	
 	if is_upgrade_purchased(upgrade_type):
-		print("GameManager: Upgrade already purchased: ", upgrade_type)
 		return false
 	
 	if not spend_gears(cost):
-		print("GameManager: Not enough gears for upgrade: ", upgrade_type)
 		return false
 	
 	# Set the upgrade as purchased
@@ -221,7 +206,6 @@ func purchase_upgrade(upgrade_type: String) -> bool:
 			if player and player.has_method("unlock_damage_upgrade"):
 				player.unlock_damage_upgrade()
 	
-	print("GameManager: Purchased upgrade: ", upgrade_type)
 	upgrade_purchased.emit(upgrade_type)
 	return true
 
@@ -304,7 +288,6 @@ func set_player_health(new_health: int):
 	player_health = clamp(new_health, 0, player_max_health)
 	health_changed.emit(player_health, player_max_health)
 	
-	# Also update player's health if they have the method
 	if player and player.has_method("set_health"):
 		player.set_health(player_health)
 
@@ -390,8 +373,6 @@ func load_game_state(state: Dictionary):
 	if player and player.has_method("set_health"):
 		player.set_health(player_health)
 	
-	
-	print("GameManager: Game state loaded")
 
 # === UTILITY FUNCTIONS ===
 
@@ -407,8 +388,6 @@ func reset_game_state():
 	speed_upgrade_purchased = false
 	health_upgrade_purchased = false
 	damage_upgrade_purchased = false
-	
-	print("GameManager: Game state reset to defaults")
 
 func get_game_stats() -> Dictionary:
 	"""Get current game statistics"""
@@ -442,13 +421,11 @@ func get_purchased_upgrades() -> Array:
 func register_player(player_node: CharacterBody3D):
 	"""Register the player node with GameManager"""
 	player = player_node
-	print("GameManager: Player registered: ", player.name)
 	initialize_player()
 
 func register_hu3(hu3_node: CharacterBody3D):
 	"""Register HU-3 companion with GameManager"""
 	hu3_companion = hu3_node
-	print("GameManager: HU-3 registered: ", hu3_companion.name)
 
 func get_player() -> CharacterBody3D:
 	"""Get player reference"""

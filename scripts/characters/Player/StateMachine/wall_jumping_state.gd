@@ -3,6 +3,7 @@ class_name WallJumpingState
 
 @export var wall_jump_velocity: float = 5.0
 @export var wall_jump_upward_boost: float = 2.0
+
 var wall_jump_horizontal_force: float = 12.0
 var wall_direction: Vector3 = Vector3.ZERO
 var wall_jump_timer: float = 0.0

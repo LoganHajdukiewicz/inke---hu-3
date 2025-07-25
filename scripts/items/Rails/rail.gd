@@ -1,6 +1,8 @@
 extends Path3D
 
 @export var rail_follower = preload("res://scenes/items/Rails/rail_follow_node.tscn")
+
+## TODO: Have a more elegant solution than to just stick a fuckton of nodes there. 
 @export var point_total: int = 50
 
 var hasSpawnedPoints = false

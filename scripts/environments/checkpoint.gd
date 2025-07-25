@@ -10,18 +10,15 @@ extends Node3D
 var activated: bool = false
 
 func _ready():
-	# Make sure this checkpoint is in the "checkpoint" group
 	add_to_group("checkpoint")
 	
-	# Connect the area signal
 	if area_3d:
 		area_3d.body_entered.connect(_on_body_entered)
 	
 
 
 func _on_body_entered(body):
-	# Check if the body that entered is the player
-	if body.is_in_group("player") or body.name == "Inke":
+	if body.is_in_group("Player") or body.name == "Inke":
 		activate_checkpoint(body)
 
 func activate_checkpoint(_player):

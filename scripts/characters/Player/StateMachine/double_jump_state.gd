@@ -15,7 +15,6 @@ var scale_tween : Tween
 func enter():
 	print("Entered Double Jump State")
 	
-	# Powerful double jump with immediate velocity
 	player.velocity.y = jump_velocity
 	jump_elapsed_time = 0.0
 	
@@ -29,7 +28,6 @@ func start_scale_effect():
 	scale_tween = create_tween()
 	scale_tween.set_trans(Tween.TRANS_BACK)
 	scale_tween.set_ease(Tween.EASE_OUT)
-	# More pronounced squash and stretch for double jump
 	scale_tween.tween_property(player, "scale", Vector3(1.15, 0.85, 1.15), 0.08)
 	scale_tween.tween_property(player, "scale", Vector3(0.95, 1.1, 0.95), 0.12)
 	scale_tween.tween_property(player, "scale", Vector3.ONE, 0.15)
@@ -37,11 +35,11 @@ func start_scale_effect():
 func physics_update(delta: float):
 	jump_elapsed_time += delta
 	
-	# Jak and Daxter style gravity progression for double jump
+	# Gravity progression for double jump
 	var gravity_multiplier = get_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 	
-	# Check for wall jump input first (highest priority)
+	# Check for wall jump input first
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
 		var wall_normal = player.get_wall_jump_direction()
 		if wall_normal.length() > 0:
@@ -65,7 +63,7 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 func get_gravity_multiplier() -> float:
-	# Jak and Daxter style double jump curve
+	# Setting up the double jump curve
 	if jump_elapsed_time < ascent_time:
 		# Quick ascent phase - minimal gravity
 		return 0.2

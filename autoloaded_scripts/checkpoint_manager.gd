@@ -11,7 +11,6 @@ func set_checkpoint(position: Vector3, rotation: Vector3 = Vector3.ZERO):
 	current_checkpoint_rotation = rotation
 	has_checkpoint = true
 	checkpoint_activated.emit(position)
-	print("Checkpoint set at: ", position)
 
 func get_checkpoint_position() -> Vector3:
 	return current_checkpoint_position

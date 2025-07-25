@@ -1,8 +1,8 @@
 extends CharacterBody3D
 
 # Health system
-var max_health = 3
-var current_health = 3
+@export var max_health = 3
+@export var current_health = 3
 
 # Detection and attack system
 var detection_timer = 0.0
@@ -29,15 +29,11 @@ func _ready():
 	# Set up navigation agent
 	navigation_agent.target_desired_distance = 1.0
 	navigation_agent.path_desired_distance = 0.5
-	
-	print("Enemy initialized with health: ", current_health)
 
 func _physics_process(delta):
-	# Apply gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	
-	# Handle detection timer and attack
 	if is_player_in_detection and player_reference and not has_attacked:
 		detection_timer += delta
 		
@@ -46,16 +42,13 @@ func _physics_process(delta):
 			has_attacked = true
 			detection_timer = 0.0
 	
-	# Handle movement and chasing
 	if is_chasing and player_reference:
 		chase_player()
 	
-	# Apply movement
 	move_and_slide()
 
 func _on_detection_area_body_entered(body):
-	if body.is_in_group("Player") or body.name == "Player":
-		print("Player entered detection area")
+	if body.is_in_group("Player") or body.name == "Inke":
 		is_player_in_detection = true
 		player_reference = body
 		detection_timer = 0.0
@@ -63,7 +56,7 @@ func _on_detection_area_body_entered(body):
 		is_chasing = true
 
 func _on_detection_area_body_exited(body):
-	if body.is_in_group("player") or body.name == "Player":
+	if body.is_in_group("Player") or body.name == "Inke":
 		print("Player exited detection area")
 		is_player_in_detection = false
 		player_reference = null
@@ -79,12 +72,8 @@ func attack_player():
 	if player_reference:
 		print("Enemy attacking player!")
 		
-		# Deal damage to player if they have a take_damage method
 		if player_reference.has_method("take_damage"):
 			player_reference.take_damage(1)
-		
-		# Visual feedback - make enemy flash or change color temporarily
-		flash_enemy()
 		
 		# Reset for next attack cycle
 		detection_timer = 0.0
@@ -128,7 +117,6 @@ func die():
 	queue_free()
 
 func flash_enemy():
-	# Simple flash effect by changing the material color briefly
 	var body_mesh = $Body
 	if body_mesh and body_mesh.get_surface_override_material(0):
 		var material = body_mesh.get_surface_override_material(0)
@@ -157,13 +145,3 @@ func set_chase_speed(new_speed):
 func get_health_percentage():
 	"""Returns health as a percentage (0.0 to 1.0)"""
 	return float(current_health) / float(max_health)
-
-# Debug function to check enemy state
-func debug_print_state():
-	print("=== Enemy State ===")
-	print("Health: ", current_health, "/", max_health)
-	print("Player in detection: ", is_player_in_detection)
-	print("Detection timer: ", detection_timer)
-	print("Is chasing: ", is_chasing)
-	print("Has attacked: ", has_attacked)
-	print("===================")

@@ -3,7 +3,7 @@ extends Node3D
 # Camera Speed as a Decimal Percent.
 const BASE_CAMERA_SPEED : float = 0.15
 const FAST_CAMERA_SPEED : float = 0.25
-const SPEED_THRESHOLD : float = 12.0  # Speed above which we use faster camera
+const SPEED_THRESHOLD : float = 12.0  
 
 # Camera Limits
 const MIN_PITCH : float = -10.0

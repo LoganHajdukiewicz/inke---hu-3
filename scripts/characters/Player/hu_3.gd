@@ -29,9 +29,6 @@ var target_gear: Node = null
 var collection_timer: float = 0.0
 var collection_timeout: float = 5.0  # Give up after 5 seconds
 
-# Health/status
-var health: int = 100
-var max_health: int = 100
 
 func _ready():
 	# Find the player in the scene
@@ -44,15 +41,12 @@ func _ready():
 		area_3d.area_entered.connect(_on_gear_area_entered)
 		area_3d.area_exited.connect(_on_gear_area_exited)
 	
-	# Set initial health indicator
-	update_health_indicator()
+
 
 func find_player():
-	# Look for player in the scene
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		player = players[0]
-		print("HU-3: Found player: ", player.name)
 	else:
 		print("HU-3: No player found in scene!")
 
@@ -69,7 +63,6 @@ func _physics_process(delta: float):
 		collection_timer += delta
 		if collection_timer > collection_timeout:
 			# Give up on current gear and find another
-			print("HU-3: Timeout collecting gear, finding new target")
 			reset_collection_state()
 	
 	# Check for nearby gears to collect
@@ -203,16 +196,11 @@ func collect_gear(gear: Node):
 	
 	# Collect the gear using the unified method
 	if gear.has_method("collect_gear"):
-		gear.collect_gear()  # This will handle adding to GameManager
+		gear.collect_gear()
 	else:
-		# Fallback - mark as collected and remove
 		gear.queue_free()
 	
-	# Mark as collected by HU-3 for tracking purposes (optional - for statistics)
-	collected_gears.append(gear)
-	
-	print("HU-3: Collected gear! Total collected by HU-3: ", collected_gears.size())
-	
+		
 	# Reset collection state
 	reset_collection_state()
 
@@ -220,55 +208,25 @@ func reset_collection_state():
 	is_collecting_gear = false
 	target_gear = null
 	collection_timer = 0.0
-
+	
 func _on_gear_entered(body: Node3D):
 	if body.is_in_group("Gear"):
-		print("HU-3: Gear body detected: ", body.name)
+		pass
 
 func _on_gear_exited(body: Node3D):
 	if body.is_in_group("Gear"):
-		print("HU-3: Gear body left detection range: ", body.name)
+		pass
 
 func _on_gear_area_entered(area: Area3D):
 	if area.is_in_group("Gear"):
-		print("HU-3: Gear area detected: ", area.name)
-		# Could trigger immediate collection if very close
+		pass
 
 func _on_gear_area_exited(area: Area3D):
 	if area.is_in_group("Gear"):
-		print("HU-3: Gear area left detection range: ", area.name)
+		pass
 
-func update_health_indicator():
-	if not health_indicator:
-		return
-	
-	# Update health indicator color based on health percentage
-	var health_percentage = float(health) / float(max_health)
-	var material = health_indicator.get_surface_override_material(0)
-	
-	if not material:
-		material = StandardMaterial3D.new()
-		health_indicator.set_surface_override_material(0, material)
-	
-	# Green to red gradient based on health
-	if health_percentage > 0.5:
-		material.albedo_color = Color.GREEN.lerp(Color.YELLOW, (1.0 - health_percentage) * 2.0)
-	else:
-		material.albedo_color = Color.YELLOW.lerp(Color.RED, (0.5 - health_percentage) * 2.0)
 
-func take_damage(amount: int):
-	health = max(0, health - amount)
-	update_health_indicator()
-	print("HU-3: Took ", amount, " damage. Health: ", health, "/", max_health)
 
-func heal(amount: int):
-	health = min(max_health, health + amount)
-	update_health_indicator()
-	print("HU-3: Healed ", amount, " health. Health: ", health, "/", max_health)
 
-# Public interface for player interaction
 func get_gear_count() -> int:
 	return collected_gears.size()
-
-func get_health_percentage() -> float:
-	return float(health) / float(max_health)

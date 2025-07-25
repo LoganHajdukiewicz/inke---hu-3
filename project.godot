@@ -20,11 +20,12 @@ config/icon="res://icon.svg"
 Dialogic="*res://addons/dialogic/Core/DialogicGameHandler.gd"
 CheckpointManager="*res://autoloaded_scripts/checkpoint_manager.gd"
 GameManager="*res://autoloaded_scripts/game_manager.gd"
+CutsceneManager="*res://autoloaded_scripts/cutscene_manager.gd"
 
 [dialogic]
 
 directories/dch_directory={
-"S-1GN": "res://dialogue/S-1GN.dch",
+"S-1GN": "res://dialogue/demo-7-24-2025/S-1GN.dch",
 "unit_test_character": "res://Tests/Resources/unit_test_character.dch"
 }
 directories/dtl_directory={
