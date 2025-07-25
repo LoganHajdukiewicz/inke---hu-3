@@ -22,9 +22,11 @@ enum SpinDirection {
 
 @export var floor_type: FloorType = FloorType.NORMAL : set = _set_floor_type
 
-@export_category("Shape & Dimensions")
+@export_category("Box Dimensions")
 @export var floor_shape: FloorShape = FloorShape.BOX : set = _set_floor_shape
 @export var floor_size: Vector3 = Vector3(10, 0.5, 10) : set = _set_floor_size  # X, Y, Z dimensions for box
+
+@export_category("Cylinder Dimensions")
 @export var cylinder_radius: float = 5.0 : set = _set_cylinder_radius  # Radius for cylinder
 @export var cylinder_height: float = 0.5 : set = _set_cylinder_height  # Height for cylinder
 @export var cylinder_segments: int = 32 : set = _set_cylinder_segments  # Number of segments for cylinder smoothness

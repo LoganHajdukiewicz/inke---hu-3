@@ -122,7 +122,6 @@ void fragment() {
 	
 	# Apply the material
 	mesh_instance.set_surface_override_material(0, rainbow_material)
-	print("CRED: Rainbow material applied")
 
 func _on_player_spawned(player_node: CharacterBody3D):
 	"""Handle player spawning"""
@@ -237,13 +236,11 @@ func collect_cred():
 	
 	collected = true
 	
-	# Add CRED to GameManager
 	if game_manager and game_manager.has_method("add_CRED"):
 		game_manager.add_CRED(cred_value)
 	else:
 		print("CRED: Could not add CRED to GameManager!")
-	
-	print("CRED: Collected! Value: ", cred_value)
+
 	
 	# Emit collection signal
 	cred_collected.emit(self, cred_value)
@@ -263,6 +260,19 @@ func end_cutscene():
 	# Hide and remove the CRED
 	visible = false
 	collision_shape.disabled = true
+	
+	
+	# You win! Hopefully it works. 
+	var canvas_layer = CanvasLayer.new()
+	add_child(canvas_layer)
+	var you_win = Label.new()
+	you_win.text = "You win! Thank you for playing! <3 "
+	you_win.add_theme_font_size_override("font_size", 50)
+	you_win.position = Vector2(0, 0)
+	you_win.visible = true
+	canvas_layer.add_child(you_win)
+	
+	
 	
 	# Wait a moment then queue free
 	queue_free()
