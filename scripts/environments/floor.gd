@@ -7,7 +7,9 @@ enum FloorType {
 	SPRING,
 	FALLING,
 	SPINNING,
-	MOVING
+	MOVING, 
+	DAMAGE, # non-lethal damaging floors, i.e. lava, electric
+	FROZEN
 }
 
 enum FloorShape {
