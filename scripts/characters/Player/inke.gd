@@ -47,7 +47,6 @@ var shadow_fade_start: float = 5.0      # Distance where fading starts
 @onready var game_manager = "/root/GameManager"
 
 func _ready():
-	check_if_rotation_reset_needed()
 	$CameraController.initialize_camera()
 	
 	# Get GameManager reference
@@ -140,7 +139,7 @@ func setup_jump_shadow():
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
-	
+	check_if_rotation_reset_needed()
 	update_coyote_time(delta)
 	
 		# Only reset rotation if we are tilted
@@ -466,7 +465,7 @@ func reset_player_rotation(delta: float):
 		should_reset_rotation = false
 		return
 	
-	player.transform.basis = current_basis.slerp(target_basis, ROTATION_RESET_SPEED * delta)
+	player.transform.basis = current_basis.slerp(target_basis, ROTATION_RESET_SPEED * delta).orthonormalized()
 	
 	if player.transform.basis.y.dot(Vector3.UP) == 1:
 		should_reset_rotation = false
