@@ -24,6 +24,11 @@ enum SpinDirection {
 
 @export var floor_type: FloorType = FloorType.NORMAL : set = _set_floor_type
 
+@export_category("Texture Settings")
+@export var use_default_texture: bool = true : set = _set_use_default_texture
+@export var custom_texture: Texture2D : set = _set_custom_texture
+@export var texture_scale: Vector2 = Vector2(1.0, 1.0) : set = _set_texture_scale
+
 @export_category("Box Dimensions")
 @export var floor_shape: FloorShape = FloorShape.BOX : set = _set_floor_shape
 @export var floor_size: Vector3 = Vector3(10, 0.5, 10) : set = _set_floor_size  # X, Y, Z dimensions for box
@@ -32,7 +37,6 @@ enum SpinDirection {
 @export var cylinder_radius: float = 5.0 : set = _set_cylinder_radius  # Radius for cylinder
 @export var cylinder_height: float = 0.5 : set = _set_cylinder_height  # Height for cylinder
 @export var cylinder_segments: int = 32 : set = _set_cylinder_segments  # Number of segments for cylinder smoothness
-
 
 @export_group("Spring Floor Settings")
 @export var spring_force: float = 20.0
@@ -64,6 +68,10 @@ enum SpinDirection {
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 
+# Texture Variables
+var default_texture: Texture2D
+const DEFAULT_TEXTURE_PATH = "res://textures/texture_08.png"  # Change this to your converted texture path
+
 # Spring Floor Variables
 var players_on_floor: Array[CharacterBody3D] = []
 var spring_cooldown_timer: float = 0.0
@@ -91,6 +99,21 @@ var runtime_material: StandardMaterial3D
 # Property setters that work in editor
 func _set_floor_type(value: FloorType):
 	floor_type = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_use_default_texture(value: bool):
+	use_default_texture = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_custom_texture(value: Texture2D):
+	custom_texture = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_texture_scale(value: Vector2):
+	texture_scale = value
 	if Engine.is_editor_hint():
 		_update_editor_preview()
 
@@ -145,6 +168,58 @@ func _ensure_nodes_exist():
 			collision_shape.name = "CollisionShape3D"
 			add_child(collision_shape)
 
+func load_default_texture():
+	"""Load the default texture from file"""
+	if ResourceLoader.exists(DEFAULT_TEXTURE_PATH):
+		default_texture = load(DEFAULT_TEXTURE_PATH)
+	else:
+		print("Warning: Default texture not found at ", DEFAULT_TEXTURE_PATH)
+		# Fallback: create a simple procedural texture
+		default_texture = create_fallback_texture()
+
+func create_fallback_texture() -> ImageTexture:
+	"""Create a simple fallback texture if the default texture file is not found"""
+	var image = Image.create(64, 64, false, Image.FORMAT_RGB8)
+	
+	# Create a simple checkerboard pattern
+	for x in range(64):
+		for y in range(64):
+			var checker = ((x / 8) + (y / 8)) % 2
+			var color = Color.GRAY if checker == 0 else Color.WHITE
+			image.set_pixel(x, y, color)
+	
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
+func get_texture_to_use() -> Texture2D:
+	"""Get the texture that should be applied to the floor"""
+	if not use_default_texture and custom_texture:
+		return custom_texture
+	
+	if not default_texture:
+		load_default_texture()
+	
+	return default_texture
+
+func create_textured_material(base_color: Color = Color.WHITE) -> StandardMaterial3D:
+	"""Create a material with the appropriate texture applied"""
+	var material = StandardMaterial3D.new()
+	
+	var texture = get_texture_to_use()
+	if texture:
+		material.albedo_texture = texture
+		material.uv1_scale = Vector3(texture_scale.x, texture_scale.y, 1.0)
+	
+	# Apply color tint
+	material.albedo_color = base_color
+	
+	# Set some basic material properties
+	material.metallic = 0.1
+	material.roughness = 0.7
+	
+	return material
+
 # Update the editor preview with debug colors
 func _update_editor_preview():
 	_ensure_nodes_exist()
@@ -152,25 +227,41 @@ func _update_editor_preview():
 	if not mesh_instance:
 		return
 	
-	# Get or create editor material
+	# In editor, use simplified colored materials for quick identification
 	if not editor_material:
 		editor_material = StandardMaterial3D.new()
 		editor_material.flags_transparent = true
 		editor_material.flags_unshaded = true  # Makes it appear more like a debug overlay
 		editor_material.albedo_color.a = 0.8  # Slightly transparent to show it's debug
 	
-	# Set debug color based on floor type
+	# Set debug color based on floor type (but with texture if enabled)
+	var base_color: Color
 	match floor_type:
 		FloorType.NORMAL:
-			editor_material.albedo_color = Color(0, 0.8, 0, 0.8)  # Bright Green
+			base_color = Color(0, 0.8, 0, 0.8)  # Bright Green
 		FloorType.SPRING:
-			editor_material.albedo_color = Color(1.0, 0.5, 0.0, 0.8)  # Orange
+			base_color = Color(1.0, 0.5, 0.0, 0.8)  # Orange
 		FloorType.FALLING:
-			editor_material.albedo_color = Color(1.0, 0.2, 0.2, 0.8)  # Bright Red
+			base_color = Color(1.0, 0.2, 0.2, 0.8)  # Bright Red
 		FloorType.SPINNING:
-			editor_material.albedo_color = Color(0.8, 0.2, 1.0, 0.8)  # Bright Purple
+			base_color = Color(0.8, 0.2, 1.0, 0.8)  # Bright Purple
 		FloorType.MOVING:
-			editor_material.albedo_color = Color(0.2, 0.7, 1.0, 0.8)  # Bright Blue
+			base_color = Color(0.2, 0.7, 1.0, 0.8)  # Bright Blue
+		_:
+			base_color = Color(0.5, 0.5, 0.5, 0.8)  # Gray
+	
+	editor_material.albedo_color = base_color
+	
+	# In editor, show texture preview if enabled
+	if use_default_texture or custom_texture:
+		var texture = get_texture_to_use()
+		if texture:
+			editor_material.albedo_texture = texture
+			editor_material.uv1_scale = Vector3(texture_scale.x, texture_scale.y, 1.0)
+		else:
+			editor_material.albedo_texture = null
+	else:
+		editor_material.albedo_texture = null
 	
 	# Apply the editor material
 	mesh_instance.set_surface_override_material(0, editor_material)
@@ -182,6 +273,9 @@ func _ready():
 		setup_floor_geometry()
 		_update_editor_preview()
 		return
+	
+	# Load default texture for runtime
+	load_default_texture()
 	
 	if mesh_instance:
 		mesh_instance.set_surface_override_material(0, null)
@@ -296,12 +390,9 @@ func setup_floor_type():
 
 func setup_normal_floor():
 	"""Setup a normal floor"""
-	# Set normal green color
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0, 0.41793, 0, 1)  # Green
+	# Create textured material with green tint
+	var material = create_textured_material(Color(0.8, 1.0, 0.8, 1))  # Light green tint
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Disable spring area
 	if spring_area:
@@ -310,14 +401,11 @@ func setup_normal_floor():
 
 func setup_spring_floor():
 	"""Setup a spring floor"""
-	# Set spring color (bouncy orange/yellow)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(1.0, 0.6, 0.0, 1)  # Orange
+	# Create textured material with orange tint
+	var material = create_textured_material(Color(1.0, 0.8, 0.4, 1))  # Orange tint
 	material.metallic = 0.2
 	material.roughness = 0.3
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area
 	if spring_area:
@@ -325,22 +413,20 @@ func setup_spring_floor():
 		spring_area.visible = true
 		
 		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
 			var spring_shape = spring_collision.shape as BoxShape3D
 			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 
 func setup_falling_floor():
 	"""Setup a falling floor"""
-	# Set falling floor color (warning red)
-	var material = mesh_instance.get_surface_override_material(0)
-	material = StandardMaterial3D.new()
-	mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.8, 0.2, 0.2, 1)  # Red
+	# Create textured material with red tint
+	var material = create_textured_material(Color(1.0, 0.6, 0.6, 1))  # Red tint
 	material.metallic = 0.1
 	material.roughness = 0.4
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area for detection (reuse the same area)
 	if spring_area:
@@ -348,23 +434,20 @@ func setup_falling_floor():
 		spring_area.visible = true
 		
 		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
 			var spring_shape = spring_collision.shape as BoxShape3D
 			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 
 func setup_moving_floor():
 	"""Setup a moving floor"""
-	# Set moving floor color (blue)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.2, 0.5, 1.0, 1)  # Blue
+	# Create textured material with blue tint
+	var material = create_textured_material(Color(0.6, 0.8, 1.0, 1))  # Blue tint
 	material.metallic = 0.3
 	material.roughness = 0.2
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area for player detection
 	if spring_area:
@@ -372,12 +455,12 @@ func setup_moving_floor():
 		spring_area.visible = true
 		
 		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
 			var spring_shape = spring_collision.shape as BoxShape3D
 			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 	
 	# Start moving after initial delay (if any)
 	if movement_delay > 0:
@@ -386,20 +469,18 @@ func setup_moving_floor():
 
 func setup_spinning_floor():
 	"""Setup a spinning floor"""
-	# Set spinning floor color (purple/magenta)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.6, 0.2, 0.8, 1)  # Purple
+	# Create textured material with purple tint
+	var material = create_textured_material(Color(0.9, 0.6, 1.0, 1))  # Purple tint
 	material.metallic = 0.3
 	material.roughness = 0.2
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area for player detection
 	if spring_area:
 		spring_area.monitoring = true
 		spring_area.visible = true
 
+# [Rest of the functions remain the same as in your original code]
 func start_moving():
 	"""Start the moving floor sequence"""
 	if is_moving:

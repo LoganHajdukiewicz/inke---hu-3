@@ -112,7 +112,6 @@ environment = SubResource("Environment_16sj7")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environments"]
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 light_color = Color(1, 1, 0.211765, 1)
-shadow_enabled = true
 
 [node name="Tutorial" type="Node" parent="."]
 
@@ -133,6 +132,8 @@ curve = SubResource("Curve3D_16sj7")
 [node name="Floors" type="Node3D" parent="Tutorial"]
 
 [node name="Floor" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="WSAD" parent="Tutorial/Floors/Floor" instance=ExtResource("3_e5bud")]
@@ -141,6 +142,8 @@ dialogic_timeline = "WSAD-Sign"
 
 [node name="Floor2" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.3503)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="Moving Platform Ahead" parent="Tutorial/Floors/Floor2" instance=ExtResource("3_e5bud")]
@@ -150,6 +153,8 @@ dialogic_timeline = "Moving-Platform"
 [node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.6763)
 floor_type = 4
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 movement_axis = Vector3(0, 0, -17.5)
 movement_duration = 1.5
@@ -157,6 +162,8 @@ movement_delay = 2.0
 
 [node name="Floor4" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -55)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="Spring Platform" parent="Tutorial/Floors/Floor4" instance=ExtResource("3_e5bud")]
@@ -166,11 +173,15 @@ dialogic_timeline = "Spring-Platform"
 [node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
 floor_type = 1
+use_default_texture = null
+texture_scale = null
 spring_force = 25.0
 spin_direction = 1
 
 [node name="Floor6" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -79.3774)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="LOL XD" parent="Tutorial/Floors/Floor6" instance=ExtResource("3_e5bud")]
@@ -179,6 +190,8 @@ dialogic_timeline = "LOL-XD"
 
 [node name="Floor7" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -91.7888)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="Falling Platform Ahead" parent="Tutorial/Floors/Floor7" instance=ExtResource("3_e5bud")]
@@ -188,6 +201,8 @@ dialogic_timeline = "Falling-Platform-Ahead"
 [node name="Floor8" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -103.809)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 shake_intensity = 0.5
 spin_direction = 1
 
@@ -197,6 +212,8 @@ dialogic_timeline = "Storytime"
 
 [node name="Floor9" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -115.935)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="Sorry" parent="Tutorial/Floors/Floor9" instance=ExtResource("3_e5bud")]
@@ -205,6 +222,8 @@ dialogic_timeline = "Sorry"
 
 [node name="Floor10" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -128.132)
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_direction = 1
 
@@ -214,23 +233,31 @@ dialogic_timeline = "Fun Shapes"
 
 [node name="Floor11" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -140.557)
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_direction = 1
 
 [node name="Floor12" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -151.891)
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_direction = 1
 
 [node name="Floor13" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.62099, 5.60629, -163.571)
 floor_type = 3
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_direction = 1
 
 [node name="Floor14" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.371768, 5.60629, -174.767)
 floor_type = 3
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_speed = 180.0
 spin_direction = 1
@@ -238,16 +265,22 @@ spin_direction = 1
 [node name="Floor15" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.26157, 5.60629, -186.654)
 floor_type = 3
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_speed = 240.0
 
 [node name="Floor16" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.606, -197.833)
+use_default_texture = null
+texture_scale = null
 floor_shape = 1
 spin_direction = 1
 
 [node name="Floor17" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -211.294)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="Acrobat" parent="Tutorial/Floors/Floor17" instance=ExtResource("3_e5bud")]
@@ -256,6 +289,8 @@ dialogic_timeline = "Acrobat"
 
 [node name="Floor18" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -224.865)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="RailGrind" parent="Tutorial/Floors/Floor18" instance=ExtResource("3_e5bud")]
@@ -264,6 +299,8 @@ dialogic_timeline = "Rail-Grind"
 
 [node name="Floor19" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -363.245)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(10, 0.5, 15)
 spin_direction = 1
 
@@ -273,6 +310,8 @@ dialogic_timeline = "Congrats"
 
 [node name="Floor20" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -378.734)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="HU-3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("3_e5bud")]
@@ -281,6 +320,8 @@ dialogic_timeline = "HU-3-Intro"
 
 [node name="Floor21" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -402.151)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(10, 0.5, 30)
 spin_direction = 1
 
@@ -602,6 +643,8 @@ transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -
 
 [node name="Floor22" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -423.85)
+use_default_texture = null
+texture_scale = null
 spin_direction = 1
 
 [node name="Merchant-Intro" parent="Tutorial/Floors/Floor22" instance=ExtResource("3_e5bud")]
@@ -613,6 +656,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
 
 [node name="Floor23" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -451.881)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(10, 0.5, 23)
 spin_direction = 1
 
@@ -628,11 +673,15 @@ powerup_description = "Allows you to wall jump"
 
 [node name="Floor24" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(20, 0.5, 50)
 spin_direction = 1
 
 [node name="Floor25" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(10, 0.5, 50)
 spin_direction = 1
 
@@ -642,11 +691,15 @@ dialogic_timeline = "CRED"
 
 [node name="Floor27" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.88514, 14.7637, -4.15894)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 10)
 spin_direction = 1
 
 [node name="Floor28" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -2.87117, 14.7637, -4.15894)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 10)
 spin_direction = 1
 
@@ -667,6 +720,8 @@ checkpoint_id = "Bouncy"
 [node name="Floor26" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -553.231)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -674,6 +729,8 @@ spin_direction = 1
 [node name="Floor27" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -558.214)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -681,6 +738,8 @@ spin_direction = 1
 [node name="Floor28" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -563.231)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -688,6 +747,8 @@ spin_direction = 1
 [node name="Floor29" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -568.222)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -695,6 +756,8 @@ spin_direction = 1
 [node name="Floor30" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -573.21)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -702,6 +765,8 @@ spin_direction = 1
 [node name="Floor31" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -578.193)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -709,6 +774,8 @@ spin_direction = 1
 [node name="Floor32" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -583.21)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -716,12 +783,16 @@ spin_direction = 1
 [node name="Floor33" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -588.201)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 spin_direction = 1
 
 [node name="Floor34" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -588.201)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -729,6 +800,8 @@ spin_direction = 1
 [node name="Floor35" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -599.361)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -736,6 +809,8 @@ spin_direction = 1
 [node name="Floor36" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -604.345)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -743,6 +818,8 @@ spin_direction = 1
 [node name="Floor37" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -609.362)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -750,6 +827,8 @@ spin_direction = 1
 [node name="Floor38" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -614.353)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -757,6 +836,8 @@ spin_direction = 1
 [node name="Floor39" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -619.341)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -764,6 +845,8 @@ spin_direction = 1
 [node name="Floor40" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -624.324)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -771,6 +854,8 @@ spin_direction = 1
 [node name="Floor41" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -629.341)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -778,6 +863,8 @@ spin_direction = 1
 [node name="Floor42" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -634.332)
 floor_type = 2
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(3, 0.5, 5)
 shake_duration = 0.5
 spin_direction = 1
@@ -785,6 +872,8 @@ spin_direction = 1
 [node name="Floor43" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1058.76)
 floor_type = 1
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
@@ -792,6 +881,8 @@ spin_direction = 1
 [node name="Floor44" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1101.29)
 floor_type = 1
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(40, 0.5, 40)
 spring_force = 40.0
 spin_direction = 1
@@ -799,12 +890,16 @@ spin_direction = 1
 [node name="Floor45" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1142.73)
 floor_type = 1
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 40.0
 spin_direction = 1
 
 [node name="Floor46" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1235.01)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1
@@ -813,6 +908,8 @@ movement_delay = 3.0
 
 [node name="Floor50" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 76.6946, -1182.14)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1
@@ -821,6 +918,8 @@ movement_delay = 3.0
 
 [node name="Floor53" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.49396, 76.6946, -1172.13)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(11.2, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1
@@ -829,6 +928,8 @@ movement_delay = 3.0
 
 [node name="Floor54" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.46475, 76.6946, -1172.13)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(11.1, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1
@@ -837,6 +938,8 @@ movement_delay = 3.0
 
 [node name="Floor51" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -4.27974, 52.9715, -1162.28)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(50, 0.5, 10)
 spring_force = 40.0
 spin_direction = 1
@@ -845,6 +948,8 @@ movement_delay = 3.0
 
 [node name="Floor52" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 3.77677, 52.9715, -1162.28)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(50, 0.5, 10)
 spring_force = 40.0
 spin_direction = 1
@@ -854,6 +959,8 @@ movement_delay = 3.0
 [node name="Floor47" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1269.75)
 floor_type = 4
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1
@@ -863,6 +970,8 @@ movement_delay = 1.0
 [node name="Floor48" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1326.69)
 floor_type = 4
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1
@@ -872,6 +981,8 @@ movement_delay = 1.0
 
 [node name="Floor49" parent="ObstacleCourse/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1379.52)
+use_default_texture = null
+texture_scale = null
 floor_size = Vector3(30, 0.5, 30)
 spring_force = 40.0
 spin_direction = 1

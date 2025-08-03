@@ -6,8 +6,8 @@ const FAST_CAMERA_SPEED : float = 0.25
 const SPEED_THRESHOLD : float = 12.0  
 
 # Camera Limits
-const MIN_PITCH : float = -10.0
-const MAX_PITCH : float = 5.0
+const MIN_PITCH : float = -40.0
+const MAX_PITCH : float = 25.0
 
 # Camera variables
 var mouse_sensitivity := 0.002
