@@ -47,8 +47,8 @@ directories/dtl_directory={
 "WSAD-Sign": "res://dialogue/demo-7-24-2025/WSAD-Sign.dtl",
 "You did it": "res://dialogue/demo-7-24-2025/You did it.dtl"
 }
-layout/style_list=["res://assets/styles/S-1GN style.tres"]
-layout/default_style="res://assets/styles/S-1GN style.tres"
+layout/style_list=["res://assets/styles/default.tres"]
+layout/default_style=""
 glossary/default_case_sensitive=true
 variables={}
 extensions_folder="res://addons/dialogic_additions"
