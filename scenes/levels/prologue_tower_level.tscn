@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://cby8n4fe1xbs2"]
+
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_4junr"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_4pe3q"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_4pe3q"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_l1oix"]
+sky_material = SubResource("ProceduralSkyMaterial_4pe3q")
+
+[sub_resource type="Environment" id="Environment_757i5"]
+background_mode = 2
+sky = SubResource("Sky_l1oix")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="PrologueTowerLevel" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_757i5")
+
+[node name="Floor" parent="." instance=ExtResource("1_4junr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.1814)
+floor_size = Vector3(10, 0.5, 50)
+
+[node name="Floor2" parent="." instance=ExtResource("1_4junr")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 25, -43)
+floor_size = Vector3(10, 10, 50)
+
+[node name="Inke" parent="." instance=ExtResource("2_4pe3q")]
