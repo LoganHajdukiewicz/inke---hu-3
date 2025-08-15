@@ -64,6 +64,10 @@ enum SpinDirection {
 @export var movement_easing: Tween.EaseType = Tween.EASE_IN_OUT
 @export var movement_transition: Tween.TransitionType = Tween.TRANS_SINE
 
+@export_group("Momentum Settings")
+@export var momentum_transfer_strength: float = 0.6 : set = _set_momentum_transfer_strength
+@export var enable_momentum_transfer: bool = true
+
 # General Variables
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
@@ -91,6 +95,11 @@ var end_position: Vector3
 var is_moving: bool = false
 var players_to_move: Array[CharacterBody3D] = []
 var last_floor_position: Vector3
+
+# Momentum tracking variables
+var floor_velocity: Vector3 = Vector3.ZERO
+var previous_floor_position: Vector3 = Vector3.ZERO
+var floor_angular_velocity: float = 0.0
 
 # Editor preview variables
 var editor_material: StandardMaterial3D
@@ -151,6 +160,9 @@ func _set_cylinder_segments(value: int):
 		_ensure_nodes_exist()
 		setup_cylinder_geometry()
 		_update_editor_preview()
+
+func _set_momentum_transfer_strength(value: float):
+	momentum_transfer_strength = clamp(value, 0.0, 2.0)  # Limit to reasonable range
 
 func _ensure_nodes_exist():
 	"""Ensure required nodes exist for editor preview"""
@@ -285,6 +297,7 @@ func _ready():
 	start_position = global_position
 	end_position = global_position + movement_axis
 	last_floor_position = global_position
+	previous_floor_position = global_position
 	
 	# Create the mesh and collision based on shape and dimensions
 	setup_floor_geometry()
@@ -351,6 +364,9 @@ func _process(delta):
 	if Engine.is_editor_hint():
 		return
 	
+	# Calculate floor velocity for momentum transfer
+	calculate_floor_velocity(delta)
+	
 	if spring_cooldown_timer > 0:
 		spring_cooldown_timer -= delta
 	
@@ -373,6 +389,20 @@ func _process(delta):
 	# Handle moving floor - move players with the floor
 	if floor_type == FloorType.MOVING and is_moving:
 		move_players_with_floor()
+
+func calculate_floor_velocity(delta: float):
+	"""Calculate the floor's current velocity for momentum transfer"""
+	if delta <= 0:
+		return
+	
+	# Calculate linear velocity
+	floor_velocity = (global_position - previous_floor_position) / delta
+	previous_floor_position = global_position
+	
+	# For spinning floors, calculate angular velocity
+	if floor_type == FloorType.SPINNING:
+		var rotation_speed = spin_speed * (PI / 180.0)  # Convert to radians
+		floor_angular_velocity = rotation_speed if spin_direction == SpinDirection.RIGHT else -rotation_speed
 
 func setup_floor_type():
 	"""Setup the floor based on the selected type"""
@@ -480,7 +510,6 @@ func setup_spinning_floor():
 		spring_area.monitoring = true
 		spring_area.visible = true
 
-# [Rest of the functions remain the same as in your original code]
 func start_moving():
 	"""Start the moving floor sequence"""
 	if is_moving:
@@ -577,11 +606,21 @@ func move_players_with_floor():
 	
 	# Only move players if the floor actually moved
 	if floor_delta.length() > 0.001:  # Small threshold to avoid floating point errors
+		var players_to_remove = []
 		for player in players_on_floor:
 			if player and is_instance_valid(player):
 				# Check if player is actually on the floor (not jumping/falling)
 				if player.is_on_floor() or player.velocity.y <= 0.1:
 					player.global_position += floor_delta
+				else:
+					# Player is in the air, mark for removal
+					players_to_remove.append(player)
+		
+		# Remove players who left the floor and transfer momentum
+		for player in players_to_remove:
+			players_on_floor.erase(player)
+			if enable_momentum_transfer:
+				transfer_momentum_to_player(player)
 	
 	last_floor_position = global_position
 
@@ -613,9 +652,16 @@ func spin_players_with_floor(rotation_radians: float):
 		return
 	
 	var center = global_position
+	var players_to_remove = []
 	
 	for player in players_on_floor:
 		if player and is_instance_valid(player):
+			# Check if player is still on the floor
+			if not player.is_on_floor() and player.velocity.y > 0:
+				# Player is jumping/falling, mark for removal and momentum transfer
+				players_to_remove.append(player)
+				continue
+			
 			# Get player's current position relative to floor center
 			var player_pos = player.global_position
 			var relative_pos = player_pos - center
@@ -626,7 +672,84 @@ func spin_players_with_floor(rotation_radians: float):
 			
 			# Set the new position
 			player.global_position = center + Vector3(rotated_x, relative_pos.y, rotated_z)
+	
+	# Remove players who left the floor and transfer momentum
+	for player in players_to_remove:
+		players_on_floor.erase(player)
+		if enable_momentum_transfer:
+			transfer_momentum_to_player(player)
 
+func transfer_momentum_to_player(player: CharacterBody3D):
+	"""Transfer the floor's momentum to a player when they leave the floor"""
+	if not player or not is_instance_valid(player):
+		return
+	
+	# Only transfer momentum if player is actually jumping/leaving the floor
+	# Check if player has upward velocity (jumping) or is no longer on floor
+	if player.velocity.y > 0 or not player.is_on_floor():
+		
+		match floor_type:
+			FloorType.MOVING:
+				transfer_linear_momentum(player)
+			FloorType.SPINNING:
+				transfer_rotational_momentum(player)
+
+func transfer_linear_momentum(player: CharacterBody3D):
+	"""Transfer linear momentum from moving floors"""
+	# Add the floor's velocity to the player's current velocity
+	# Only transfer horizontal momentum (X and Z), preserve player's Y velocity
+	var momentum_to_add = Vector3(
+		floor_velocity.x * momentum_transfer_strength,
+		0,  # Don't affect vertical velocity
+		floor_velocity.z * momentum_transfer_strength
+	)
+	
+	player.velocity += momentum_to_add
+	
+	print("Transferred linear momentum: ", momentum_to_add, " to player")
+	
+func transfer_rotational_momentum(player: CharacterBody3D):
+	"""Transfer rotational momentum from spinning floors"""
+	# Calculate the player's tangential velocity from the spinning floor
+	var center = global_position
+	var player_relative_pos = player.global_position - center
+	
+	# Calculate radius in the XZ plane (horizontal)
+	var radius = Vector2(player_relative_pos.x, player_relative_pos.z).length()
+	
+	# If player is at the center, no momentum to transfer
+	if radius < 0.01:
+		return
+	
+	# Calculate tangential speed
+	var tangential_speed = abs(floor_angular_velocity) * radius
+	
+	# Get the tangent direction (perpendicular to radius in XZ plane)
+	# For a spinning floor, the tangent direction is 90 degrees rotated from the radius
+	var radius_direction = Vector2(player_relative_pos.x, player_relative_pos.z).normalized()
+	
+	# Calculate tangent direction based on spin direction
+	var tangent_direction_2d: Vector2
+	if spin_direction == SpinDirection.RIGHT:
+		# Right spin (clockwise): rotate radius direction by -90 degrees
+		tangent_direction_2d = Vector2(radius_direction.y, -radius_direction.x)
+	else:
+		# Left spin (counter-clockwise): rotate radius direction by +90 degrees  
+		tangent_direction_2d = Vector2(-radius_direction.y, radius_direction.x)
+	
+	# Convert to 3D vector (keep Y = 0 for horizontal movement only)
+	var tangent_direction = Vector3(tangent_direction_2d.x, 0, tangent_direction_2d.y)
+	
+	# Calculate momentum to transfer
+	var momentum_to_add = tangent_direction * tangential_speed * momentum_transfer_strength
+	
+	# Add the momentum to player's current velocity
+	player.velocity += momentum_to_add
+	
+	print("Transferred rotational momentum: ", momentum_to_add, " to player")
+	print("Player relative pos: ", player_relative_pos)
+	print("Tangent direction: ", tangent_direction)
+	print("Spin direction: ", "RIGHT" if spin_direction == SpinDirection.RIGHT else "LEFT")
 func _on_spring_area_body_entered(body):
 	"""When a player enters the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
@@ -641,6 +764,10 @@ func _on_spring_area_body_entered(body):
 func _on_spring_area_body_exited(body):
 	"""When a player exits the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
+		# Transfer momentum before removing from tracking
+		if enable_momentum_transfer:
+			transfer_momentum_to_player(body)
+		
 		players_on_floor.erase(body)
 		
 		if floor_type == FloorType.MOVING:
