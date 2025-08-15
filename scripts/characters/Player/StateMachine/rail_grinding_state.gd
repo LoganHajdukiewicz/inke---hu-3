@@ -14,7 +14,6 @@ var jump_velocity: float = 10.0 # Controls the upwards movement of jumping off a
 var grind_exit_speed: float = 15.0 # Controls the horizontal movement of jumping off a rail
 var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 
-
 func enter():
 	print("Entered Rail Grinding State")
 	
@@ -23,7 +22,6 @@ func enter():
 	player.has_double_jumped = false
 
 func physics_update(delta: float):
-
 	# Handle the grinding movement and physics
 	if rail_grind_node:
 		# Smoothly move player to rail position
@@ -32,7 +30,6 @@ func physics_update(delta: float):
 		# Rotate player to align with rail direction
 		var target_rotation = rail_grind_node.global_transform.basis.orthonormalized()
 		
-
 		# If moving backward, flip the rotation 180 degrees
 		if not rail_grind_node.forward:
 			target_rotation = target_rotation.rotated(Vector3.UP, PI)
@@ -75,7 +72,7 @@ func grind_timer(delta: float):
 			start_grind_timer = false
 
 func setup_grinding(grind_ray):
-	"""Called when starting to grind - sets up the rail grinding state"""
+	"""Legacy method for raycast compatibility - converts raycast to node"""
 	var grind_rail = grind_ray.get_collider().get_parent()
 	
 	# Disable gravity while grinding
@@ -85,19 +82,38 @@ func setup_grinding(grind_ray):
 	rail_grind_node = find_nearest_rail_follower(player.global_position, grind_rail)
 	
 	if rail_grind_node:
-		# Set up the rail node
-		rail_grind_node.chosen = true
-		rail_grind_node.grinding = true
-		
-		# Determine grinding direction based on player facing
-		if not rail_grind_node.direction_selected:
-			rail_grind_node.forward = is_facing_same_direction(player, rail_grind_node)
-			rail_grind_node.direction_selected = true
-		
+		setup_rail_node(rail_grind_node)
 		return true
 	return false
 
+func setup_grinding_with_node(rail_node):
+	"""New method that directly accepts a rail follower node"""
+	if not rail_node or not is_instance_valid(rail_node):
+		return false
+	
+	# Disable gravity while grinding
+	player.gravity = 0.0
+	
+	rail_grind_node = rail_node
+	setup_rail_node(rail_grind_node)
+	return true
+
+func setup_rail_node(rail_node):
+	"""Common setup for rail node"""
+	if not rail_node:
+		return
+	
+	# Set up the rail node
+	rail_node.chosen = true
+	rail_node.grinding = true
+	
+	# Determine grinding direction based on player facing
+	if not rail_node.direction_selected:
+		rail_node.forward = is_facing_same_direction(player, rail_node)
+		rail_node.direction_selected = true
+
 func find_nearest_rail_follower(player_position: Vector3, rail_node: Node):
+	"""Find the nearest rail follower node from a rail parent"""
 	var nearest_node = null
 	var min_distance = INF
 	
@@ -117,19 +133,25 @@ func is_facing_same_direction(player_node: CharacterBody3D, path_follow: PathFol
 	const THRESHOLD = 0.5
 	return dot_product > THRESHOLD
 
-func disable_grind_raycasts():
-	if player.grindrays:
-		for grind_ray in player.grindrays.get_children():
-			if grind_ray is RayCast3D:
-				grind_ray.enabled = false
+func disable_rail_detection():
+	"""Disable rail detection area temporarily"""
+	if player.rail_grind_area:
+		player.rail_grind_area.monitoring = false
+		player.rail_grind_area.monitorable = false
 		
-		# Re-enable them after a short delay using a timer
+		# Re-enable after a short delay using a timer
 		var timer = Timer.new()
 		timer.wait_time = 0.3
 		timer.one_shot = true
-		timer.timeout.connect(enable_grind_raycasts)
+		timer.timeout.connect(enable_rail_detection)
 		player.add_child(timer)
 		timer.start()
+
+func enable_rail_detection():
+	"""Re-enable rail detection area"""
+	if player.rail_grind_area:
+		player.rail_grind_area.monitoring = true
+		player.rail_grind_area.monitorable = true
 
 func exit():
 	if rail_grind_node:
@@ -143,11 +165,9 @@ func exit():
 	grind_timer_complete = true
 	start_grind_timer = false
 	
-
-	disable_grind_raycasts()
+	disable_rail_detection()
 
 func detach_from_rail():
-	
 	player.velocity.y = jump_velocity
 	
 	if rail_grind_node:
@@ -167,12 +187,6 @@ func detach_from_rail():
 	
 	# Always transition to JumpingState when detaching from rail
 	change_to("JumpingState")
-
-func enable_grind_raycasts():
-	if player.grindrays:
-		for grind_ray in player.grindrays.get_children():
-			if grind_ray is RayCast3D:
-				grind_ray.enabled = true
 
 func get_speed():
 	return grind_exit_speed

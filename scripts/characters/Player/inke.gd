@@ -5,9 +5,6 @@ var running: bool = false
 var gravity: float = 9.8
 var gravity_default: float = 9.8
 var jump_velocity: float = 5.0
-const DECELERATION : float = 100.0
-const ROTATION_RESET_SPEED : float = 8.0
-var should_reset_rotation: bool = false
 
 # Double jump variables
 var has_double_jumped: bool = false
@@ -26,15 +23,11 @@ var was_on_floor: bool = false
 var gear_collection_area: Area3D = null
 var gear_collection_distance: float = 0.5 # Collection radius for Inke
 
-# Jump shadow variables
-var jump_shadow: MeshInstance3D
-var shadow_raycast: RayCast3D
-var shadow_max_distance: float = 50.0   # Maximum distance to cast shadow
-var shadow_base_size: float = 1.2       # Base size of shadow
-var shadow_fade_start: float = 5.0      # Distance where fading starts
+# Rail grinding variables
+var detected_rail_nodes: Array = []
 
-@export var grindrays: Node3D
-@export var wall_jump_rays: Node3D 
+@export var wall_jump_rays: Node3D
+@export var rail_grind_area: Area3D 
 
 # References
 @onready var player = self
@@ -57,8 +50,7 @@ func _ready():
 		print("Player: GameManager not found!")
 	
 	setup_gear_collection()
-	# Defer shadow setup to next frame to ensure everything is ready
-	call_deferred("setup_jump_shadow")
+	setup_rail_detection()
 
 func setup_gear_collection():
 	"""Set up Area3D for gear collection"""
@@ -78,73 +70,30 @@ func setup_gear_collection():
 	gear_collection_area.body_entered.connect(_on_gear_body_entered)
 	gear_collection_area.area_entered.connect(_on_gear_area_entered)
 
-func setup_jump_shadow():
-	"""Set up the jump shadow system"""
-	print("Setting up jump shadow...")
+func setup_rail_detection():
+	"""Connect signals for the existing RailGrindArea"""
+	if not rail_grind_area:
+		rail_grind_area = get_node("RailGrindArea")
 	
-	# Wait for next frame to ensure everything is in the scene tree
-	await get_tree().process_frame
-	
-	# Double check we're in the tree
-	if not is_inside_tree():
-		print("Player not in tree yet, deferring shadow setup")
-		call_deferred("setup_jump_shadow")
-		return
-	
-	# Create the shadow mesh
-	jump_shadow = MeshInstance3D.new()
-	jump_shadow.name = "JumpShadow"
-	
-	# Create a perfect circular mesh for the shadow using CylinderMesh
-	var cylinder_mesh = CylinderMesh.new()
-	cylinder_mesh.radial_segments = 32  # More segments for smoother circle
-	cylinder_mesh.rings = 1
-	cylinder_mesh.height = 0.01  # Very thin to look like a flat shadow
-	cylinder_mesh.top_radius = shadow_base_size * 0.5
-	cylinder_mesh.bottom_radius = shadow_base_size * 0.5
-	jump_shadow.mesh = cylinder_mesh
-	
-	# Create simple solid shadow material
-	var shadow_material = StandardMaterial3D.new()
-	shadow_material.albedo_color = Color(0, 0, 0, 0.6)  # Semi-transparent black
-	shadow_material.flags_transparent = true
-	shadow_material.flags_unshaded = true
-	shadow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	shadow_material.cull_mode = BaseMaterial3D.CULL_DISABLED
-	shadow_material.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED
-	shadow_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
-	shadow_material.no_depth_test = false
-	
-	jump_shadow.material_override = shadow_material
-	jump_shadow.visible = true
-	
-	# Create raycast for shadow positioning
-	shadow_raycast = RayCast3D.new()
-	shadow_raycast.name = "ShadowRaycast"
-	shadow_raycast.target_position = Vector3(0, -shadow_max_distance, 0)
-	shadow_raycast.collision_mask = 1  # Collide with default layer
-	shadow_raycast.enabled = true
-	shadow_raycast.collide_with_areas = false
-	shadow_raycast.collide_with_bodies = true
-	
-	# Add raycast to player
-	add_child(shadow_raycast)
-	
-	# Add shadow to the scene root so it doesn't move with player rotation
-	if get_tree() and get_tree().current_scene:
-		get_tree().current_scene.add_child(jump_shadow)
-		print("Jump shadow setup complete!")
+	if rail_grind_area:
+		# Connect signals for rail detection
+		if not rail_grind_area.body_entered.is_connected(_on_rail_body_entered):
+			rail_grind_area.body_entered.connect(_on_rail_body_entered)
+		if not rail_grind_area.body_exited.is_connected(_on_rail_body_exited):
+			rail_grind_area.body_exited.connect(_on_rail_body_exited)
+		if not rail_grind_area.area_entered.is_connected(_on_rail_area_entered):
+			rail_grind_area.area_entered.connect(_on_rail_area_entered)
+		if not rail_grind_area.area_exited.is_connected(_on_rail_area_exited):
+			rail_grind_area.area_exited.connect(_on_rail_area_exited)
+		
+		print("Rail detection setup complete with RailGrindArea")
 	else:
-		print("Could not add shadow to scene - no current scene found")
+		print("Warning: RailGrindArea not found! Please add an Area3D node named 'RailGrindArea' to the player.")
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
-	check_if_rotation_reset_needed()
-	update_coyote_time(delta)
 	
-		# Only reset rotation if we are tilted
-	if should_reset_rotation:
-		reset_player_rotation(delta)
+	update_coyote_time(delta)
 	
 	# Update wall jump cooldown
 	if wall_jump_cooldown > 0:
@@ -164,86 +113,7 @@ func _physics_process(delta: float) -> void:
 		has_double_jumped = false
 		can_double_jump = true
 	
-	update_jump_shadow()
-	
 	$CameraController.follow_character(position, velocity)
-
-func update_jump_shadow():
-	"""Update the jump shadow position and appearance"""
-	if not jump_shadow or not shadow_raycast:
-		return
-	
-	# Make sure both the player and shadow are in the scene tree
-	if not is_inside_tree() or not jump_shadow.is_inside_tree():
-		return
-	
-	# Position the raycast at the player's center
-	shadow_raycast.global_position = global_position
-	
-	# Force raycast update
-	shadow_raycast.force_raycast_update()
-	
-	if shadow_raycast.is_colliding():
-		var collision_point = shadow_raycast.get_collision_point()
-		var collision_normal = shadow_raycast.get_collision_normal()
-		
-		# Position shadow on the collision point with minimal offset
-		jump_shadow.global_position = collision_point + collision_normal * 0.005
-		
-		# Calculate distance from player to ground
-		var distance_to_ground = global_position.distance_to(collision_point)
-		
-		# Always show shadow, but scale based on height
-		var scale_factor = 1.0
-		
-		# When on ground (very close), keep normal size
-		if distance_to_ground <= 0.2:  # Very close to ground
-			scale_factor = 1.0
-		# When jumping, scale based on distance but with a gentler curve
-		elif distance_to_ground > 0.2:
-			# More gradual scaling - shadow doesn't get tiny as quickly
-			scale_factor = max(0.4, 1.0 - (distance_to_ground - 0.2) / 15.0)
-		
-		jump_shadow.scale = Vector3(scale_factor, 1.0, scale_factor)
-		
-		# Always visible but fade slightly with extreme distance
-		var alpha = 0.6  # Base opacity
-		if distance_to_ground > 10.0:
-			alpha = max(0.3, 0.6 - (distance_to_ground - 10.0) / 30.0)
-		
-		# Update material alpha
-		if jump_shadow.material_override:
-			var material = jump_shadow.material_override as StandardMaterial3D
-			var current_color = material.albedo_color
-			current_color.a = alpha
-			material.albedo_color = current_color
-		
-		# Align shadow with surface - keep it flat on the ground
-		var up_vector = collision_normal
-		var forward_vector = Vector3.FORWARD
-		
-		# If surface is too vertical, use world up
-		if abs(up_vector.y) < 0.3:
-			up_vector = Vector3.UP
-		
-		# Create proper basis for the shadow
-		if abs(up_vector.dot(forward_vector)) > 0.9:
-			forward_vector = Vector3.RIGHT
-		
-		var right_vector = forward_vector.cross(up_vector).normalized()
-		forward_vector = up_vector.cross(right_vector).normalized()
-		
-		jump_shadow.basis = Basis(right_vector, up_vector, forward_vector)
-		jump_shadow.visible = true
-		
-		# Debug print for first few frames
-		if Engine.get_process_frames() < 60:
-			print("Shadow at: ", jump_shadow.global_position, " Distance: ", distance_to_ground, " Scale: ", scale_factor)
-	else:
-		# No collision found - hide shadow
-		jump_shadow.visible = false
-		if Engine.get_process_frames() < 60:
-			print("No collision found for shadow")
 
 func check_for_nearby_gears():
 	"""Check for gears within collection distance and collect them"""
@@ -296,6 +166,41 @@ func _on_gear_area_entered(area: Area3D):
 			collect_gear(gear_node)
 		else:
 			collect_gear(area)
+
+# === RAIL DETECTION SIGNAL HANDLERS ===
+
+func _on_rail_body_entered(body: Node3D):
+	"""Handle when a rail body enters detection area"""
+	if body.is_in_group("rail_follower"):
+		if body not in detected_rail_nodes:
+			detected_rail_nodes.append(body)
+
+func _on_rail_body_exited(body: Node3D):
+	"""Handle when a rail body exits detection area"""
+	if body in detected_rail_nodes:
+		detected_rail_nodes.erase(body)
+
+func _on_rail_area_entered(area: Area3D):
+	"""Handle when a rail area enters detection area"""
+	if area.is_in_group("rail_follower"):
+		if area not in detected_rail_nodes:
+			detected_rail_nodes.append(area)
+	# Check if the area's parent is a rail follower
+	elif area.get_parent() and area.get_parent().is_in_group("rail_follower"):
+		var rail_node = area.get_parent()
+		if rail_node not in detected_rail_nodes:
+			detected_rail_nodes.append(rail_node)
+
+func _on_rail_area_exited(area: Area3D):
+	"""Handle when a rail area exits detection area"""
+	if area.is_in_group("rail_follower"):
+		if area in detected_rail_nodes:
+			detected_rail_nodes.erase(area)
+	# Check if the area's parent is a rail follower
+	elif area.get_parent() and area.get_parent().is_in_group("rail_follower"):
+		var rail_node = area.get_parent()
+		if rail_node in detected_rail_nodes:
+			detected_rail_nodes.erase(rail_node)
 
 func update_coyote_time(delta: float):
 	"""Update coyote time counter"""
@@ -407,7 +312,7 @@ func get_CRED_count() -> int:
 	"""Get CRED count from GameManager"""
 	return game_manager.get_CRED_count() if game_manager else 0
 
-# === RAIL GRINDING LOGIC ===
+## Rail Grinding Logic
 
 func check_for_rail_grinding():
 	var current_state_name = state_machine.current_state.get_script().get_global_name()
@@ -416,26 +321,31 @@ func check_for_rail_grinding():
 		var rail_grinding_state = state_machine.states.get("railgrindingstate")
 		
 		if rail_grinding_state and rail_grinding_state.grind_timer_complete:
-			var grind_ray = get_valid_grind_ray()
-			if grind_ray:
+			var closest_rail_node = get_closest_rail_node()
+			if closest_rail_node:
 				state_machine.change_state("RailGrindingState")
-				rail_grinding_state.setup_grinding(grind_ray)
+				rail_grinding_state.setup_grinding_with_node(closest_rail_node)
 
-func get_valid_grind_ray():
-	for i in range(grindrays.get_children().size()):
-		var grind_ray = grindrays.get_children()[i]
-		
-		if not grind_ray is RayCast3D:
+func get_closest_rail_node():
+	"""Get the closest rail follower node from detected nodes"""
+	if detected_rail_nodes.is_empty():
+		return null
+	
+	var closest_node = null
+	var min_distance = INF
+	
+	for rail_node in detected_rail_nodes:
+		if not is_instance_valid(rail_node):
 			continue
 		
-		var raycast = grind_ray as RayCast3D
-		
-		if raycast.is_colliding():
-			var collider = raycast.get_collider()	
-			if collider and collider.is_in_group("Rail"):
-				return raycast
+		var distance = global_position.distance_to(rail_node.global_position)
+		if distance < min_distance:
+			min_distance = distance
+			closest_node = rail_node
+	
+	return closest_node
 
-# === WALL JUMP LOGIC ===
+## Wall Jump Logic
 
 func check_for_wall_jump():
 	# Only check for wall jump if player pressed jump and can wall jump
@@ -448,60 +358,3 @@ func check_for_wall_jump():
 				wall_jump_state.setup_wall_jump(wall_normal)
 				state_machine.change_state("WallJumpingState")
 				wall_jump_cooldown = wall_jump_cooldown_time
-
-
-## Reset Rotation Code
-func reset_player_rotation(delta: float):
-	var current_transform = player.transform
-	var current_basis = current_transform.basis
-	
-	var current_y_rotation = player.rotation.y
-	
-	var target_basis = Basis()
-	target_basis = target_basis.rotated(Vector3.UP, current_y_rotation)
-	
-	var up_dot = current_basis.y.dot(Vector3.UP)
-	if up_dot == 1:
-		should_reset_rotation = false
-		return
-	
-	player.transform.basis = current_basis.slerp(target_basis, ROTATION_RESET_SPEED * delta).orthonormalized()
-	
-	if player.transform.basis.y.dot(Vector3.UP) == 1:
-		should_reset_rotation = false
-
-func enable_rotation_reset():
-	should_reset_rotation = true
-
-func check_if_rotation_reset_needed():
-	var up_dot = player.transform.basis.y.dot(Vector3.UP)
-	if up_dot < 1:
-		should_reset_rotation = true
-	else:
-		should_reset_rotation = false
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# === CLEANUP ===
-
-func _exit_tree():
-	if jump_shadow and is_instance_valid(jump_shadow):
-		jump_shadow.queue_free()
-	if shadow_raycast and is_instance_valid(shadow_raycast):
-		shadow_raycast.queue_free()
