@@ -1,5 +1,6 @@
 [gd_scene load_steps=21 format=3 uid="uid://bdxo4fr0da0vb"]
 
+
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://scripts/characters/Player/camera_controller.gd" id="2_hiafp"]
 [ext_resource type="Script" uid="uid://b164e1bhx0p62" path="res://scripts/characters/Player/StateMachine/state_machine.gd" id="2_r0lcg"]
@@ -11,7 +12,9 @@
 [ext_resource type="Script" uid="uid://d0nfcgmke1446" path="res://scripts/characters/Player/StateMachine/rail_grinding_state.gd" id="8_04s0v"]
 [ext_resource type="Script" uid="uid://cyispbhw6d3re" path="res://scripts/characters/Player/StateMachine/wall_jumping_state.gd" id="9_joeft"]
 [ext_resource type="Script" uid="uid://ca1ianwc3dqij" path="res://scripts/characters/Player/StateMachine/double_jump_state.gd" id="10_v87o4"]
+
 [ext_resource type="Script" uid="uid://1sd3orje0xq8" path="res://scripts/characters/Player/StateMachine/sliding_state.gd" id="11_xnk82"]
+
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -41,10 +44,13 @@ height = 1.5
 [sub_resource type="SphereShape3D" id="SphereShape3D_04s0v"]
 radius = 2.34364
 
-[node name="Inke" type="CharacterBody3D" node_paths=PackedStringArray("grindrays", "wall_jump_rays") groups=["Player"]]
+[sub_resource type="SphereShape3D" id="SphereShape3D_xnk82"]
+radius = 0.545352
+
+[node name="Inke" type="CharacterBody3D" node_paths=PackedStringArray("wall_jump_rays", "rail_grind_area") groups=["Player"]]
 script = ExtResource("1_2pj2q")
-grindrays = NodePath("Grindrays")
 wall_jump_rays = NodePath("WallJumpRays")
+rail_grind_area = NodePath("RailGrindArea")
 
 [node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
 script = ExtResource("2_r0lcg")
@@ -103,75 +109,6 @@ mesh = SubResource("CapsuleMesh_43ywd")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.849195, 0)
 shape = SubResource("CapsuleShape3D_04s0v")
 
-[node name="Grindrays" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.365044, 0)
-
-[node name="RailRaycastDown" type="RayCast3D" parent="Grindrays"]
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.772161, -0.551368, -0.315848, 0.581115, 0.813821, 0, 0.257044, -0.183544, 0.94881, 0, 0, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast2" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.873798, 0.48629, 0, -0.48629, 0.873798, 0, 0, 0, 1, 0, 0, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast4" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(1, 0, 0, 0, 0.845346, 0.53422, 0, -0.53422, 0.845346, 0, 0, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast5" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(1, 0, 0, 0, 0.882628, -0.470072, 0, 0.470072, 0.882628, 0, 0, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast6" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(1, 0, 0, 0, 0.617819, -0.786321, 0, 0.786321, 0.617819, 0, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast9" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.984087, 0.139718, 0.109778, 0, 0.617819, -0.786321, -0.177686, 0.773808, 0.607987, 0, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast10" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.98727, -0.125068, -0.0982666, 3.25888e-09, 0.617819, -0.786321, 0.159054, 0.776311, 0.609954, 0, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast7" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.96118, -0.216964, -0.17047, 0, 0.617819, -0.786321, 0.275923, 0.755796, 0.593835, 0, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast12" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.900675, -0.34165, -0.268438, 3.2825e-08, 0.617819, -0.786321, 0.434492, 0.70822, 0.556454, 0.0582644, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast8" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.907029, 0.331094, 0.260143, 8.22313e-09, 0.617819, -0.786321, -0.421067, 0.713216, 0.56038, 0, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
-[node name="RailRaycast11" type="RayCast3D" parent="Grindrays"]
-transform = Transform3D(0.831751, 0.436526, 0.342982, 3.42877e-08, 0.617819, -0.786321, -0.555149, 0.654023, 0.513871, -0.109753, 0.153078, 0)
-target_position = Vector3(0, -1.5, 0)
-collision_mask = 2
-collide_with_areas = true
-
 [node name="WallJumpRays" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.792745, 0)
 
@@ -196,3 +133,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98123, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="HU-3Boundary"]
 shape = SubResource("SphereShape3D_04s0v")
+
+[node name="RailGrindArea" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.342711, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RailGrindArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.165205, 0)
+shape = SubResource("SphereShape3D_xnk82")

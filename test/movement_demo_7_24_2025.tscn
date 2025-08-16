@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://1xtg2gv8rted"]
+[gd_scene load_steps=23 format=3 uid="uid://1xtg2gv8rted"]
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
@@ -38,6 +38,14 @@ _data = {
 point_count = 2
 
 [sub_resource type="Curve3D" id="Curve3D_bd3gf"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 2.70156, 1.77183, -86.2492),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_vuagr"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 2.70156, 1.77183, -86.2492),
@@ -889,6 +897,10 @@ dialogic_timeline = "You did it"
 [node name="Rail" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.47863, 29.2815, -642.549)
 curve = SubResource("Curve3D_bd3gf")
+
+[node name="Rail9" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9787, -3.30684, 92.7699)
+curve = SubResource("Curve3D_vuagr")
 
 [node name="Rail2" parent="ObstacleCourse/Rails" instance=ExtResource("5_n7jej")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.64126, 30.5084, -743.588)
