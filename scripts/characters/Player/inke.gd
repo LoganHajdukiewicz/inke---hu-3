@@ -61,7 +61,7 @@ func _ready():
 	setup_rail_detection()
 	# Defer shadow setup to next frame to ensure everything is ready
 	call_deferred("setup_jump_shadow")
-
+	
 func setup_gear_collection():
 	"""Set up Area3D for gear collection"""
 	# Create Area3D for gear detection if it doesn't exist
@@ -80,59 +80,53 @@ func setup_gear_collection():
 	gear_collection_area.body_entered.connect(_on_gear_body_entered)
 	gear_collection_area.area_entered.connect(_on_gear_area_entered)
 
-func setup_jump_shadow():
+func setup_jump_shadow(): ## TODO: Improperly renders if tilted. 
 	"""Set up the jump shadow system"""
 	print("Setting up jump shadow...")
 	
-	# Wait for next frame to ensure everything is in the scene tree
 	await get_tree().process_frame
 	
-	# Double check we're in the tree
 	if not is_inside_tree():
 		print("Player not in tree yet, deferring shadow setup")
 		call_deferred("setup_jump_shadow")
 		return
 	
-	# Create the shadow mesh
 	jump_shadow = MeshInstance3D.new()
 	jump_shadow.name = "JumpShadow"
 	
-	# Create a perfect circular mesh for the shadow using CylinderMesh
 	var cylinder_mesh = CylinderMesh.new()
-	cylinder_mesh.radial_segments = 32  # More segments for smoother circle
+	cylinder_mesh.radial_segments = 32
 	cylinder_mesh.rings = 1
-	cylinder_mesh.height = 0.01  # Very thin to look like a flat shadow
+	cylinder_mesh.height = 0.01
 	cylinder_mesh.top_radius = shadow_base_size * 0.5
 	cylinder_mesh.bottom_radius = shadow_base_size * 0.5
 	jump_shadow.mesh = cylinder_mesh
 	
-	# Create simple solid shadow material
 	var shadow_material = StandardMaterial3D.new()
-	shadow_material.albedo_color = Color(0, 0, 0, 0.6)  # Semi-transparent black
+	shadow_material.albedo_color = Color(0, 0, 0, 0.6)
 	shadow_material.flags_transparent = true
 	shadow_material.flags_unshaded = true
 	shadow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	shadow_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	shadow_material.billboard_mode = BaseMaterial3D.BILLBOARD_DISABLED
-	shadow_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_ALWAYS
+	shadow_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_OPAQUE_ONLY
 	shadow_material.no_depth_test = false
 	
 	jump_shadow.material_override = shadow_material
 	jump_shadow.visible = true
 	
-	# Create raycast for shadow positioning
 	shadow_raycast = RayCast3D.new()
 	shadow_raycast.name = "ShadowRaycast"
 	shadow_raycast.target_position = Vector3(0, -shadow_max_distance, 0)
-	shadow_raycast.collision_mask = 1  # Collide with default layer
+	shadow_raycast.collision_mask = 1  # Only check layer 1 (ground/walls)
 	shadow_raycast.enabled = true
 	shadow_raycast.collide_with_areas = false
 	shadow_raycast.collide_with_bodies = true
+	shadow_raycast.exclude_parent = true
 	
-	# Add raycast to player
+	# Add the raycast to the player
 	add_child(shadow_raycast)
 	
-	# Add shadow to the scene root so it doesn't move with player rotation
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child(jump_shadow)
 		print("Jump shadow setup complete!")
@@ -191,44 +185,54 @@ func update_jump_shadow():
 	"""Update the jump shadow position and appearance"""
 	if not jump_shadow or not shadow_raycast:
 		return
-	
-	# Make sure both the player and shadow are in the scene tree
 	if not is_inside_tree() or not jump_shadow.is_inside_tree():
 		return
 	
-	# Position the raycast at the player's center
-	shadow_raycast.global_position = global_position
-	
-	# Force raycast update
+	# Cast ray from slightly above the player to avoid self-collision
+	var ray_start = global_position + Vector3(0, 0.1, 0)
+	shadow_raycast.global_position = ray_start
 	shadow_raycast.force_raycast_update()
 	
+	var ground_position: Vector3
+	var ground_normal: Vector3 = Vector3.UP
+	var distance_to_ground: float
+	var found_ground: bool = false
+	
 	if shadow_raycast.is_colliding():
-		var collision_point = shadow_raycast.get_collision_point()
-		var collision_normal = shadow_raycast.get_collision_normal()
+		# Raycast hit something
+		ground_position = shadow_raycast.get_collision_point()
+		ground_normal = shadow_raycast.get_collision_normal()
+		distance_to_ground = global_position.distance_to(ground_position)
+		found_ground = true
+	elif is_on_floor():
+		# Player is grounded but raycast missed - use player position as fallback
+		ground_position = global_position - Vector3(0, 1.0, 0)  # Assume 1 unit below player
+		ground_normal = Vector3.UP
+		distance_to_ground = 1.0
+		found_ground = true
+	else:
+		# No ground found and player not grounded
+		jump_shadow.visible = false
+		return
+	
+	if found_ground:
+		# Position shadow slightly above the ground to prevent z-fighting
+		var shadow_offset = 0.02  # Increased offset to ensure it's above ground
+		jump_shadow.global_position = ground_position + ground_normal * shadow_offset
 		
-		# Position shadow on the collision point with minimal offset
-		jump_shadow.global_position = collision_point + collision_normal * 0.005
-		
-		# Calculate distance from player to ground
-		var distance_to_ground = global_position.distance_to(collision_point)
-		
-		# Always show shadow, but scale based on height
+		# Scale based on distance - closer = larger shadow
 		var scale_factor = 1.0
-		
-		# When on ground (very close), keep normal size
-		if distance_to_ground <= 0.2:  # Very close to ground
+		if distance_to_ground <= 0.2:
 			scale_factor = 1.0
-		# When jumping, scale based on distance but with a gentler curve
-		elif distance_to_ground > 0.2:
-			# More gradual scaling - shadow doesn't get tiny as quickly
-			scale_factor = max(0.4, 1.0 - (distance_to_ground - 0.2) / 15.0)
+		else:
+			scale_factor = max(0.3, 1.0 - (distance_to_ground - 0.2) / 20.0)
 		
 		jump_shadow.scale = Vector3(scale_factor, 1.0, scale_factor)
 		
-		# Always visible but fade slightly with extreme distance
-		var alpha = 0.6  # Base opacity
-		if distance_to_ground > 10.0:
-			alpha = max(0.3, 0.6 - (distance_to_ground - 10.0) / 30.0)
+		# Fade shadow based on distance
+		var alpha = 0.6
+		if distance_to_ground > shadow_fade_start:
+			alpha = max(0.2, 0.6 - (distance_to_ground - shadow_fade_start) / 25.0)
 		
 		# Update material alpha
 		if jump_shadow.material_override:
@@ -237,33 +241,50 @@ func update_jump_shadow():
 			current_color.a = alpha
 			material.albedo_color = current_color
 		
-		# Align shadow with surface - keep it flat on the ground
-		var up_vector = collision_normal
+		# Align shadow to ground normal
+		var up_vector = ground_normal
 		var forward_vector = Vector3.FORWARD
 		
-		# If surface is too vertical, use world up
-		if abs(up_vector.y) < 0.3:
+		# Handle edge cases for surface orientation
+		if abs(up_vector.y) < 0.1:  # Very steep surface
 			up_vector = Vector3.UP
-		
-		# Create proper basis for the shadow
 		if abs(up_vector.dot(forward_vector)) > 0.9:
 			forward_vector = Vector3.RIGHT
 		
 		var right_vector = forward_vector.cross(up_vector).normalized()
 		forward_vector = up_vector.cross(right_vector).normalized()
-		
 		jump_shadow.basis = Basis(right_vector, up_vector, forward_vector)
-		jump_shadow.visible = true
 		
-		# Debug print for first few frames
-		if Engine.get_process_frames() < 60:
-			print("Shadow at: ", jump_shadow.global_position, " Distance: ", distance_to_ground, " Scale: ", scale_factor)
+		jump_shadow.visible = true
 	else:
-		# No collision found - hide shadow
 		jump_shadow.visible = false
-		if Engine.get_process_frames() < 60:
-			print("No collision found for shadow")
 
+func update_simple_shadow():
+	if not jump_shadow:
+		# Create shadow if it doesn't exist
+		jump_shadow = MeshInstance3D.new()
+		var mesh = CylinderMesh.new()
+		mesh.top_radius = 0.5
+		mesh.bottom_radius = 0.5
+		mesh.height = 0.05
+		mesh.radial_segments = 32
+		jump_shadow.mesh = mesh
+		
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = Color(0, 0, 0, 0.6)
+		mat.flags_transparent = true
+		mat.flags_unshaded = true
+		jump_shadow.material_override = mat
+		
+		add_child(jump_shadow)
+	
+	if is_on_floor():
+		jump_shadow.visible = true
+		# Position it just above the ground
+		jump_shadow.global_position = global_position + Vector3.DOWN * 0.95
+		jump_shadow.scale = Vector3(1.2, 1.0, 1.2)
+	else:
+		jump_shadow.visible = false
 
 
 func check_for_nearby_gears():
