@@ -12,6 +12,7 @@ var local_starting_progress = 0.0
 @onready var direction_selected = false
 @onready var detach = false
 
+
 # Detection area for player interaction
 var detection_area: Area3D = null
 
