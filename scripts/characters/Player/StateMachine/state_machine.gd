@@ -32,7 +32,6 @@ func get_current_state_speed():
 	if current_state and current_state.has_method("get_speed"):
 		return current_state.get_speed()
 	return 0.0
-# Update your state_machine.gd change_state function:
 
 func change_state(new_state_name: String):
 	# Convert PascalCase node name to lowercase for lookup
@@ -46,7 +45,6 @@ func change_state(new_state_name: String):
 		
 		current_state = new_state
 		
-		# Special handling for transitions that might need rotation reset
 		if new_state_name == "IdleState" and previous_state and previous_state.name == "RailGrindingState":
 			if current_state.has_method("enable_rotation_reset"):
 				current_state.enable_rotation_reset()

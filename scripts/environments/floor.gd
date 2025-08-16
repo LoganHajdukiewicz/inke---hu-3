@@ -7,7 +7,9 @@ enum FloorType {
 	SPRING,
 	FALLING,
 	SPINNING,
-	MOVING
+	MOVING, 
+	DAMAGE, # non-lethal damaging floors, i.e. lava, electric
+	FROZEN
 }
 
 enum FloorShape {
@@ -22,19 +24,20 @@ enum SpinDirection {
 
 @export var floor_type: FloorType = FloorType.NORMAL : set = _set_floor_type
 
+@export_category("Texture Settings")
+@export var use_default_texture: bool = true : set = _set_use_default_texture
+@export var custom_texture: Texture2D : set = _set_custom_texture
+@export var texture_scale: Vector2 = Vector2(1.0, 1.0) : set = _set_texture_scale
 
-# Shape and Dimension Settings
-@export_group("Shape & Dimensions")
+@export_category("Box Dimensions")
 @export var floor_shape: FloorShape = FloorShape.BOX : set = _set_floor_shape
 @export var floor_size: Vector3 = Vector3(10, 0.5, 10) : set = _set_floor_size  # X, Y, Z dimensions for box
+
+@export_category("Cylinder Dimensions")
 @export var cylinder_radius: float = 5.0 : set = _set_cylinder_radius  # Radius for cylinder
 @export var cylinder_height: float = 0.5 : set = _set_cylinder_height  # Height for cylinder
 @export var cylinder_segments: int = 32 : set = _set_cylinder_segments  # Number of segments for cylinder smoothness
 
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var collision_shape: CollisionShape3D = $CollisionShape3D
-
-# Spring Floor Variables
 @export_group("Spring Floor Settings")
 @export var spring_force: float = 20.0
 @export var spring_cooldown: float = 0.5
@@ -42,7 +45,6 @@ enum SpinDirection {
 @onready var spring_area: Area3D = $SpringArea
 @onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
 
-# Falling Floor Variables
 @export_group("Falling Floor Settings")
 @export var fall_speed: float = 5.0
 @export var fall_duration: float = 3.0
@@ -50,16 +52,10 @@ enum SpinDirection {
 @export var shake_intensity: float = 0.35
 @export var shake_duration: float = 1.0
 
-var players_on_floor: Array[CharacterBody3D] = []
-var spring_cooldown_timer: float = 0.0
-var fall_timer: float = 0.0
-var is_falling: bool = false
-var has_fallen: bool = false
-var fall_triggered: bool = false
-var original_position: Vector3
-var fall_tween: Tween
+@export_group("Spinning Floor Settings")
+@export var spin_speed: float = 90.0  # degrees per second
+@export var spin_direction: SpinDirection = SpinDirection.RIGHT
 
-# Moving Floor Variables
 @export_group("Moving Floor Settings")
 @export var movement_axis: Vector3 = Vector3(10, 0, 0)  # Distance to move in each axis
 @export var movement_duration: float = 3.0  # Time to complete one movement cycle
@@ -68,6 +64,31 @@ var fall_tween: Tween
 @export var movement_easing: Tween.EaseType = Tween.EASE_IN_OUT
 @export var movement_transition: Tween.TransitionType = Tween.TRANS_SINE
 
+@export_group("Momentum Settings")
+@export var momentum_transfer_strength: float = 0.6 : set = _set_momentum_transfer_strength
+@export var enable_momentum_transfer: bool = true
+
+# General Variables
+@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
+@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+
+# Texture Variables
+var default_texture: Texture2D
+const DEFAULT_TEXTURE_PATH = "res://textures/texture_08.png"  # Change this to your converted texture path
+
+# Spring Floor Variables
+var players_on_floor: Array[CharacterBody3D] = []
+var spring_cooldown_timer: float = 0.0
+
+# Falling Floor Variables
+var fall_timer: float = 0.0
+var is_falling: bool = false
+var has_fallen: bool = false
+var fall_triggered: bool = false
+var original_position: Vector3
+var fall_tween: Tween
+
+# Spinning Floor Variables And Moving Floor Variables
 var movement_tween: Tween
 var start_position: Vector3
 var end_position: Vector3
@@ -75,10 +96,10 @@ var is_moving: bool = false
 var players_to_move: Array[CharacterBody3D] = []
 var last_floor_position: Vector3
 
-# Spinning Floor Variables
-@export_group("Spinning Floor Settings")
-@export var spin_speed: float = 90.0  # degrees per second
-@export var spin_direction: SpinDirection = SpinDirection.RIGHT
+# Momentum tracking variables
+var floor_velocity: Vector3 = Vector3.ZERO
+var previous_floor_position: Vector3 = Vector3.ZERO
+var floor_angular_velocity: float = 0.0
 
 # Editor preview variables
 var editor_material: StandardMaterial3D
@@ -87,6 +108,21 @@ var runtime_material: StandardMaterial3D
 # Property setters that work in editor
 func _set_floor_type(value: FloorType):
 	floor_type = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_use_default_texture(value: bool):
+	use_default_texture = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_custom_texture(value: Texture2D):
+	custom_texture = value
+	if Engine.is_editor_hint():
+		_update_editor_preview()
+
+func _set_texture_scale(value: Vector2):
+	texture_scale = value
 	if Engine.is_editor_hint():
 		_update_editor_preview()
 
@@ -125,6 +161,9 @@ func _set_cylinder_segments(value: int):
 		setup_cylinder_geometry()
 		_update_editor_preview()
 
+func _set_momentum_transfer_strength(value: float):
+	momentum_transfer_strength = clamp(value, 0.0, 2.0)  # Limit to reasonable range
+
 func _ensure_nodes_exist():
 	"""Ensure required nodes exist for editor preview"""
 	if not mesh_instance:
@@ -141,6 +180,58 @@ func _ensure_nodes_exist():
 			collision_shape.name = "CollisionShape3D"
 			add_child(collision_shape)
 
+func load_default_texture():
+	"""Load the default texture from file"""
+	if ResourceLoader.exists(DEFAULT_TEXTURE_PATH):
+		default_texture = load(DEFAULT_TEXTURE_PATH)
+	else:
+		print("Warning: Default texture not found at ", DEFAULT_TEXTURE_PATH)
+		# Fallback: create a simple procedural texture
+		default_texture = create_fallback_texture()
+
+func create_fallback_texture() -> ImageTexture:
+	"""Create a simple fallback texture if the default texture file is not found"""
+	var image = Image.create(64, 64, false, Image.FORMAT_RGB8)
+	
+	# Create a simple checkerboard pattern
+	for x in range(64):
+		for y in range(64):
+			var checker = ((x / 8) + (y / 8)) % 2
+			var color = Color.GRAY if checker == 0 else Color.WHITE
+			image.set_pixel(x, y, color)
+	
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
+
+func get_texture_to_use() -> Texture2D:
+	"""Get the texture that should be applied to the floor"""
+	if not use_default_texture and custom_texture:
+		return custom_texture
+	
+	if not default_texture:
+		load_default_texture()
+	
+	return default_texture
+
+func create_textured_material(base_color: Color = Color.WHITE) -> StandardMaterial3D:
+	"""Create a material with the appropriate texture applied"""
+	var material = StandardMaterial3D.new()
+	
+	var texture = get_texture_to_use()
+	if texture:
+		material.albedo_texture = texture
+		material.uv1_scale = Vector3(texture_scale.x, texture_scale.y, 1.0)
+	
+	# Apply color tint
+	material.albedo_color = base_color
+	
+	# Set some basic material properties
+	material.metallic = 0.1
+	material.roughness = 0.7
+	
+	return material
+
 # Update the editor preview with debug colors
 func _update_editor_preview():
 	_ensure_nodes_exist()
@@ -148,25 +239,41 @@ func _update_editor_preview():
 	if not mesh_instance:
 		return
 	
-	# Get or create editor material
+	# In editor, use simplified colored materials for quick identification
 	if not editor_material:
 		editor_material = StandardMaterial3D.new()
 		editor_material.flags_transparent = true
 		editor_material.flags_unshaded = true  # Makes it appear more like a debug overlay
 		editor_material.albedo_color.a = 0.8  # Slightly transparent to show it's debug
 	
-	# Set debug color based on floor type
+	# Set debug color based on floor type (but with texture if enabled)
+	var base_color: Color
 	match floor_type:
 		FloorType.NORMAL:
-			editor_material.albedo_color = Color(0, 0.8, 0, 0.8)  # Bright Green
+			base_color = Color(0, 0.8, 0, 0.8)  # Bright Green
 		FloorType.SPRING:
-			editor_material.albedo_color = Color(1.0, 0.5, 0.0, 0.8)  # Orange
+			base_color = Color(1.0, 0.5, 0.0, 0.8)  # Orange
 		FloorType.FALLING:
-			editor_material.albedo_color = Color(1.0, 0.2, 0.2, 0.8)  # Bright Red
+			base_color = Color(1.0, 0.2, 0.2, 0.8)  # Bright Red
 		FloorType.SPINNING:
-			editor_material.albedo_color = Color(0.8, 0.2, 1.0, 0.8)  # Bright Purple
+			base_color = Color(0.8, 0.2, 1.0, 0.8)  # Bright Purple
 		FloorType.MOVING:
-			editor_material.albedo_color = Color(0.2, 0.7, 1.0, 0.8)  # Bright Blue
+			base_color = Color(0.2, 0.7, 1.0, 0.8)  # Bright Blue
+		_:
+			base_color = Color(0.5, 0.5, 0.5, 0.8)  # Gray
+	
+	editor_material.albedo_color = base_color
+	
+	# In editor, show texture preview if enabled
+	if use_default_texture or custom_texture:
+		var texture = get_texture_to_use()
+		if texture:
+			editor_material.albedo_texture = texture
+			editor_material.uv1_scale = Vector3(texture_scale.x, texture_scale.y, 1.0)
+		else:
+			editor_material.albedo_texture = null
+	else:
+		editor_material.albedo_texture = null
 	
 	# Apply the editor material
 	mesh_instance.set_surface_override_material(0, editor_material)
@@ -179,11 +286,18 @@ func _ready():
 		_update_editor_preview()
 		return
 	
+	# Load default texture for runtime
+	load_default_texture()
+	
+	if mesh_instance:
+		mesh_instance.set_surface_override_material(0, null)
+	
 	# Runtime initialization
 	original_position = global_position
 	start_position = global_position
 	end_position = global_position + movement_axis
 	last_floor_position = global_position
+	previous_floor_position = global_position
 	
 	# Create the mesh and collision based on shape and dimensions
 	setup_floor_geometry()
@@ -245,11 +359,13 @@ func setup_cylinder_geometry():
 		spring_collision.shape = spring_shape
 		spring_collision.position.y = cylinder_height * 0.25
 
-# [Rest of the script remains the same...]
 func _process(delta):
 	# Don't run game logic in editor
 	if Engine.is_editor_hint():
 		return
+	
+	# Calculate floor velocity for momentum transfer
+	calculate_floor_velocity(delta)
 	
 	if spring_cooldown_timer > 0:
 		spring_cooldown_timer -= delta
@@ -274,6 +390,20 @@ func _process(delta):
 	if floor_type == FloorType.MOVING and is_moving:
 		move_players_with_floor()
 
+func calculate_floor_velocity(delta: float):
+	"""Calculate the floor's current velocity for momentum transfer"""
+	if delta <= 0:
+		return
+	
+	# Calculate linear velocity
+	floor_velocity = (global_position - previous_floor_position) / delta
+	previous_floor_position = global_position
+	
+	# For spinning floors, calculate angular velocity
+	if floor_type == FloorType.SPINNING:
+		var rotation_speed = spin_speed * (PI / 180.0)  # Convert to radians
+		floor_angular_velocity = rotation_speed if spin_direction == SpinDirection.RIGHT else -rotation_speed
+
 func setup_floor_type():
 	"""Setup the floor based on the selected type"""
 	match floor_type:
@@ -290,12 +420,9 @@ func setup_floor_type():
 
 func setup_normal_floor():
 	"""Setup a normal floor"""
-	# Set normal green color
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0, 0.41793, 0, 1)  # Green
+	# Create textured material with green tint
+	var material = create_textured_material(Color(0.8, 1.0, 0.8, 1))  # Light green tint
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Disable spring area
 	if spring_area:
@@ -304,14 +431,11 @@ func setup_normal_floor():
 
 func setup_spring_floor():
 	"""Setup a spring floor"""
-	# Set spring color (bouncy orange/yellow)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(1.0, 0.6, 0.0, 1)  # Orange
+	# Create textured material with orange tint
+	var material = create_textured_material(Color(1.0, 0.8, 0.4, 1))  # Orange tint
 	material.metallic = 0.2
 	material.roughness = 0.3
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area
 	if spring_area:
@@ -319,23 +443,20 @@ func setup_spring_floor():
 		spring_area.visible = true
 		
 		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
 			var spring_shape = spring_collision.shape as BoxShape3D
 			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 
 func setup_falling_floor():
 	"""Setup a falling floor"""
-	# Set falling floor color (warning red)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.8, 0.2, 0.2, 1)  # Red
+	# Create textured material with red tint
+	var material = create_textured_material(Color(1.0, 0.6, 0.6, 1))  # Red tint
 	material.metallic = 0.1
 	material.roughness = 0.4
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area for detection (reuse the same area)
 	if spring_area:
@@ -343,23 +464,20 @@ func setup_falling_floor():
 		spring_area.visible = true
 		
 		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
 			var spring_shape = spring_collision.shape as BoxShape3D
 			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 
 func setup_moving_floor():
 	"""Setup a moving floor"""
-	# Set moving floor color (blue)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.2, 0.5, 1.0, 1)  # Blue
+	# Create textured material with blue tint
+	var material = create_textured_material(Color(0.6, 0.8, 1.0, 1))  # Blue tint
 	material.metallic = 0.3
 	material.roughness = 0.2
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area for player detection
 	if spring_area:
@@ -367,12 +485,12 @@ func setup_moving_floor():
 		spring_area.visible = true
 		
 		# Make sure the collision shape matches the floor size
-		var floor_shape = collision_shape.shape as BoxShape3D
-		if floor_shape and spring_collision:
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
 			var spring_shape = spring_collision.shape as BoxShape3D
 			if spring_shape:
-				spring_shape.size = Vector3(floor_shape.size.x, floor_shape.size.y + 0.5, floor_shape.size.z)
-				spring_collision.position.y = floor_shape.size.y * 0.25
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 	
 	# Start moving after initial delay (if any)
 	if movement_delay > 0:
@@ -381,14 +499,11 @@ func setup_moving_floor():
 
 func setup_spinning_floor():
 	"""Setup a spinning floor"""
-	# Set spinning floor color (purple/magenta)
-	var material = mesh_instance.get_surface_override_material(0)
-	if not material:
-		material = StandardMaterial3D.new()
-		mesh_instance.set_surface_override_material(0, material)
-	material.albedo_color = Color(0.6, 0.2, 0.8, 1)  # Purple
+	# Create textured material with purple tint
+	var material = create_textured_material(Color(0.9, 0.6, 1.0, 1))  # Purple tint
 	material.metallic = 0.3
 	material.roughness = 0.2
+	mesh_instance.set_surface_override_material(0, material)
 	
 	# Enable spring area for player detection
 	if spring_area:
@@ -491,11 +606,21 @@ func move_players_with_floor():
 	
 	# Only move players if the floor actually moved
 	if floor_delta.length() > 0.001:  # Small threshold to avoid floating point errors
+		var players_to_remove = []
 		for player in players_on_floor:
 			if player and is_instance_valid(player):
 				# Check if player is actually on the floor (not jumping/falling)
 				if player.is_on_floor() or player.velocity.y <= 0.1:
 					player.global_position += floor_delta
+				else:
+					# Player is in the air, mark for removal
+					players_to_remove.append(player)
+		
+		# Remove players who left the floor and transfer momentum
+		for player in players_to_remove:
+			players_on_floor.erase(player)
+			if enable_momentum_transfer:
+				transfer_momentum_to_player(player)
 	
 	last_floor_position = global_position
 
@@ -527,9 +652,16 @@ func spin_players_with_floor(rotation_radians: float):
 		return
 	
 	var center = global_position
+	var players_to_remove = []
 	
 	for player in players_on_floor:
 		if player and is_instance_valid(player):
+			# Check if player is still on the floor
+			if not player.is_on_floor() and player.velocity.y > 0:
+				# Player is jumping/falling, mark for removal and momentum transfer
+				players_to_remove.append(player)
+				continue
+			
 			# Get player's current position relative to floor center
 			var player_pos = player.global_position
 			var relative_pos = player_pos - center
@@ -540,7 +672,84 @@ func spin_players_with_floor(rotation_radians: float):
 			
 			# Set the new position
 			player.global_position = center + Vector3(rotated_x, relative_pos.y, rotated_z)
+	
+	# Remove players who left the floor and transfer momentum
+	for player in players_to_remove:
+		players_on_floor.erase(player)
+		if enable_momentum_transfer:
+			transfer_momentum_to_player(player)
 
+func transfer_momentum_to_player(player: CharacterBody3D):
+	"""Transfer the floor's momentum to a player when they leave the floor"""
+	if not player or not is_instance_valid(player):
+		return
+	
+	# Only transfer momentum if player is actually jumping/leaving the floor
+	# Check if player has upward velocity (jumping) or is no longer on floor
+	if player.velocity.y > 0 or not player.is_on_floor():
+		
+		match floor_type:
+			FloorType.MOVING:
+				transfer_linear_momentum(player)
+			FloorType.SPINNING:
+				transfer_rotational_momentum(player)
+
+func transfer_linear_momentum(player: CharacterBody3D):
+	"""Transfer linear momentum from moving floors"""
+	# Add the floor's velocity to the player's current velocity
+	# Only transfer horizontal momentum (X and Z), preserve player's Y velocity
+	var momentum_to_add = Vector3(
+		floor_velocity.x * momentum_transfer_strength,
+		0,  # Don't affect vertical velocity
+		floor_velocity.z * momentum_transfer_strength
+	)
+	
+	player.velocity += momentum_to_add
+	
+	print("Transferred linear momentum: ", momentum_to_add, " to player")
+	
+func transfer_rotational_momentum(player: CharacterBody3D):
+	"""Transfer rotational momentum from spinning floors"""
+	# Calculate the player's tangential velocity from the spinning floor
+	var center = global_position
+	var player_relative_pos = player.global_position - center
+	
+	# Calculate radius in the XZ plane (horizontal)
+	var radius = Vector2(player_relative_pos.x, player_relative_pos.z).length()
+	
+	# If player is at the center, no momentum to transfer
+	if radius < 0.01:
+		return
+	
+	# Calculate tangential speed
+	var tangential_speed = abs(floor_angular_velocity) * radius
+	
+	# Get the tangent direction (perpendicular to radius in XZ plane)
+	# For a spinning floor, the tangent direction is 90 degrees rotated from the radius
+	var radius_direction = Vector2(player_relative_pos.x, player_relative_pos.z).normalized()
+	
+	# Calculate tangent direction based on spin direction
+	var tangent_direction_2d: Vector2
+	if spin_direction == SpinDirection.RIGHT:
+		# Right spin (clockwise): rotate radius direction by -90 degrees
+		tangent_direction_2d = Vector2(radius_direction.y, -radius_direction.x)
+	else:
+		# Left spin (counter-clockwise): rotate radius direction by +90 degrees  
+		tangent_direction_2d = Vector2(-radius_direction.y, radius_direction.x)
+	
+	# Convert to 3D vector (keep Y = 0 for horizontal movement only)
+	var tangent_direction = Vector3(tangent_direction_2d.x, 0, tangent_direction_2d.y)
+	
+	# Calculate momentum to transfer
+	var momentum_to_add = tangent_direction * tangential_speed * momentum_transfer_strength
+	
+	# Add the momentum to player's current velocity
+	player.velocity += momentum_to_add
+	
+	print("Transferred rotational momentum: ", momentum_to_add, " to player")
+	print("Player relative pos: ", player_relative_pos)
+	print("Tangent direction: ", tangent_direction)
+	print("Spin direction: ", "RIGHT" if spin_direction == SpinDirection.RIGHT else "LEFT")
 func _on_spring_area_body_entered(body):
 	"""When a player enters the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
@@ -555,12 +764,14 @@ func _on_spring_area_body_entered(body):
 func _on_spring_area_body_exited(body):
 	"""When a player exits the spring area"""
 	if body.is_in_group("Player") or body.get_script().get_global_name() == "CharacterBody3D":
+		# Transfer momentum before removing from tracking
+		if enable_momentum_transfer:
+			transfer_momentum_to_player(body)
+		
 		players_on_floor.erase(body)
 		
 		if floor_type == FloorType.MOVING:
 			players_to_move.erase(body)
-		
-		# DON'T reset fall timer - once triggered, the floor will fall regardless
 
 func activate_spring():
 	"""Activate the spring effect for all players on the floor"""
@@ -621,8 +832,6 @@ func _apply_spring_velocity(player: CharacterBody3D):
 		
 		# Also call move_and_slide to ensure the velocity is applied
 		player.move_and_slide()
-		
-		print("Spring activated! Player bounced with force: ", spring_force, " Current velocity.y: ", player.velocity.y)
 
 func start_falling():
 	"""Start the falling sequence"""

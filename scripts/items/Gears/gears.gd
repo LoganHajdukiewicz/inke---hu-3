@@ -7,9 +7,6 @@ extends Area3D
 @export var bob_height: float = 0.2
 @export var bob_speed: float = 2.0
 
-##TODO: Turn this into a GameStateManager type Inventory system. 
-static var gear_count: int = 0
-
 var initial_position: Vector3
 var time_passed: float = 0.0
 var collected: bool = false  # Prevent double collection
@@ -35,39 +32,30 @@ func _process(delta):
 		position.y = initial_position.y + sin(time_passed * bob_speed) * bob_height
 
 func _on_body_entered(body):
-	# Check if the player collected this gear directly
+	# Check if the player collected this gear
 	if body.is_in_group("Player") and not collected:
-		collect_gear_by_player()
+		collect_gear()
 
-func collect_gear_by_player():
-	"""Called when player directly collects the gear"""
+func collect_gear():
+	"""Called when any entity collects the gear"""
 	if collected:
 		return
 		
 	collected = true
-	gear_count += 1
-	print("Player collected gear directly! Total gears: " + str(gear_count))
 	
-	# Also update the player's gear count
-	var player = get_tree().get_first_node_in_group("Player")
-	if player and player.has_method("add_gear_count"):
-		player.add_gear_count(1)
+	# Get GameManager reference and add gear
+	var game_manager = get_node("/root/GameManager")
+	if game_manager:
+		game_manager.add_gear(1)
+		print("Gear collected! Added to total count.")
+	else:
+		print("Warning: GameManager not found!")
 	
 	# Remove the gear from the scene
 	queue_free()
 
-func collect_gear_by_hu3():
-	"""Called when HU-3 collects the gear"""
-	if collected:
-		return
-		
-	collected = true
-	gear_count += 1
-	print("HU-3 collected gear! Total gears: " + str(gear_count))
-	
-	# Remove the gear from the scene
-	queue_free()
 
 # Legacy method for compatibility
-func collect_gear():
-	collect_gear_by_player()
+func collect_gear_by_player():
+	"""Called when player collects the gear - same as regular collection"""
+	collect_gear()
