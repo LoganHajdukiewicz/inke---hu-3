@@ -1,5 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://bdxo4fr0da0vb"]
-
+[gd_scene load_steps=22 format=3 uid="uid://bdxo4fr0da0vb"]
 
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://scripts/characters/Player/camera_controller.gd" id="2_hiafp"]
@@ -12,9 +11,7 @@
 [ext_resource type="Script" uid="uid://d0nfcgmke1446" path="res://scripts/characters/Player/StateMachine/rail_grinding_state.gd" id="8_04s0v"]
 [ext_resource type="Script" uid="uid://cyispbhw6d3re" path="res://scripts/characters/Player/StateMachine/wall_jumping_state.gd" id="9_joeft"]
 [ext_resource type="Script" uid="uid://ca1ianwc3dqij" path="res://scripts/characters/Player/StateMachine/double_jump_state.gd" id="10_v87o4"]
-
-[ext_resource type="Script" uid="uid://1sd3orje0xq8" path="res://scripts/characters/Player/StateMachine/sliding_state.gd" id="11_xnk82"]
-
+[ext_resource type="Script" uid="uid://cb6ao43hf1660" path="res://scripts/characters/Player/StateMachine/sliding_state.gd" id="11_xnk82"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
