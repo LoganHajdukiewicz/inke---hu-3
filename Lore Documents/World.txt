@@ -1,0 +1,40 @@
+The world is divided into 5 separate areas. East, West, 
+North, South, and Center. You start in the East, a relatively 
+untouched area, mainly green with light levels of industrialization. 
+In the East is a lot of green, but areas to paint. It allows for a 
+decent tutorial area, giving the player a ton of space with some 
+enemies but mainly this is an exploration playground. The final boss 
+is the leader of the Resistance. He will not let Inke pass until 
+he is satisfied with Inke's initial progress. He won't send Inke 
+on a mission that kills them. 
+
+To the South is an abandoned theme park. The leader of this world is 
+_____________. A joker by nature, who focuses on fun. His world is 
+filled with grind rails of roller coasters, and abandoned stadiums. 
+The stadiums hold gladitorial fights to determine who is the best. 
+He is not willing to join until Inke can show him that this 
+adventure will be fun for him. 
+
+To the West is a land decimated by the effects of running the 
+computers 24/7 for so long. It is lava and fire focused. 
+Everything is dead or dying. The leader of the world is _______. 
+A pyromanic who would kill his own people. He burns bridges and 
+burns bridges. He is focused on the outcome of his actions and 
+would be an anime protagonist in any other world. He is on fire, 
+angry, and is willing to take it out on anyone who is not worthy. 
+He is not willing to join until Inke can show him that they are 
+powerful enough to take on a megacorporation. 
+
+To the North is electric. The area is filled with electrified grind 
+rails and hardcore rock. The leader is _____________. An electric 
+guitarist rockstar that is all about himself. His looks. His army. 
+His POWER. He is an egomaniac and a maniac on guitar. He shreds. He's 
+punk. He is a rockstar who would do anything to preserve his image. 
+He is not willing to join until Inke can gather enough support from 
+the community to have his image hurt by NOT joining. 
+
+To the Center is Phaethon Headquarters. A dangerous place filled with 
+robots who all follow Lucien's rule. Nobody who has come in there has 
+ever come out alive. It is filled to the brim with skyscrapers, 
+robots, deathtraps, and everything that wants YOU dead. Steer clear 
+until you're sure you're ready for it. 
