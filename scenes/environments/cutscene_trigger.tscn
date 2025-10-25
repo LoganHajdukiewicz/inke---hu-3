@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bhop6l43sjdrv"]
-
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_st7kl"]
-
-[node name="CutsceneTrigger" type="Area3D"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-shape = SubResource("WorldBoundaryShape3D_st7kl")

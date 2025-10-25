@@ -1,7 +1,7 @@
 Inke and HU-3 follows the adventures of Inke: a highly 
 skilled graffiti artist, and HU-3: a sentient AI robot 
 stolen by the Resistance to fight against the megacorporation
-known as Phaethon Dynamics. 
+known as Phaethon Industries. 
 
 Inke and HU-3 are teamed together in the Resistance, a fragmented 
 group of Revolutionaries that has differing factions in each zone 
@@ -11,7 +11,7 @@ around until you gain enough CRED for The Head of the Resistance
 to acknowledge that you are competant enough to not immediately die 
 when you venture out to stop the evil of Phaethon. Your goal is to 
 find and reunite the different leaders of the Resistance, once 
-together, now separated, to fight as one against Phaethon Dynamics. 
+together, now separated, to fight as one against Phaethon Industries. 
 
 You go to the South in search of _____________. He lives in an 
 abandoned theme park. Upon meeting him you realize he will not take 
@@ -25,7 +25,7 @@ wait for you there.
 You go to the West in search of _______________. He lives in a desert 
 wasteland. Cacti are the only thing that can survive here. There is 
 exposed lava, burning everything. This devestation is the biproduct 
-that happens when Phaethon Dynamics decided to run their computers 
+that happens when Phaethon Industries decided to run their computers 
 24/7 for years. The Earth is sick here. You see ____________. He 
 punches a robot that he owns, killing it. He lights another on fire. 
 He is clearly unstable. He is only swayed by actions, so when Inke 
@@ -47,13 +47,13 @@ support from his followers, so that his reputation would be destroyed if
 he said no to Inke. 
 
 You go back to the East and begin to plan an attack on Phaethon 
-Dynamics. During the meeting, the roof crashes in. You are confronted 
-by a robot from Phaethon Dynamics. This one is STRONG. TOO strong. 
+Industries. During the meeting, the roof crashes in. You are confronted 
+by a robot from Phaethon Industries. This one is STRONG. TOO strong. 
 You hit it over and over again and nothing happens. HU-3 is then 
 stolen. Your mission goes from an attack to a rescue mission. Your 
 companion for the whole game is stolen and you must get him back. 
 
-Phaethon Dynamic's building is the size of a full hub world. Everything 
+Phaethon Industries' building is the size of a full hub world. Everything 
 here is clean, professional and robotic. Everything is chrome, and robots 
 patrol the streets and kill everything on site. Inke slowly makes their 
 way up the corporate ladder of a building and rescues HU-3. Once they are 

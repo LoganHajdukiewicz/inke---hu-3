@@ -155,6 +155,15 @@ func setup_rail_detection():
 
 func _physics_process(delta: float) -> void:
 	$CameraController.handle_camera_input(delta)
+
+	var current_state_name = state_machine.current_state.get_script().get_global_name()
+	if current_state_name != "RailGrindingState":
+		# Smoothly return character to upright orientation
+		var upright_basis = Basis(Vector3.RIGHT, Vector3.UP, Vector3.BACK)
+		upright_basis = upright_basis.rotated(Vector3.UP, rotation.y)  # Preserve Y rotation (facing direction)
+		
+		# Smoothly interpolate to upright orientation
+		basis = basis.slerp(upright_basis, delta * 10.0)  # Adjust the 10.0 for faster/slower correction
 	
 	update_coyote_time(delta)
 	
@@ -285,7 +294,7 @@ func update_simple_shadow():
 		jump_shadow.scale = Vector3(1.2, 1.0, 1.2)
 	else:
 		jump_shadow.visible = false
-
+		
 
 func check_for_nearby_gears():
 	"""Check for gears within collection distance and collect them"""
