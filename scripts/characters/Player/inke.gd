@@ -5,6 +5,7 @@ var running: bool = false
 var gravity: float = 9.8
 var gravity_default: float = 9.8
 var jump_velocity: float = 5.0
+var is_being_sprung: bool = false
 
 # Double jump variables
 var has_double_jumped: bool = false
@@ -163,7 +164,7 @@ func _physics_process(delta: float) -> void:
 		upright_basis = upright_basis.rotated(Vector3.UP, rotation.y)  # Preserve Y rotation (facing direction)
 		
 		# Smoothly interpolate to upright orientation
-		basis = basis.slerp(upright_basis, delta * 10.0)  # Adjust the 10.0 for faster/slower correction
+		basis = basis.slerp(upright_basis, delta * 10.0).orthonormalized()  # Adjust the 10.0 for faster/slower correction
 	
 	update_coyote_time(delta)
 	

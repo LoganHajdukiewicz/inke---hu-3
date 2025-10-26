@@ -10,51 +10,52 @@ var horizontal_movement_decel = 0.8
 func enter():
 	print("Entered Jumping State")
 		
-	player.velocity.y = jump_velocity
-	jump_time = 0.0
-	
-	player.velocity.x *= horizontal_movement_decel
-	player.velocity.z *= horizontal_movement_decel
+# Don't override velocity if being launched by a spring
+	if not player.is_being_sprung:
+		player.velocity.y = jump_velocity
+		jump_time = 0.0
+		
+		player.velocity.x *= horizontal_movement_decel
+		player.velocity.z *= horizontal_movement_decel
+	else:
+		# Spring is controlling the jump, just reset timer
+		jump_time = 0.0
 	
 	if player.is_on_floor():
 		player.can_double_jump = true
-		
-
-	
-
 
 func physics_update(delta: float):
 	jump_time += delta
 	
 	# Jak and Daxter gravity curve - quick up, brief pause, quick down
 	if jump_time < peak_time:
-		# Ascending - reduced gravity for quick rise
 		gravity_multiplier = 0.15
 	elif jump_time < peak_time + 0.0001:
-		# Very brief hang time at peak (even shorter)
 		gravity_multiplier = 0.1
 	else:
-		# Falling - increased gravity for quick descent
 		gravity_multiplier = 3
 	
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 	
-	# Check for wall jump input first (highest priority)
-	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
-		var wall_normal = player.get_wall_jump_direction()
-		if wall_normal.length() > 0:
-			var wall_jump_state = player.state_machine.states.get("walljumpingstate")
-			if wall_jump_state:
-				wall_jump_state.setup_wall_jump(wall_normal)
-				change_to("WallJumpingState")
-				player.wall_jump_cooldown = player.wall_jump_cooldown_time
-				return
-	
-	# Check for double jump input - transition to the fancy double jump state
-	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
-		player.perform_double_jump()
-		change_to("DoubleJumpState")
-		return
+	# Don't allow jump input if being sprung (spring floor handles this)
+	if not player.is_being_sprung:
+		# Check for wall jump input first (highest priority)
+		if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
+			var wall_normal = player.get_wall_jump_direction()
+			if wall_normal.length() > 0:
+				var wall_jump_state = player.state_machine.states.get("walljumpingstate")
+				if wall_jump_state:
+					wall_jump_state.setup_wall_jump(wall_normal)
+					change_to("WallJumpingState")
+					player.wall_jump_cooldown = player.wall_jump_cooldown_time
+					return
+		
+		# Check for double jump input
+		if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
+			player.perform_double_jump()
+			change_to("DoubleJumpState")
+			return
+
 
 	# Minimal air control - preserve horizontal momentum, don't add much
 	var input_dir = Input.get_vector("left", "right", "forward", "back")

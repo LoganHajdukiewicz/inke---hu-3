@@ -1,8 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://bfg2o2wtbkhpj"]
+[gd_scene load_steps=3 format=3 uid="uid://bfg2o2wtbkhpj"]
+
+[ext_resource type="Script" uid="uid://bdiw3ne2p63je" path="res://scripts/environments/scene_transitioner.gd" id="1_hge4w"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_st7kl"]
 
 [node name="SceneTransitioner" type="Area3D"]
+script = ExtResource("1_hge4w")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_st7kl")

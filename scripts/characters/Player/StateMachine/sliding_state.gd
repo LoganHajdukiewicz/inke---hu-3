@@ -1,40 +1,49 @@
 extends State
 class_name SlidingState
 
-const BASE_SLIDE_SPEED: float = 8.0
-const SLIDE_FRICTION: float = 0.5  # How quickly sliding slows down
-const MIN_SLIDE_SPEED: float = 0.0  # Minimum speed before stopping slide
+const BASE_SLIDE_SPEED: float = 10.0
+const SLIDE_FRICTION: float = 2.0  # How quickly sliding slows down
+const MIN_SLIDE_SPEED: float = 0.5  # Minimum speed before stopping slide
 const ROTATION_SPEED: float = 5.0  # Slower rotation while sliding
 const SLIDE_CONTROL_STRENGTH: float = 0.3  # How much control player has while sliding
+const MIN_ENTRY_SPEED: float = 1.0  # Minimum speed needed to start sliding
 
 var slide_velocity: Vector3 = Vector3.ZERO
 var slide_direction: Vector3 = Vector3.ZERO
-var initial_slide_speed: float = 20.0
+var initial_slide_speed: float = 10.0
 
 func enter():
 	print("Entered Sliding State")
 	
+	# Get the player's current horizontal velocity
+	var current_horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
+	var current_speed = current_horizontal_velocity.length()
+	
 	# Get the player's current movement for initial slide direction
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
-	if input_dir.length() > 0.1:
+	# Determine initial slide direction and speed
+	if current_speed > MIN_ENTRY_SPEED:
+		# Use current velocity if player is already moving
+		slide_direction = current_horizontal_velocity.normalized()
+		initial_slide_speed = current_speed
+		print("Using current velocity - Speed: ", current_speed)
+	elif input_dir.length() > 0.1:
 		# Use input direction if player is actively moving
 		var camera_basis = player.get_node("CameraController").transform.basis
 		slide_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 		initial_slide_speed = BASE_SLIDE_SPEED
+		print("Using input direction - Speed: ", initial_slide_speed)
 	else:
-		# Use current velocity direction if no input
-		var current_horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
-		if current_horizontal_velocity.length() > 0.1:
-			slide_direction = current_horizontal_velocity.normalized()
-			initial_slide_speed = max(current_horizontal_velocity.length(), BASE_SLIDE_SPEED * 0.5)
-		else:
-			# Default forward direction if no movement
-			slide_direction = -player.transform.basis.z
-			initial_slide_speed = BASE_SLIDE_SPEED * 0.3
+		# Player is not moving - exit sliding immediately
+		print("Not moving, exiting slide immediately")
+		call_deferred("change_to", "IdleState")
+		return
 	
 	# Set initial slide velocity
 	slide_velocity = slide_direction * initial_slide_speed
+	
+	print("Sliding! Direction: ", slide_direction, " Initial Speed: ", initial_slide_speed, " Slide Velocity: ", slide_velocity)
 
 func physics_update(delta: float):
 	# Handle gravity
@@ -43,23 +52,13 @@ func physics_update(delta: float):
 		change_to("FallingState")
 		return
 	
-	# Check if we're still on a frozen floor
-	if not _is_on_frozen_floor():
-		# Not on frozen floor anymore, transition to appropriate state
-		var input_dir = Input.get_vector("left", "right", "forward", "back")
-		if input_dir.length() > 0.1:
-			if Input.is_action_pressed("run"):
-				change_to("RunningState")
-			else:
-				change_to("WalkingState")
-		else:
-			change_to("IdleState")
-		return
-	
 	# Check for jump (can still jump while sliding)
 	if Input.is_action_just_pressed("jump"):
 		change_to("JumpingState")
 		return
+	
+	# Check if we're still on a frozen floor
+	var on_frozen = _is_on_frozen_floor()
 	
 	# Get player input for limited control while sliding
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
@@ -76,10 +75,12 @@ func physics_update(delta: float):
 	var current_speed = slide_velocity.length()
 	current_speed = max(current_speed - SLIDE_FRICTION * delta, 0.0)
 	
-	# Stop sliding if speed gets too low
-	if current_speed < MIN_SLIDE_SPEED:
-		var input_dir_check = Input.get_vector("left", "right", "forward", "back")
-		if input_dir_check.length() > 0.1:
+	print("Current speed: ", current_speed, " On frozen: ", on_frozen)
+	
+	# Stop sliding if speed gets too low AND we're not on frozen floor
+	if current_speed < MIN_SLIDE_SPEED and not on_frozen:
+		var stop_input_dir = Input.get_vector("left", "right", "forward", "back")
+		if stop_input_dir.length() > 0.1:
 			if Input.is_action_pressed("run"):
 				change_to("RunningState")
 			else:
@@ -87,6 +88,18 @@ func physics_update(delta: float):
 		else:
 			change_to("IdleState")
 		return
+	
+	# If we're not on frozen floor anymore but still have speed, transition to appropriate state
+	if not on_frozen and current_speed > MIN_SLIDE_SPEED:
+		var exit_input_dir = Input.get_vector("left", "right", "forward", "back")
+		if exit_input_dir.length() > 0.1:
+			if Input.is_action_pressed("run"):
+				change_to("RunningState")
+			else:
+				change_to("WalkingState")
+		else:
+			# Keep sliding with momentum even off ice
+			pass
 	
 	# Update slide velocity
 	slide_velocity = slide_direction * current_speed
@@ -96,7 +109,7 @@ func physics_update(delta: float):
 		var target_rotation = atan2(-slide_direction.x, -slide_direction.z)
 		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
 	
-	# Apply slide movement
+	# Apply slide movement to player velocity
 	player.velocity.x = slide_velocity.x
 	player.velocity.z = slide_velocity.z
 	
@@ -126,3 +139,4 @@ func get_speed() -> float:
 func exit():
 	# Clear slide velocity when exiting
 	slide_velocity = Vector3.ZERO
+	print("Exited Sliding State")
