@@ -4,15 +4,14 @@ class_name WallJumpingState
 @export var wall_jump_velocity: float = 5.0
 @export var wall_jump_upward_boost: float = 2.0
 
+@export_category("Momentum Lock Variables")
+@export var momentum_lock_duration: float = 0.35  # Lock full control for this long
+@export var momentum_fade_duration: float = 0.15  # Gradually give back control over this time
+@export var total_lock_time: float = 0.5  # Total time before full control returns
+
 var wall_jump_horizontal_force: float = 12.0
 var wall_direction: Vector3 = Vector3.ZERO
 var wall_jump_timer: float = 0.0
-
-# === NEW: Momentum Lock System ===
-# This is the key fix - it prevents player input from canceling wall jump momentum
-var momentum_lock_duration: float = 0.25  # Lock full control for this long
-var momentum_fade_duration: float = 0.15  # Gradually give back control over this time
-var total_lock_time: float = 0.4  # Total time before full control returns
 
 func enter():
 	print("Entered Wall Jump State")
@@ -106,7 +105,7 @@ func handle_wall_jump_movement(delta: float):
 	This function implements the momentum lock system that fixes the wall jump issue.
 	
 	WHY THIS WORKS:
-	- During momentum_lock_duration (0.25s), player input is completely ignored
+	- During momentum_lock_duration (0.35s), player input is completely ignored
 	- During momentum_fade_duration (0.15s), control gradually returns
 	- After total_lock_time (0.4s), player has full control
 	
