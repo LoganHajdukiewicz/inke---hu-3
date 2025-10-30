@@ -29,6 +29,9 @@ var target_gear: Node = null
 var collection_timer: float = 0.0
 var collection_timeout: float = 5.0  # Give up after 5 seconds
 
+# Track player's previous position for detecting platform movement
+var player_previous_position: Vector3 = Vector3.ZERO
+var player_actual_velocity: Vector3 = Vector3.ZERO
 
 func _ready():
 	# Find the player in the scene
@@ -40,13 +43,12 @@ func _ready():
 		area_3d.body_exited.connect(_on_gear_exited)
 		area_3d.area_entered.connect(_on_gear_area_entered)
 		area_3d.area_exited.connect(_on_gear_area_exited)
-	
-
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		player = players[0]
+		player_previous_position = player.global_position
 	else:
 		print("HU-3: No player found in scene!")
 
@@ -54,6 +56,11 @@ func _physics_process(delta: float):
 	if not player:
 		find_player()
 		return
+	
+	# Calculate player's actual velocity (including platform movement)
+	if delta > 0:
+		player_actual_velocity = (player.global_position - player_previous_position) / delta
+		player_previous_position = player.global_position
 	
 	# Update hover animation
 	hover_time += delta
@@ -82,16 +89,23 @@ func get_dynamic_follow_speed(distance_to_target: float) -> float:
 	"""Calculate HU-3's speed based on player's current speed and distance"""
 	var player_speed = base_follow_speed
 	
-	# Get player's current speed from their state machine
-	if player and player.has_method("get_player_speed"):
-		player_speed = player.get_player_speed()
+	# Use actual velocity instead of state machine speed
+	var player_horizontal_speed = Vector2(player_actual_velocity.x, player_actual_velocity.z).length()
+	
+	# If player is moving (either by input or platform), use that speed
+	if player_horizontal_speed > 0.5:
+		player_speed = player_horizontal_speed
+	else:
+		# Fallback to state machine speed if available
+		if player and player.has_method("get_player_speed"):
+			player_speed = player.get_player_speed()
 	
 	# Base speed is slightly faster than player to catch up
 	var target_speed = player_speed * follow_speed_multiplier
 	
 	# If we're too far behind, activate catchup mode
 	if distance_to_target > catchup_distance:
-		target_speed = player_speed * catchup_speed_multiplier
+		target_speed = max(player_speed * catchup_speed_multiplier, base_follow_speed * 2.0)
 	
 	# Cap the maximum speed
 	target_speed = min(target_speed, max_follow_speed)
@@ -200,7 +214,6 @@ func collect_gear(gear: Node):
 	else:
 		gear.queue_free()
 	
-		
 	# Reset collection state
 	reset_collection_state()
 
@@ -224,9 +237,6 @@ func _on_gear_area_entered(area: Area3D):
 func _on_gear_area_exited(area: Area3D):
 	if area.is_in_group("Gear"):
 		pass
-
-
-
 
 func get_gear_count() -> int:
 	return collected_gears.size()
