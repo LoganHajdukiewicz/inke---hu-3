@@ -24,4 +24,4 @@ func respawn_player(player):
 		if player.has_method("set_velocity"):
 			player.set_velocity(Vector3.ZERO)
 	else:
-		call_deferred("get_tree().reload_current_scene()")
+		get_tree().reload_current_scene()
