@@ -20,6 +20,13 @@ var was_on_floor: bool = false
 var wall_jump_cooldown: float = 0.0
 var wall_jump_cooldown_time: float = 0.0
 
+# Damage and death variables
+var is_invulnerable: bool = false
+var invulnerability_duration: float = 1.5
+var invulnerability_timer: float = 0.0
+var is_dead: bool = false
+var death_y_threshold: float = -50.0  # Fall death threshold
+
 # Component references (now managed by separate managers)
 var jump_shadow_manager: JumpShadowManager
 var gear_collection_manager: GearCollectionManager
@@ -30,6 +37,7 @@ var wall_jump_detector: WallJumpDetector
 @onready var player = self
 @onready var state_machine: StateMachine = $StateMachine
 @onready var game_manager = "/root/GameManager"
+@onready var checkpoint_manager = "/root/CheckpointManager"
 
 # Export for scene setup
 @export var wall_jump_rays: Node3D
@@ -42,11 +50,22 @@ func _ready():
 	game_manager = get_node("/root/GameManager")
 	if game_manager:
 		game_manager.register_player(self)
+		# Connect to health changed signal
+		if not game_manager.health_changed.is_connected(_on_health_changed):
+			game_manager.health_changed.connect(_on_health_changed)
 	else:
 		print("Player: GameManager not found!")
 	
+	# Get CheckpointManager reference
+	checkpoint_manager = get_node("/root/CheckpointManager")
+	if not checkpoint_manager:
+		print("Player: CheckpointManager not found!")
+	
 	# Initialize modular components
 	initialize_components()
+	
+	# Setup damage detection area
+	setup_damage_area()
 
 func initialize_components():
 	"""Initialize all modular component managers"""
@@ -70,7 +89,29 @@ func initialize_components():
 	wall_jump_detector.name = "WallJumpDetector"
 	add_child(wall_jump_detector)
 
+func setup_damage_area():
+	"""Setup Area3D for detecting damage sources"""
+	var damage_area = Area3D.new()
+	damage_area.name = "DamageDetectionArea"
+	add_child(damage_area)
+	
+	# Copy collision shape from player's main collision
+	var collision_shape = CollisionShape3D.new()
+	var capsule_shape = CapsuleShape3D.new()
+	capsule_shape.height = 1.5
+	capsule_shape.radius = 0.5
+	collision_shape.shape = capsule_shape
+	collision_shape.position = Vector3(0, 0.849, 0)
+	damage_area.add_child(collision_shape)
+	
+	# Connect signals
+	damage_area.body_entered.connect(_on_damage_body_entered)
+	damage_area.area_entered.connect(_on_damage_area_entered)
+
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		return
+	
 	$CameraController.handle_camera_input(delta)
 
 	var current_state_name = state_machine.current_state.get_script().get_global_name()
@@ -88,6 +129,8 @@ func _physics_process(delta: float) -> void:
 		basis = normalized_basis.slerp(upright_basis, delta * 10.0).orthonormalized()
 	
 	update_coyote_time(delta)
+	update_invulnerability(delta)
+	check_fall_death()
 	
 	# Sync wall jump cooldown from detector to player (for state compatibility)
 	if wall_jump_detector:
@@ -99,6 +142,20 @@ func _physics_process(delta: float) -> void:
 		can_double_jump = true
 	
 	$CameraController.follow_character(position, velocity)
+
+func update_invulnerability(delta: float):
+	"""Update invulnerability timer and visual feedback"""
+	if is_invulnerable:
+		invulnerability_timer -= delta
+		
+		
+		if invulnerability_timer <= 0:
+			is_invulnerable = false
+
+func check_fall_death():
+	"""Check if player has fallen below death threshold"""
+	if global_position.y < death_y_threshold:
+		die()
 
 func update_coyote_time(delta: float):
 	"""Update coyote time counter"""
@@ -154,16 +211,148 @@ func get_wall_jump_direction() -> Vector3:
 	"""Get the direction to wall jump (delegates to WallJumpDetector)"""
 	return wall_jump_detector.get_wall_jump_direction() if wall_jump_detector else Vector3.ZERO
 
+# === DAMAGE AND DEATH METHODS ===
+
+func take_damage(amount: int):
+	"""Player takes damage"""
+	if is_dead or is_invulnerable:
+		return
+	
+	print("Player taking ", amount, " damage!")
+	
+	if game_manager:
+		game_manager.damage_player(amount)
+	
+	# Apply knockback
+	apply_damage_knockback()
+	
+	# Start invulnerability
+	is_invulnerable = true
+	invulnerability_timer = invulnerability_duration
+	
+	# Check if dead
+	if game_manager and game_manager.get_player_health() <= 0:
+		die()
+
+func apply_damage_knockback():
+	"""Apply a small knockback when taking damage"""
+	velocity.y = 5.0
+	# Push away from damage source slightly
+	var knockback_direction = -global_transform.basis.z
+	velocity.x = knockback_direction.x * 3.0
+	velocity.z = knockback_direction.z * 3.0
+
+func die():
+	"""Handle player death"""
+	if is_dead:
+		return
+	
+	is_dead = true
+	print("Player died!")
+	
+	# Disable controls
+	set_physics_process(false)
+	
+	# Play death animation/effect
+	play_death_effect()
+	
+	# Wait a moment before respawning
+	await get_tree().create_timer(1.5).timeout
+	
+	respawn()
+
+func play_death_effect():
+	"""Visual/audio feedback for death"""
+	
+	# Spin and fall
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(self, "rotation:y", rotation.y + TAU * 2, 1.0)
+	tween.tween_property(self, "scale", Vector3(0.1, 0.1, 0.1), 1.0)
+
+func respawn():
+	"""Respawn the player at checkpoint or reload level"""
+	# Reset death state
+	is_dead = false
+	is_invulnerable = false
+	scale = Vector3.ONE
+	rotation = Vector3.ZERO
+	velocity = Vector3.ZERO
+	
+	# Check for checkpoint
+	if checkpoint_manager and checkpoint_manager.has_active_checkpoint():
+		# Respawn at checkpoint
+		global_position = checkpoint_manager.get_checkpoint_position()
+		rotation.y = checkpoint_manager.get_checkpoint_rotation().y
+		
+		# Restore health
+		if game_manager:
+			game_manager.set_player_health(game_manager.get_player_max_health())
+		
+		print("Respawning at checkpoint: ", global_position)
+		
+		# Re-enable controls
+		set_physics_process(true)
+		
+		# Brief invulnerability after respawn
+		is_invulnerable = true
+		invulnerability_timer = 2.0
+	else:
+		# No checkpoint - reload the level
+		print("No checkpoint found - reloading level")
+		reload_level()
+
+func reload_level():
+	"""Reload the current level"""
+	# Reset game state
+	if game_manager:
+		game_manager.set_player_health(game_manager.get_player_max_health())
+	
+	# Reload the current scene
+	get_tree().reload_current_scene()
+
+func _on_health_changed(new_health: int, max_health: int):
+	"""Called when health changes from GameManager"""
+	print("Health changed: ", new_health, "/", max_health)
+	
+	# You can add UI updates here or visual feedback
+
+func _on_damage_body_entered(body: Node3D):
+	"""Handle collision with damage-dealing bodies"""
+	if is_dead or is_invulnerable:
+		return
+	
+	# Check if it's an enemy
+	if body.is_in_group("Enemy"):
+		var enemy = body as Enemy
+		if enemy:
+			take_damage(enemy.damage_to_player)
+	
+	# Check for hazards
+	if body.is_in_group("Hazard") or body.is_in_group("KillPlane"):
+		die()
+
+func _on_damage_area_entered(area: Area3D):
+	"""Handle collision with damage-dealing areas"""
+	if is_dead or is_invulnerable:
+		return
+	
+	# Check for hazard areas
+	if area.is_in_group("Hazard") or area.is_in_group("KillPlane"):
+		die()
+	
+	# Check for damage zones
+	if area.is_in_group("DamageZone"):
+		var damage_amount = 1
+		if area.has_method("get_damage"):
+			damage_amount = area.get_damage()
+		take_damage(damage_amount)
+
 # === HEALTH METHODS ===
 
 func set_health(new_health: int):
 	"""Set player health (called by GameManager)"""
 	print("Player: Health set to ", new_health)
-
-func take_damage(amount: int):
-	"""Player takes damage"""
-	if game_manager:
-		game_manager.damage_player(amount)
 
 func heal(amount: int):
 	"""Player heals"""
