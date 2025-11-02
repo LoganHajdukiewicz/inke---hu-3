@@ -1,6 +1,35 @@
-[gd_scene load_steps=2 format=3 uid="uid://o2ukbrpnyo3t"]
+[gd_scene load_steps=6 format=3 uid="uid://o2ukbrpnyo3t"]
 
 [ext_resource type="Script" uid="uid://jf08t82wuvpo" path="res://scripts/characters/NPCs/Enemies/enemy.gd" id="1_6plnq"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6plnq"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6plnq"]
+material = SubResource("StandardMaterial3D_6plnq")
+height = 1.2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8g1lg"]
+height = 1.1782227
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8g1lg"]
+size = Vector3(1.0300293, 0.5908203, 1)
+
 [node name="Enemy" type="CharacterBody3D"]
 script = ExtResource("1_6plnq")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5802858, 0)
+mesh = SubResource("CapsuleMesh_6plnq")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6003761, 0)
+shape = SubResource("CapsuleShape3D_8g1lg")
+
+[node name="HeadHurtbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0018310547, 0.9872974, 0)
+shape = SubResource("BoxShape3D_8g1lg")
+
+[connection signal="body_entered" from="HeadHurtbox" to="." method="_on_head_hurtbox_body_entered"]
