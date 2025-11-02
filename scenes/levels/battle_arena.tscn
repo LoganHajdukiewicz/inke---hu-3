@@ -31,8 +31,9 @@ directional_shadow_max_distance = 1.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.026744068, 0.25, 0.0048885345)
 
 [node name="Enemy" parent="." instance=ExtResource("3_cel4s")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28729534, 0.26971424, -63.73593)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28729534, 0.26971424, -15.6779785)
 
 [node name="Floor" parent="." instance=ExtResource("3_kgi88")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19871187, 0, -30.68024)
-floor_size = Vector3(100, 0.5, 100)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19871187, 0, -8.254086)
+floor_shape = 1
+cylinder_radius = 20.0

@@ -11,7 +11,6 @@ func _ready() -> void:
 func _on_movement_demo_pressed() -> void:
 	get_tree().change_scene_to_packed(movement_level_scene)
 
-
 func _on_combat_demo_pressed() -> void:
 	get_tree().change_scene_to_packed(combat_level_scene)
 

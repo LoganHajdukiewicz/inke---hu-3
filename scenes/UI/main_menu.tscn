@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://b5wjfgnu0rrdt"]
+[gd_scene load_steps=4 format=3 uid="uid://b5wjfgnu0rrdt"]
 
 [ext_resource type="Script" uid="uid://1ig8y86te4l8" path="res://scripts/UI/main_menu.gd" id="1_qwnig"]
+[ext_resource type="PackedScene" uid="uid://cp3b1eyikepf0" path="res://scenes/levels/battle_arena.tscn" id="2_5jstl"]
 [ext_resource type="PackedScene" uid="uid://1xtg2gv8rted" path="res://test/movement_demo_7_24_2025.tscn" id="2_yonvy"]
 
 [node name="MainMenu" type="Control"]
@@ -13,6 +14,7 @@ offset_bottom = -1080.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_qwnig")
+combat_level_scene = ExtResource("2_5jstl")
 movement_level_scene = ExtResource("2_yonvy")
 
 [node name="ColorRect" type="ColorRect" parent="."]
