@@ -14,6 +14,10 @@ class_name Enemy
 # Physics
 var gravity: float = 9.8
 
+# Damage cooldown
+var damage_cooldown: float = 0.0
+var damage_cooldown_time: float = 0.5  # Brief cooldown after taking damage
+
 # State machine
 var state_machine: EnemyStateMachine
 var player: CharacterBody3D = null
@@ -39,8 +43,8 @@ func _ready():
 	state_machine.initialize_states()
 	
 	# Setup damage detection for when player jumps on head
-	if has_node("DetectionArea"):
-		$DetectionArea.body_entered.connect(_on_detection_area_entered)
+	if has_node("HeadHurtbox"):
+		$HeadHurtbox.body_entered.connect(_on_head_hurtbox_body_entered)
 
 func _physics_process(delta: float) -> void:
 	# Apply gravity
@@ -48,6 +52,10 @@ func _physics_process(delta: float) -> void:
 		velocity.y -= gravity * delta
 	else:
 		velocity.y = 0
+	
+	# Update damage cooldown
+	if damage_cooldown > 0:
+		damage_cooldown -= delta
 	
 	# Update state machine
 	if state_machine:
@@ -57,10 +65,19 @@ func _physics_process(delta: float) -> void:
 
 func take_damage(amount: int):
 	"""Reduce health and show hit feedback"""
+	# Ignore damage if still in cooldown
+	if damage_cooldown > 0:
+		return
+	
 	current_health -= amount
+	damage_cooldown = damage_cooldown_time
 	
 	# Visual feedback when hit
 	flash_color()
+	
+	# Transition to knockback state
+	if state_machine:
+		state_machine.change_state("aiknockbackstate")
 	
 	if current_health <= 0:
 		die()
@@ -81,12 +98,16 @@ func flash_color():
 		if is_instance_valid(self):
 			material.albedo_color = initial_color
 
-func _on_detection_area_entered(body: Node3D):
+func _on_head_hurtbox_body_entered(body: Node3D):
 	"""Handle player jumping on enemy head"""
 	if body.is_in_group("Player"):
+		# Check if player is moving downward OR if they're in jumping/falling states
 		var player_velocity_y = body.velocity.y
-		# If player is falling and on top of enemy, take damage
-		if player_velocity_y < 0 and body.global_position.y > global_position.y:
+		var is_falling_or_jumping = player_velocity_y < 0 or player_velocity_y == 0
+		var is_above_enemy = body.global_position.y > global_position.y
+		
+		# If player is above enemy and moving down (or stationary), take damage
+		if is_above_enemy and is_falling_or_jumping:
 			take_damage(1)
 			# Give player bounce feedback
 			body.velocity.y = 5.0
@@ -105,7 +126,6 @@ class EnemyState extends Node:
 	func exit():
 		pass
 	
-	@warning_ignore("unused_parameter")
 	func update(delta: float):
 		pass
 
@@ -194,15 +214,15 @@ class AIChaseState extends EnemyState:
 
 class AIKnockbackState extends EnemyState:
 	var knockback_velocity: Vector3 = Vector3.ZERO
-	var knockback_duration: float = 0.3
+	var knockback_duration: float = 0.15  # Much shorter knockback
 	var knockback_timer: float = 0.0
 	
 	func enter():
 		print("Enemy entering AI KNOCKBACK state")
 		knockback_timer = 0.0
-		# Enemy was just hit, so apply knockback
-		knockback_velocity = enemy.global_transform.basis.z * -5.0
-		knockback_velocity.y = 3.0
+		# Enemy was just hit, so apply knockback - straight up and back
+		knockback_velocity = enemy.global_transform.basis.z * -3.0  # Less horizontal force
+		knockback_velocity.y = 2.0  # Quick upward burst
 	
 	func update(delta: float):
 		knockback_timer += delta
@@ -212,7 +232,7 @@ class AIKnockbackState extends EnemyState:
 		enemy.velocity.z = knockback_velocity.z
 		enemy.velocity.y = knockback_velocity.y
 		
-		# Decay knockback over time
+		# Quick decay - knockback ends fast
 		var decay_factor = 1.0 - (knockback_timer / knockback_duration)
 		knockback_velocity *= decay_factor
 		
@@ -261,7 +281,3 @@ class EnemyStateMachine extends Node:
 		"""Update the current state"""
 		if current_state:
 			current_state.update(delta)
-
-
-func _on_head_hurtbox_body_entered(body: Node3D) -> void:
-	pass # Replace with function body.

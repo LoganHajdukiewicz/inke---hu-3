@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3 uid="uid://cp3b1eyikepf0"]
+
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_tmfui"]
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="3_cel4s"]
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="3_kgi88"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_cel4s"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_kgi88"]
+sky_material = SubResource("ProceduralSkyMaterial_cel4s")
+
+[sub_resource type="Environment" id="Environment_1ycer"]
+background_mode = 2
+sky = SubResource("Sky_kgi88")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="BattleArena" type="Node"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1ycer")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 1.0
+
+[node name="Inke" parent="." instance=ExtResource("2_tmfui")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.026744068, 0.25, 0.0048885345)
+
+[node name="Enemy" parent="." instance=ExtResource("3_cel4s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28729534, 0.26971424, -63.73593)
+
+[node name="Floor" parent="." instance=ExtResource("3_kgi88")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19871187, 0, -30.68024)
+floor_size = Vector3(100, 0.5, 100)
