@@ -174,7 +174,7 @@ class AIIdleState extends EnemyState:
 
 class AIChaseState extends EnemyState:
 	var chase_timeout: float = 0.0
-	var max_chase_time: float = 10.0  # Give up after 10 seconds
+	var max_chase_time: float = 4.0  # Give up after 4 seconds
 	
 	func enter():
 		print("Enemy entering AI CHASE state")
