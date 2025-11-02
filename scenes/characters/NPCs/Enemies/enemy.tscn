@@ -1,51 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://o2ukbrpnyo3t"]
+[gd_scene load_steps=2 format=3 uid="uid://o2ukbrpnyo3t"]
 
 [ext_resource type="Script" uid="uid://jf08t82wuvpo" path="res://scripts/characters/NPCs/Enemies/enemy.gd" id="1_6plnq"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tntya"]
-albedo_color = Color(1, 0, 0, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_6plnq"]
-resource_local_to_scene = true
-material = SubResource("StandardMaterial3D_tntya")
-
-[sub_resource type="SphereMesh" id="SphereMesh_tntya"]
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_8g1lg"]
-
-[sub_resource type="CylinderShape3D" id="CylinderShape3D_6plnq"]
-resource_local_to_scene = true
-height = 5.0
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_8g1lg"]
-size = Vector3(0.804688, 0.572266, 1)
-
 [node name="Enemy" type="CharacterBody3D"]
 script = ExtResource("1_6plnq")
-
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
-
-[node name="Body" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.03564, 0)
-mesh = SubResource("CapsuleMesh_6plnq")
-
-[node name="Face" type="MeshInstance3D" parent="Body"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38881, -0.118803)
-mesh = SubResource("SphereMesh_tntya")
-
-[node name="HurtBox" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.04499, 0)
-shape = SubResource("CapsuleShape3D_8g1lg")
-
-[node name="DetectionArea" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25423, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DetectionArea"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.210913, -2.56267)
-shape = SubResource("CylinderShape3D_6plnq")
-
-[node name="HitBox" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0292969, 1.13667, -0.85908)
-shape = SubResource("BoxShape3D_8g1lg")
-
-[node name="Health" type="Node" parent="."]
