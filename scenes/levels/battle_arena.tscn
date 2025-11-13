@@ -32,7 +32,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.026744068, -0.012593269, 0
 
 [node name="Enemy" parent="." instance=ExtResource("3_cel4s")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28729534, 0.16349429, -19.90986)
-bounce_feedback = 9
+slide_on_ceiling = false
 
 [node name="Floor" parent="." instance=ExtResource("3_kgi88")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19871187, 0, -8.254086)

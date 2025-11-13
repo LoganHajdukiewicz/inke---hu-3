@@ -11,6 +11,7 @@ class_name Enemy
 @export var wander_speed: float = 3.0
 @export var damage_to_player: int = 1
 @export var bounce_feedback: int = 9
+var can_chase := true
 
 # Physics
 var gravity: float = 9.8
@@ -61,10 +62,12 @@ func damage_player(player_body: Node3D):
 
 
 func _on_hit_box_body_entered(body: Node) -> void:
-	if body.is_in_group("Player"):
+	if body.is_in_group("Player") and can_chase:
+		can_chase = false
 		damage_player(body)
 		state_machine.change_state("aiidlestate")
 		await get_tree().create_timer(1.3).timeout
+		can_chase = true
 
 func _physics_process(delta: float) -> void:
 	# Apply gravity
@@ -170,8 +173,8 @@ class AIIdleState extends EnemyState:
 		current_direction = Vector3(cos(random_angle), 0, sin(random_angle)).normalized()
 	
 	func update(delta: float):
-		# Check if player is nearby - if so, switch to chase
-		if enemy.player and enemy.player.is_inside_tree():
+		# Check if player is nearby - if so, switch to chase (only if allowed)
+		if enemy.player and enemy.player.is_inside_tree() and enemy.can_chase:
 			var distance_to_player = enemy.global_position.distance_to(enemy.player.global_position)
 			if distance_to_player < enemy.detection_range:
 				enemy.state_machine.change_state("aichasestate")
