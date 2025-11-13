@@ -10,6 +10,7 @@ class_name Enemy
 @export var chase_speed: float = 8.0
 @export var wander_speed: float = 3.0
 @export var damage_to_player: int = 1
+@export var bounce_feedback: int = 9
 
 # Physics
 var gravity: float = 9.8
@@ -45,6 +46,25 @@ func _ready():
 	# Setup damage detection for when player jumps on head
 	if has_node("HeadHurtbox"):
 		$HeadHurtbox.body_entered.connect(_on_head_hurtbox_body_entered)
+
+func damage_player(player_body: Node3D):
+	"""Apply damage and knockback to the player"""
+	if not player_body.has_method("take_damage"):
+		return
+	
+	# Calculate knockback direction (away from enemy)
+	var knockback_direction = (player_body.global_position - global_position).normalized()
+	knockback_direction.y = 0  # Keep horizontal
+	
+	# Apply damage with knockback info
+	player_body.take_damage(damage_to_player, knockback_direction)
+
+
+func _on_hit_box_body_entered(body: Node) -> void:
+	if body.is_in_group("Player"):
+		damage_player(body)
+		state_machine.change_state("aiidlestate")
+		await get_tree().create_timer(1.3).timeout
 
 func _physics_process(delta: float) -> void:
 	# Apply gravity
@@ -110,7 +130,7 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 		if is_above_enemy and is_falling_or_jumping:
 			take_damage(1)
 			# Give player bounce feedback
-			body.velocity.y = 5.0
+			body.velocity.y = bounce_feedback
 
 
 # ============================================

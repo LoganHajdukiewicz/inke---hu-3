@@ -148,9 +148,14 @@ func update_invulnerability(delta: float):
 	if is_invulnerable:
 		invulnerability_timer -= delta
 		
+		# Visual feedback: flash the player
+		var flash_speed = 10.0
+		var is_visible = int(invulnerability_timer * flash_speed) % 2 == 0
+		visible = is_visible
 		
 		if invulnerability_timer <= 0:
 			is_invulnerable = false
+			visible = true  # Ensure player is visible when invulnerability ends
 
 func check_fall_death():
 	"""Check if player has fallen below death threshold"""
@@ -213,8 +218,8 @@ func get_wall_jump_direction() -> Vector3:
 
 # === DAMAGE AND DEATH METHODS ===
 
-func take_damage(amount: int):
-	"""Player takes damage"""
+func take_damage(amount: int, knockback_dir: Vector3 = Vector3.ZERO):
+	"""Player takes damage with optional knockback direction"""
 	if is_dead or is_invulnerable:
 		return
 	
@@ -223,8 +228,8 @@ func take_damage(amount: int):
 	if game_manager:
 		game_manager.damage_player(amount)
 	
-	# Apply knockback
-	apply_damage_knockback()
+	# Apply knockback with provided direction
+	apply_damage_knockback(knockback_dir)
 	
 	# Start invulnerability
 	is_invulnerable = true
@@ -234,13 +239,22 @@ func take_damage(amount: int):
 	if game_manager and game_manager.get_player_health() <= 0:
 		die()
 
-func apply_damage_knockback():
-	"""Apply a small knockback when taking damage"""
-	velocity.y = 5.0
-	# Push away from damage source slightly
-	var knockback_direction = -global_transform.basis.z
-	velocity.x = knockback_direction.x * 3.0
-	velocity.z = knockback_direction.z * 3.0
+func apply_damage_knockback(knockback_dir: Vector3 = Vector3.ZERO):
+	"""Apply knockback when taking damage"""
+	# Upward component
+	velocity.y = 8.0
+	
+	# Horizontal knockback
+	if knockback_dir.length() > 0:
+		# Use provided direction (away from enemy)
+		var horizontal_knockback = knockback_dir.normalized()
+		velocity.x = horizontal_knockback.x * 10.0
+		velocity.z = horizontal_knockback.z * 10.0
+	else:
+		# Fallback: push backward from player facing
+		var knockback_direction = -global_transform.basis.z
+		velocity.x = knockback_direction.x * 8.0
+		velocity.z = knockback_direction.z * 8.0
 
 func die():
 	"""Handle player death"""
@@ -248,6 +262,7 @@ func die():
 		return
 	
 	is_dead = true
+	visible = true  # Make sure player is visible during death animation
 	print("Player died!")
 	
 	# Disable controls
@@ -278,6 +293,7 @@ func respawn():
 	scale = Vector3.ONE
 	rotation = Vector3.ZERO
 	velocity = Vector3.ZERO
+	visible = true
 	
 	# Check for checkpoint
 	if checkpoint_manager and checkpoint_manager.has_active_checkpoint():
@@ -326,7 +342,10 @@ func _on_damage_body_entered(body: Node3D):
 	if body.is_in_group("Enemy"):
 		var enemy = body as Enemy
 		if enemy:
-			take_damage(enemy.damage_to_player)
+			# Calculate knockback direction away from enemy
+			var knockback_dir = (global_position - enemy.global_position).normalized()
+			knockback_dir.y = 0  # Keep horizontal
+			take_damage(enemy.damage_to_player, knockback_dir)
 	
 	# Check for hazards
 	if body.is_in_group("Hazard") or body.is_in_group("KillPlane"):

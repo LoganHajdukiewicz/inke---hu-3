@@ -27,10 +27,10 @@ color = Color(0, 0, 0, 1)
 
 [node name="Title" type="RichTextLabel" parent="."]
 layout_mode = 0
-offset_left = 8.0
-offset_right = 1921.0
+offset_left = 80.0
+offset_right = 1811.0
 offset_bottom = 342.0
-theme_override_font_sizes/normal_font_size = 250
+theme_override_font_sizes/normal_font_size = 230
 text = "INKE AND HU-3"
 fit_content = true
 
