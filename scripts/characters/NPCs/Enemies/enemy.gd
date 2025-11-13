@@ -44,9 +44,6 @@ func _ready():
 	add_child(state_machine)
 	state_machine.initialize_states()
 	
-	# Setup damage detection for when player jumps on head
-	if has_node("HeadHurtbox"):
-		$HeadHurtbox.body_entered.connect(_on_head_hurtbox_body_entered)
 
 func damage_player(player_body: Node3D):
 	"""Apply damage and knockback to the player"""
