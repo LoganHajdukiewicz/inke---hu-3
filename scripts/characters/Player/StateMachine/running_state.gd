@@ -1,7 +1,7 @@
 extends State
 class_name RunningState
 
-const SPEED : float = 15.0
+const SPEED : float = 25.0
 const ROTATION_SPEED : float = 12.0
 
 
