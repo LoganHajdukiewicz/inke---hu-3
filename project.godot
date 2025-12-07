@@ -87,6 +87,11 @@ version_control/autoload_on_startup=true
 
 enabled=PackedStringArray("res://addons/dialogic/plugin.cfg")
 
+[global_group]
+
+Enemy="This is a general group of characters that could hurt the player"
+Player=""
+
 [input]
 
 forward={

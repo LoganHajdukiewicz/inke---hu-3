@@ -18,7 +18,7 @@ size = Vector3(1.0300293, 0.56103516, 1)
 [sub_resource type="SphereShape3D" id="SphereShape3D_6plnq"]
 radius = 0.55
 
-[node name="Enemy" type="CharacterBody3D"]
+[node name="Enemy" type="CharacterBody3D" groups=["Enemy"]]
 script = ExtResource("1_6plnq")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
