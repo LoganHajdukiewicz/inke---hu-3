@@ -150,6 +150,7 @@ func update_invulnerability(delta: float):
 		
 		# Visual feedback: flash the player
 		var flash_speed = 10.0
+		@warning_ignore("shadowed_variable_base_class")
 		var is_visible = int(invulnerability_timer * flash_speed) % 2 == 0
 		visible = is_visible
 		
@@ -222,8 +223,6 @@ func take_damage(amount: int, knockback_dir: Vector3 = Vector3.ZERO):
 	"""Player takes damage with optional knockback direction"""
 	if is_dead or is_invulnerable:
 		return
-	
-	print("Player taking ", amount, " damage!")
 	
 	if game_manager:
 		game_manager.damage_player(amount)
