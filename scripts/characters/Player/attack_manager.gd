@@ -2,11 +2,21 @@ extends Node
 class_name AttackManager
 
 # Attack configuration
-@export var attack_damage: int = 1
-@export var attack_range: float = 5
-@export var attack_radius: float = 15
-@export var attack_cooldown: float = 0.5
-@export var knockback_force: float = 500.0
+@export_group("Light Attack")
+@export var light_attack_damage: int = 1
+@export var light_attack_range: float = 0.5
+@export var light_attack_radius: float = 10
+@export var light_attack_cooldown: float = 0.5
+@export var light_knockback_force: float = 20.0
+@export var light_knockback_upward: float = 3.0
+
+@export_group("Heavy Attack")
+@export var heavy_attack_damage: int = 1
+@export var heavy_attack_range: float = 0.5
+@export var heavy_attack_radius: float = 10
+@export var heavy_attack_cooldown: float = 1.0
+@export var heavy_knockback_force: float = 35.0
+@export var heavy_knockback_upward: float = 20000.0
 
 # Attack state
 var can_attack: bool = true
@@ -23,42 +33,34 @@ func _ready():
 	player = get_parent() as CharacterBody3D
 	state_machine = player.get_node("StateMachine") if player.has_node("StateMachine") else null
 	setup_attack_hitbox()
-	print("AttackManager: Ready! Press attack button to attack.")
+	print("AttackManager: Ready! Light attack: attack button, Heavy attack: heavy_attack button")
 
 func setup_attack_hitbox():
-	"""
-	Creates an Area3D hitbox in front of the player for detecting enemies.
-	
-	KEY FIX: The CollisionShape needs to be at (0,0,0) relative to the Area3D,
-	and we move the entire Area3D instead of just the shape!
-	"""
+	"""Creates an Area3D hitbox in front of the player for detecting enemies."""
 	attack_hitbox = Area3D.new()
 	attack_hitbox.name = "AttackHitbox"
 	
-	# Set collision layers so enemy HitBox can detect it
-	attack_hitbox.collision_layer = 1   # Exists on layer 1
-	attack_hitbox.collision_mask = 1    # Detect things on layer 1
-	attack_hitbox.monitoring = false     # Start disabled (we enable during attack)
-	attack_hitbox.monitorable = true    # Must be true so enemy can detect it!
+	# CRITICAL: Set collision layers properly
+	# Layer 1 = default layer where enemies exist
+	# We need to DETECT layer 1 (enemies) but not BE on layer 1 (to avoid self-collision)
+	attack_hitbox.collision_layer = 0    # Don't exist on any layer
+	attack_hitbox.collision_mask = 1     # Detect things on layer 1 (enemies)
+	attack_hitbox.monitoring = false     # Start disabled
+	attack_hitbox.monitorable = false    # We don't need to be detected
 	
 	player.add_child(attack_hitbox)
 	
 	# Create collision shape for the hitbox
 	var collision_shape = CollisionShape3D.new()
 	var sphere_shape = SphereShape3D.new()
-	sphere_shape.radius = attack_radius
+	sphere_shape.radius = light_attack_radius  # Start with light attack radius
 	collision_shape.shape = sphere_shape
-	
-	# CRITICAL FIX: CollisionShape position should be at origin (0,0,0)
-	# We'll move the entire Area3D instead during the attack
 	collision_shape.position = Vector3(0, 0, 0)
 	attack_hitbox.add_child(collision_shape)
 	
 	print("Attack hitbox setup complete!")
-	print("AttackHitbox collision_layer: ", attack_hitbox.collision_layer)
-	print("AttackHitbox collision_mask: ", attack_hitbox.collision_mask)
-	print("AttackHitbox monitoring: ", attack_hitbox.monitoring)
-	print("AttackHitbox monitorable: ", attack_hitbox.monitorable)
+	print("  collision_layer: ", attack_hitbox.collision_layer)
+	print("  collision_mask: ", attack_hitbox.collision_mask)
 
 func _physics_process(delta: float):
 	# Update attack cooldown timer
@@ -71,39 +73,62 @@ func _physics_process(delta: float):
 	check_attack_input()
 
 func check_attack_input():
-	"""
-	Checks if the player pressed the attack button and initiates attack.
-	"""
-	# Debug: Print when attack button is pressed
+	"""Checks if the player pressed attack buttons and initiates attack."""
+	# Debug: Check input state
 	if Input.is_action_just_pressed("attack"):
-		print("Attack button pressed! can_attack=", can_attack, " is_dead=", player.is_dead if player else "no player")
+		print("Attack button pressed!")
+		print("Shift held: ", Input.is_key_pressed(KEY_SHIFT))
+		print("Can attack: ", can_attack)
+		print("Is dead: ", player.is_dead if player else "no player")
 	
-	# Check if attack button is pressed and we can attack
-	if Input.is_action_just_pressed("attack") and can_attack and not player.is_dead:
-		perform_attack()
+	if Input.is_action_just_pressed("heavy_attack"):
+		print("Heavy attack button pressed!")
+	
+	if not can_attack or player.is_dead:
+		return
+	
+	# Heavy attack (higher priority) - Check both heavy_attack action and shift+attack
+	var heavy_pressed = Input.is_action_just_pressed("heavy_attack") or \
+						(Input.is_action_just_pressed("attack") and Input.is_key_pressed(KEY_SHIFT))
+	
+	if heavy_pressed:
+		perform_attack(true)  # true = heavy attack
+		print("=== HEAVY ATTACK TRIGGERED ===")
+	# Light attack - only if shift is NOT held
+	elif Input.is_action_just_pressed("attack") and not Input.is_key_pressed(KEY_SHIFT):
+		perform_attack(false)  # false = light attack
+		print("=== LIGHT ATTACK TRIGGERED ===")
 
-func perform_attack():
-	"""
-	Executes the attack - enables hitbox, checks for enemies, deals damage.
+func perform_attack(is_heavy: bool):
+	"""Executes the attack with specified parameters."""
+	print("=== PERFORMING ", "HEAVY" if is_heavy else "LIGHT", " ATTACK ===")
 	
-	TEACHING: Avoiding Multiple Hits on Same Enemy
-	- We track enemies we've already hit in this attack
-	- This prevents hitting the same enemy through different collision areas
-	- Each enemy only takes damage once per attack
-	"""
-	print("=== PERFORMING ATTACK ===")
+	# Get attack parameters based on type
+	var damage = heavy_attack_damage if is_heavy else light_attack_damage
+	var attack_range = heavy_attack_range if is_heavy else light_attack_range
+	var attack_radius = heavy_attack_radius if is_heavy else light_attack_radius
+	var cooldown = heavy_attack_cooldown if is_heavy else light_attack_cooldown
+	var knockback_horizontal = heavy_knockback_force if is_heavy else light_knockback_force
+	var knockback_vertical = heavy_knockback_upward if is_heavy else light_knockback_upward
+	
+	print("Attack params - Damage: ", damage, " Knockback H: ", knockback_horizontal, " V: ", knockback_vertical)
 	
 	# Start cooldown
 	can_attack = false
-	attack_timer = attack_cooldown
+	attack_timer = cooldown
 	is_attacking = true
 	
-	# Position hitbox in front of player's current facing direction
-	update_hitbox_position()
+	# Update hitbox size for this attack
+	var collision_shape = attack_hitbox.get_child(0) as CollisionShape3D
+	if collision_shape:
+		var sphere_shape = collision_shape.shape as SphereShape3D
+		sphere_shape.radius = attack_radius
+	
+	# Position hitbox in front of player
+	update_hitbox_position(attack_range)
 	
 	# Enable hitbox detection
 	attack_hitbox.monitoring = true
-	print("AttackHitbox enabled at position: ", attack_hitbox.global_position)
 	
 	# Wait one physics frame for Area3D to detect overlaps
 	await player.get_tree().physics_frame
@@ -112,31 +137,38 @@ func perform_attack():
 	var hit_bodies = attack_hitbox.get_overlapping_bodies()
 	var hit_areas = attack_hitbox.get_overlapping_areas()
 	
-	print("Hit bodies: ", hit_bodies.size())
-	print("Hit areas: ", hit_areas.size())
+	print("Hit bodies: ", hit_bodies.size(), " Hit areas: ", hit_areas.size())
 	
-	# Track which enemies we've already damaged to prevent multi-hits
+	# DEBUG: Print what we hit
+	for body in hit_bodies:
+		print("  Body: ", body.name, " Groups: ", body.get_groups(), " Is Enemy: ", body.is_in_group("Enemy"))
+	for area in hit_areas:
+		print("  Area: ", area.name, " Groups: ", area.get_groups())
+		if area.get_parent():
+			print("    Parent: ", area.get_parent().name, " Groups: ", area.get_parent().get_groups())
+	
+	# Track which enemies we've already damaged
 	var damaged_enemies: Array = []
 	
-	# Process body hits first (enemies themselves)
+	# Process body hits
 	for body in hit_bodies:
-		print("Checking body: ", body.name, " groups: ", body.get_groups())
+		print("Checking body: ", body.name, " is_in_group(Enemy): ", body.is_in_group("Enemy"))
 		if body.is_in_group("Enemy") and body not in damaged_enemies:
-			print("✓ Found enemy body!")
-			hit_enemy(body)
+			print("  -> Hitting enemy body!")
+			hit_enemy(body, damage, knockback_horizontal, knockback_vertical)
 			damaged_enemies.append(body)
 	
-	# Process area hits (enemy hitboxes)
+	# Process area hits
 	for area in hit_areas:
-		print("Checking area: ", area.name, " groups: ", area.get_groups())
-		
-		# Check if the area's parent is an enemy
-		if area.get_parent() and area.get_parent().is_in_group("Enemy"):
-			var enemy_parent = area.get_parent()
-			if enemy_parent not in damaged_enemies:
-				print("✓ Found enemy via parent area!")
-				hit_enemy(enemy_parent)
-				damaged_enemies.append(enemy_parent)
+		print("Checking area: ", area.name)
+		if area.get_parent():
+			print("  Parent: ", area.get_parent().name, " is_in_group(Enemy): ", area.get_parent().is_in_group("Enemy"))
+			if area.get_parent().is_in_group("Enemy"):
+				var enemy_parent = area.get_parent()
+				if enemy_parent not in damaged_enemies:
+					print("  -> Hitting enemy via area parent!")
+					hit_enemy(enemy_parent, damage, knockback_horizontal, knockback_vertical)
+					damaged_enemies.append(enemy_parent)
 	
 	print("Total enemies damaged: ", damaged_enemies.size())
 	
@@ -147,60 +179,49 @@ func perform_attack():
 	await player.get_tree().create_timer(0.2).timeout
 	is_attacking = false
 
-func update_hitbox_position():
-	"""
-	Updates the hitbox position to be in front of where the player is facing.
-	
-	CRITICAL FIX: Use player's rotation to position attack in front
-	- We need to account for where the player is FACING
-	- Simply using local Z doesn't work when player rotates
-	- We calculate forward direction from player's basis
-	"""
+func update_hitbox_position(attack_range: float):
+	"""Updates the hitbox position to be in front of where the player is facing."""
 	if not attack_hitbox:
 		return
 	
-	# Get player's forward direction (negative Z in their local space)
+	# Get player's forward direction
 	var forward_direction = -player.global_transform.basis.z.normalized()
 	
-	# Calculate position in front of player in world space
+	# Calculate position in front of player
 	var offset = forward_direction * attack_range
 	offset.y = 0.5  # Height offset
 	
-	# Set the hitbox position in local space
-	# Since it's a child, we convert world offset to local
+	# Set the hitbox position
 	attack_hitbox.position = offset
 	
-	print("Player rotation: ", player.rotation.y)
-	print("Forward direction: ", forward_direction)
-	print("AttackHitbox local pos: ", attack_hitbox.position)
-	print("AttackHitbox global pos: ", attack_hitbox.global_position)
-	print("Player global pos: ", player.global_position)
+	print("Hitbox positioned at: ", attack_hitbox.position)
+	print("Hitbox global position: ", attack_hitbox.global_position)
+	print("Player global position: ", player.global_position)
 
-func hit_enemy(enemy: Node):
-	"""
-	Deals damage and applies knockback to an enemy.
-	"""
+func hit_enemy(enemy: Node, damage: int, knockback_horizontal: float, knockback_vertical: float):
+	"""Deals damage and applies knockback to an enemy."""
 	if not enemy or not is_instance_valid(enemy):
 		return
 	
 	print("=== HIT ENEMY ===")
 	print("Enemy: ", enemy.name)
-	print("Enemy has take_damage: ", enemy.has_method("take_damage"))
+	print("Damage: ", damage)
+	print("Knockback H: ", knockback_horizontal, " V: ", knockback_vertical)
 	
 	# Calculate knockback direction (from player to enemy)
 	var knockback_direction = (enemy.global_position - player.global_position).normalized()
-	knockback_direction.y = 0  # Keep knockback horizontal
+	knockback_direction.y = 0  # Keep horizontal component only
 	
-	# Apply knockback force
-	var knockback_velocity = knockback_direction * knockback_force
+	# Create knockback velocity with both horizontal and vertical components
+	var knockback_velocity = knockback_direction * knockback_horizontal
+	knockback_velocity.y = knockback_vertical  # Add upward force
 	
-	print("Knockback direction: ", knockback_direction)
-	print("Knockback velocity: ", knockback_velocity)
+	print("Final knockback velocity: ", knockback_velocity)
 	
-	# Try to damage the enemy
+	# Apply damage with knockback
 	if enemy.has_method("take_damage"):
-		enemy.take_damage(attack_damage, knockback_velocity)
-		print("✓ Damage applied!")
+		enemy.take_damage(damage, knockback_velocity)
+		print("✓ Damage and knockback applied!")
 	else:
 		print("✗ Enemy doesn't have take_damage method!")
 

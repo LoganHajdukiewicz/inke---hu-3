@@ -30,7 +30,6 @@ var player: CharacterBody3D = null
 var initial_color: Color
 
 func _ready():
-	# Add enemy to the "Enemy" group so AttackManager can find it
 	add_to_group("Enemy")
 	print("Enemy added to 'Enemy' group")
 	
@@ -41,23 +40,12 @@ func _ready():
 	if mesh and mesh.material_override:
 		initial_color = mesh.material_override.albedo_color
 	
-	# CRITICAL FIX: Connect the area_entered signal for detecting attack hitboxes
 	if hit_box:
-		# Add HitBox to Enemy group as well (backup detection method)
 		hit_box.add_to_group("Enemy")
 		
-		# Connect area signal
 		if not hit_box.area_entered.is_connected(_on_hit_box_area_entered):
 			hit_box.area_entered.connect(_on_hit_box_area_entered)
 			print("Enemy HitBox area_entered signal connected!")
-		
-		# Print collision layer info for debugging
-		print("Enemy collision_layer: ", collision_layer)
-		print("Enemy collision_mask: ", collision_mask)
-		print("HitBox collision_layer: ", hit_box.collision_layer)
-		print("HitBox collision_mask: ", hit_box.collision_mask)
-		print("HitBox monitoring: ", hit_box.monitoring)
-		print("HitBox monitorable: ", hit_box.monitorable)
 	else:
 		print("ERROR: HitBox not found on enemy!")
 	
@@ -77,10 +65,7 @@ func damage_player(player_body: Node3D):
 	player_body.take_damage(damage_to_player, knockback_direction)
 
 func _on_hit_box_body_entered(body: Node) -> void:
-	"""
-	This detects when the PLAYER'S BODY enters the enemy's hitbox
-	Used for damaging the player when they touch the enemy
-	"""
+	"""This detects when the PLAYER'S BODY enters the enemy's hitbox"""
 	if body.is_in_group("Player") and can_chase:
 		can_chase = false
 		damage_player(body)
@@ -89,44 +74,26 @@ func _on_hit_box_body_entered(body: Node) -> void:
 		can_chase = true
 
 func _on_hit_box_area_entered(area: Area3D) -> void:
-	"""
-	NEW FUNCTION: This detects when an AREA3D enters the enemy's hitbox
-	This is crucial for detecting the AttackManager's attack hitbox!
-	"""
-	print("=== ENEMY HITBOX AREA ENTERED ===")
-	print("Area name: ", area.name)
-	print("Area parent: ", area.get_parent().name if area.get_parent() else "NO PARENT")
-	print("Area groups: ", area.get_groups())
-	
-	# Check if this is the player's attack hitbox
+	"""This detects when an AREA3D enters the enemy's hitbox"""
 	if area.name == "AttackHitbox":
-		print("✓ Detected AttackHitbox!")
-		
-		# Get the player (attack hitbox's grandparent)
 		var attack_manager = area.get_parent()
 		if attack_manager and attack_manager.name == "AttackManager":
-			print("✓ Found AttackManager")
 			var attacking_player = attack_manager.get_parent()
 			if attacking_player and attacking_player.is_in_group("Player"):
-				print("✓ Found Player - APPLYING DAMAGE!")
-				
-				# Calculate knockback direction (away from player)
+				# Calculate knockback direction
 				var knockback_direction = (global_position - attacking_player.global_position).normalized()
-				knockback_direction.y = 0.2
+				knockback_direction.y = 0.2  # Add slight upward component
 				
-				# Apply damage with knockback
-				var knockback_velocity = knockback_direction * 10.0
-				take_damage(1, knockback_velocity)
-			else:
-				print("✗ Could not find Player or Player not in group")
-		else:
-			print("✗ Could not find AttackManager")
+				# Note: The actual knockback is applied in AttackManager.hit_enemy()
+				# This is just a fallback in case the signal path is used
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
-		velocity.y = 0
+		# Only reset Y velocity if not in knockback state
+		if state_machine.current_state.get_script().get_global_name() != "AIKnockbackState":
+			velocity.y = 0
 	
 	if damage_cooldown > 0:
 		damage_cooldown -= delta
@@ -137,14 +104,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
-	"""
-	Reduce health and show hit feedback
-	Now accepts optional knockback parameter for attack-based damage
-	"""
+	"""Reduce health and apply knockback"""
 	print("=== TAKE_DAMAGE CALLED ===")
 	print("Damage amount: ", amount)
-	print("Knockback: ", knockback_velocity)
-	print("Current cooldown: ", damage_cooldown)
+	print("Knockback velocity: ", knockback_velocity)
 	
 	# Ignore damage if still in cooldown
 	if damage_cooldown > 0:
@@ -157,18 +120,15 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	current_health -= amount
 	damage_cooldown = damage_cooldown_time
 	
-	# Visual feedback when hit
+	# Visual feedback
 	flash_color()
 	
-	# Apply knockback if provided
-	if knockback_velocity.length() > 0:
-		velocity.x = knockback_velocity.x
-		velocity.z = knockback_velocity.z
-		velocity.y = knockback_velocity.y
-		print("Knockback applied: ", velocity)
-	
-	# Transition to knockback state
+	# Transition to knockback state with the velocity
 	if state_machine:
+		var knockback_state = state_machine.states.get("aiknockbackstate") as AIKnockbackState
+		if knockback_state:
+			# Pass the knockback velocity to the state
+			knockback_state.set_knockback(knockback_velocity)
 		state_machine.change_state("aiknockbackstate")
 	
 	# Check for death
@@ -292,32 +252,55 @@ class AIChaseState extends EnemyState:
 
 
 # ============================================
-# AI KNOCKBACK STATE
+# AI KNOCKBACK STATE - FIXED VERSION
 # ============================================
 
 class AIKnockbackState extends EnemyState:
 	var knockback_velocity: Vector3 = Vector3.ZERO
-	var knockback_duration: float = 0.15
+	var knockback_duration: float = 0.4  # Increased duration
 	var knockback_timer: float = 0.0
+	var gravity_during_knockback: float = 20.0  # Gravity while in knockback
+	
+	func set_knockback(new_knockback: Vector3):
+		"""Set the knockback velocity from external source"""
+		knockback_velocity = new_knockback
+		print("Knockback set to: ", knockback_velocity)
 	
 	func enter():
 		print("Enemy entering AI KNOCKBACK state")
+		print("Initial knockback velocity: ", knockback_velocity)
 		knockback_timer = 0.0
-		knockback_velocity = enemy.global_transform.basis.z * -3.0
-		knockback_velocity.y = 2.0
+		
+		# If no knockback was set externally, use default
+		if knockback_velocity.length() < 0.1:
+			knockback_velocity = enemy.global_transform.basis.z * -8.0
+			knockback_velocity.y = 3.0
+			print("Using default knockback: ", knockback_velocity)
+		
+		# Apply initial knockback immediately
+		enemy.velocity = knockback_velocity
 	
 	func update(delta: float):
 		knockback_timer += delta
 		
-		enemy.velocity.x = knockback_velocity.x
-		enemy.velocity.z = knockback_velocity.z
-		enemy.velocity.y = knockback_velocity.y
+		# Apply gravity during knockback
+		enemy.velocity.y -= gravity_during_knockback * delta
 		
-		var decay_factor = 1.0 - (knockback_timer / knockback_duration)
-		knockback_velocity *= decay_factor
+		# Gradually reduce horizontal knockback
+		var horizontal_decay = 0.92  # Keep most of the momentum
+		enemy.velocity.x *= horizontal_decay
+		enemy.velocity.z *= horizontal_decay
 		
-		if knockback_timer >= knockback_duration:
+		print("Knockback timer: ", knockback_timer, " Velocity: ", enemy.velocity)
+		
+		# End knockback state when duration is up AND we've landed
+		if knockback_timer >= knockback_duration and enemy.is_on_floor():
+			print("Knockback complete - returning to idle")
 			enemy.state_machine.change_state("aiidlestate")
+	
+	func exit():
+		# Reset knockback velocity for next time
+		knockback_velocity = Vector3.ZERO
 
 
 # ============================================
