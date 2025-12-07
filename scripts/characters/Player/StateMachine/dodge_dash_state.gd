@@ -6,15 +6,24 @@ class_name DodgeDashState
 @export var dash_duration: float = 0.3
 @export var dash_cooldown: float = 0.1
 @export var iframe_duration: float = 0.4  # Invincibility frames duration
+@export var max_dash_distance: float = 15.0  # Maximum distance the dash can cover
 
 # Internal state
 var dash_timer: float = 0.0
 var dash_direction: Vector3 = Vector3.ZERO
 var can_dash: bool = true
 var cooldown_timer: float = 0.0
+var dash_start_position: Vector3 = Vector3.ZERO
+var is_air_dash: bool = false
 
 func enter():
 	print("Entered Dodge Dash State")
+	
+	# Store whether this is an air dash
+	is_air_dash = not player.is_on_floor()
+	
+	# Store starting position for distance limit
+	dash_start_position = player.global_position
 	
 	# Get input direction for dash
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
@@ -30,7 +39,12 @@ func enter():
 	# Set dash velocity
 	player.velocity.x = dash_direction.x * dash_speed
 	player.velocity.z = dash_direction.z * dash_speed
-	player.velocity.y = 0  # Keep horizontal
+	
+	# For air dashes, preserve some vertical momentum but reduce it
+	if is_air_dash:
+		player.velocity.y = clamp(player.velocity.y * 0.3, -5.0, 5.0)
+	else:
+		player.velocity.y = 0  # Keep horizontal on ground
 	
 	# Rotate player to face dash direction
 	if dash_direction.length() > 0.1:
@@ -69,18 +83,27 @@ func physics_update(delta: float):
 		if cooldown_timer <= 0:
 			can_dash = true
 	
+	# Check if we've exceeded max dash distance
+	var distance_traveled = player.global_position.distance_to(dash_start_position)
+	if distance_traveled >= max_dash_distance:
+		exit_dash()
+		return
+	
 	# Maintain dash velocity with slight deceleration
 	var decel_factor = 1.0 - (dash_timer / dash_duration)
 	player.velocity.x = dash_direction.x * dash_speed * decel_factor
 	player.velocity.z = dash_direction.z * dash_speed * decel_factor
 	
-	
-	
-	# Apply light gravity (can dash in air)
-	if not player.is_on_floor():
-		player.velocity.y += player.get_gravity().y * delta * 0.3
+	# Apply gravity differently based on air/ground dash
+	if is_air_dash:
+		# Light gravity for air dash
+		player.velocity.y += player.get_gravity().y * delta * 0.5
 	else:
-		player.velocity.y = 0
+		# No gravity for ground dash
+		if not player.is_on_floor():
+			player.velocity.y += player.get_gravity().y * delta * 0.3
+		else:
+			player.velocity.y = 0
 	
 	# Check for dash end
 	if dash_timer >= dash_duration:
@@ -101,6 +124,11 @@ func exit_dash():
 	var momentum_factor = 0.6
 	player.velocity.x *= momentum_factor
 	player.velocity.z *= momentum_factor
+
+	# If we landed during an air dash, reset the dash availability
+	if is_air_dash and player.is_on_floor():
+		can_dash = true
+		cooldown_timer = 0.0
 
 	# Transition to correct state
 	if player.is_on_floor():
