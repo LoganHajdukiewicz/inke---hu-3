@@ -12,6 +12,7 @@ class_name Enemy
 @export var damage_to_player: int = 1
 @export var bounce_feedback: int = 9
 var can_chase := true
+var being_stomped := false  # NEW: Flag to prevent damage during stomp
 
 # Physics
 var gravity: float = 9.8
@@ -43,6 +44,11 @@ func _ready():
 	if hit_box:
 		hit_box.add_to_group("Enemy")
 		
+		# Connect body_entered signal
+		if not hit_box.body_entered.is_connected(_on_hit_box_body_entered):
+			hit_box.body_entered.connect(_on_hit_box_body_entered)
+			print("Enemy HitBox body_entered signal connected!")
+		
 		if not hit_box.area_entered.is_connected(_on_hit_box_area_entered):
 			hit_box.area_entered.connect(_on_hit_box_area_entered)
 			print("Enemy HitBox area_entered signal connected!")
@@ -66,11 +72,43 @@ func damage_player(player_body: Node3D):
 
 func _on_hit_box_body_entered(body: Node) -> void:
 	"""This detects when the PLAYER'S BODY enters the enemy's hitbox"""
-	if body.is_in_group("Player") and can_chase:
-		can_chase = false
-		damage_player(body)
-		state_machine.change_state("aiidlestate")
-		await get_tree().create_timer(1.3).timeout
+	if not body.is_in_group("Player"):
+		return
+	
+	# CRITICAL: Check if being stomped - if so, don't damage player
+	if being_stomped:
+		print("HitBox collision BLOCKED - Being stomped!")
+		return
+	
+	if not can_chase:
+		print("HitBox collision BLOCKED - Can't chase")
+		return
+	
+	# Check if player is above enemy and falling (head stomp scenario)
+	var player_y = body.global_position.y
+	var enemy_head_y = global_position.y + 0.8  # Approximate head height
+	var is_above_head = player_y > enemy_head_y
+	
+	var player_velocity_y = 0.0
+	if "velocity" in body:
+		player_velocity_y = body.velocity.y
+	var is_falling = player_velocity_y < 0
+	
+	print("HitBox collision - Player Y: ", player_y, " Enemy head Y: ", enemy_head_y, 
+		  " Above head: ", is_above_head, " Falling: ", is_falling)
+	
+	# If player is doing a head stomp, don't damage them here
+	if is_above_head and is_falling:
+		print("HEAD STOMP - Not damaging player")
+		return
+	
+	# Normal damage scenario
+	print("NORMAL COLLISION - Damaging player")
+	can_chase = false
+	damage_player(body)
+	state_machine.change_state("aiidlestate")
+	await get_tree().create_timer(1.3).timeout
+	if is_instance_valid(self):
 		can_chase = true
 
 func _on_hit_box_area_entered(area: Area3D) -> void:
@@ -170,15 +208,42 @@ func flash_color():
 
 func _on_head_hurtbox_body_entered(body: Node3D):
 	"""Handle player jumping on enemy head"""
-	if body.is_in_group("Player"):
-		var player_velocity_y = body.velocity.y
-		var is_falling_or_jumping = player_velocity_y < 0 or player_velocity_y == 0
-		var is_above_enemy = body.global_position.y > global_position.y
+	if not body.is_in_group("Player"):
+		return
+	
+	var player_velocity_y = body.velocity.y
+	var is_falling_or_jumping = player_velocity_y <= 0
+	var is_above_enemy = body.global_position.y > global_position.y
+	
+	print("HeadHurtbox hit - Player Y vel: ", player_velocity_y, " Above: ", is_above_enemy, 
+		  " Falling: ", is_falling_or_jumping)
+	
+	if is_above_enemy and is_falling_or_jumping:
+		print("=== HEAD STOMP DAMAGE ===")
 		
-		if is_above_enemy and is_falling_or_jumping:
-			print("=== HEAD STOMP DAMAGE ===")
-			take_damage(1)
-			body.velocity.y = bounce_feedback
+		# CRITICAL: Set flag to prevent HitBox from damaging player
+		being_stomped = true
+		
+		# Make player invulnerable briefly to prevent damage
+		if "is_invulnerable" in body and "invulnerability_timer" in body:
+			body.is_invulnerable = true
+			body.invulnerability_timer = 0.5
+		
+		# Give player bounce FIRST
+		body.velocity.y = bounce_feedback
+		
+		# Prevent enemy from damaging player
+		can_chase = false
+		
+		# Damage the enemy
+		take_damage(1)
+		
+		# Wait before re-enabling damage
+		await get_tree().create_timer(1.0).timeout
+		if is_instance_valid(self):
+			being_stomped = false
+			can_chase = true
+			print("Enemy can chase again")
 
 
 # ============================================
