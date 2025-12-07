@@ -3,7 +3,8 @@ extends CharacterBody3D
 @onready var player: CharacterBody3D = null
 @onready var area_3d: Area3D = $Area3D
 @onready var health_indicator: MeshInstance3D = $Mesh/HealthIndicator
-@onready var mouth: MeshInstance3D = $Mesh/MeshInstance3D3
+@onready var mouth: MeshInstance3D = $Mesh/Mouth
+
 
 # Following behavior
 var follow_distance: float = 2.0
@@ -297,7 +298,7 @@ render_mode unshaded;
 uniform vec4 line_color : source_color = vec4(0.254902, 1.0, 0.0, 1.0);
 uniform float wobble_speed = 3.0;
 uniform float wobble_amount = 0.05;
-uniform float line_thickness = 0.1;
+uniform float line_thickness = 0.01;
 
 void fragment() {
 	// Get UV coordinates
@@ -309,12 +310,17 @@ void fragment() {
 	// Calculate distance from center horizontal line with wobble
 	float dist = abs(uv.y - 0.5 - wobble);
 	
-	// Create the line with smooth edges
-	float line = smoothstep(line_thickness, line_thickness * 0.5, dist);
+	// Create a thin line with very smooth edges
+	float line = smoothstep(line_thickness, line_thickness * 0.3, dist);
+	
+	// Make the rest transparent
+	if (line < 0.1) {
+		discard;
+	}
 	
 	// Apply color
 	ALBEDO = line_color.rgb;
-	ALPHA = line * line_color.a;
+	ALPHA = line;
 }
 """
 	
