@@ -30,7 +30,7 @@ directional_shadow_max_distance = 1.0
 [node name="Inke" parent="." instance=ExtResource("2_tmfui")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.026744068, -0.012593269, 0.0048885345)
 
-[node name="Enemy" parent="." groups=["Enemy"] instance=ExtResource("3_cel4s")]
+[node name="Enemy" parent="." instance=ExtResource("3_cel4s")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5938902, 0.16349429, -29.356672)
 slide_on_ceiling = false
 max_health = 5

@@ -45,7 +45,7 @@ material = SubResource("StandardMaterial3D_st2em")
 size = Vector2(0.35, 0.7)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3653b"]
-albedo_color = Color(0, 0.943033, 0, 1)
+albedo_color = Color(0.0627451, 1, 0, 1)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_wdmd6"]
 material = SubResource("StandardMaterial3D_3653b")
@@ -72,7 +72,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.07261729)
 mesh = SubResource("SphereMesh_tdy7j")
 
 [node name="HealthIndicator" type="MeshInstance3D" parent="Mesh"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.174128, 0, 0.374805)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.174128, 0, 0.44913808)
 mesh = SubResource("SphereMesh_wb2kj")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Mesh"]

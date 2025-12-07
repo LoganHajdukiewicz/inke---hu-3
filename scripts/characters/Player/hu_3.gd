@@ -33,9 +33,22 @@ var collection_timeout: float = 5.0  # Give up after 5 seconds
 var player_previous_position: Vector3 = Vector3.ZERO
 var player_actual_velocity: Vector3 = Vector3.ZERO
 
+# Health indicator
+var game_manager
+
 func _ready():
 	# Find the player in the scene
 	find_player()
+	
+	# Get GameManager reference
+	game_manager = get_node("/root/GameManager")
+	
+	# Connect to GameManager's health_changed signal
+	if game_manager and game_manager.has_signal("health_changed"):
+		game_manager.health_changed.connect(_on_player_health_changed)
+	
+	# Initialize health indicator color
+	update_health_indicator()
 	
 	# Connect area signals for gear detection
 	if area_3d:
@@ -221,6 +234,46 @@ func reset_collection_state():
 	is_collecting_gear = false
 	target_gear = null
 	collection_timer = 0.0
+
+func update_health_indicator():
+	"""Update the health indicator color based on player's exact health value"""
+	if not health_indicator or not game_manager:
+		return
+	
+	var current_health = game_manager.get_player_health()
+	var new_color: Color
+	
+	# Determine color based on exact health value
+	match current_health:
+		4:
+			# Blue (full health with upgrade)
+			new_color = Color(0, 0.5, 1, 1)
+		3:
+			# Green (full base health)
+			new_color = Color(0.254902, 1, 0, 1)
+		2:
+			# Yellow (wounded)
+			new_color = Color(1, 1, 0, 1)
+		1:
+			# Red (critical)
+			new_color = Color(1, 0, 0, 1)
+		_:
+			# Default to red for 0 or other values
+			new_color = Color(1, 0, 0, 1)
+	
+	# Update the health indicator material
+	var material = health_indicator.get_active_material(0)
+	if material is StandardMaterial3D:
+		material.albedo_color = new_color
+	else:
+		# Create new material if none exists
+		var new_material = StandardMaterial3D.new()
+		new_material.albedo_color = new_color
+		health_indicator.set_surface_override_material(0, new_material)
+
+func _on_player_health_changed(_new_health: int, _max_health: int):
+	"""Called when player's health changes"""
+	update_health_indicator()
 	
 func _on_gear_entered(body: Node3D):
 	if body.is_in_group("Gear"):
