@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b4hgy8sq56iq2"]
+[gd_scene load_steps=18 format=3 uid="uid://b4hgy8sq56iq2"]
 
 [ext_resource type="Script" uid="uid://dosj0vw8n4p01" path="res://scripts/characters/Player/hu_3.gd" id="1_gpibh"]
 
@@ -45,13 +45,20 @@ material = SubResource("StandardMaterial3D_st2em")
 size = Vector2(0.35, 0.7)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3653b"]
-albedo_color = Color(0.0627451, 1, 0, 1)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_wdmd6"]
 material = SubResource("StandardMaterial3D_3653b")
 top_radius = 0.1
 bottom_radius = 0.01
 height = 0.01
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ks5tt"]
+albedo_color = Color(0.36078432, 0.36078432, 0.36078432, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_wdmd6"]
+material = SubResource("StandardMaterial3D_ks5tt")
+radius = 0.35
+height = 0.55
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_m8gco"]
 radius = 3.45128
@@ -102,6 +109,10 @@ mesh = SubResource("PlaneMesh_ks5tt")
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Mesh/MeshInstance3D2/MeshInstance3D"]
 transform = Transform3D(1, 0, -1.9106857e-15, 3.1974423e-14, 1, -3.1974423e-14, -1.9106857e-15, 0, 1, 0.023241729, 0.0019365549, -0.02053772)
 mesh = SubResource("CylinderMesh_wdmd6")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16649681, 0)
+mesh = SubResource("SphereMesh_wdmd6")
 
 [node name="Area3D" type="Area3D" parent="."]
 
