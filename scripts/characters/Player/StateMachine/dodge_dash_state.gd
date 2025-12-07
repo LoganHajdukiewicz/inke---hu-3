@@ -29,6 +29,11 @@ func enter():
 	# Store whether this is an air dash
 	is_air_dash = not player.is_on_floor()
 	
+	# If this is an air dash, consume the air dash ability
+	if is_air_dash:
+		player.has_air_dashed = true
+		print("Air dash used - has_air_dashed set to true")
+	
 	# Store starting position for distance limit
 	dash_start_position = player.global_position
 	
@@ -136,6 +141,7 @@ func exit_dash():
 	print("=== EXIT DASH ===")
 	print("Can dash before exit: ", can_dash)
 	print("Cooldown remaining: ", cooldown_timer)
+	print("Was air dash: ", is_air_dash)
 	
 	# Preserve some momentum
 	var momentum_factor = 0.6
@@ -155,6 +161,7 @@ func exit_dash():
 	elif is_air_dash and player.is_on_floor():
 		can_dash = true
 		cooldown_timer = 0.0
+		# Note: has_air_dashed is reset in inke.gd when landing
 		print("Air dash landed - dash enabled immediately")
 	else:
 		# Cooldown still running - it will enable dash when timer reaches 0
@@ -186,7 +193,12 @@ func exit():
 	# Note: invulnerability timer will naturally expire via player's update_invulnerability()
 
 func can_perform_dash() -> bool:
-	"""Check if dash is off cooldown"""
-	var result = can_dash
-	print("can_perform_dash() called - returning: ", result)
+	"""Check if dash is off cooldown AND air dash is available if in air"""
+	# If on ground, just check cooldown
+	if player.is_on_floor():
+		return can_dash
+	
+	# If in air, check both cooldown AND if we haven't used air dash yet
+	var result = can_dash and not player.has_air_dashed
+	print("can_perform_dash() - In air: can_dash=", can_dash, " has_air_dashed=", player.has_air_dashed, " result=", result)
 	return result
