@@ -88,11 +88,16 @@ func _on_hit_box_area_entered(area: Area3D) -> void:
 				# This is just a fallback in case the signal path is used
 
 func _physics_process(delta: float) -> void:
+	# Get current state name for debugging
+	var current_state_name = ""
+	if state_machine and state_machine.current_state:
+		current_state_name = state_machine.current_state.get_script().get_global_name()
+	
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	else:
 		# Only reset Y velocity if not in knockback state
-		if state_machine.current_state.get_script().get_global_name() != "AIKnockbackState":
+		if current_state_name != "AIKnockbackState":
 			velocity.y = 0
 	
 	if damage_cooldown > 0:
@@ -101,6 +106,10 @@ func _physics_process(delta: float) -> void:
 	if state_machine:
 		state_machine.update(delta)
 	
+	# Debug knockback
+	if current_state_name == "AIKnockbackState":
+		print("Enemy in knockback - velocity: ", velocity, " on_floor: ", is_on_floor())
+	
 	move_and_slide()
 
 func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
@@ -108,6 +117,7 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	print("=== TAKE_DAMAGE CALLED ===")
 	print("Damage amount: ", amount)
 	print("Knockback velocity: ", knockback_velocity)
+	print("Knockback Y component: ", knockback_velocity.y)
 	
 	# Ignore damage if still in cooldown
 	if damage_cooldown > 0:
@@ -123,13 +133,20 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	# Visual feedback
 	flash_color()
 	
-	# Transition to knockback state with the velocity
+	# CRITICAL: Set the knockback BEFORE changing state
 	if state_machine:
 		var knockback_state = state_machine.states.get("aiknockbackstate") as AIKnockbackState
 		if knockback_state:
-			# Pass the knockback velocity to the state
+			print("Setting knockback on state: ", knockback_velocity)
 			knockback_state.set_knockback(knockback_velocity)
+		else:
+			print("ERROR: Could not get knockback state!")
+		
+		print("Changing to knockback state...")
 		state_machine.change_state("aiknockbackstate")
+		
+		# Double-check the velocity was applied
+		print("Enemy velocity after state change: ", velocity)
 	
 	# Check for death
 	if current_health <= 0:
@@ -257,14 +274,17 @@ class AIChaseState extends EnemyState:
 
 class AIKnockbackState extends EnemyState:
 	var knockback_velocity: Vector3 = Vector3.ZERO
-	var knockback_duration: float = 0.4  # Increased duration
+	var knockback_duration: float = 0.8
 	var knockback_timer: float = 0.0
-	var gravity_during_knockback: float = 1  # Gravity while in knockback
+	var initial_upward_velocity: float = 0.0
+	var min_air_time: float = 0.1  # Minimum time before we check for landing
 	
 	func set_knockback(new_knockback: Vector3):
 		"""Set the knockback velocity from external source"""
 		knockback_velocity = new_knockback
+		initial_upward_velocity = new_knockback.y
 		print("Knockback set to: ", knockback_velocity)
+		print("Initial upward velocity: ", initial_upward_velocity)
 	
 	func enter():
 		print("Enemy entering AI KNOCKBACK state")
@@ -275,32 +295,46 @@ class AIKnockbackState extends EnemyState:
 		if knockback_velocity.length() < 0.1:
 			knockback_velocity = enemy.global_transform.basis.z * -8.0
 			knockback_velocity.y = 3.0
+			initial_upward_velocity = 3.0
 			print("Using default knockback: ", knockback_velocity)
 		
 		# Apply initial knockback immediately
 		enemy.velocity = knockback_velocity
+		print("Applied velocity to enemy: ", enemy.velocity)
 	
 	func update(delta: float):
 		knockback_timer += delta
 		
-		# Apply gravity during knockback
-		enemy.velocity.y -= gravity_during_knockback * delta
+		# Use normal gravity from the enemy (9.8)
+		enemy.velocity.y -= enemy.gravity * delta
 		
-		# Gradually reduce horizontal knockback
-		var horizontal_decay = 0.92  # Keep most of the momentum
+		# Gradually reduce horizontal knockback (air resistance)
+		var horizontal_decay = 0.98  # Very slight decay
 		enemy.velocity.x *= horizontal_decay
 		enemy.velocity.z *= horizontal_decay
 		
-		print("Knockback timer: ", knockback_timer, " Velocity: ", enemy.velocity)
+		# Only print every 10 frames to reduce spam
+		if int(knockback_timer * 60) % 10 == 0:
+			print("Knockback timer: ", snappedf(knockback_timer, 0.01), 
+				  " Y velocity: ", snappedf(enemy.velocity.y, 0.1),
+				  " On floor: ", enemy.is_on_floor())
 		
-		# End knockback state when duration is up AND we've landed
-		if knockback_timer >= knockback_duration and enemy.is_on_floor():
-			print("Knockback complete - returning to idle")
+		# CRITICAL FIX: Only check for landing AFTER min_air_time has passed
+		# This gives the enemy time to actually leave the ground
+		if knockback_timer >= min_air_time:
+			if enemy.is_on_floor() and enemy.velocity.y <= 0:
+				print("Knockback complete - landed on ground")
+				enemy.state_machine.change_state("aiidlestate")
+		
+		# Safety timeout
+		if knockback_timer >= knockback_duration * 2.0:
+			print("Knockback timeout - forcing end")
 			enemy.state_machine.change_state("aiidlestate")
 	
 	func exit():
 		# Reset knockback velocity for next time
 		knockback_velocity = Vector3.ZERO
+		initial_upward_velocity = 0.0
 
 
 # ============================================
