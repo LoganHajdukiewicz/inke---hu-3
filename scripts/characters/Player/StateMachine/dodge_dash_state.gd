@@ -74,6 +74,8 @@ func physics_update(delta: float):
 	player.velocity.x = dash_direction.x * dash_speed * decel_factor
 	player.velocity.z = dash_direction.z * dash_speed * decel_factor
 	
+	
+	
 	# Apply light gravity (can dash in air)
 	if not player.is_on_floor():
 		player.velocity.y += player.get_gravity().y * delta * 0.3
@@ -99,8 +101,8 @@ func exit_dash():
 	var momentum_factor = 0.6
 	player.velocity.x *= momentum_factor
 	player.velocity.z *= momentum_factor
-	
-	# Transition based on floor state and input
+
+	# Transition to correct state
 	if player.is_on_floor():
 		var input_dir = Input.get_vector("left", "right", "forward", "back")
 		if input_dir.length() > 0.1:
@@ -112,6 +114,7 @@ func exit_dash():
 			change_to("IdleState")
 	else:
 		change_to("FallingState")
+
 
 func exit():
 	# Reset scale
