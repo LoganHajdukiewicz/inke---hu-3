@@ -3,6 +3,7 @@ extends CharacterBody3D
 @onready var player: CharacterBody3D = null
 @onready var area_3d: Area3D = $Area3D
 @onready var health_indicator: MeshInstance3D = $Mesh/HealthIndicator
+@onready var mouth: MeshInstance3D = $Mesh/MeshInstance3D3
 
 # Following behavior
 var follow_distance: float = 2.0
@@ -49,6 +50,9 @@ func _ready():
 	
 	# Initialize health indicator color
 	update_health_indicator()
+	
+	# Setup mouth shader
+	setup_mouth_shader()
 	
 	# Connect area signals for gear detection
 	if area_3d:
@@ -274,6 +278,76 @@ func update_health_indicator():
 func _on_player_health_changed(_new_health: int, _max_health: int):
 	"""Called when player's health changes"""
 	update_health_indicator()
+	update_mouth_color()
+
+func setup_mouth_shader():
+	"""Setup wobbling line shader for HU-3's mouth"""
+	if not mouth:
+		return
+	
+	# Create shader material
+	var shader_material = ShaderMaterial.new()
+	var shader = Shader.new()
+	
+	# Wobbling line shader code
+	shader.code = """
+shader_type spatial;
+render_mode unshaded;
+
+uniform vec4 line_color : source_color = vec4(0.254902, 1.0, 0.0, 1.0);
+uniform float wobble_speed = 3.0;
+uniform float wobble_amount = 0.05;
+uniform float line_thickness = 0.1;
+
+void fragment() {
+	// Get UV coordinates
+	vec2 uv = UV;
+	
+	// Create wobbling effect based on time and UV.x
+	float wobble = sin(TIME * wobble_speed + uv.x * 10.0) * wobble_amount;
+	
+	// Calculate distance from center horizontal line with wobble
+	float dist = abs(uv.y - 0.5 - wobble);
+	
+	// Create the line with smooth edges
+	float line = smoothstep(line_thickness, line_thickness * 0.5, dist);
+	
+	// Apply color
+	ALBEDO = line_color.rgb;
+	ALPHA = line * line_color.a;
+}
+"""
+	
+	shader_material.shader = shader
+	mouth.material_override = shader_material
+	
+	# Set initial color
+	update_mouth_color()
+
+func update_mouth_color():
+	"""Update the mouth shader color based on player's health"""
+	if not mouth or not game_manager:
+		return
+	
+	var material = mouth.material_override
+	if material is ShaderMaterial:
+		var current_health = game_manager.get_player_health()
+		var new_color: Color
+		
+		# Same color logic as health indicator
+		match current_health:
+			4:
+				new_color = Color(0, 0.5, 1, 1)  # Blue
+			3:
+				new_color = Color(0.254902, 1, 0, 1)  # Green
+			2:
+				new_color = Color(1, 1, 0, 1)  # Yellow
+			1:
+				new_color = Color(1, 0, 0, 1)  # Red
+			_:
+				new_color = Color(1, 0, 0, 1)  # Default red
+		
+		material.set_shader_parameter("line_color", new_color)
 	
 func _on_gear_entered(body: Node3D):
 	if body.is_in_group("Gear"):
