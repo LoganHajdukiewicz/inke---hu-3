@@ -12,7 +12,7 @@ class_name Enemy
 @export var damage_to_player: int = 1
 @export var bounce_feedback: int = 9
 var can_chase := true
-var being_stomped := false  # NEW: Flag to prevent damage during stomp
+var being_stomped := false  
 
 # Physics
 var gravity: float = 9.8
@@ -75,7 +75,7 @@ func _on_hit_box_body_entered(body: Node) -> void:
 	if not body.is_in_group("Player"):
 		return
 	
-	# CRITICAL: Check if being stomped - if so, don't damage player
+	# CRITICAL: Check if being stomped - if so, don't damage player OR trigger invulnerability
 	if being_stomped:
 		print("HitBox collision BLOCKED - Being stomped!")
 		return
@@ -99,7 +99,7 @@ func _on_hit_box_body_entered(body: Node) -> void:
 	
 	# If player is doing a head stomp, don't damage them here
 	if is_above_head and is_falling:
-		print("HEAD STOMP - Not damaging player")
+		print("HEAD STOMP - Not damaging player, not triggering invulnerability")
 		return
 	
 	# Normal damage scenario
@@ -110,6 +110,7 @@ func _on_hit_box_body_entered(body: Node) -> void:
 	await get_tree().create_timer(1.3).timeout
 	if is_instance_valid(self):
 		can_chase = true
+		
 
 func _on_hit_box_area_entered(area: Area3D) -> void:
 	"""This detects when an AREA3D enters the enemy's hitbox"""
@@ -230,7 +231,8 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 			body.invulnerability_timer = 0.5
 		
 		# Give player bounce FIRST
-		body.velocity.y = bounce_feedback
+		if "velocity" in body:
+			body.velocity.y = bounce_feedback
 		
 		# Prevent enemy from damaging player
 		can_chase = false
@@ -244,7 +246,6 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 			being_stomped = false
 			can_chase = true
 			print("Enemy can chase again")
-
 
 # ============================================
 # BASE STATE CLASS
