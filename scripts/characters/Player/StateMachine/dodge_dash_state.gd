@@ -19,6 +19,13 @@ var is_air_dash: bool = false
 func enter():
 	print("Entered Dodge Dash State")
 	
+	# CRITICAL: If we're entering but cooldown isn't ready, exit immediately
+	if not can_dash:
+		print("ERROR: Entered dash state while cooldown active! Exiting immediately.")
+		# This should never happen, but if it does, transition back
+		exit_dash()
+		return
+	
 	# Store whether this is an air dash
 	is_air_dash = not player.is_on_floor()
 	
@@ -51,14 +58,17 @@ func enter():
 		var target_rotation = atan2(-dash_direction.x, -dash_direction.z)
 		player.rotation.y = target_rotation
 	
-	# Reset timers
+	# Reset timers - mark dash as used
 	dash_timer = 0.0
 	can_dash = false
 	cooldown_timer = dash_cooldown
 	
-	# Enable invincibility
-	player.is_invulnerable = true
-	player.invulnerability_timer = iframe_duration
+	# Enable invincibility without flash (for dashing)
+	if player.has_method("set_invulnerable_without_flash"):
+		player.set_invulnerable_without_flash(iframe_duration)
+	else:
+		player.is_invulnerable = true
+		player.invulnerability_timer = iframe_duration
 	
 	# Visual feedback - scale squash effect
 	start_dash_animation()
@@ -75,17 +85,25 @@ func start_dash_animation():
 	tween.tween_property(player, "scale", Vector3.ONE, 0.2)
 
 func physics_update(delta: float):
-	dash_timer += delta
-	
-	# Update cooldown
+	# Update cooldown FIRST before anything else
 	if not can_dash:
 		cooldown_timer -= delta
 		if cooldown_timer <= 0:
 			can_dash = true
+			print("Dash cooldown complete - can dash again")
 	
-	# Check if we've exceeded max dash distance
+	dash_timer += delta
+	
+	# Check if dash duration has completed FIRST (priority check)
+	if dash_timer >= dash_duration:
+		print("Dash duration complete")
+		exit_dash()
+		return
+	
+	# Check if we've exceeded max dash distance (secondary check)
 	var distance_traveled = player.global_position.distance_to(dash_start_position)
 	if distance_traveled >= max_dash_distance:
+		print("Max dash distance reached: ", distance_traveled)
 		exit_dash()
 		return
 	
@@ -105,11 +123,6 @@ func physics_update(delta: float):
 		else:
 			player.velocity.y = 0
 	
-	# Check for dash end
-	if dash_timer >= dash_duration:
-		exit_dash()
-		return
-	
 	# Allow canceling into jump
 	if Input.is_action_just_pressed("jump") and player.is_on_floor():
 		exit_dash()
@@ -120,15 +133,32 @@ func physics_update(delta: float):
 
 func exit_dash():
 	"""End the dash and transition to appropriate state"""
+	print("=== EXIT DASH ===")
+	print("Can dash before exit: ", can_dash)
+	print("Cooldown remaining: ", cooldown_timer)
+	
 	# Preserve some momentum
 	var momentum_factor = 0.6
 	player.velocity.x *= momentum_factor
 	player.velocity.z *= momentum_factor
 
-	# If we landed during an air dash, reset the dash availability
-	if is_air_dash and player.is_on_floor():
+	# CRITICAL FIX: Always ensure cooldown continues after exit
+	# The physics_update will handle making can_dash true when ready
+	# Don't override can_dash here - let the cooldown timer do its job
+	
+	# Only reset dash immediately if:
+	# 1. Cooldown is already complete, OR
+	# 2. We landed from an air dash
+	if cooldown_timer <= 0:
+		can_dash = true
+		print("Cooldown already complete - dash enabled")
+	elif is_air_dash and player.is_on_floor():
 		can_dash = true
 		cooldown_timer = 0.0
+		print("Air dash landed - dash enabled immediately")
+	else:
+		# Cooldown still running - it will enable dash when timer reaches 0
+		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
 
 	# Transition to correct state
 	if player.is_on_floor():
@@ -142,9 +172,14 @@ func exit_dash():
 			change_to("IdleState")
 	else:
 		change_to("FallingState")
+	
+	print("Can dash after exit: ", can_dash)
 
 
 func exit():
+	print("=== DASH STATE EXIT ===")
+	print("Final can_dash value: ", can_dash)
+	
 	# Reset scale
 	player.scale = Vector3.ONE
 	
@@ -152,4 +187,6 @@ func exit():
 
 func can_perform_dash() -> bool:
 	"""Check if dash is off cooldown"""
-	return can_dash
+	var result = can_dash
+	print("can_perform_dash() called - returning: ", result)
+	return result
