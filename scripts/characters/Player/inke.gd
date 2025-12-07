@@ -26,6 +26,7 @@ var invulnerability_duration: float = 1.5
 var invulnerability_timer: float = 0.0
 var is_dead: bool = false
 var death_y_threshold: float = -50.0  # Fall death threshold
+var should_flash: bool = false 
 
 # Component references (now managed by separate managers)
 var jump_shadow_manager: JumpShadowManager
@@ -93,7 +94,6 @@ func initialize_components():
 	var attack_manager = AttackManager.new()
 	attack_manager.name = "AttackManager"
 	add_child(attack_manager)
-	
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""
@@ -150,18 +150,20 @@ func _physics_process(delta: float) -> void:
 	$CameraController.follow_character(position, velocity)
 
 func update_invulnerability(delta: float):
-	"""Update invulnerability timer and visual feedback"""
+	"""Update invulnerability timer and CONDITIONAL visual feedback"""
 	if is_invulnerable:
 		invulnerability_timer -= delta
 		
-		# Visual feedback: flash the player
-		var flash_speed = 10.0
-		@warning_ignore("shadowed_variable_base_class")
-		var is_visible = int(invulnerability_timer * flash_speed) % 2 == 0
-		visible = is_visible
+		# Only flash if should_flash is true (when hurt, not when stomping)
+		if should_flash:
+			var flash_speed = 10.0
+			@warning_ignore("shadowed_variable_base_class")
+			var is_visible = int(invulnerability_timer * flash_speed) % 2 == 0
+			visible = is_visible
 		
 		if invulnerability_timer <= 0:
 			is_invulnerable = false
+			should_flash = false
 			visible = true  # Ensure player is visible when invulnerability ends
 
 func check_fall_death():
@@ -236,13 +238,21 @@ func take_damage(amount: int, knockback_dir: Vector3 = Vector3.ZERO):
 	# Apply knockback with provided direction
 	apply_damage_knockback(knockback_dir)
 	
-	# Start invulnerability
+	# Start invulnerability WITH flashing
 	is_invulnerable = true
+	should_flash = true  # Enable flashing when hurt
 	invulnerability_timer = invulnerability_duration
 	
 	# Check if dead
 	if game_manager and game_manager.get_player_health() <= 0:
 		die()
+
+func set_invulnerable_without_flash(duration: float):
+	"""Set invulnerability without visual flash (for head stomps)"""
+	is_invulnerable = true
+	should_flash = false  # No flashing for stomps
+	invulnerability_timer = duration
+	visible = true  # Stay visible
 
 func apply_damage_knockback(knockback_dir: Vector3 = Vector3.ZERO):
 	"""Apply knockback when taking damage"""
@@ -295,6 +305,7 @@ func respawn():
 	# Reset death state
 	is_dead = false
 	is_invulnerable = false
+	should_flash = false
 	scale = Vector3.ONE
 	rotation = Vector3.ZERO
 	velocity = Vector3.ZERO
@@ -316,8 +327,7 @@ func respawn():
 		set_physics_process(true)
 		
 		# Brief invulnerability after respawn
-		is_invulnerable = true
-		invulnerability_timer = 2.0
+		set_invulnerable_without_flash(2.0)
 	else:
 		# No checkpoint - reload the level
 		print("No checkpoint found - reloading level")

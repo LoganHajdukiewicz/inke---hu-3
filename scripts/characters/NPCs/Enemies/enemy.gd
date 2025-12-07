@@ -212,7 +212,7 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 	if not body.is_in_group("Player"):
 		return
 	
-	var player_velocity_y = body.velocity.y
+	var player_velocity_y = body.velocity.y if "velocity" in body else 0.0
 	var is_falling_or_jumping = player_velocity_y <= 0
 	var is_above_enemy = body.global_position.y > global_position.y
 	
@@ -225,12 +225,11 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 		# CRITICAL: Set flag to prevent HitBox from damaging player
 		being_stomped = true
 		
-		# Make player invulnerable briefly to prevent damage
-		if "is_invulnerable" in body and "invulnerability_timer" in body:
-			body.is_invulnerable = true
-			body.invulnerability_timer = 0.5
+		# Make player invulnerable WITHOUT flash (prevents damage from HitBox)
+		if body.has_method("set_invulnerable_without_flash"):
+			body.set_invulnerable_without_flash(0.5)
 		
-		# Give player bounce FIRST
+		# Give player bounce
 		if "velocity" in body:
 			body.velocity.y = bounce_feedback
 		
@@ -246,7 +245,6 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 			being_stomped = false
 			can_chase = true
 			print("Enemy can chase again")
-
 # ============================================
 # BASE STATE CLASS
 # ============================================
