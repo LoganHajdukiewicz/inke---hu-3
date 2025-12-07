@@ -88,6 +88,11 @@ func initialize_components():
 	wall_jump_detector = WallJumpDetector.new()
 	wall_jump_detector.name = "WallJumpDetector"
 	add_child(wall_jump_detector)
+	
+	# Attack system
+	var attack_manager = AttackManager.new()
+	attack_manager.name = "AttackManager"
+	add_child(attack_manager)
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""
