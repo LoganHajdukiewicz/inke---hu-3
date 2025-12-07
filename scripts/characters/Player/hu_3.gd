@@ -5,7 +5,6 @@ extends CharacterBody3D
 @onready var health_indicator: MeshInstance3D = $Mesh/HealthIndicator
 @onready var mouth: MeshInstance3D = $Mesh/Mouth
 
-
 # Following behavior
 var follow_distance: float = 2.0
 var base_follow_speed: float = 9.0  # Base speed when player is idle/walking
@@ -290,31 +289,50 @@ func setup_mouth_shader():
 	var shader_material = ShaderMaterial.new()
 	var shader = Shader.new()
 	
-	# Wobbling line shader code
+	# Oscilloscope line shader code
 	shader.code = """
 shader_type spatial;
 render_mode unshaded;
 
 uniform vec4 line_color : source_color = vec4(0.254902, 1.0, 0.0, 1.0);
-uniform float wobble_speed = 3.0;
-uniform float wobble_amount = 0.05;
+uniform float activity_speed = 5.0;
+uniform float activity_amount = 0.15;
 uniform float line_thickness = 0.01;
+uniform float wave_frequency = 200.0;
 
 void fragment() {
 	// Get UV coordinates
 	vec2 uv = UV;
 	
-	// Create wobbling effect based on time and UV.x
-	float wobble = sin(TIME * wobble_speed + uv.x * 10.0) * wobble_amount;
+	// Create multiple wave layers for oscilloscope effect
+	float wave1 = sin(TIME * activity_speed + uv.x * wave_frequency) * 1.0;
+	float wave2 = sin(TIME * activity_speed * 1.5 + uv.x * wave_frequency * 0.8) * 0.5;
+	float wave3 = sin(TIME * activity_speed * 0.7 + uv.x * wave_frequency * 1.3) * 0.3;
 	
-	// Calculate distance from center horizontal line with wobble
-	float dist = abs(uv.y - 0.5 - wobble);
+	// Combine waves for complex oscilloscope pattern
+	float combined_wave = wave1 + wave2 + wave3;
 	
-	// Create a thin line with very smooth edges
-	float line = smoothstep(line_thickness, line_thickness * 0.3, dist);
+	// Create steep envelope - stationary at edges, VERY intense in middle
+	float edge_distance = abs(uv.x - 0.5) * 2.0;
+	// Use higher power for more extreme middle intensity
+	float envelope = pow(1.0 - edge_distance, 5.0);
+	
+	// Apply envelope to waves for vertical middle movement
+	float activity = combined_wave * envelope * activity_amount;
+	
+	// Calculate distance from center line with oscilloscope activity
+	float center_line = 0.5 + activity;
+	float dist = abs(uv.y - center_line);
+	
+	// Create sharp line like oscilloscope trace
+	float line = 1.0 - smoothstep(0.0, line_thickness, dist);
+	
+	// Add bright glow for oscilloscope CRT effect
+	float glow = exp(-dist * 40.0) * 0.4;
+	line = clamp(line + glow, 0.0, 1.0);
 	
 	// Make the rest transparent
-	if (line < 0.1) {
+	if (line < 0.05) {
 		discard;
 	}
 	
