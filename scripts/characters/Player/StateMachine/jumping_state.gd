@@ -26,6 +26,12 @@ func enter():
 
 func physics_update(delta: float):
 	jump_time += delta
+
+
+	if Input.is_action_just_pressed("dash"):
+		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
+		if dodge_dash_state and dodge_dash_state.can_perform_dash():
+			change_to("DodgeDashState")
 	
 	# Jak and Daxter gravity curve - quick up, brief pause, quick down
 	if jump_time < peak_time:

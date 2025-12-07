@@ -11,6 +11,10 @@ func get_speed():
 	return SPEED
 
 func physics_update(delta: float):
+	if Input.is_action_just_pressed("dash"):
+		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
+		if dodge_dash_state and dodge_dash_state.can_perform_dash():
+			change_to("DodgeDashState")
 
 
 	# Handle gravity

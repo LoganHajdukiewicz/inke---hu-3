@@ -93,6 +93,7 @@ func initialize_components():
 	var attack_manager = AttackManager.new()
 	attack_manager.name = "AttackManager"
 	add_child(attack_manager)
+	
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""

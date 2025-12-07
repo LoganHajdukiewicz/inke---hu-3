@@ -12,6 +12,11 @@ func enter():
 func physics_update(delta: float):
 	fall_time += delta
 	
+	if Input.is_action_just_pressed("dash"):
+		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
+		if dodge_dash_state and dodge_dash_state.can_perform_dash():
+			change_to("DodgeDashState")
+	
 	# Falling - gets heavier over time
 	var gravity_multiplier = get_fall_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
