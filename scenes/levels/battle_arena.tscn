@@ -33,8 +33,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.026744068, -0.012593269, 0
 [node name="Enemy" parent="." instance=ExtResource("3_cel4s")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.987367, 0.16349429, -36.086)
 slide_on_ceiling = false
-max_health = 2
-current_health = 2
+max_health = 5
+current_health = 5
 
 [node name="Floor" parent="." instance=ExtResource("3_kgi88")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19871187, 0, -8.254086)

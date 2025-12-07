@@ -259,7 +259,7 @@ class AIKnockbackState extends EnemyState:
 	var knockback_velocity: Vector3 = Vector3.ZERO
 	var knockback_duration: float = 0.4  # Increased duration
 	var knockback_timer: float = 0.0
-	var gravity_during_knockback: float = 20.0  # Gravity while in knockback
+	var gravity_during_knockback: float = 1  # Gravity while in knockback
 	
 	func set_knockback(new_knockback: Vector3):
 		"""Set the knockback velocity from external source"""

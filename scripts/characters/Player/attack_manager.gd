@@ -4,19 +4,19 @@ class_name AttackManager
 # Attack configuration
 @export_group("Light Attack")
 @export var light_attack_damage: int = 1
-@export var light_attack_range: float = 0.5
+@export var light_attack_range: float = 0.1
 @export var light_attack_radius: float = 10
 @export var light_attack_cooldown: float = 0.5
 @export var light_knockback_force: float = 20.0
 @export var light_knockback_upward: float = 3.0
 
 @export_group("Heavy Attack")
-@export var heavy_attack_damage: int = 1
-@export var heavy_attack_range: float = 0.5
+@export var heavy_attack_damage: int = 3
+@export var heavy_attack_range: float = 0.1
 @export var heavy_attack_radius: float = 10
 @export var heavy_attack_cooldown: float = 1.0
 @export var heavy_knockback_force: float = 35.0
-@export var heavy_knockback_upward: float = 20000.0
+@export var heavy_knockback_upward: float = 20.0
 
 # Attack state
 var can_attack: bool = true
