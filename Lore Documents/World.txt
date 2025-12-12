@@ -1,6 +1,7 @@
 The world is divided into 5 separate areas. East, West, 
 North, South, and Center. You start in the East, a relatively 
 untouched area, mainly green with light levels of industrialization. 
+
 In the East is a lot of green, but areas to paint. It allows for a 
 decent tutorial area, giving the player a ton of space with some 
 enemies but mainly this is an exploration playground. The final boss 
@@ -9,7 +10,7 @@ he is satisfied with Inke's initial progress. He won't send Inke
 on a mission that kills them. 
 
 To the South is an abandoned theme park. The leader of this world is 
-Nero: The Clown King. A joker by nature, who focuses on fun. His world is 
+GWYN-PL41NE: The Clown King. A joker by nature, who focuses on fun. His world is 
 filled with grind rails of roller coasters, and abandoned stadiums. 
 The stadiums hold gladitorial fights to determine who is the best. 
 He is not willing to join until Inke can show him that this 

@@ -69,7 +69,7 @@ func stop_bobbing_animation():
 
 func _process(_delta):
 	if player_in_range and Input.is_action_just_pressed("interact"):
-		start_dialogic_timeline()
+		pass
 
 func _on_area_3d_body_entered(body):
 	if body.is_in_group("Player"):
@@ -89,14 +89,6 @@ func _on_area_3d_body_exited(body):
 		# Hide floating button and stop bobbing
 		floating_button.visible = false
 		stop_bobbing_animation()
-
-
-# Function to start Dialogic timeline
-func start_dialogic_timeline():
-	if dialogic_timeline != "":
-		Dialogic.start(dialogic_timeline)
-	else:
-		print("No Dialogic timeline set for this sign!")
 
 # Function to set Dialogic timeline dynamically
 func set_dialogic_timeline(timeline_name: String):
