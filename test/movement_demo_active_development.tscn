@@ -1,0 +1,922 @@
+[gd_scene load_steps=22 format=3 uid="uid://dqvjp1oslocn4"]
+
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_y1o73"]
+[ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="2_py3vs"]
+[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="3_3w4o3"]
+[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="4_uylq5"]
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="5_0t3uf"]
+[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="6_07svi"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="7_1d5ko"]
+[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="8_icac4"]
+[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/CRED/cred.tscn" id="9_gdr2d"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
+sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
+sky_horizon_color = Color(0.976471, 0.639216, 0.262745, 1)
+ground_bottom_color = Color(0.110067, 0.178332, 1, 1)
+ground_horizon_color = Color(0.618941, 0.639129, 0.727188, 1)
+energy_multiplier = 1.5
+
+[sub_resource type="Sky" id="Sky_n7jej"]
+sky_material = SubResource("ProceduralSkyMaterial_e5bud")
+
+[sub_resource type="Environment" id="Environment_16sj7"]
+background_mode = 2
+sky = SubResource("Sky_n7jej")
+tonemap_mode = 2
+glow_enabled = true
+fog_sky_affect = 0.5
+fog_height = 10.0
+fog_height_density = 0.01
+
+[sub_resource type="Curve3D" id="Curve3D_16sj7"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -1.51529, 1.97927, -121.556),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_bd3gf"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 2.70156, 1.77183, -86.2492),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_vfcgb"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.127291, 3.71466, -90.1075),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_gg4w3"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.127291, 3.71466, -90.1075),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_5db3f"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.127291, 3.71466, -90.1075),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_2et5m"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.127291, 3.71466, -90.1075),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_60c0s"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.127291, 3.71466, -90.1075),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_xom5s"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.127291, 3.71466, -90.1075),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[sub_resource type="Curve3D" id="Curve3D_5lhnb"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175965, -0.00133514, 0.403198, 0, 0, 0, 0, 0, 0, 0.278286, -39.1883, -32.9379),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
+
+[node name="Movement_Demo_Active_Development" type="Node3D"]
+
+[node name="Inke" parent="." groups=["player"] instance=ExtResource("1_y1o73")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.262058, 0.0950881, -0.11724)
+
+[node name="Environments" type="Node" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environments"]
+environment = SubResource("Environment_16sj7")
+
+[node name="ResetPlane" parent="Environments" instance=ExtResource("2_py3vs")]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environments"]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+light_color = Color(1, 1, 0.211765, 1)
+
+[node name="Tutorial" type="Node" parent="."]
+
+[node name="Checkpoints" type="Node" parent="Tutorial"]
+
+[node name="FallingFloor" parent="Tutorial/Checkpoints" instance=ExtResource("3_3w4o3")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0.0332706, 6.49618, -77.3157)
+checkpoint_id = "FallingFloor"
+
+[node name="RailGrind" parent="Tutorial/Checkpoints" instance=ExtResource("3_3w4o3")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0.125772, 6.49618, -224.417)
+checkpoint_id = "RailGrind"
+
+[node name="Rail" parent="Tutorial" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.221533, 5.91196, -229.235)
+curve = SubResource("Curve3D_16sj7")
+
+[node name="Floors" type="Node3D" parent="Tutorial"]
+
+[node name="Floor" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+spin_direction = 1
+
+[node name="WSAD" parent="Tutorial/Floors/Floor" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+dialogic_timeline = "WSAD-Sign"
+
+[node name="Floor2" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.3503)
+spin_direction = 1
+
+[node name="Moving Platform Ahead" parent="Tutorial/Floors/Floor2" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+dialogic_timeline = "Moving-Platform"
+
+[node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.6763)
+floor_type = 4
+spin_direction = 1
+movement_axis = Vector3(0, 0, -17.5)
+movement_duration = 1.5
+movement_delay = 2.0
+
+[node name="Floor4" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -55)
+spin_direction = 1
+
+[node name="Spring Platform" parent="Tutorial/Floors/Floor4" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
+dialogic_timeline = "Spring-Platform"
+
+[node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
+floor_type = 1
+spring_force = 25.0
+spin_direction = 1
+
+[node name="Floor6" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -79.3774)
+spin_direction = 1
+
+[node name="LOL XD" parent="Tutorial/Floors/Floor6" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "LOL-XD"
+
+[node name="Floor7" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -91.7888)
+spin_direction = 1
+
+[node name="Falling Platform Ahead" parent="Tutorial/Floors/Floor7" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Falling-Platform-Ahead"
+
+[node name="Floor8" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -103.809)
+floor_type = 2
+shake_intensity = 0.5
+spin_direction = 1
+
+[node name="Storytime" parent="Tutorial/Floors/Floor8" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Storytime"
+
+[node name="Floor9" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -115.935)
+spin_direction = 1
+
+[node name="Sorry" parent="Tutorial/Floors/Floor9" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Sorry"
+
+[node name="Floor10" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -128.132)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Fun Shapes" parent="Tutorial/Floors/Floor10" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Fun Shapes"
+
+[node name="Floor11" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -140.557)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor12" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -151.891)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor13" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.62099, 5.60629, -163.571)
+floor_type = 3
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor14" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.371768, 5.60629, -174.767)
+floor_type = 3
+floor_shape = 1
+spin_speed = 180.0
+spin_direction = 1
+
+[node name="Floor15" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.26157, 5.60629, -186.654)
+floor_type = 3
+floor_shape = 1
+spin_speed = 240.0
+
+[node name="Floor16" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.606, -197.833)
+floor_shape = 1
+spin_direction = 1
+
+[node name="Floor17" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -211.294)
+spin_direction = 1
+
+[node name="Acrobat" parent="Tutorial/Floors/Floor17" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Acrobat"
+
+[node name="Floor18" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -224.865)
+spin_direction = 1
+
+[node name="RailGrind" parent="Tutorial/Floors/Floor18" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Rail-Grind"
+
+[node name="Floor19" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -363.245)
+floor_size = Vector3(10, 0.5, 15)
+spin_direction = 1
+
+[node name="Congrats" parent="Tutorial/Floors/Floor19" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Congrats"
+
+[node name="Floor20" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -378.734)
+spin_direction = 1
+
+[node name="HU-3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "HU-3-Intro"
+
+[node name="Floor21" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -402.151)
+floor_size = Vector3(10, 0.5, 30)
+spin_direction = 1
+
+[node name="Gears" parent="Tutorial/Floors/Floor21" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, 11.0899)
+dialogic_timeline = "Gears"
+
+[node name="Gears2" type="Node3D" parent="Tutorial/Floors/Floor21"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.429099, 0)
+
+[node name="SixTeethGear" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -9.45291)
+
+[node name="SixTeethGear2" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.8761)
+
+[node name="SixTeethGear3" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -9.17377)
+
+[node name="SixTeethGear4" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.39716)
+
+[node name="SixTeethGear5" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.6377)
+
+[node name="SixTeethGear6" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -8.02658)
+
+[node name="SixTeethGear7" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -7.42941)
+
+[node name="SixTeethGear8" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -7.64578)
+
+[node name="SixTeethGear9" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.436239, 0.15, -7.64578)
+
+[node name="SixTeethGear10" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.227716, 0.15, -9.87582)
+
+[node name="SixTeethGear11" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.521104, 0.15, -9.37921)
+
+[node name="SixTeethGear12" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.369699, 0.15, -9.6355)
+
+[node name="SixTeethGear13" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.764711, 0.15, -8.96683)
+
+[node name="SixTeethGear14" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.642364, 0.15, -9.17395)
+
+[node name="SixTeethGear15" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -0.953199, 0.15, -8.6478)
+
+[node name="SixTeethGear16" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -1.25694, 0.15, -8.13364)
+
+[node name="SixTeethGear17" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -1.14689, 0.15, -8.31992)
+
+[node name="SixTeethGear18" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.860982, -0.508636, 2.22332e-08, 0, -4.37114e-08, -1, 0.508636, 0.860982, -3.76347e-08, -1.14689, 0.15, -8.31992)
+
+[node name="SixTeethGear19" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -1.07751, 0.182489, -9.98538)
+
+[node name="SixTeethGear20" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.920329, 0.165264, -8.7612)
+
+[node name="SixTeethGear21" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -1.00144, 0.174153, -9.71695)
+
+[node name="SixTeethGear22" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.789793, 0.150959, -8.97006)
+
+[node name="SixTeethGear23" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.217236, 0.158143, -8.59659)
+
+[node name="SixTeethGear24" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.688819, 0.139893, -8.61371)
+
+[node name="SixTeethGear25" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.52608, 0.122059, -8.0394)
+
+[node name="SixTeethGear26" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.585043, 0.12852, -8.2475)
+
+[node name="SixTeethGear27" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.955965, 0.272512, -0.108936, -0.104763, -0.0298643, -0.994049, -0.274144, 0.961689, -4.20368e-08, -0.585043, 0.12852, -8.2475)
+
+[node name="SixTeethGear28" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, 0.102921, 0.15, -8.46085)
+
+[node name="SixTeethGear29" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.383677, 0.15, -8.15112)
+
+[node name="SixTeethGear30" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.132564, 0.15, -8.31097)
+
+[node name="SixTeethGear31" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.787712, 0.15, -7.89395)
+
+[node name="SixTeethGear32" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -0.584793, 0.15, -8.0231)
+
+[node name="SixTeethGear33" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.10033, 0.15, -7.69495)
+
+[node name="SixTeethGear34" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.6041, 0.15, -7.3743)
+
+[node name="SixTeethGear35" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.42157, 0.15, -7.49048)
+
+[node name="SixTeethGear36" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.536976, -0.843598, 3.68748e-08, 0, -4.37114e-08, -1, 0.843598, 0.536976, -2.3472e-08, -1.42157, 0.15, -7.49048)
+
+[node name="SixTeethGear37" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, 0.571661, 0.15, -8.51205)
+
+[node name="SixTeethGear38" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.0048219, 0.15, -8.49289)
+
+[node name="SixTeethGear39" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, 0.292682, 0.15, -8.50278)
+
+[node name="SixTeethGear40" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.483519, 0.15, -8.47693)
+
+[node name="SixTeethGear41" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.243094, 0.15, -8.48495)
+
+[node name="SixTeethGear42" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -0.853866, 0.15, -8.46463)
+
+[node name="SixTeethGear43" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -1.45071, 0.15, -8.44479)
+
+[node name="SixTeethGear44" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -1.23447, 0.15, -8.45197)
+
+[node name="SixTeethGear45" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.0332423, -0.999447, 4.36872e-08, 0, -4.37114e-08, -1, 0.999447, 0.0332423, -1.45307e-09, -1.23447, 0.15, -8.45197)
+
+[node name="SixTeethGear46" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, 0.207765, 0.182489, -9.28775)
+
+[node name="SixTeethGear47" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.74055, 0.165264, -8.4978)
+
+[node name="SixTeethGear48" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, 0.0221649, 0.174153, -9.07944)
+
+[node name="SixTeethGear49" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.494259, 0.150959, -8.49985)
+
+[node name="SixTeethGear50" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.501872, 0.158143, -7.81628)
+
+[node name="SixTeethGear51" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.740657, 0.139893, -8.2233)
+
+[node name="SixTeethGear52" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -1.13776, 0.122059, -7.77762)
+
+[node name="SixTeethGear53" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.993867, 0.12852, -7.93912)
+
+[node name="SixTeethGear54" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.744597, -0.664946, -0.0584961, -0.104763, -0.0298643, -0.994049, 0.659242, 0.746294, -0.0918984, -0.993867, 0.12852, -7.93912)
+
+[node name="SixTeethGear55" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, 0.61998, 0.15, -8.47156)
+
+[node name="SixTeethGear56" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, 0.0814694, 0.15, -8.26483)
+
+[node name="SixTeethGear57" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, 0.359381, 0.15, -8.37152)
+
+[node name="SixTeethGear58" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -0.365652, 0.15, -8.09323)
+
+[node name="SixTeethGear59" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -0.141087, 0.15, -8.17944)
+
+[node name="SixTeethGear60" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -0.711617, 0.15, -7.96042)
+
+[node name="SixTeethGear61" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -1.26913, 0.15, -7.74643)
+
+[node name="SixTeethGear62" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -1.06713, 0.15, -7.82397)
+
+[node name="SixTeethGear63" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.358352, -0.933587, 4.08084e-08, 0, -4.37114e-08, -1, 0.933587, 0.358352, -1.56641e-08, -1.06713, 0.15, -7.82397)
+
+[node name="SixTeethGear64" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 1.08953, 0.15, -8.42844)
+
+[node name="SixTeethGear65" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.520764, 0.15, -8.52438)
+
+[node name="SixTeethGear66" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.814283, 0.15, -8.47485)
+
+[node name="SixTeethGear67" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.0484736, 0.15, -8.60403)
+
+[node name="SixTeethGear68" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, 0.28568, 0.15, -8.56403)
+
+[node name="SixTeethGear69" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.316915, 0.15, -8.66568)
+
+[node name="SixTeethGear70" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.905771, 0.15, -8.76498)
+
+[node name="SixTeethGear71" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.692436, 0.15, -8.72897)
+
+[node name="SixTeethGear72" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.166321, -0.986072, 4.31026e-08, 0, -4.37114e-08, -1, 0.986072, -0.166321, 7.27013e-09, -0.692436, 0.15, -8.72897)
+
+[node name="SixTeethGear73" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, 0.887287, 0.182489, -9.26105)
+
+[node name="SixTeethGear74" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.199273, 0.165264, -8.6756)
+
+[node name="SixTeethGear75" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, 0.663948, 0.174153, -9.09384)
+
+[node name="SixTeethGear76" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, 0.0424954, 0.150959, -8.62857)
+
+[node name="SixTeethGear77" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.100996, 0.158143, -7.96024)
+
+[node name="SixTeethGear78" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.253999, 0.139893, -8.40662)
+
+[node name="SixTeethGear79" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.731846, 0.122059, -8.04889)
+
+[node name="SixTeethGear80" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.558695, 0.12852, -8.17853)
+
+[node name="SixTeethGear81" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(0.598509, -0.800165, -0.0390375, -0.104763, -0.0298642, -0.994049, 0.794237, 0.599037, -0.101701, -0.558695, 0.12852, -8.17853)
+
+[node name="SixTeethGear82" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.11299, 0.15, -7.6127)
+
+[node name="SixTeethGear83" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.576519, 0.15, -7.95596)
+
+[node name="SixTeethGear84" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.337303, 0.15, -7.77881)
+
+[node name="SixTeethGear85" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.96139, 0.15, -8.24103)
+
+[node name="SixTeethGear86" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -0.768106, 0.15, -8.09787)
+
+[node name="SixTeethGear87" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.2592, 0.15, -8.46158)
+
+[node name="SixTeethGear88" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.73909, 0.15, -8.81699)
+
+[node name="SixTeethGear89" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.56522, 0.15, -8.6882)
+
+[node name="SixTeethGear90" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.595145, -0.803618, 3.51273e-08, 0, -4.37114e-08, -1, 0.803618, -0.595145, 2.60146e-08, -1.56522, 0.15, -8.6882)
+
+[node name="SixTeethGear91" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, 0.102789, 0.15, -7.19342)
+
+[node name="SixTeethGear92" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.121684, 0.15, -7.72476)
+
+[node name="SixTeethGear93" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.00584581, 0.15, -7.45056)
+
+[node name="SixTeethGear94" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.308136, 0.15, -8.16592)
+
+[node name="SixTeethGear95" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.214471, 0.15, -7.94437)
+
+[node name="SixTeethGear96" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.452331, 0.15, -8.50729)
+
+[node name="SixTeethGear97" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.684725, 0.15, -9.05737)
+
+[node name="SixTeethGear98" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.600544, 0.15, -8.85806)
+
+[node name="SixTeethGear99" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.921158, -0.389188, 1.7012e-08, 0, -4.37114e-08, -1, 0.389188, -0.921158, 4.02651e-08, -0.600544, 0.15, -8.85806)
+
+[node name="SixTeethGear100" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, 0.696569, 0.182489, -7.81113)
+
+[node name="SixTeethGear101" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.380745, 0.165264, -8.41339)
+
+[node name="SixTeethGear102" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, 0.435576, 0.174153, -7.90976)
+
+[node name="SixTeethGear103" parent="Tutorial/Floors/Floor21/Gears2" instance=ExtResource("7_1d5ko")]
+transform = Transform3D(-0.348631, -0.935015, 0.064833, -0.104763, -0.0298642, -0.994049, 0.931386, -0.353349, -0.0875431, -0.290579, 0.150959, -8.18417)
+
+[node name="Floor22" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -423.85)
+spin_direction = 1
+
+[node name="Merchant-Intro" parent="Tutorial/Floors/Floor22" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Merchant-Intro"
+
+[node name="Merchant" parent="Tutorial/Floors/Floor22" instance=ExtResource("8_icac4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
+
+[node name="Floor23" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -451.881)
+floor_size = Vector3(10, 0.5, 23)
+spin_direction = 1
+
+[node name="Merchant-Intro-Cont" parent="Tutorial/Floors/Floor23" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
+dialogic_timeline = "Merchant-Intro-Cont"
+
+[node name="Merchant" parent="Tutorial/Floors/Floor23" instance=ExtResource("8_icac4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
+powerup_type = 1
+powerup_name = "Wall Jump"
+powerup_description = "Allows you to wall jump"
+
+[node name="Floor24" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
+floor_size = Vector3(20, 0.5, 50)
+spin_direction = 1
+
+[node name="Floor25" parent="Tutorial/Floors/Floor24" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 23.0537, -30.216)
+floor_size = Vector3(10, 0.5, 50)
+spin_direction = 1
+
+[node name="CRED" parent="Tutorial/Floors/Floor24/Floor25" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -3.52432, -0.016468, -19.7253)
+dialogic_timeline = "CRED"
+
+[node name="Floor27" parent="Tutorial/Floors/Floor24" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.88514, 14.7637, -4.15894)
+floor_size = Vector3(30, 0.5, 10)
+spin_direction = 1
+
+[node name="Floor28" parent="Tutorial/Floors/Floor24" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -2.87117, 14.7637, -4.15894)
+floor_size = Vector3(30, 0.5, 10)
+spin_direction = 1
+
+[node name="ObstacleCourse" type="Node" parent="."]
+
+[node name="Checkpoints" type="Node" parent="ObstacleCourse"]
+
+[node name="ObstacleCourseStart" parent="ObstacleCourse/Checkpoints" instance=ExtResource("3_3w4o3")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -0.0920126, 30.1849, -527.603)
+checkpoint_id = "ObstacleCourseStart"
+
+[node name="Bouncy" parent="ObstacleCourse/Checkpoints" instance=ExtResource("3_3w4o3")]
+transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, -0.0920126, 41.4217, -1102.45)
+checkpoint_id = "Bouncy"
+
+[node name="Floors" type="Node" parent="ObstacleCourse"]
+
+[node name="Floor26" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -553.231)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor27" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -558.214)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor28" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -563.231)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor29" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -568.222)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor30" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -573.21)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor31" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -578.193)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor32" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -583.21)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor33" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -588.201)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+spin_direction = 1
+
+[node name="Floor34" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -588.201)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor35" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -599.361)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor36" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -604.345)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor37" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -609.362)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor38" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -614.353)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor39" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -619.341)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor40" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -624.324)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor41" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -629.341)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor42" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 28.66, -634.332)
+floor_type = 2
+floor_size = Vector3(3, 0.5, 5)
+shake_duration = 0.5
+spin_direction = 1
+
+[node name="Floor43" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1058.76)
+floor_type = 1
+floor_size = Vector3(20, 0.5, 20)
+spring_force = 40.0
+spin_direction = 1
+
+[node name="Floor44" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1101.29)
+floor_type = 1
+floor_size = Vector3(40, 0.5, 40)
+spring_force = 40.0
+spin_direction = 1
+
+[node name="Floor45" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1142.73)
+floor_type = 1
+floor_size = Vector3(20, 0.5, 20)
+spring_force = 40.0
+spin_direction = 1
+
+[node name="Floor46" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1235.01)
+floor_size = Vector3(30, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor50" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 76.6946, -1182.14)
+floor_size = Vector3(30, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor53" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.49396, 76.6946, -1172.13)
+floor_size = Vector3(11.2, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor54" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.46475, 76.6946, -1172.13)
+floor_size = Vector3(11.1, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor51" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, -4.27974, 52.9715, -1162.28)
+floor_size = Vector3(50, 0.5, 10)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor52" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 3.77677, 52.9715, -1162.28)
+floor_size = Vector3(50, 0.5, 10)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 3.0
+
+[node name="Floor47" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1269.75)
+floor_type = 4
+floor_size = Vector3(30, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -25)
+movement_delay = 1.0
+
+[node name="Floor48" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1326.69)
+floor_type = 4
+floor_size = Vector3(30, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -20)
+movement_duration = 4.0
+movement_delay = 1.0
+
+[node name="Floor49" parent="ObstacleCourse/Floors" instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35.6183, -1379.52)
+floor_size = Vector3(30, 0.5, 30)
+spring_force = 40.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -20)
+
+[node name="You did it" parent="ObstacleCourse/Floors/Floor49" instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.99175, -0.174267, 0.71167)
+dialogic_timeline = "You did it"
+
+[node name="Rails" type="Node" parent="ObstacleCourse"]
+
+[node name="Rail" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.47863, 29.2815, -642.549)
+curve = SubResource("Curve3D_bd3gf")
+
+[node name="Rail2" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.64126, 30.5084, -743.588)
+curve = SubResource("Curve3D_vfcgb")
+
+[node name="Rail3" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.06427, 30.5084, -743.588)
+curve = SubResource("Curve3D_gg4w3")
+
+[node name="Rail4" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.80057, 30.5084, -743.588)
+curve = SubResource("Curve3D_5db3f")
+
+[node name="Rail5" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.93515, 35.3032, -844.582)
+curve = SubResource("Curve3D_2et5m")
+
+[node name="Rail6" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.30499, 35.3032, -844.582)
+curve = SubResource("Curve3D_60c0s")
+
+[node name="Rail7" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.7227, 36.5839, -938.056)
+curve = SubResource("Curve3D_xom5s")
+
+[node name="Rail8" parent="ObstacleCourse/Rails" instance=ExtResource("4_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.77916, 77.7927, -1197.54)
+curve = SubResource("Curve3D_5lhnb")
+
+[node name="CRED" parent="ObstacleCourse" instance=ExtResource("9_gdr2d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22695, 36.1792, -1385.15)
