@@ -52,7 +52,7 @@ func _input(event: InputEvent) -> void:
 		if trigger_once and has_been_triggered:
 			return
 			
-		if event.is_action_pressed("dialogic_default_action"):
+		if event.is_action_pressed("ui_accept"):
 			start_dialogue()
 
 func start_dialogue() -> void:
