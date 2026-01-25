@@ -1,0 +1,24 @@
+{
+  "dialogue": [
+    {
+      "speaker": "S-1GN",
+      "text": "Oh hey! Wow, you actually stopped to read me—how polite!",
+      "portrait": "S-1GN-uwu"
+    },
+    {
+      "speaker": "S-1GN",
+      "text": "Most people just barge right through like they're too good for heartfelt woodland signage.",
+      "portrait": "S-1GN-uwu"
+    },
+    {
+      "speaker": "S-1GN",
+      "text": "Press WASD to move and Spacebar to Jump. Hit Shift to run!",
+      "portrait": "S-1GN-uwu"
+    },
+    {
+      "speaker": "S-1GN",
+      "text": "See? Isn't that fun?!",
+      "portrait": "S-1GN-uwu"
+    }
+  ]
+}

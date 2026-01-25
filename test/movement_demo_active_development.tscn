@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dqvjp1oslocn4"]
+[gd_scene load_steps=24 format=3 uid="uid://dqvjp1oslocn4"]
 
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_y1o73"]
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="2_py3vs"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="7_1d5ko"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="8_icac4"]
 [ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/CRED/cred.tscn" id="9_gdr2d"]
+[ext_resource type="Script" uid="uid://b2n16s7f41nng" path="res://scripts/UI/dialogue_trigger.gd" id="10_py3vs"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
@@ -36,6 +37,9 @@ _data = {
 "tilts": PackedFloat32Array(0, 0)
 }
 point_count = 2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_py3vs"]
+radius = 5.0
 
 [sub_resource type="Curve3D" id="Curve3D_bd3gf"]
 resource_local_to_scene = true
@@ -141,6 +145,15 @@ spin_direction = 1
 [node name="WSAD" parent="Tutorial/Floors/Floor" instance=ExtResource("6_07svi")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
 dialogic_timeline = "WSAD-Sign"
+
+[node name="DialogueTrigger" type="Area3D" parent="Tutorial/Floors/Floor/WSAD"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -1.3824801, -0.0179829, 1.8348199)
+script = ExtResource("10_py3vs")
+dialogue_file = "Example.json"
+metadata/_custom_type_script = "uid://b2n16s7f41nng"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tutorial/Floors/Floor/WSAD/DialogueTrigger"]
+shape = SubResource("SphereShape3D_py3vs")
 
 [node name="Floor2" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.3503)

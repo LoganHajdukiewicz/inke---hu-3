@@ -1,0 +1,92 @@
+[gd_scene load_steps=3 format=3 uid="uid://dialogue_ui_scene"]
+
+[ext_resource type="Script" path="res://scripts/UI/dialogue_ui.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_torn_paper"]
+bg_color = Color(0.918, 0.894, 0.839, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.2, 0.2, 0.2, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="DialogueUI" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1")
+
+[node name="DialogueContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DialogueBox" type="PanelContainer" parent="DialogueContainer"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -700.0
+offset_top = -280.0
+offset_right = 700.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_torn_paper")
+
+[node name="MarginContainer" type="MarginContainer" parent="DialogueContainer/DialogueBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="DialogueContainer/DialogueBox/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 25
+
+[node name="TextSection" type="VBoxContainer" parent="DialogueContainer/DialogueBox/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="SpeakerName" type="Label" parent="DialogueContainer/DialogueBox/MarginContainer/HBoxContainer/TextSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
+theme_override_font_sizes/font_size = 28
+text = "S-1GN"
+
+[node name="DialogueText" type="RichTextLabel" parent="DialogueContainer/DialogueBox/MarginContainer/HBoxContainer/TextSection"]
+custom_minimum_size = Vector2(900, 140)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/normal_font_size = 22
+bbcode_enabled = true
+text = "This is where the dialogue text will appear!"
+fit_content = true
+scroll_active = false
+
+[node name="ContinueIndicator" type="Label" parent="DialogueContainer/DialogueBox/MarginContainer/HBoxContainer/TextSection"]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_colors/font_color = Color(0.4, 0.4, 0.4, 1)
+theme_override_font_sizes/font_size = 18
+text = "▼"
+
+[node name="PortraitSection" type="PanelContainer" parent="DialogueContainer/DialogueBox/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+
+[node name="Portrait" type="TextureRect" parent="DialogueContainer/DialogueBox/MarginContainer/HBoxContainer/PortraitSection"]
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
