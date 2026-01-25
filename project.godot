@@ -17,7 +17,6 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Dialogic="*res://addons/dialogic/Core/DialogicGameHandler.gd"
 CheckpointManager="*res://autoloaded_scripts/checkpoint_manager.gd"
 GameManager="*res://autoloaded_scripts/game_manager.gd"
 CutsceneManager="*res://autoloaded_scripts/cutscene_manager.gd"
@@ -77,7 +76,7 @@ text/autoadvance_enabled=false
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=2
+window/size/mode=4
 
 [editor]
 
