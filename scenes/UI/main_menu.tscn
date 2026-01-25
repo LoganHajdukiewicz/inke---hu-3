@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b5wjfgnu0rrdt"]
+[gd_scene load_steps=5 format=3 uid="uid://b5wjfgnu0rrdt"]
 
 [ext_resource type="Script" uid="uid://1ig8y86te4l8" path="res://scripts/UI/main_menu.gd" id="1_qwnig"]
 [ext_resource type="PackedScene" uid="uid://cp3b1eyikepf0" path="res://scenes/levels/battle_arena.tscn" id="2_5jstl"]
 [ext_resource type="PackedScene" uid="uid://1xtg2gv8rted" path="res://test/movement_demo_7_24_2025.tscn" id="2_yonvy"]
+[ext_resource type="Texture2D" uid="uid://bcnprxj65kvtq" path="res://assets/UI/Main Menu Picture.png" id="4_tfcbk"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -17,29 +18,16 @@ script = ExtResource("1_qwnig")
 combat_level_scene = ExtResource("2_5jstl")
 movement_level_scene = ExtResource("2_yonvy")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-layout_mode = 0
-offset_left = -295.0
-offset_top = -140.0
-offset_right = 2262.0
-offset_bottom = 1277.0
-color = Color(0, 0, 0, 1)
-
-[node name="Title" type="RichTextLabel" parent="."]
-layout_mode = 0
-offset_left = 80.0
-offset_right = 1811.0
-offset_bottom = 342.0
-theme_override_font_sizes/normal_font_size = 230
-text = "INKE AND HU-3"
-fit_content = true
+[node name="MainMenuPicture" type="Sprite2D" parent="."]
+position = Vector2(959, 537)
+texture = ExtResource("4_tfcbk")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_left = 254.0
-offset_top = 379.0
-offset_right = 1538.0
-offset_bottom = 1085.0
+offset_left = 793.0
+offset_top = 566.0
+offset_right = 1125.0
+offset_bottom = 926.0
 
 [node name="MovementDemo" type="Button" parent="VBoxContainer"]
 layout_mode = 2
