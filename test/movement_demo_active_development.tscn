@@ -40,7 +40,6 @@ _data = {
 point_count = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_py3vs"]
-size = Vector3(1, 1, 1)
 
 [sub_resource type="Curve3D" id="Curve3D_bd3gf"]
 resource_local_to_scene = true

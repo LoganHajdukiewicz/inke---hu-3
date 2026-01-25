@@ -53,11 +53,15 @@ func _process(delta: float) -> void:
 			typing_timer = 0.0
 			display_next_character()
 
-func show_dialogue() -> void:
+func show_dialogue(should_pause: bool = true) -> void:
 	dialogue_container.visible = true
 	print("DialogueUI: Showing dialogue")
-	# Optional: pause game during dialogue
-	# get_tree().paused = true
+	
+	# Pause game if requested
+	if should_pause:
+		get_tree().paused = true
+	else:
+		get_tree().paused = false
 
 func hide_dialogue() -> void:
 	dialogue_container.visible = false

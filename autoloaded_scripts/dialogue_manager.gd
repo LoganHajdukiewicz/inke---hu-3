@@ -1,7 +1,8 @@
 extends Node
 
-# This will dynamically make the path with SCENE/specific_dialogue.json
-const DIALOGUE_BASE_PATH = "res://dialogue/" 
+# Base dialogue path - will be combined with scene-specific paths
+const DIALOGUE_BASE_PATH = "res://dialogue/"
+
 var current_dialogue: Array = []
 var current_index: int = 0
 var dialogue_ui: CanvasLayer = null
@@ -13,7 +14,8 @@ signal dialogue_line_changed(speaker: String, text: String, portrait: String)
 signal dialogue_ended
 
 func _ready() -> void:
-	# Grabs the scene name to build path
+	# The UI will register itself when ready
+	# Get the current scene name
 	update_scene_name()
 	
 func update_scene_name() -> void:
@@ -26,7 +28,7 @@ func register_ui(ui: CanvasLayer) -> void:
 	dialogue_ui = ui
 	print("DialogueManager: UI registered")
 
-func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null) -> void:
+func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null, should_pause: bool = true) -> void:
 	# Update scene name in case we changed scenes
 	update_scene_name()
 	
@@ -41,7 +43,7 @@ func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null) -> v
 	current_index = 0
 	
 	if dialogue_ui:
-		dialogue_ui.show_dialogue()
+		dialogue_ui.show_dialogue(should_pause)
 		show_current_line()
 		dialogue_started.emit()
 	else:
