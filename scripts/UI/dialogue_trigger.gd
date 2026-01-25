@@ -1,7 +1,7 @@
 extends Area3D
 class_name DialogueTrigger
 
-@export var dialogue_file: String = ""  # e.g. "Example" (without .json extension)
+@export var dialogue_file: String = ""  # Do not add .JSON after
 @export var show_prompt: bool = true
 @export var trigger_once: bool = false  # Only trigger dialogue once
 
@@ -86,7 +86,6 @@ func start_dialogue() -> void:
 	DialogueManager.start_dialogue(dialogue_file, self)
 
 func end_dialogue() -> void:
-	# This is called by DialogueManager when dialogue ends
 	pass
 
 func reset_trigger() -> void:

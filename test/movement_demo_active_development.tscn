@@ -40,7 +40,7 @@ _data = {
 point_count = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_py3vs"]
-size = Vector3(100, 100, 100)
+size = Vector3(1, 1, 1)
 
 [sub_resource type="Curve3D" id="Curve3D_bd3gf"]
 resource_local_to_scene = true
@@ -149,12 +149,13 @@ spin_direction = 1
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
 dialogic_timeline = "WSAD-Sign"
 
-[node name="DialogueTrigger" type="Area3D" parent="Tutorial/Floors/Floor"]
+[node name="DialogueTrigger" type="Area3D" parent="Tutorial/Floors/Floor/WSAD"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0.026584744, 0.96880096, 0.025091052)
 script = ExtResource("10_py3vs")
 dialogue_file = "Example"
 metadata/_custom_type_script = "uid://b2n16s7f41nng"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Tutorial/Floors/Floor/DialogueTrigger"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Tutorial/Floors/Floor/WSAD/DialogueTrigger"]
 shape = SubResource("BoxShape3D_py3vs")
 
 [node name="Floor2" parent="Tutorial/Floors" instance=ExtResource("5_0t3uf")]
