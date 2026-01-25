@@ -17,7 +17,9 @@ var char_index: int = 0
 var typing_timer: float = 0.0
 
 func _ready() -> void:
-	hide_dialogue()
+	# Start hidden
+	dialogue_container.visible = false
+	
 	DialogueManager.register_ui(self)
 	DialogueManager.dialogue_line_changed.connect(_on_dialogue_line_changed)
 	
@@ -26,12 +28,14 @@ func _ready() -> void:
 	tween.set_loops()
 	tween.tween_property(continue_indicator, "modulate:a", 0.3, 0.5)
 	tween.tween_property(continue_indicator, "modulate:a", 1.0, 0.5)
+	
+	print("DialogueUI: Ready and registered")
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
+	# Only process input when dialogue is visible
 	if not dialogue_container.visible:
 		return
 	
-	# FIXED: Use ui_accept instead of dialogic_default_action
 	if event.is_action_pressed("ui_accept"):
 		if is_typing:
 			# Skip typing animation
@@ -39,6 +43,7 @@ func _input(event: InputEvent) -> void:
 		else:
 			# Go to next line
 			DialogueManager.next_line()
+		get_viewport().set_input_as_handled()
 
 func _process(delta: float) -> void:
 	if is_typing:
@@ -50,13 +55,17 @@ func _process(delta: float) -> void:
 
 func show_dialogue() -> void:
 	dialogue_container.visible = true
-	get_tree().paused = false  # Change to true if you want to pause game during dialogue
+	print("DialogueUI: Showing dialogue")
+	# Optional: pause game during dialogue
+	# get_tree().paused = true
 
 func hide_dialogue() -> void:
 	dialogue_container.visible = false
+	print("DialogueUI: Hiding dialogue")
 	get_tree().paused = false
 
 func _on_dialogue_line_changed(speaker: String, text: String, portrait: String) -> void:
+	print("DialogueUI: Displaying line - Speaker: ", speaker, " Text: ", text)
 	speaker_label.text = speaker
 	current_text = text
 	load_portrait(portrait)

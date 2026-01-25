@@ -108,8 +108,6 @@ point_count = 2
 
 [node name="Movement_Demo_Active_Development" type="Node3D"]
 
-[node name="DialogueUI" parent="." instance=ExtResource("11_3w4o3")]
-
 [node name="Inke" parent="." groups=["player"] instance=ExtResource("1_y1o73")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.262058, 0.0950881, -0.11724)
 
@@ -935,3 +933,5 @@ curve = SubResource("Curve3D_5lhnb")
 
 [node name="CRED" parent="ObstacleCourse" instance=ExtResource("9_gdr2d")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22695, 36.1792, -1385.15)
+
+[node name="DialogueUI" parent="." instance=ExtResource("11_3w4o3")]

@@ -1,12 +1,13 @@
 extends Node
 
-# FIXED: Updated path to match your actual dialogue location
-const DIALOGUE_PATH = "res://dialogue/movement_demo_active_development/"
+# Base dialogue path - will be combined with scene-specific paths
+const DIALOGUE_BASE_PATH = "res://dialogue/"
 
 var current_dialogue: Array = []
 var current_index: int = 0
-var dialogue_ui: Control = null
+var dialogue_ui: CanvasLayer = null
 var current_trigger: DialogueTrigger = null
+var current_scene_name: String = ""
 
 signal dialogue_started
 signal dialogue_line_changed(speaker: String, text: String, portrait: String)
@@ -14,13 +15,23 @@ signal dialogue_ended
 
 func _ready() -> void:
 	# The UI will register itself when ready
-	pass
+	# Get the current scene name
+	update_scene_name()
+	
+func update_scene_name() -> void:
+	var root = get_tree().current_scene
+	if root:
+		current_scene_name = root.name
+		print("DialogueManager: Current scene is ", current_scene_name)
 
-func register_ui(ui: Control) -> void:
+func register_ui(ui: CanvasLayer) -> void:
 	dialogue_ui = ui
 	print("DialogueManager: UI registered")
 
 func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null) -> void:
+	# Update scene name in case we changed scenes
+	update_scene_name()
+	
 	current_trigger = trigger
 	var dialogue_data = load_dialogue(dialogue_name)
 	
@@ -39,10 +50,14 @@ func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null) -> v
 		print("DialogueManager: No UI registered!")
 
 func load_dialogue(dialogue_name: String) -> Array:
-	# FIXED: Handle both with and without .json extension
-	var file_path = DIALOGUE_PATH + dialogue_name
-	if not file_path.ends_with(".json"):
-		file_path += ".json"
+	# Build path: res://dialogue/SCENE_NAME/dialogue_name.json
+	var file_path = DIALOGUE_BASE_PATH + current_scene_name + "/"
+	
+	# Handle both with and without .json extension
+	if dialogue_name.ends_with(".json"):
+		file_path += dialogue_name
+	else:
+		file_path += dialogue_name + ".json"
 	
 	print("DialogueManager: Attempting to load: ", file_path)
 	
