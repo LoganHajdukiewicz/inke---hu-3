@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://dialogue_trigger_scene"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_trigger.gd" id="1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
+size = Vector3(3, 3, 3)
+
+[node name="DialogueTrigger" type="Area3D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1")
+dialogue_file = ""
+show_prompt = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_trigger")
+
+[node name="InteractionPrompt" type="Sprite3D" parent="."]
+visible = false
+pixel_size = 0.01
+billboard = 1
+texture_filter = 0
+offset = Vector2(0, 150)
+
+[node name="DebugMesh" type="MeshInstance3D" parent="."]
+visible = false
+
+[node name="DebugCSGBox3D" type="CSGBox3D" parent="DebugMesh"]
+size = Vector3(3, 3, 3)
+material_override = null

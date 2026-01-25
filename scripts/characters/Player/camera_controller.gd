@@ -93,7 +93,7 @@ func _handle_free_camera(delta: float):
 	rotation.y = twist_input
 	camera_target.rotation.x = pitch_input
 
-func _handle_lock_on_camera(delta: float):
+func _handle_lock_on_camera(_delta: float):
 	"""Handle camera when locked onto target"""
 	if not is_instance_valid(locked_target):
 		disable_lock_on()

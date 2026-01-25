@@ -258,7 +258,7 @@ class EnemyState extends Node:
 	func exit():
 		pass
 	
-	func update(delta: float):
+	func update(_delta: float):
 		pass
 
 

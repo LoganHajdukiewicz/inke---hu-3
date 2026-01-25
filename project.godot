@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 CheckpointManager="*res://autoloaded_scripts/checkpoint_manager.gd"
 GameManager="*res://autoloaded_scripts/game_manager.gd"
 CutsceneManager="*res://autoloaded_scripts/cutscene_manager.gd"
+DialogueManager="*res://autoloaded_scripts/dialogue_manager.gd"
 
 [dialogic]
 
