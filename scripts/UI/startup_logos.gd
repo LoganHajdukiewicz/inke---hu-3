@@ -38,6 +38,12 @@ func _process(delta: float) -> void:
 	if display_timer <= 0.0:
 		advance_to_next_logo()
 
+func _input(event: InputEvent) -> void:
+	# Check if the start button is pressed
+	if event.is_action_pressed("start"):
+		# Skip directly to main menu
+		go_to_main_menu()
+
 func show_current_logo() -> void:
 	if current_logo_index >= logo_children.size():
 		go_to_main_menu()
