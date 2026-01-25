@@ -1,6 +1,7 @@
 extends Node
 
-const DIALOGUE_PATH = "res://dialogues/"
+# FIXED: Updated path to match your actual dialogue location
+const DIALOGUE_PATH = "res://dialogue/movement_demo_active_development/"
 
 var current_dialogue: Array = []
 var current_index: int = 0
@@ -38,7 +39,12 @@ func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null) -> v
 		print("DialogueManager: No UI registered!")
 
 func load_dialogue(dialogue_name: String) -> Array:
-	var file_path = DIALOGUE_PATH + dialogue_name + ".json"
+	# FIXED: Handle both with and without .json extension
+	var file_path = DIALOGUE_PATH + dialogue_name
+	if not file_path.ends_with(".json"):
+		file_path += ".json"
+	
+	print("DialogueManager: Attempting to load: ", file_path)
 	
 	if not FileAccess.file_exists(file_path):
 		print("DialogueManager: Dialogue file not found: ", file_path)
@@ -62,6 +68,7 @@ func load_dialogue(dialogue_name: String) -> Array:
 	var data = json.get_data()
 	
 	if data.has("dialogue") and data["dialogue"] is Array:
+		print("DialogueManager: Successfully loaded ", data["dialogue"].size(), " dialogue lines")
 		return data["dialogue"]
 	
 	return []

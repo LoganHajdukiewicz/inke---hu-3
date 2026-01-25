@@ -31,7 +31,8 @@ func _input(event: InputEvent) -> void:
 	if not dialogue_container.visible:
 		return
 	
-	if event.is_action_pressed("dialogic_default_action"):
+	# FIXED: Use ui_accept instead of dialogic_default_action
+	if event.is_action_pressed("ui_accept"):
 		if is_typing:
 			# Skip typing animation
 			finish_typing()

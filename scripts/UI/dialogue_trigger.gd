@@ -1,7 +1,7 @@
 extends Area3D
 class_name DialogueTrigger
 
-@export var dialogue_file: String = ""  # e.g. "welcome_sign"
+@export var dialogue_file: String = ""  # e.g. "Example" (without .json extension)
 @export var show_prompt: bool = true
 @export var trigger_once: bool = false  # Only trigger dialogue once
 
@@ -25,6 +25,10 @@ func _ready() -> void:
 	
 	# Add to dialogue triggers group
 	add_to_group("dialogue_triggers")
+	
+	# FIXED: Connect to DialogueManager signals
+	DialogueManager.dialogue_started.connect(_on_dialogue_started)
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
 
 func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group("Player"):
@@ -47,20 +51,33 @@ func _on_body_exited(body: Node3D) -> void:
 		
 		interaction_unavailable.emit()
 
-func _input(event: InputEvent) -> void:
-	if player_nearby and not dialogue_active:
-		if trigger_once and has_been_triggered:
-			return
-			
-		if event.is_action_pressed("ui_accept"):
-			start_dialogue()
+# FIXED: Changed from _input to _unhandled_input and added proper checks
+func _unhandled_input(event: InputEvent) -> void:
+	if not player_nearby or dialogue_active or DialogueManager.is_dialogue_active():
+		return
+	
+	if trigger_once and has_been_triggered:
+		return
+	
+	if event.is_action_pressed("ui_accept"):
+		start_dialogue()
+		get_viewport().set_input_as_handled()
+
+func _on_dialogue_started() -> void:
+	dialogue_active = true
+
+func _on_dialogue_ended() -> void:
+	dialogue_active = false
+	
+	# Show prompt again if player still nearby (unless trigger_once is true)
+	if player_nearby and show_prompt and interaction_prompt and not (trigger_once and has_been_triggered):
+		interaction_prompt.visible = true
 
 func start_dialogue() -> void:
 	if dialogue_file.is_empty():
 		print("DialogueTrigger: No dialogue file assigned!")
 		return
 	
-	dialogue_active = true
 	has_been_triggered = true
 	
 	if interaction_prompt:
@@ -69,11 +86,8 @@ func start_dialogue() -> void:
 	DialogueManager.start_dialogue(dialogue_file, self)
 
 func end_dialogue() -> void:
-	dialogue_active = false
-	
-	# Show prompt again if player still nearby (unless trigger_once is true)
-	if player_nearby and show_prompt and interaction_prompt and not (trigger_once and has_been_triggered):
-		interaction_prompt.visible = true
+	# This is called by DialogueManager when dialogue ends
+	pass
 
 func reset_trigger() -> void:
 	"""Manually reset the trigger (useful for debugging or specific game logic)"""
