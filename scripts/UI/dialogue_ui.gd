@@ -20,6 +20,9 @@ func _ready() -> void:
 	# Start hidden
 	dialogue_container.visible = false
 	
+	# IMPORTANT: Allow this UI to process even when game is paused
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
 	DialogueManager.register_ui(self)
 	DialogueManager.dialogue_line_changed.connect(_on_dialogue_line_changed)
 	

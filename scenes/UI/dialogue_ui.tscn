@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dialogue_ui_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://cu7ok4tvrfhg5"]
 
-[ext_resource type="Script" path="res://scripts/UI/dialogue_ui.gd" id="1"]
+[ext_resource type="Script" uid="uid://cuv716dwfr4de" path="res://scripts/UI/dialogue_ui.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_torn_paper"]
 bg_color = Color(0.918, 0.894, 0.839, 1)

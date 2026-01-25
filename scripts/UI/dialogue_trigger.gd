@@ -135,7 +135,7 @@ func reset_trigger() -> void:
 	has_been_triggered = false
 
 # Called when inspector values change
-func _set(property: StringName, value: Variant) -> bool:
+func _set(property: StringName, _value: Variant) -> bool:
 	if property == "trigger_type" or property == "box_size":
 		if is_inside_tree():
 			# Defer the update to avoid issues during scene loading
