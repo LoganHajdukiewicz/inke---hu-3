@@ -8,6 +8,8 @@ var current_index: int = 0
 var dialogue_ui: CanvasLayer = null
 var current_trigger: DialogueTrigger = null
 var current_scene_name: String = ""
+var input_block_timer: float = 0.0
+var input_block_duration: float = 0.2
 
 signal dialogue_started
 signal dialogue_line_changed(speaker: String, text: String, portrait: String)
@@ -17,6 +19,17 @@ func _ready() -> void:
 	# The UI will register itself when ready
 	# Get the current scene name
 	update_scene_name()
+	# Set to always process so timer runs and input is processed
+	process_mode = Node.PROCESS_MODE_ALWAYS
+
+func _process(delta: float) -> void:
+	if input_block_timer > 0:
+		input_block_timer -= delta
+
+func _input(event: InputEvent) -> void:
+	# Block ALL inputs during the timer - this runs FIRST before any other input handling
+	if input_block_timer > 0:
+		get_viewport().set_input_as_handled()
 	
 func update_scene_name() -> void:
 	var root = get_tree().current_scene

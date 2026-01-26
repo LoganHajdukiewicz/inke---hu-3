@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cu7ok4tvrfhg5"]
+[gd_scene load_steps=4 format=3 uid="uid://cu7ok4tvrfhg5"]
 
 [ext_resource type="Script" uid="uid://cuv716dwfr4de" path="res://scripts/UI/dialogue_ui.gd" id="1"]
 
@@ -13,6 +13,18 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wall_dialogue"]
+bg_color = Color(0.918, 0.894, 0.839, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.2, 0.2, 0.8)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
 
 [node name="DialogueUI" type="CanvasLayer"]
 layer = 100
@@ -90,3 +102,55 @@ layout_mode = 2
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
+
+[node name="WallDialogueContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="WallDialogueBox" type="PanelContainer" parent="WallDialogueContainer"]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -420.0
+offset_top = -100.0
+offset_right = -20.0
+offset_bottom = 100.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_wall_dialogue")
+
+[node name="MarginContainer" type="MarginContainer" parent="WallDialogueContainer/WallDialogueBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 15
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 15
+
+[node name="VBoxContainer" type="VBoxContainer" parent="WallDialogueContainer/WallDialogueBox/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpeakerName" type="Label" parent="WallDialogueContainer/WallDialogueBox/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.15, 0.15, 0.15, 1)
+theme_override_font_sizes/font_size = 20
+text = "Sign"
+
+[node name="DialogueText" type="RichTextLabel" parent="WallDialogueContainer/WallDialogueBox/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.2, 0.2, 0.2, 1)
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "Wall trigger text appears here!"
+fit_content = true
+scroll_active = false
