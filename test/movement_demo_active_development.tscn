@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://dqvjp1oslocn4"]
+[gd_scene load_steps=25 format=3 uid="uid://dqvjp1oslocn4"]
 
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_y1o73"]
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="2_py3vs"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/CRED/cred.tscn" id="9_gdr2d"]
 [ext_resource type="Script" uid="uid://b2n16s7f41nng" path="res://scripts/UI/dialogue_trigger.gd" id="10_py3vs"]
 [ext_resource type="PackedScene" uid="uid://cu7ok4tvrfhg5" path="res://scenes/UI/dialogue_ui.tscn" id="11_3w4o3"]
+[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="12_uylq5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
@@ -930,3 +931,7 @@ curve = SubResource("Curve3D_5lhnb")
 
 [node name="CRED" parent="ObstacleCourse" instance=ExtResource("9_gdr2d")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22695, 36.1792, -1385.15)
+
+[node name="GrapplePoint" parent="." instance=ExtResource("12_uylq5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2149835, 3.6860273, -4.3124523)
+detection_radius = 50.0

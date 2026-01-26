@@ -13,6 +13,7 @@ var can_double_jump: bool = false
 
 # Air dash variables (NEW - similar to double jump)
 var has_air_dashed: bool = false
+var can_air_dash: bool = false
 
 # Coyote time variables
 var coyote_time_duration: float = 0.15  
@@ -149,7 +150,8 @@ func _physics_process(delta: float) -> void:
 	if is_on_floor():
 		has_double_jumped = false
 		can_double_jump = true
-		has_air_dashed = false  # Reset air dash when landing
+		has_air_dashed = false
+		can_air_dash = true
 	
 	$CameraController.follow_character(position, velocity)
 

@@ -127,7 +127,9 @@ func physics_update(delta: float):
 			player.velocity.y += player.get_gravity().y * delta * 0.3
 		else:
 			player.velocity.y = 0
-	
+	if Input.is_action_just_pressed("yoyo"):
+		change_to("GrappleHookState")
+		return
 	# Allow canceling into jump
 	if Input.is_action_just_pressed("jump") and player.is_on_floor():
 		exit_dash()
@@ -137,11 +139,6 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 func exit_dash():
-	"""End the dash and transition to appropriate state"""
-	print("=== EXIT DASH ===")
-	print("Can dash before exit: ", can_dash)
-	print("Cooldown remaining: ", cooldown_timer)
-	print("Was air dash: ", is_air_dash)
 	
 	# Preserve some momentum
 	var momentum_factor = 0.6

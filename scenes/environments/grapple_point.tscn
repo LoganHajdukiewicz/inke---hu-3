@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://7rlf6gb13oqe"]
+
+[ext_resource type="Script" uid="uid://dqn3egydy1jod" path="res://scripts/environments/grapple_point.gd" id="1_0kdix"]
+
+[node name="GrapplePoint" type="Node3D" groups=["GrapplePoint"]]
+script = ExtResource("1_0kdix")

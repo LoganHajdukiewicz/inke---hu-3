@@ -42,6 +42,9 @@ func enter():
 	player.wall_jump_cooldown = 0.0
 
 func physics_update(delta: float):
+	if Input.is_action_just_pressed("yoyo"):
+		change_to("GrappleHookState")
+		return
 	wall_jump_timer += delta
 	
 	# Apply gravity

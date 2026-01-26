@@ -38,7 +38,10 @@ func physics_update(delta: float):
 	# Gravity progression for double jump
 	var gravity_multiplier = get_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
-	
+
+	if Input.is_action_just_pressed("yoyo"):
+		change_to("GrapplingState")
+		return
 	# Check for wall jump input first
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
 		var wall_normal = player.get_wall_jump_direction()

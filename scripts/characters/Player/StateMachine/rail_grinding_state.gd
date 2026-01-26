@@ -22,6 +22,9 @@ func enter():
 	player.has_double_jumped = false
 
 func physics_update(delta: float):
+	if Input.is_action_just_pressed("yoyo"):
+		change_to("GrappleHookState")
+		return
 	# Handle the grinding movement and physics
 	if rail_grind_node:
 		# Smoothly move player to rail position

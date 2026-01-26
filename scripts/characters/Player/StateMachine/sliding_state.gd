@@ -59,6 +59,9 @@ func update_dash_cooldown(delta: float):
 
 func physics_update(delta: float):
 	update_dash_cooldown(delta)
+	if Input.is_action_just_pressed("yoyo"):
+		change_to("GrappleHookState")
+		return
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():

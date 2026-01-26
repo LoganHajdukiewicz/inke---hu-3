@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://bdxo4fr0da0vb"]
+[gd_scene load_steps=24 format=3 uid="uid://bdxo4fr0da0vb"]
 
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://scripts/characters/Player/camera_controller.gd" id="2_hiafp"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://ca1ianwc3dqij" path="res://scripts/characters/Player/StateMachine/double_jump_state.gd" id="10_v87o4"]
 [ext_resource type="Script" uid="uid://1sd3orje0xq8" path="res://scripts/characters/Player/StateMachine/sliding_state.gd" id="11_xnk82"]
 [ext_resource type="Script" uid="uid://cnh2eyma6qxwk" path="res://scripts/characters/Player/StateMachine/dodge_dash_state.gd" id="12_43ywd"]
+[ext_resource type="Script" uid="uid://ciwurlmtwa4wm" path="res://scripts/characters/Player/grapple_hook_state.gd" id="13_enllq"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -83,6 +84,9 @@ script = ExtResource("11_xnk82")
 
 [node name="DodgeDashState" type="Node" parent="StateMachine"]
 script = ExtResource("12_43ywd")
+
+[node name="GrappleHookState" type="Node" parent="StateMachine"]
+script = ExtResource("13_enllq")
 
 [node name="CameraController" type="Node3D" parent="."]
 top_level = true
