@@ -42,26 +42,23 @@ var wall_jump_detector: WallJumpDetector
 # References
 @onready var player = self
 @onready var state_machine: StateMachine = $StateMachine
-@onready var game_manager = "/root/GameManager"
-@onready var checkpoint_manager = "/root/CheckpointManager"
+var game_manager  # FIX: Don't use @onready with get_node for autoload
+var checkpoint_manager
 
 # Export for scene setup
 @export var wall_jump_rays: Node3D
 @export var rail_grind_area: Area3D 
 
 func _ready():
+	# FIX: Get autoload references in _ready instead of @onready
+	game_manager = get_node("/root/GameManager")
+	checkpoint_manager = get_node("/root/CheckpointManager")
+	
 	$CameraController.initialize_camera()
 	if DialogueManager:
 		DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
-
-func _on_dialogue_ended():
-	"""Called when dialogue ends - ignore the next jump input"""
-	ignore_next_jump = true
-	# Clear the flag after a short delay
-	await get_tree().create_timer(0.01).timeout
-	ignore_next_jump = false
+	
 	# Get GameManager reference
-	game_manager = get_node("/root/GameManager")
 	if game_manager:
 		game_manager.register_player(self)
 		# Connect to health changed signal
@@ -71,7 +68,6 @@ func _on_dialogue_ended():
 		print("Player: GameManager not found!")
 	
 	# Get CheckpointManager reference
-	checkpoint_manager = get_node("/root/CheckpointManager")
 	if not checkpoint_manager:
 		print("Player: CheckpointManager not found!")
 	
@@ -80,6 +76,13 @@ func _on_dialogue_ended():
 	
 	# Setup damage detection area
 	setup_damage_area()
+
+func _on_dialogue_ended():
+	"""Called when dialogue ends - ignore the next jump input"""
+	ignore_next_jump = true
+	# Clear the flag after a short delay
+	await get_tree().create_timer(0.01).timeout
+	ignore_next_jump = false
 
 func initialize_components():
 	"""Initialize all modular component managers"""
