@@ -67,11 +67,17 @@ enum SpinDirection {
 @export_group("Frozen Floor Settings")
 @export var frozen_friction: float = 0.05  # Very low friction for ice
 @export var frozen_slide_multiplier: float = 1.5  # How much faster you slide
-@export var frozen_control_reduction: float = 0.3  # How much control is reduced (0-1)
+@export var frozen_control_reduction: float = 0.8  # How much control is reduced (0-1)
 @export var frozen_acceleration_penalty: float = 0.5  # How hard it is to speed up
-@export var frozen_enable_visual_effects: bool = true  # Enable ice visual effects
+@export var frozen_enable_visual_effects: bool = false  # Enable ice visual effects
 @export var frozen_shimmer_speed: float = 2.0  # Speed of the shimmer effect
 @export var frozen_shimmer_intensity: float = 0.3  # How noticeable the shimmer is
+
+@export_group("Damage Floor Settings")
+@export var damage_amount: int = 1  # Amount of damage to deal
+@export var damage_interval: float = 0.5  # Time between damage ticks
+@export var damage_knockback_force: float = 15.0  # Horizontal knockback strength
+@export var damage_knockback_upward: float = 8.0  # Upward knockback strength
 
 @export_group("Momentum Settings")
 @export var momentum_transfer_strength: float = 0.6 : set = _set_momentum_transfer_strength
@@ -107,6 +113,9 @@ var last_floor_position: Vector3
 
 # Frozen Floor Variables
 var frozen_time: float = 0.0
+
+# Damage Floor Variables
+var damage_timers: Dictionary = {}  # Track damage timer per player
 
 # Momentum tracking variables
 var floor_velocity: Vector3 = Vector3.ZERO
@@ -264,6 +273,8 @@ func _update_editor_preview():
 			base_color = Color(0.8, 0.2, 1.0, 0.8)
 		FloorType.MOVING:
 			base_color = Color(0.2, 0.7, 1.0, 0.8)
+		FloorType.DAMAGE:
+			base_color = Color(1.0, 0.3, 0.0, 0.8)
 		FloorType.FROZEN:
 			base_color = Color(0.6, 0.9, 1.0, 0.8)
 		_:
@@ -380,6 +391,9 @@ func _process(delta):
 	
 	if floor_type == FloorType.FROZEN:
 		handle_frozen_floor(delta)
+	
+	if floor_type == FloorType.DAMAGE:
+		handle_damage_floor(delta)
 
 func calculate_floor_velocity(delta: float):
 	"""Calculate the floor's current velocity for momentum transfer"""
@@ -408,6 +422,8 @@ func setup_floor_type():
 			setup_moving_floor()
 		FloorType.FROZEN:
 			setup_frozen_floor()
+		FloorType.DAMAGE:
+			setup_damage_floor()
 
 func setup_normal_floor():
 	"""Setup a normal floor"""
@@ -512,6 +528,28 @@ func setup_frozen_floor():
 				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
 				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 
+func setup_damage_floor():
+	"""Setup a damage floor (lava, electric, etc.)"""
+	var material = create_textured_material(Color(1.0, 0.4, 0.0, 1))
+	material.metallic = 0.3
+	material.roughness = 0.2
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.3, 0.0)
+	material.emission_energy = 0.5
+	
+	mesh_instance.set_surface_override_material(0, material)
+	
+	if spring_area:
+		spring_area.monitoring = true
+		spring_area.visible = true
+		
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
+			var spring_shape = spring_collision.shape as BoxShape3D
+			if spring_shape:
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
+
 func handle_frozen_floor(delta: float):
 	"""Handle frozen floor logic"""
 	if frozen_enable_visual_effects:
@@ -541,6 +579,51 @@ func handle_frozen_floor(delta: float):
 							if state_machine.has_method("change_state"):
 								print("Frozen floor triggering slide from: ", current_state_name)
 								state_machine.change_state("SlidingState")
+
+func handle_damage_floor(delta: float):
+	"""Handle damage floor logic - deal damage and knockback to players on floor"""
+	for player in players_on_floor:
+		if not player or not is_instance_valid(player):
+			continue
+		
+		# Skip if player is dead or invulnerable
+		if player.has_method("get"):
+			if player.get("is_dead") or player.get("is_invulnerable"):
+				continue
+		
+		# Get or initialize damage timer for this player
+		if not damage_timers.has(player):
+			damage_timers[player] = 0.0
+		
+		# Update damage timer
+		damage_timers[player] -= delta
+		
+		# Deal damage if timer expired
+		if damage_timers[player] <= 0.0:
+			apply_damage_to_player(player)
+			damage_timers[player] = damage_interval
+
+func apply_damage_to_player(player: CharacterBody3D):
+	"""Apply damage and knockback to a player"""
+	if not player or not is_instance_valid(player):
+		return
+	
+	# Calculate knockback direction (away from floor center, upward)
+	var knockback_direction = (player.global_position - global_position).normalized()
+	knockback_direction.y = 0  # Remove vertical component for horizontal calculation
+	
+	if knockback_direction.length() < 0.1:
+		# If player is directly on center, use random horizontal direction
+		knockback_direction = Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)).normalized()
+	
+	# Create knockback velocity
+	var knockback_velocity = knockback_direction * damage_knockback_force
+	knockback_velocity.y = damage_knockback_upward
+	
+	# Apply damage with knockback
+	if player.has_method("take_damage"):
+		player.take_damage(damage_amount, knockback_velocity)
+		print("Damage floor dealt ", damage_amount, " damage to player with knockback: ", knockback_velocity)
 
 func start_moving():
 	"""Start the moving floor sequence"""
@@ -758,6 +841,10 @@ func _on_spring_area_body_exited(body):
 			transfer_momentum_to_player(body)
 		
 		players_on_floor.erase(body)
+		
+		# Clean up damage timer for this player
+		if damage_timers.has(body):
+			damage_timers.erase(body)
 		
 		if floor_type == FloorType.MOVING:
 			players_to_move.erase(body)
