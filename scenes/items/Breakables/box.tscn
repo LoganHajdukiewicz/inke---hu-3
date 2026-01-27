@@ -19,5 +19,5 @@ mesh = SubResource("BoxMesh_6nuk2")
 
 [node name="DamageDetection" type="Area3D" parent="." unique_id=775376989]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDetection" unique_id=125373485]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDetection" unique_id=125373485 groups=["Breakables"]]
 shape = SubResource("BoxShape3D_6nuk2")

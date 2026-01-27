@@ -146,7 +146,10 @@ func perform_attack(is_heavy: bool):
 		print("  Area: ", area.name, " Groups: ", area.get_groups())
 		if area.get_parent():
 			print("    Parent: ", area.get_parent().name, " Groups: ", area.get_parent().get_groups())
-	
+	for body in hit_bodies:
+		if body.is_in_group("Breakable") and body.has_method("take_damage"):
+			print("  -> Hitting breakable object: ", body.name)
+			body.take_damage(damage)
 	# Track which enemies we've already damaged
 	var damaged_enemies: Array = []
 	
