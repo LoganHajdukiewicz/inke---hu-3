@@ -6,6 +6,7 @@ var gravity: float = 9.8
 var gravity_default: float = 9.8
 var jump_velocity: float = 5.0
 var is_being_sprung: bool = false
+var ignore_next_jump: bool = false
 
 # Double jump variables
 var has_double_jumped: bool = false
@@ -50,7 +51,15 @@ var wall_jump_detector: WallJumpDetector
 
 func _ready():
 	$CameraController.initialize_camera()
-	
+	if DialogueManager:
+		DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
+
+func _on_dialogue_ended():
+	"""Called when dialogue ends - ignore the next jump input"""
+	ignore_next_jump = true
+	# Clear the flag after a short delay
+	await get_tree().create_timer(0.01).timeout
+	ignore_next_jump = false
 	# Get GameManager reference
 	game_manager = get_node("/root/GameManager")
 	if game_manager:

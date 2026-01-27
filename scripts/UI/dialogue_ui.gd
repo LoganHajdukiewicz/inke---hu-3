@@ -12,6 +12,7 @@ const PORTRAITS_PATH = "res://assets/portraits/"
 @onready var wall_dialogue_container = $WallDialogueContainer
 @onready var wall_text_label = $WallDialogueContainer/WallDialogueBox/MarginContainer/VBoxContainer/DialogueText
 @onready var wall_speaker_label = $WallDialogueContainer/WallDialogueBox/MarginContainer/VBoxContainer/SpeakerName
+@export var wall_display_duration: float = 1.5  # Time to show wall dialogue
 
 var is_typing: bool = false
 var current_text: String = ""
@@ -19,10 +20,9 @@ var displayed_text: String = ""
 var char_index: int = 0
 var is_wall_trigger: bool = false
 var wall_timer: float = 0.0
-var wall_display_duration: float = 3.0  # Time to show wall dialogue
 var waiting_for_release: bool = false  # Wait for space to be released before accepting new input
 
-@export var text_speed: float = 0.03  # Time between each character
+@export var text_speed: float = 0.01  # Time between each character
 var typing_timer: float = 0.0
 
 func _ready() -> void:
@@ -45,28 +45,42 @@ func _ready() -> void:
 	
 	print("DialogueUI: Ready and registered")
 
+
 func _unhandled_input(event: InputEvent) -> void:
+	# ADDED: If waiting for release, consume jump/ui_accept inputs
+	if waiting_for_release:
+		if event.is_action("ui_accept") or event.is_action("jump"):
+			get_viewport().set_input_as_handled()
+			# Only clear the flag on release
+			if event.is_action_released("ui_accept") or event.is_action_released("jump"):
+				waiting_for_release = false
+		return
+	
 	# Only process input for regular dialogue (not wall triggers)
 	if not dialogue_container.visible or is_wall_trigger:
 		return
 	
-	# If we're waiting for release, check for it
-	if waiting_for_release:
-		if event.is_action_released("ui_accept"):
-			waiting_for_release = false
-		get_viewport().set_input_as_handled()
-		return
-	
 	if event.is_action_pressed("ui_accept"):
 		if is_typing:
-			# Skip typing animation
 			finish_typing()
 		else:
-			# Go to next line
 			DialogueManager.next_line()
-		# Mark input as handled
 		get_viewport().set_input_as_handled()
 
+func hide_dialogue() -> void:
+	dialogue_container.visible = false
+	if wall_dialogue_container:
+		wall_dialogue_container.visible = false
+	print("DialogueUI: Hiding dialogue")
+	
+	# Set flag to wait for button release ONLY for proximity box triggers (not wall triggers)
+	if not is_wall_trigger:
+		waiting_for_release = true
+	
+	get_tree().paused = false
+	is_wall_trigger = false
+	wall_timer = 0.0
+	
 func _process(delta: float) -> void:
 	if is_typing:
 		typing_timer += delta
@@ -106,19 +120,6 @@ func show_dialogue(should_pause: bool = true) -> void:
 		# Pause game if requested
 		get_tree().paused = true
 
-func hide_dialogue() -> void:
-	dialogue_container.visible = false
-	if wall_dialogue_container:
-		wall_dialogue_container.visible = false
-	print("DialogueUI: Hiding dialogue")
-	
-	# Set flag to wait for space bar release before allowing player to jump
-	if not is_wall_trigger:
-		waiting_for_release = true
-	
-	get_tree().paused = false
-	is_wall_trigger = false
-	wall_timer = 0.0
 
 func _on_dialogue_line_changed(speaker: String, text: String, portrait: String) -> void:
 	print("DialogueUI: Displaying line - Speaker: ", speaker, " Text: ", text)

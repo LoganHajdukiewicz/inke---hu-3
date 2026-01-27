@@ -40,7 +40,7 @@ func physics_update(delta: float):
 		return
 	
 	# Check for jump
-	if Input.is_action_just_pressed("jump"):
+	if Input.is_action_just_pressed("jump") and not player.ignore_next_jump:
 		change_to("JumpingState")
 		return
 	

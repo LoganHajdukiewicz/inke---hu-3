@@ -36,8 +36,8 @@ func physics_update(delta: float):
 	if not player.is_on_floor():
 		change_to("FallingState") 
 		
-	if Input.is_action_just_pressed("jump"):
-		change_to("JumpingState")
+	if Input.is_action_just_pressed("jump") and not player.ignore_next_jump:
+		change_to("JumpingState") 
 		
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
