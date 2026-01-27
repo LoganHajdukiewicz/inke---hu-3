@@ -17,9 +17,11 @@ var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 func enter():
 	print("Entered Rail Grinding State")
 	
-	# Restore double jump ability when starting rail grinding
+	# Restore double jump and air dash abilities when starting rail grinding
 	player.can_double_jump = true
 	player.has_double_jumped = false
+	player.can_air_dash = true
+	player.has_air_dashed = false
 
 func physics_update(delta: float):
 	if Input.is_action_just_pressed("yoyo"):

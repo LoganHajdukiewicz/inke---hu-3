@@ -43,6 +43,13 @@ func enter():
 		grapple_mode = "swing"
 		# Preserve horizontal momentum for swinging
 		swing_velocity = player.velocity
+		
+		# Reset double jump and air dash abilities when entering swing mode
+		player.can_double_jump = true
+		player.has_double_jumped = false
+		player.can_air_dash = true
+		player.has_air_dashed = false
+		print("Swing mode - abilities reset!")
 	else:
 		grapple_mode = "pull"
 		# Start pulling immediately
