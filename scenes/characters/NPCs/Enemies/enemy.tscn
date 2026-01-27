@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://o2ukbrpnyo3t"]
+[gd_scene format=3 uid="uid://o2ukbrpnyo3t"]
 
 [ext_resource type="Script" uid="uid://jf08t82wuvpo" path="res://scripts/characters/NPCs/Enemies/enemy.gd" id="1_6plnq"]
 
@@ -18,26 +18,33 @@ size = Vector3(1.0300293, 0.56103516, 1)
 [sub_resource type="SphereShape3D" id="SphereShape3D_6plnq"]
 radius = 0.55
 
-[node name="Enemy" type="CharacterBody3D" groups=["Enemy"]]
+[node name="Enemy" type="CharacterBody3D" unique_id=1436873857 groups=["Enemy"]]
 script = ExtResource("1_6plnq")
+max_health = null
+current_health = null
+detection_range = null
+chase_speed = null
+wander_speed = null
+damage_to_player = null
+bounce_feedback = null
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1303142294]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5802858, 0)
 mesh = SubResource("CapsuleMesh_6plnq")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1406766732]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6003761, 0)
 shape = SubResource("CapsuleShape3D_8g1lg")
 
-[node name="HeadHurtbox" type="Area3D" parent="."]
+[node name="HeadHurtbox" type="Area3D" parent="." unique_id=719023851]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHurtbox"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHurtbox" unique_id=1912893666]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0018310547, 0.97240484, 0)
 shape = SubResource("BoxShape3D_8g1lg")
 
-[node name="HitBox" type="Area3D" parent="."]
+[node name="HitBox" type="Area3D" parent="." unique_id=497238843]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HitBox"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitBox" unique_id=1092437314]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009094238, 0.4578725, -0.014052689)
 shape = SubResource("SphereShape3D_6plnq")
 

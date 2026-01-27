@@ -14,6 +14,27 @@ class_name Enemy
 var can_chase := true
 var being_stomped := false  
 
+# Loot system
+@export_group("Death Loot (Gears)")
+@export var drops_gears_on_death: bool = true
+@export var gear_count_min: int = 3
+@export var gear_count_max: int = 8
+@export var gear_explosion_force_min: float = 150.0
+@export var gear_explosion_force_max: float = 400.0
+@export var gear_explosion_upward_min: float = 100.0
+@export var gear_explosion_upward_max: float = 200.0
+
+@export_group("Hit Loot (Paint Droplets)")
+@export var drops_paint_on_hit: bool = true
+@export var paint_droplet_count_min: int = 1
+@export var paint_droplet_count_max: int = 3
+@export var paint_explosion_force_min: float = 100.0
+@export var paint_explosion_force_max: float = 250.0
+
+# Preloaded scenes
+var gear_scene = preload("res://scenes/items/Gears/six_teeth_gear.tscn")
+# var paint_droplet_scene = preload("res://scenes/items/Collectibles/paint_droplet.tscn")
+
 # Physics
 var gravity: float = 9.8
 
@@ -172,6 +193,10 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	# Visual feedback
 	flash_color()
 	
+	# Drop paint droplets ONLY if not dying
+	# if current_health > 0 and drops_paint_on_hit:
+	# 	spawn_paint_droplets()
+	
 	# CRITICAL: Set the knockback BEFORE changing state
 	if state_machine:
 		var knockback_state = state_machine.states.get("aiknockbackstate") as AIKnockbackState
@@ -192,9 +217,64 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 		die()
 
 func die():
-	"""Enemy dies and is removed from scene"""
+	"""Enemy dies, spawns gears, and is removed from scene"""
 	print("=== ENEMY DIED ===")
+	
+	# Spawn gear explosion
+	if drops_gears_on_death:
+		spawn_gear_explosion()
+	
+	# Optional death particles/effects here
+	
 	queue_free()
+
+func spawn_gear_explosion():
+	"""Spawn gears with explosive scatter effect when enemy dies"""
+	if not gear_scene:
+		print("ERROR: Gear scene not found!")
+		return
+	
+	var spawn_position = global_position + Vector3(0, 0.5, 0)
+	var gear_count = randi_range(gear_count_min, gear_count_max)
+	
+	print("Spawning ", gear_count, " gears from enemy death")
+	
+	for i in range(gear_count):
+		var gear = gear_scene.instantiate()
+		get_parent().add_child(gear)
+		
+		# Random spawn offset
+		var offset = Vector3(
+			randf_range(-1.0, 1.0),
+			randf_range(0.3, 1.0),
+			randf_range(-1.0, 1.0)
+		)
+		gear.global_position = spawn_position + offset
+		
+		# Apply explosive force
+		if gear is RigidBody3D:
+			# Create radial explosion pattern
+			var explosion_direction = Vector3(
+				randf_range(-1.0, 1.0),
+				randf_range(0.5, 1.0),
+				randf_range(-1.0, 1.0)
+			).normalized()
+			
+			var explosion_force = randf_range(gear_explosion_force_min, gear_explosion_force_max)
+			var impulse = explosion_direction * explosion_force
+			
+			# Add extra upward boost
+			impulse.y += randf_range(gear_explosion_upward_min, gear_explosion_upward_max)
+			
+			gear.apply_impulse(impulse)
+			
+			# Add random spin
+			var torque = Vector3(
+				randf_range(-10, 10),
+				randf_range(-10, 10),
+				randf_range(-10, 10)
+			)
+			gear.apply_torque_impulse(torque)
 
 func flash_color():
 	"""Flash white when hit"""

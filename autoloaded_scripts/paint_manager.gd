@@ -12,6 +12,16 @@ enum PaintType {
 var current_paint: PaintType = PaintType.SAVE
 var previous_paint: PaintType = PaintType.SAVE
 
+# Paint meter system
+var current_paint_amount: int = 100  # Start with full paint
+var max_paint_amount: int = 100
+var paint_per_use: int = 20  # How much paint each spray costs
+
+# Signals for paint meter
+signal paint_amount_changed(current: int, maximum: int)
+signal paint_collected(amount: int)
+signal paint_depleted  # When paint runs out
+
 # Paint colors for visual feedback
 var paint_colors: Dictionary = {
 	PaintType.SAVE: Color(0.0, 0.8, 1.0),      # Cyan
@@ -76,6 +86,55 @@ func register_player(player_node: CharacterBody3D):
 	update_paint_indicator()
 	is_initialized = true
 	print("Paint Manager initialized - Current paint: ", paint_names[current_paint])
+	print("Starting paint amount: ", current_paint_amount, "/", max_paint_amount)
+
+# ==========================================
+# PAINT METER FUNCTIONS
+# ==========================================
+
+func add_paint(amount: int):
+	"""Add paint to the meter from collecting droplets"""
+	var old_amount = current_paint_amount
+	current_paint_amount = min(current_paint_amount + amount, max_paint_amount)
+	
+	print("Paint collected! +", amount, " (", old_amount, " -> ", current_paint_amount, ")")
+	
+	paint_collected.emit(amount)
+	paint_amount_changed.emit(current_paint_amount, max_paint_amount)
+
+func consume_paint(amount: int) -> bool:
+	"""Try to consume paint. Returns true if successful, false if not enough paint"""
+	if current_paint_amount >= amount:
+		current_paint_amount -= amount
+		paint_amount_changed.emit(current_paint_amount, max_paint_amount)
+		
+		if current_paint_amount == 0:
+			paint_depleted.emit()
+		
+		return true
+	else:
+		print("Not enough paint! Need ", amount, ", have ", current_paint_amount)
+		return false
+
+func get_paint_amount() -> int:
+	"""Get current paint amount"""
+	return current_paint_amount
+
+func get_max_paint_amount() -> int:
+	"""Get maximum paint amount"""
+	return max_paint_amount
+
+func get_paint_percentage() -> float:
+	"""Get paint amount as percentage (0.0 to 1.0)"""
+	return float(current_paint_amount) / float(max_paint_amount)
+
+func has_enough_paint_for_use() -> bool:
+	"""Check if player has enough paint to use ability"""
+	return current_paint_amount >= paint_per_use
+
+# ==========================================
+# EXISTING PAINT SYSTEM FUNCTIONS
+# ==========================================
 
 func setup_paint_indicator():
 	"""Create a visual indicator showing current paint type"""
@@ -248,8 +307,8 @@ func update_paint_indicator():
 			material.emission_energy_multiplier = 0.5
 		else:
 			# Normal bright color when ready
-			material.albedo_color = color
-			material.emission = color
+		material.albedo_color = color
+		material.emission = color
 			material.emission_energy_multiplier = 2.0
 		
 		# Pulse effect on switch
@@ -263,12 +322,13 @@ func play_switch_effect():
 		return
 	
 	# Scale pulse
-	var original_scale = paint_indicator.scale
-	var tween = create_tween()
-	tween.set_trans(Tween.TRANS_BACK)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(paint_indicator, "scale", original_scale * 1.5, 0.15)
-	tween.tween_property(paint_indicator, "scale", original_scale, 0.15)
+	if paint_indicator:
+		var original_scale = paint_indicator.scale
+		var tween = create_tween()
+		tween.set_trans(Tween.TRANS_BACK)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.tween_property(paint_indicator, "scale", original_scale * 1.5, 0.15)
+		tween.tween_property(paint_indicator, "scale", original_scale, 0.15)
 	
 	# TODO: Add sound effect here when you have audio
 	# $SwitchSound.play()
@@ -321,12 +381,12 @@ func play_use_effect():
 	if not paint_indicator or not is_instance_valid(paint_indicator):
 		return
 	
-	# Quick flash
-	var material = paint_indicator.material_override as StandardMaterial3D
-	if material:
-		var tween = create_tween()
-		tween.tween_property(material, "emission_energy_multiplier", 6.0, 0.05)
-		tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.2)
+		# Quick flash
+		var material = paint_indicator.material_override as StandardMaterial3D
+		if material:
+			var tween = create_tween()
+			tween.tween_property(material, "emission_energy_multiplier", 6.0, 0.05)
+			tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.2)
 	
 	# TODO: Add particle effect for paint spray
 	# TODO: Add sound effect
