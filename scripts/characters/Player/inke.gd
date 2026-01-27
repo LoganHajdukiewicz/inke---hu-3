@@ -57,6 +57,7 @@ func _ready():
 	# FIX: Get autoload references in _ready instead of @onready
 	game_manager = get_node("/root/GameManager")
 	checkpoint_manager = get_node("/root/CheckpointManager")
+	paint_manager = get_node("/root/PaintManager")
 	
 	$CameraController.initialize_camera()
 	if DialogueManager:
@@ -74,6 +75,17 @@ func _ready():
 	# Get CheckpointManager reference
 	if not checkpoint_manager:
 		print("Player: CheckpointManager not found!")
+	
+	# Register with PaintManager
+	if paint_manager:
+		paint_manager.register_player(self)
+		# Connect to paint signals
+		if paint_manager.has_signal("paint_changed"):
+			paint_manager.paint_changed.connect(_on_paint_changed)
+		if paint_manager.has_signal("paint_used"):
+			paint_manager.paint_used.connect(_on_paint_used)
+	else:
+		print("Player: PaintManager not found!")
 	
 	# Initialize modular components
 	initialize_components()
@@ -114,16 +126,6 @@ func initialize_components():
 	var attack_manager = AttackManager.new()
 	attack_manager.name = "AttackManager"
 	add_child(attack_manager)
-	
-	# Paint system
-	paint_manager.name = "PaintManager"
-	add_child(paint_manager)
-	
-	# Connect to paint signals if needed
-	if paint_manager.has_signal("paint_changed"):
-		paint_manager.paint_changed.connect(_on_paint_changed)
-	if paint_manager.has_signal("paint_used"):
-		paint_manager.paint_used.connect(_on_paint_used)
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""
