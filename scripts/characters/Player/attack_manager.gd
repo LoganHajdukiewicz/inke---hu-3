@@ -141,39 +141,60 @@ func perform_attack(is_heavy: bool):
 	
 	# DEBUG: Print what we hit
 	for body in hit_bodies:
-		print("  Body: ", body.name, " Groups: ", body.get_groups(), " Is Enemy: ", body.is_in_group("Enemy"))
+		print("  Body: ", body.name, " Groups: ", body.get_groups(), " Is Enemy: ", body.is_in_group("Enemy"), " Is Breakable: ", body.is_in_group("Breakables"))
 	for area in hit_areas:
 		print("  Area: ", area.name, " Groups: ", area.get_groups())
 		if area.get_parent():
 			print("    Parent: ", area.get_parent().name, " Groups: ", area.get_parent().get_groups())
-	for body in hit_bodies:
-		if body.is_in_group("Breakable") and body.has_method("take_damage"):
-			print("  -> Hitting breakable object: ", body.name)
-			body.take_damage(damage)
-	# Track which enemies we've already damaged
-	var damaged_enemies: Array = []
+	
+	# Track which entities we've already damaged
+	var damaged_entities: Array = []
 	
 	# Process body hits
 	for body in hit_bodies:
-		print("Checking body: ", body.name, " is_in_group(Enemy): ", body.is_in_group("Enemy"))
-		if body.is_in_group("Enemy") and body not in damaged_enemies:
+		# Check for breakable objects (like boxes)
+		if body.is_in_group("Breakables") and body not in damaged_entities:
+			print("  -> Hitting breakable body: ", body.name)
+			if body.has_method("take_damage"):
+				body.take_damage(damage)
+				damaged_entities.append(body)
+		
+		# Check for enemies
+		elif body.is_in_group("Enemy") and body not in damaged_entities:
 			print("  -> Hitting enemy body!")
 			hit_enemy(body, damage, knockback_horizontal, knockback_vertical)
-			damaged_enemies.append(body)
+			damaged_entities.append(body)
 	
 	# Process area hits
 	for area in hit_areas:
 		print("Checking area: ", area.name)
+		
+		# Check if the area itself is breakable
+		if area.is_in_group("Breakables") and area not in damaged_entities:
+			print("  -> Hitting breakable area: ", area.name)
+			if area.has_method("take_damage"):
+				area.take_damage(damage)
+				damaged_entities.append(area)
+		
+		# Check if the area's parent is breakable or an enemy
 		if area.get_parent():
-			print("  Parent: ", area.get_parent().name, " is_in_group(Enemy): ", area.get_parent().is_in_group("Enemy"))
-			if area.get_parent().is_in_group("Enemy"):
-				var enemy_parent = area.get_parent()
-				if enemy_parent not in damaged_enemies:
-					print("  -> Hitting enemy via area parent!")
-					hit_enemy(enemy_parent, damage, knockback_horizontal, knockback_vertical)
-					damaged_enemies.append(enemy_parent)
+			var parent = area.get_parent()
+			print("  Parent: ", parent.name, " Groups: ", parent.get_groups())
+			
+			# Check for breakable parent (like a box with a DamageDetection area)
+			if parent.is_in_group("Breakables") and parent not in damaged_entities:
+				print("  -> Hitting breakable via area parent: ", parent.name)
+				if parent.has_method("take_damage"):
+					parent.take_damage(damage)
+					damaged_entities.append(parent)
+			
+			# Check for enemy parent
+			elif parent.is_in_group("Enemy") and parent not in damaged_entities:
+				print("  -> Hitting enemy via area parent!")
+				hit_enemy(parent, damage, knockback_horizontal, knockback_vertical)
+				damaged_entities.append(parent)
 	
-	print("Total enemies damaged: ", damaged_enemies.size())
+	print("Total entities damaged: ", damaged_entities.size())
 	
 	# Disable hitbox after attack
 	attack_hitbox.monitoring = false

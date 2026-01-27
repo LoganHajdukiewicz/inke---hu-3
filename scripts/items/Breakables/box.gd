@@ -30,6 +30,12 @@ func _ready():
 	current_health = max_health
 	game_manager = get_node("/root/GameManager")
 	
+	# CRITICAL FIX: Add this node to the Breakables group
+	# This allows the attack system to detect it
+	if not is_in_group("Breakables"):
+		add_to_group("Breakables")
+		print("Box ", name, " added to Breakables group")
+	
 	# Connect damage detection area
 	if damage_area:
 		damage_area.body_entered.connect(_on_damage_body_entered)
@@ -78,6 +84,10 @@ func take_damage(amount: int):
 	
 	current_health -= amount
 	print("Crate took ", amount, " damage. Health: ", current_health, "/", max_health)
+	
+	# Visual feedback
+	flash_white()
+	shake_crate()
 	
 	if current_health <= 0:
 		break_crate()
