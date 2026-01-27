@@ -8,6 +8,16 @@ func enter():
 	print("Entered Falling State")
 	fall_time = 0.0
 	initial_fall_velocity = player.velocity.y
+	
+	# ADDED: Safety cap on entering falling state to prevent accumulated velocity
+	# This prevents mega-dashes from accumulated falling velocity
+	var max_horizontal_speed = 25.0  # Cap horizontal speed on entry
+	var horizontal_velocity = Vector2(player.velocity.x, player.velocity.z)
+	if horizontal_velocity.length() > max_horizontal_speed:
+		var capped = horizontal_velocity.normalized() * max_horizontal_speed
+		player.velocity.x = capped.x
+		player.velocity.z = capped.y
+		print("Capped horizontal velocity on entering falling state: ", horizontal_velocity.length(), " -> ", max_horizontal_speed)
 
 func update_dash_cooldown(delta: float):
 	"""Update the dash cooldown timer in the dodge dash state"""
@@ -24,16 +34,25 @@ func update_dash_cooldown(delta: float):
 func physics_update(delta: float):
 	update_dash_cooldown(delta)
 	fall_time += delta
+	
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():
 			change_to("DodgeDashState")
+	
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
 		return
+	
 	# Falling - gets heavier over time
 	var gravity_multiplier = get_fall_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
+	
+	# ADDED: Safety cap on falling velocity to prevent extreme speeds
+	var max_fall_speed = -30.0  # Terminal velocity
+	if player.velocity.y < max_fall_speed:
+		player.velocity.y = max_fall_speed
+		print("Capped falling velocity at terminal velocity")
 	
 	# Check for wall jump input first (highest priority)
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
