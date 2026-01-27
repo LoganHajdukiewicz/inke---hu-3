@@ -11,6 +11,14 @@ class_name Box
 @export var gear_count_min: int = 50
 @export var gear_count_max: int = 50
 
+@export_group("Explosion Settings")
+@export var explosion_force_min: float = 200.0  # Minimum horizontal explosion force
+@export var explosion_force_max: float = 500.0  # Maximum horizontal explosion force
+@export var explosion_upward_min: float = 150.0   # Minimum upward boost
+@export var explosion_upward_max: float = 250.0  # Maximum upward boost
+@export var spawn_spread: float = 2.5           # How far apart gears spawn
+@export var add_spin: bool = true                # Add random spinning to gears
+@export var spin_intensity: float = 10.0        # How fast gears spin
 
 # References to child nodes
 @onready var mesh: MeshInstance3D = $MeshInstance3D
@@ -168,33 +176,51 @@ func play_break_animation():
 		tween.tween_property(material, "albedo_color:a", 0.0, 0.3)
 
 func spawn_loot():
-	"""Spawn gears and health pickups"""
+	"""Spawn gears with EXPLOSIVE scatter effect!"""
 	var spawn_position = global_position + Vector3(0, 0.5, 0)
 	
 	# Spawn gears
 	if drops_gears and gear_scene:
 		var gear_count = randi_range(gear_count_min, gear_count_max)
+		
 		for i in range(gear_count):
 			var gear = gear_scene.instantiate()
 			get_parent().add_child(gear)
 			
-			# Randomize spawn position slightly
+			# Larger spawn position spread
 			var offset = Vector3(
-				randf_range(-0.5, 0.5),
-				randf_range(0.2, 0.8),
-				randf_range(-0.5, 0.5)
+				randf_range(-spawn_spread, spawn_spread),
+				randf_range(0.3, 1.0),
+				randf_range(-spawn_spread, spawn_spread)
 			)
 			gear.global_position = spawn_position + offset
 			
-			# Give it some random velocity for scatter effect
+			# EXPLOSIVE velocity for dramatic scatter!
 			if gear is RigidBody3D:
-				var impulse = Vector3(
-					randf_range(-3, 3),
-					randf_range(3, 6),
-					randf_range(-3, 3)
-				)
+				# Create radial explosion pattern
+				var explosion_direction = Vector3(
+					randf_range(-1.0, 1.0),
+					randf_range(0.5, 1.0),  # Bias upward
+					randf_range(-1.0, 1.0)
+				).normalized()
+				
+				# Strong impulse for big explosion effect
+				var explosion_force = randf_range(explosion_force_min, explosion_force_max)
+				var impulse = explosion_direction * explosion_force
+				
+				# Add extra upward boost
+				impulse.y += randf_range(explosion_upward_min, explosion_upward_max)
+				
 				gear.apply_impulse(impulse)
-	
+				
+				# Add random spin for extra drama
+				if add_spin:
+					var torque = Vector3(
+						randf_range(-spin_intensity, spin_intensity),
+						randf_range(-spin_intensity, spin_intensity),
+						randf_range(-spin_intensity, spin_intensity)
+					)
+					gear.apply_torque_impulse(torque)
 
 # Optional: Make crate react to nearby explosions
 func _on_explosion_nearby(explosion_position: Vector3, explosion_force: float):

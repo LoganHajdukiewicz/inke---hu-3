@@ -4,11 +4,15 @@
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_v6iqp"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6nuk2"]
+albedo_color = Color(0.39215687, 0.25490198, 0.09019608, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_6nuk2"]
+material = SubResource("StandardMaterial3D_6nuk2")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6nuk2"]
 
-[node name="Box" type="RigidBody3D" unique_id=1779844061]
+[node name="Box" type="RigidBody3D" unique_id=1779844061 groups=["Breakables"]]
 script = ExtResource("1_6nuk2")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1763112803]
@@ -19,5 +23,5 @@ mesh = SubResource("BoxMesh_6nuk2")
 
 [node name="DamageDetection" type="Area3D" parent="." unique_id=775376989]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDetection" unique_id=125373485 groups=["Breakables"]]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDetection" unique_id=125373485]
 shape = SubResource("BoxShape3D_6nuk2")
