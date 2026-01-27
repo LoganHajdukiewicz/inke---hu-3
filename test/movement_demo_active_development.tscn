@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dqvjp1oslocn4"]
 
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_y1o73"]
+[ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="4_v0x7v"]
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="5_0t3uf"]
 [ext_resource type="PackedScene" uid="uid://dyx5autvv3t1e" path="res://scenes/environments/dialogue_trigger.tscn" id="5_4w42i"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="6_07svi"]
@@ -25,13 +26,13 @@ fog_sky_affect = 0.5
 fog_height = 10.0
 fog_height_density = 0.01
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_4w42i"]
-size = Vector3(5, 5, 5)
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_v0x7v"]
 size = Vector3(5, 5, 5)
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_l503h"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_l503h"]
+size = Vector3(5, 5, 5)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_qyni3"]
 plane = Plane(0, 0, 1, 0)
 
 [node name="Movement_Demo_Active_Development" type="Node3D" unique_id=1332278585]
@@ -56,8 +57,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -21.135)
 floor_size = Vector3(20, 0.5, 50)
 
 [node name="Floor2" parent="Floors" unique_id=68630590 instance=ExtResource("5_0t3uf")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -73)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -78)
 floor_size = Vector3(20, 0.5, 50)
+
+[node name="Box" parent="Floors" unique_id=1779844061 groups=["Enemy"] instance=ExtResource("4_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.94884396, 0.5, -7.1002064)
 
 [node name="Signs" type="Node" parent="." unique_id=726206168]
 
@@ -68,8 +72,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.897
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@82873" type="CollisionShape3D" parent="Signs/Sign1/DialogueTrigger" unique_id=468933403]
-shape = SubResource("BoxShape3D_4w42i")
+[node name="@CollisionShape3D@103929" type="CollisionShape3D" parent="Signs/Sign1/DialogueTrigger" unique_id=1193412755]
+shape = SubResource("BoxShape3D_v0x7v")
 
 [node name="Sign2" parent="Signs" unique_id=1120073632 instance=ExtResource("6_07svi")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -44.381172)
@@ -78,13 +82,13 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@82874" type="CollisionShape3D" parent="Signs/Sign2/DialogueTrigger" unique_id=1196065394]
-shape = SubResource("BoxShape3D_v0x7v")
+[node name="@CollisionShape3D@103930" type="CollisionShape3D" parent="Signs/Sign2/DialogueTrigger" unique_id=1246624740]
+shape = SubResource("BoxShape3D_l503h")
 
 [node name="DialogueTrigger" parent="Signs" unique_id=456286084 instance=ExtResource("5_4w42i")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@82875" type="CollisionShape3D" parent="Signs/DialogueTrigger" unique_id=331287740]
-shape = SubResource("WorldBoundaryShape3D_l503h")
+[node name="@CollisionShape3D@103931" type="CollisionShape3D" parent="Signs/DialogueTrigger" unique_id=1968063770]
+shape = SubResource("WorldBoundaryShape3D_qyni3")

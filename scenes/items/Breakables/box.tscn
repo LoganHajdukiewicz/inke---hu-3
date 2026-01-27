@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://c63w5kpmx8pxr"]
+
+[ext_resource type="Script" uid="uid://dwpbhybdmnxk7" path="res://scripts/items/Breakables/box.gd" id="1_6nuk2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_v6iqp"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_6nuk2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6nuk2"]
+
+[node name="Box" type="RigidBody3D" unique_id=1779844061]
+script = ExtResource("1_6nuk2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1763112803]
+shape = SubResource("BoxShape3D_v6iqp")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1449905453]
+mesh = SubResource("BoxMesh_6nuk2")
+
+[node name="DamageDetection" type="Area3D" parent="." unique_id=775376989]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDetection" unique_id=125373485]
+shape = SubResource("BoxShape3D_6nuk2")
