@@ -12,12 +12,17 @@
 	},
 	{
 	  "speaker": "S-1GN",
-	  "text": "Press WASD to move and Spacebar to Jump. Hit Shift to run!",
+	  "text": "Press the left stick to move and O to Dash. Press R2 to run!",
 	  "portrait": "S-1GN-uwu"
 	},
 	{
 	  "speaker": "S-1GN",
-	  "text": "See? Isn't that fun?!",
+	  "text": "Move the right stick to move the camera. ",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "But you're so smart I bet you already knew that. ",
 	  "portrait": "S-1GN-uwu"
 	}
   ]

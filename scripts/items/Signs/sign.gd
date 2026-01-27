@@ -31,7 +31,7 @@ func create_floating_button():
 	
 	# Create the 3D label for 'E' with bold white text and black outline
 	button_label = Label3D.new()
-	button_label.text = "E"
+	button_label.text = "X"
 	button_label.font_size = 64
 	button_label.modulate = Color.WHITE
 	button_label.outline_size = 16  # Thicker black outline

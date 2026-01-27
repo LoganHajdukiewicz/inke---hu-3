@@ -8,11 +8,15 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Inke & HU-3"
-run/main_scene="uid://br1156go3tbf1"
-config/features=PackedStringArray("4.5", "Forward Plus")
+run/main_scene="uid://dqvjp1oslocn4"
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
