@@ -71,7 +71,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.897
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@18785" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=551945573]
+[node name="@CollisionShape3D@41045" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1045008139]
 shape = SubResource("BoxShape3D_4w42i")
 
 [node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("6_07svi")]
@@ -81,7 +81,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18786" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=324093238]
+[node name="@CollisionShape3D@41046" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1419562530]
 shape = SubResource("BoxShape3D_v0x7v")
 
 [node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("6_07svi")]
@@ -91,7 +91,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@27951" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=713828014]
+[node name="@CollisionShape3D@41047" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=1665074877]
 shape = SubResource("BoxShape3D_l503h")
 
 [node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("5_4w42i")]
@@ -99,5 +99,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@18787" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=862722499]
+[node name="@CollisionShape3D@41048" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=2119731805]
 shape = SubResource("WorldBoundaryShape3D_qyni3")

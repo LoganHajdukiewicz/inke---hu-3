@@ -47,6 +47,7 @@ var wall_jump_detector: WallJumpDetector
 @onready var state_machine: StateMachine = $StateMachine
 var game_manager  # FIX: Don't use @onready with get_node for autoload
 var checkpoint_manager
+var paint_manager
 
 # Export for scene setup
 @export var wall_jump_rays: Node3D
@@ -113,6 +114,16 @@ func initialize_components():
 	var attack_manager = AttackManager.new()
 	attack_manager.name = "AttackManager"
 	add_child(attack_manager)
+	
+	# Paint system
+	paint_manager.name = "PaintManager"
+	add_child(paint_manager)
+	
+	# Connect to paint signals if needed
+	if paint_manager.has_signal("paint_changed"):
+		paint_manager.paint_changed.connect(_on_paint_changed)
+	if paint_manager.has_signal("paint_used"):
+		paint_manager.paint_used.connect(_on_paint_used)
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""
@@ -432,3 +443,16 @@ func get_gear_count() -> int:
 func get_CRED_count() -> int:
 	"""Get CRED count from GameManager"""
 	return game_manager.get_CRED_count() if game_manager else 0
+
+func _on_paint_changed(new_paint, previous_paint):
+	"""Called when player switches paint type"""
+	print("Paint changed from ", previous_paint, " to ", new_paint)
+	# You can add additional logic here, such as:
+	# - Update UI
+	# - Change visual effects
+	# - Enable/disable certain abilities
+
+func _on_paint_used(paint_type):
+	"""Called when player uses their current paint"""
+	print("Player used paint type: ", paint_type)
+	# Additional logic can be added here if needed
