@@ -307,8 +307,8 @@ func update_paint_indicator():
 			material.emission_energy_multiplier = 0.5
 		else:
 			# Normal bright color when ready
-		material.albedo_color = color
-		material.emission = color
+			material.albedo_color = color
+			material.emission = color
 			material.emission_energy_multiplier = 2.0
 		
 		# Pulse effect on switch
