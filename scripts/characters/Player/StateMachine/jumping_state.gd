@@ -5,18 +5,36 @@ class_name JumpingState
 var gravity_multiplier : float = 1.0
 var jump_time : float = 1.0
 var peak_time : float = 0.0  
-var horizontal_movement_decel = 0.8 
+var horizontal_movement_decel = 0.5  # CHANGED from 0.8 to 0.5 - less momentum preservation
 
 func enter():
 	print("Entered Jumping State")
 		
-# Don't override velocity if being launched by a spring
+	# Don't override velocity if being launched by a spring
 	if not player.is_being_sprung:
 		player.velocity.y = jump_velocity
 		jump_time = 0.0
 		
+		# FIX: Reduce momentum preservation from 0.8 to 0.5
+		# This prevents too much dash momentum from carrying into air dash
+		print("=== JUMP ENTER ===")
+		print("Before decel: ", player.velocity)
+		
 		player.velocity.x *= horizontal_movement_decel
 		player.velocity.z *= horizontal_movement_decel
+		
+		print("After decel: ", player.velocity)
+		
+		# SAFETY: Cap maximum horizontal velocity on jump entry
+		var horizontal_speed = Vector2(player.velocity.x, player.velocity.z).length()
+		var max_jump_horizontal = 50.0  # Max 50 units/sec horizontal on jump
+		
+		if horizontal_speed > max_jump_horizontal:
+			print("!!! Jump velocity cap triggered: ", horizontal_speed, " -> ", max_jump_horizontal)
+			var normalized = Vector2(player.velocity.x, player.velocity.z).normalized()
+			player.velocity.x = normalized.x * max_jump_horizontal
+			player.velocity.z = normalized.y * max_jump_horizontal
+			print("After cap: ", player.velocity)
 	else:
 		# Spring is controlling the jump, just reset timer
 		jump_time = 0.0
@@ -43,7 +61,10 @@ func physics_update(delta: float):
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():
+			print("=== TRANSITIONING TO AIR DASH ===")
+			print("Jump state velocity before transition: ", player.velocity)
 			change_to("DodgeDashState")
+			return
 
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
@@ -123,5 +144,7 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 func exit():
+	print("=== JUMP EXIT ===")
+	print("Final velocity: ", player.velocity)
 	# Reset scale to normal
 	player.scale = Vector3.ONE

@@ -15,6 +15,7 @@ var can_dash: bool = true
 var cooldown_timer: float = 0.0
 var dash_start_position: Vector3 = Vector3.ZERO
 var is_air_dash: bool = false
+var first_frame: bool = true  # Track if this is the first physics frame
 
 func enter():
 	print("Entered Dodge Dash State")
@@ -22,7 +23,6 @@ func enter():
 	# CRITICAL: If we're entering but cooldown isn't ready, exit immediately
 	if not can_dash:
 		print("ERROR: Entered dash state while cooldown active! Exiting immediately.")
-		# This should never happen, but if it does, transition back
 		exit_dash()
 		return
 	
@@ -48,7 +48,12 @@ func enter():
 		# Dash forward if no input
 		dash_direction = -player.global_transform.basis.z.normalized()
 	
-	# Set dash velocity
+	# FIX #1: COMPLETELY RESET horizontal velocity before setting dash velocity
+	# This prevents momentum accumulation from previous dashes/jumps
+	player.velocity.x = 0
+	player.velocity.z = 0
+	
+	# Now set the dash velocity on a clean slate
 	player.velocity.x = dash_direction.x * dash_speed
 	player.velocity.z = dash_direction.z * dash_speed
 	
@@ -67,6 +72,7 @@ func enter():
 	dash_timer = 0.0
 	can_dash = false
 	cooldown_timer = dash_cooldown
+	first_frame = true  # Mark that next physics_update is first frame
 	
 	# Enable invincibility without flash (for dashing)
 	if player.has_method("set_invulnerable_without_flash"):
@@ -77,6 +83,11 @@ func enter():
 	
 	# Visual feedback - scale squash effect
 	start_dash_animation()
+	
+	# DEBUG: Print velocity for debugging
+	print("=== DASH ENTER ===")
+	print("Dash velocity set to: ", player.velocity)
+	print("Is air dash: ", is_air_dash)
 
 func start_dash_animation():
 	"""Create a quick squash and stretch effect for the dash"""
@@ -97,6 +108,33 @@ func physics_update(delta: float):
 			can_dash = true
 			print("Dash cooldown complete - can dash again")
 	
+	# FIX #2: CRITICAL - Force reset velocity on first frame to handle race conditions
+	# This catches any velocity that might have persisted from move_and_slide() timing
+	if first_frame:
+		print("=== FIRST FRAME VELOCITY CHECK ===")
+		print("Before reset: ", player.velocity)
+		
+		# Check if horizontal velocity is higher than expected
+		var current_horizontal = Vector2(player.velocity.x, player.velocity.z).length()
+		var expected_horizontal = dash_speed
+		
+		if current_horizontal > expected_horizontal * 1.1:  # 10% tolerance
+			print("!!! VELOCITY ANOMALY DETECTED !!!")
+			print("Current: ", current_horizontal, " Expected: ", expected_horizontal)
+			print("Forcing reset...")
+			
+			# Force reset to exact dash velocity
+			player.velocity.x = dash_direction.x * dash_speed
+			player.velocity.z = dash_direction.z * dash_speed
+			
+			if is_air_dash:
+				player.velocity.y = clamp(player.velocity.y * 0.3, -5.0, 5.0)
+			else:
+				player.velocity.y = 0
+		
+		print("After reset: ", player.velocity)
+		first_frame = false
+	
 	dash_timer += delta
 	
 	# Check if dash duration has completed FIRST (priority check)
@@ -112,10 +150,23 @@ func physics_update(delta: float):
 		exit_dash()
 		return
 	
-	# Maintain dash velocity with slight deceleration
+	# FIX #3: Maintain EXACT dash velocity - completely override each frame
+	# This prevents ANY accumulation from collision responses or other sources
 	var decel_factor = 1.0 - (dash_timer / dash_duration)
-	player.velocity.x = dash_direction.x * dash_speed * decel_factor
-	player.velocity.z = dash_direction.z * dash_speed * decel_factor
+	var target_speed = dash_speed * decel_factor
+	
+	# FORCE set velocity to exact values - ignore any external modifications
+	player.velocity.x = dash_direction.x * target_speed
+	player.velocity.z = dash_direction.z * target_speed
+	
+	# FIX #4: Add safety cap to catch any remaining edge cases
+	var actual_horizontal = Vector2(player.velocity.x, player.velocity.z).length()
+	if actual_horizontal > dash_speed * 1.5:  # 150% of dash speed
+		print("!!! EMERGENCY VELOCITY CAP !!!")
+		print("Capping from ", actual_horizontal, " to ", dash_speed)
+		var normalized = Vector2(player.velocity.x, player.velocity.z).normalized()
+		player.velocity.x = normalized.x * dash_speed
+		player.velocity.z = normalized.y * dash_speed
 	
 	# Apply gravity differently based on air/ground dash
 	if is_air_dash:
@@ -127,9 +178,11 @@ func physics_update(delta: float):
 			player.velocity.y += player.get_gravity().y * delta * 0.3
 		else:
 			player.velocity.y = 0
+	
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
 		return
+	
 	# Allow canceling into jump
 	if Input.is_action_just_pressed("jump") and player.is_on_floor():
 		exit_dash()
@@ -137,31 +190,43 @@ func physics_update(delta: float):
 		return
 	
 	player.move_and_slide()
+	
+	# DEBUG: Monitor velocity after move_and_slide
+	var post_slide_horizontal = Vector2(player.velocity.x, player.velocity.z).length()
+	if post_slide_horizontal > target_speed * 1.2:  # 20% tolerance
+		print("!!! Post-slide velocity spike detected: ", post_slide_horizontal, " vs expected ", target_speed)
 
 func exit_dash():
+	print("=== DASH EXIT ===")
+	print("Pre-exit velocity: ", player.velocity)
 	
-	# Preserve some momentum
-	var momentum_factor = 0.6
+	# FIX #5: More conservative momentum preservation to prevent accumulation
+	# Reduce from 0.6 to 0.3 for even safer transitions
+	var momentum_factor = 0.3
 	player.velocity.x *= momentum_factor
 	player.velocity.z *= momentum_factor
+	
+	# Cap maximum exit velocity to prevent mega-launches
+	var horizontal_speed = Vector2(player.velocity.x, player.velocity.z).length()
+	var max_exit_speed = dash_speed * 0.4  # Cap at 40% of dash speed
+	
+	if horizontal_speed > max_exit_speed:
+		var horizontal_velocity = Vector2(player.velocity.x, player.velocity.z).normalized()
+		player.velocity.x = horizontal_velocity.x * max_exit_speed
+		player.velocity.z = horizontal_velocity.y * max_exit_speed
+		print("Capped exit velocity from ", horizontal_speed, " to ", max_exit_speed)
+	
+	print("Post-exit velocity: ", player.velocity)
 
 	# CRITICAL FIX: Always ensure cooldown continues after exit
-	# The physics_update will handle making can_dash true when ready
-	# Don't override can_dash here - let the cooldown timer do its job
-	
-	# Only reset dash immediately if:
-	# 1. Cooldown is already complete, OR
-	# 2. We landed from an air dash
 	if cooldown_timer <= 0:
 		can_dash = true
 		print("Cooldown already complete - dash enabled")
 	elif is_air_dash and player.is_on_floor():
 		can_dash = true
 		cooldown_timer = 0.0
-		# Note: has_air_dashed is reset in inke.gd when landing
 		print("Air dash landed - dash enabled immediately")
 	else:
-		# Cooldown still running - it will enable dash when timer reaches 0
 		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
 
 	# Transition to correct state
@@ -183,6 +248,7 @@ func exit_dash():
 func exit():
 	print("=== DASH STATE EXIT ===")
 	print("Final can_dash value: ", can_dash)
+	print("Final velocity: ", player.velocity)
 	
 	# Reset scale
 	player.scale = Vector3.ONE
