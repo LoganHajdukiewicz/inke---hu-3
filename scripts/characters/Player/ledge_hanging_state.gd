@@ -45,9 +45,16 @@ func position_at_ledge():
 		exit_ledge_hang()
 		return
 	
+	# Get the CollisionShape3D node to access the capsule height
+	var collision_shape = player.get_node("CollisionShape3D")
+	var capsule_height = 1.5  # Default height from your scene file
+	
+	if collision_shape and collision_shape.shape is CapsuleShape3D:
+		capsule_height = collision_shape.shape.height
+	
 	# Calculate hanging position (slightly away from wall, below ledge)
 	var hang_pos = ledge_position - ledge_normal * hang_offset
-	hang_pos.y = ledge_position.y - player.collision_shape.shape.height * 0.7
+	hang_pos.y = ledge_position.y - capsule_height * 0.7
 	
 	player.global_position = hang_pos
 	
