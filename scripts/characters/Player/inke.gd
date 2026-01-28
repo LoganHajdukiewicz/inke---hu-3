@@ -117,6 +117,11 @@ func initialize_components():
 	rail_detection_manager.name = "RailDetectionManager"
 	add_child(rail_detection_manager)
 	
+	# Ledge detection 
+	var ledge_detection_manager = LedgeDetectionManager.new()
+	ledge_detection_manager.name = "LedgeDetectionManager"
+	add_child(ledge_detection_manager)
+	
 	# Wall jump detection
 	wall_jump_detector = WallJumpDetector.new()
 	wall_jump_detector.name = "WallJumpDetector"
