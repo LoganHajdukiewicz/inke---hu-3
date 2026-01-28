@@ -45,7 +45,7 @@ var wall_jump_detector: WallJumpDetector
 # References
 @onready var player = self
 @onready var state_machine: StateMachine = $StateMachine
-var game_manager  # FIX: Don't use @onready with get_node for autoload
+var game_manager 
 var checkpoint_manager
 var paint_manager
 

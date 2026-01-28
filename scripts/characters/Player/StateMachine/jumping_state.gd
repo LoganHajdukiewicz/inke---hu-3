@@ -5,7 +5,7 @@ class_name JumpingState
 var gravity_multiplier : float = 1.0
 var jump_time : float = 1.0
 var peak_time : float = 0.0  
-var horizontal_movement_decel = 0.5  # CHANGED from 0.8 to 0.5 - less momentum preservation
+var horizontal_movement_decel = 0.8  # CHANGED from 0.8 to 0.5 - less momentum preservation
 
 func enter():
 	print("Entered Jumping State")
