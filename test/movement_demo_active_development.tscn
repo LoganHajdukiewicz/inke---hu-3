@@ -109,7 +109,7 @@ floor_size = Vector3(20, 0.5, 20)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -345)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
-spring_force = 100.0
+spring_force = 40.0
 
 [node name="Floor8" parent="Floors" unique_id=666514647 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -120)
