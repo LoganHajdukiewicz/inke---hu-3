@@ -23,20 +23,24 @@ func enter():
 	print("Ledge position: ", ledge_position)
 	print("Wall normal: ", ledge_normal)
 	
-	# Stop all velocity when grabbing ledge
+	# CRITICAL: Stop all movement immediately
 	player.velocity = Vector3.ZERO
+	player.set_velocity(Vector3.ZERO)
 	
 	# Disable gravity while hanging
-	if player.has_method("get") and player.get("gravity") != null:
-		player.gravity = 0.0
+	if player.has_method("set"):
+		player.set("gravity", 0.0)
 	
-	# Position player at the ledge
+	# Position player at the ledge - do this AFTER stopping velocity
 	position_at_ledge()
 	
 	# Visual feedback - slight squash
 	var tween = create_tween()
 	tween.tween_property(player, "scale", Vector3(0.9, 1.1, 0.9), 0.1)
 	tween.tween_property(player, "scale", Vector3.ONE, 0.1)
+	
+	print("Player velocity after ledge grab: ", player.velocity)
+	print("Player position: ", player.global_position)
 
 func position_at_ledge():
 	"""Position the player at the correct hanging position"""
@@ -52,19 +56,41 @@ func position_at_ledge():
 	if collision_shape and collision_shape.shape is CapsuleShape3D:
 		capsule_height = collision_shape.shape.height
 	
-	# Calculate hanging position (slightly away from wall, below ledge)
-	var hang_pos = ledge_position - ledge_normal * hang_offset
-	hang_pos.y = ledge_position.y - capsule_height * 0.7
+	# CRITICAL FIX: Position player BELOW the ledge, hanging from hands
+	# Calculate where the player's hands would be (top of capsule)
+	var hand_height = capsule_height * 0.4  # Hands are near top of body
+	
+	# Position player so their "hands" are at the ledge level, body hanging below
+	var hang_pos = ledge_position
+	hang_pos.y = ledge_position.y - hand_height  # Body hangs down from ledge
+	
+	# Pull player slightly away from the wall
+	hang_pos -= ledge_normal * hang_offset
 	
 	player.global_position = hang_pos
 	
 	# Rotate player to face the wall
 	var target_rotation = atan2(-ledge_normal.x, -ledge_normal.z)
 	player.rotation.y = target_rotation
+	
+	print("Positioned player at: ", hang_pos)
+	print("Ledge is at: ", ledge_position)
+	print("Height difference: ", ledge_position.y - hang_pos.y)
 
 func physics_update(delta: float):
+	# Debug: Print state info every few frames
+	if Engine.get_physics_frames() % 30 == 0:
+		print("=== LEDGE HANG PHYSICS UPDATE ===")
+		print("Is climbing: ", is_climbing)
+		print("Player position: ", player.global_position)
+		print("Player velocity: ", player.velocity)
+	
 	if is_climbing:
+		print("Currently climbing, skipping physics update")
 		return
+	
+	# CRITICAL: Force velocity to zero every frame while hanging
+	player.velocity = Vector3.ZERO
 	
 	# Check if still near ledge
 	if not is_valid_ledge_position():
@@ -75,19 +101,20 @@ func physics_update(delta: float):
 	# Handle input
 	handle_ledge_input(delta)
 	
-	# Keep player stationary while hanging
-	player.velocity = Vector3.ZERO
-	player.move_and_slide()
+	# Keep player locked in position - don't call move_and_slide unless shimmying
+	# This prevents any physics from pushing the player around
 
 func handle_ledge_input(delta: float):
 	"""Handle player input while hanging on ledge"""
 	# Check for climb up
 	if Input.is_action_just_pressed("jump"):
+		print("=== CLIMB UP INITIATED ===")
 		climb_up_ledge()
 		return
 	
 	# Check for drop down
 	if Input.is_action_just_pressed("crouch") or Input.is_action_pressed("back"):
+		print("=== DROP DOWN INITIATED ===")
 		drop_from_ledge()
 		return
 	
@@ -95,6 +122,7 @@ func handle_ledge_input(delta: float):
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
 	if abs(input_dir.x) > 0.1:
+		print("Shimmying: ", "LEFT" if input_dir.x < 0 else "RIGHT")
 		shimmy_along_ledge(input_dir.x, delta)
 	else:
 		shimmy_direction = 0.0
@@ -113,6 +141,7 @@ func shimmy_along_ledge(direction: float, delta: float):
 	
 	# Check if new position is still valid (still has ledge to grab)
 	if can_shimmy_to_position(new_position):
+		# Directly set position for shimmying (more reliable than velocity)
 		player.global_position = new_position
 		
 		# Update ledge position as we shimmy
@@ -120,6 +149,9 @@ func shimmy_along_ledge(direction: float, delta: float):
 	else:
 		# Hit an obstacle or end of ledge
 		shimmy_direction = 0.0
+	
+	# Keep velocity at zero
+	player.velocity = Vector3.ZERO
 
 func can_shimmy_to_position(new_pos: Vector3) -> bool:
 	"""Check if player can shimmy to the new position"""
@@ -167,10 +199,18 @@ func climb_up_ledge():
 		return
 	
 	is_climbing = true
-	print("Climbing up ledge!")
+	print("=== CLIMBING UP LEDGE ===")
 	
 	# Calculate target position on top of ledge
-	var climb_target = ledge_position + Vector3(0, 0.1, 0) + ledge_normal * -0.8
+	# Player should end up standing ON the ledge surface
+	var climb_target = ledge_position
+	climb_target.y = ledge_position.y + 0.1  # Just slightly above the ledge surface
+	
+	# Move player forward from the wall so they're standing on the platform
+	climb_target -= ledge_normal * 0.8  # Push away from wall
+	
+	print("Climbing from: ", player.global_position)
+	print("Climbing to: ", climb_target)
 	
 	# Create climb animation
 	var tween = create_tween()
@@ -189,6 +229,8 @@ func climb_up_ledge():
 	
 	# Wait for climb to complete
 	await tween.finished
+	
+	print("Climb complete, transitioning to IdleState")
 	
 	# Transition to idle/walking state
 	change_to("IdleState")
@@ -249,6 +291,11 @@ func exit():
 	is_climbing = false
 	player.scale = Vector3.ONE
 	
-	# Restore gravity
-	if player.has_method("get") and player.get("gravity_default") != null:
-		player.gravity = player.gravity_default
+	# Restore gravity using player's property
+	if player.has_method("set") and player.has_method("get"):
+		var default_gravity = player.get("gravity_default")
+		if default_gravity != null:
+			player.set("gravity", default_gravity)
+			print("Restored gravity to: ", default_gravity)
+	
+	print("Final velocity on exit: ", player.velocity)
