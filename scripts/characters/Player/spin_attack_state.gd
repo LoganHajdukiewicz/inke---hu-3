@@ -4,8 +4,8 @@ class_name SpinAttackState
 # Spin attack configuration
 @export var spin_duration: float = 0.2  # How long the spin lasts
 @export var hover_strength: float = 25.0  # Upward force during spin
-@export var air_control_strength: float = 15.0  # Horizontal control during spin
-@export var max_horizontal_speed: float = 6.0  # Maximum speed during spin
+@export var air_control_strength: float = 25.0  # Horizontal control during spin
+@export var max_horizontal_speed: float = 15.0  # Maximum speed during spin
 @export var pushback_force: float = 25.0  # Force to push enemies
 @export var pushback_radius: float = 3.0  # Radius of 360° pushback
 @export var damage: int = 2  # Damage dealt by spin
@@ -27,18 +27,26 @@ func enter():
 	is_spinning = true
 	hit_enemies.clear()
 	
-	# FIXED: Only apply upward force if falling, otherwise maintain current velocity
-	if player.velocity.y < 0:
-		# If falling, slow the fall significantly
-		player.velocity.y = -1.0
-	elif player.velocity.y < 5.0:
-		# If going up slowly or not at all, give small boost
-		player.velocity.y = 3.0
-	# Otherwise preserve existing upward velocity (from jumps, etc)
-	
-	# Reduce horizontal momentum slightly
-	player.velocity.x *= 0.6
-	player.velocity.z *= 0.6
+	# Only apply upward force if IN THE AIR
+	if not player.is_on_floor():
+		# Only modify velocity when in air
+		if player.velocity.y < 0:
+			player.velocity.y = -1.0
+		elif player.velocity.y < 5.0:
+			player.velocity.y = 3.0
+		
+		# Reduce horizontal momentum slightly for air spin
+		player.velocity.x *= 0.6
+		player.velocity.z *= 0.6
+	else:
+		# ON GROUND: Keep velocity at zero vertically
+		player.velocity.y = 0.0
+		
+		# DISABLE FLOOR FRICTION by setting floor_stop_on_slope to false
+		# and floor_constant_speed to true
+		player.floor_stop_on_slope = false
+		player.floor_constant_speed = true
+		player.floor_block_on_wall = false
 	
 	# Setup hitbox
 	setup_spin_hitbox()
@@ -71,20 +79,14 @@ func setup_spin_hitbox():
 
 func start_spin_animation():
 	"""Create spinning visual effect"""
-	# FIXED: Kill any existing tweens first
 	if spin_tween and is_instance_valid(spin_tween):
 		spin_tween.kill()
 	
-	# Create spinning tween
 	spin_tween = create_tween()
 	spin_tween.set_loops()
 	
-	# Rapid spinning
 	var current_rotation = player.rotation.y
-	spin_tween.tween_property(player, "rotation:y", current_rotation + TAU, 0.2)
-	
-	# REMOVED: Scale pulse - this was causing the jiggling
-	# The spinning rotation is enough visual feedback
+	spin_tween.tween_property(player, "rotation:y", current_rotation + TAU, spin_duration)
 
 func physics_update(delta: float):
 	spin_timer += delta
@@ -94,28 +96,28 @@ func physics_update(delta: float):
 		exit_spin()
 		return
 	
-	# Apply hover force (counteracts gravity)
-	var hover_multiplier = 1.0 - (spin_timer / spin_duration)  # Weaker as spin ends
-	
-	# FIXED: Much gentler hover - just slow falling, don't push upward
-	if player.velocity.y < -2.0 and !player.is_on_floor():
-		# If falling too fast, apply upward force to slow it down
-		player.velocity.y += hover_strength * hover_multiplier * delta * 0.3
-	
-	# Apply normal gravity
-	player.velocity += player.get_gravity() * delta * 0.5
-	
-	# Handle micro-adjustments for platforming
-	var input_dir = Input.get_vector("left", "right", "forward", "back")
-	
-	if input_dir.length() > 0.1:
-		var camera_basis = player.get_node("CameraController").transform.basis
-		var direction: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	# Only apply hover force when in the air
+	if not player.is_on_floor():
+		var hover_multiplier = 1.0 - (spin_timer / spin_duration)
 		
-		# Apply air control
-		var target_velocity = direction * max_horizontal_speed
-		player.velocity.x = lerp(player.velocity.x, target_velocity.x, air_control_strength * delta)
-		player.velocity.z = lerp(player.velocity.z, target_velocity.z, air_control_strength * delta)
+		if player.velocity.y < -2.0:
+			player.velocity.y += hover_strength * hover_multiplier * delta * 0.3
+		
+		player.velocity += player.get_gravity() * delta * 0.5
+		
+		# Air control
+		var input_dir = Input.get_vector("left", "right", "forward", "back")
+		
+		if input_dir.length() > 0.1:
+			var camera_basis = player.get_node("CameraController").transform.basis
+			var direction: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+			
+			var target_velocity = direction * max_horizontal_speed
+			player.velocity.x = lerp(player.velocity.x, target_velocity.x, air_control_strength * delta)
+			player.velocity.z = lerp(player.velocity.z, target_velocity.z, air_control_strength * delta)
+	else:
+		# On ground - just apply gravity, friction is disabled
+		player.velocity += player.get_gravity() * delta
 	
 	# Check for enemies in range and apply pushback
 	check_and_pushback_enemies()
@@ -135,8 +137,8 @@ func physics_update(delta: float):
 	
 	player.move_and_slide()
 	
-	# Check for landing
-	if player.is_on_floor() and spin_timer > 0.2:  # Allow brief ground time before exit
+	# Check for landing - exit immediately when touching ground
+	if player.is_on_floor() and spin_timer > 0.05:  # Very brief ground time before exit
 		exit_spin()
 		return
 
@@ -221,7 +223,12 @@ func exit():
 	# Clean up
 	is_spinning = false
 	
-	# FIXED: Properly kill and null all tweens
+	# Re-enable floor friction
+	player.floor_stop_on_slope = true
+	player.floor_constant_speed = false
+	player.floor_block_on_wall = true
+	
+	# Kill tweens
 	if spin_tween and is_instance_valid(spin_tween):
 		spin_tween.kill()
 	spin_tween = null
@@ -229,8 +236,8 @@ func exit():
 	if spin_hitbox and is_instance_valid(spin_hitbox):
 		spin_hitbox.queue_free()
 	
-	# Reset scale to ensure no residual scaling
+	# Reset scale
 	player.scale = Vector3.ONE
 	
-	# Keep Y rotation but normalize it to prevent weird angles
+	# Normalize rotation
 	player.rotation.y = fmod(player.rotation.y, TAU)
