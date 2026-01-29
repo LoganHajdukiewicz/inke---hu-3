@@ -10,13 +10,9 @@ class_name AttackManager
 @export var light_knockback_force: float = 40.0
 @export var light_knockback_upward: float = 3.0
 
-@export_group("Heavy Attack")
-@export var heavy_attack_damage: int = 3
-@export var heavy_attack_range: float = 0.1
-@export var heavy_attack_radius: float = 10
-@export var heavy_attack_cooldown: float = 1.0
-@export var heavy_knockback_force: float = 60.0
-@export var heavy_knockback_upward: float = 20.0
+# Spin attack now replaces heavy attack
+@export_group("Spin Attack")
+@export var spin_attack_cooldown: float = 1.0
 
 # Attack state
 var can_attack: bool = true
@@ -33,7 +29,7 @@ func _ready():
 	player = get_parent() as CharacterBody3D
 	state_machine = player.get_node("StateMachine") if player.has_node("StateMachine") else null
 	setup_attack_hitbox()
-	print("AttackManager: Ready! Light attack: attack button, Heavy attack: heavy_attack button")
+	print("AttackManager: Ready! Light attack: attack button, Spin attack: heavy_attack button or Shift+attack")
 
 func setup_attack_hitbox():
 	"""Creates an Area3D hitbox in front of the player for detecting enemies."""
@@ -82,34 +78,54 @@ func check_attack_input():
 		print("Is dead: ", player.is_dead if player else "no player")
 	
 	if Input.is_action_just_pressed("heavy_attack"):
-		print("Heavy attack button pressed!")
+		print("Spin attack button pressed!")
 	
 	if not can_attack or player.is_dead:
 		return
 	
-	# Heavy attack (higher priority) - Check both heavy_attack action and shift+attack
-	var heavy_pressed = Input.is_action_just_pressed("heavy_attack") or \
+	# Spin attack (higher priority) - Check both heavy_attack action and shift+attack
+	var spin_pressed = Input.is_action_just_pressed("heavy_attack") or \
 						(Input.is_action_just_pressed("attack") and Input.is_key_pressed(KEY_SHIFT))
 	
-	if heavy_pressed:
-		perform_attack(true)  # true = heavy attack
-		print("=== HEAVY ATTACK TRIGGERED ===")
+	if spin_pressed:
+		perform_spin_attack()
+		print("=== SPIN ATTACK TRIGGERED ===")
 	# Light attack - only if shift is NOT held
 	elif Input.is_action_just_pressed("attack") and not Input.is_key_pressed(KEY_SHIFT):
 		perform_attack(false)  # false = light attack
 		print("=== LIGHT ATTACK TRIGGERED ===")
+
+func perform_spin_attack():
+	"""Transition to spin attack state instead of performing attack here"""
+	if not state_machine:
+		print("ERROR: No state machine found!")
+		return
+	
+	var spin_state = state_machine.states.get("spinattackstate")
+	if not spin_state:
+		print("ERROR: SpinAttackState not found in state machine!")
+		print("Available states: ", state_machine.states.keys())
+		return
+	
+	# Start cooldown
+	can_attack = false
+	attack_timer = spin_attack_cooldown
+	
+	# Transition to spin attack state
+	state_machine.change_state("SpinAttackState")
+	print("Transitioned to SpinAttackState")
 
 func perform_attack(is_heavy: bool):
 	"""Executes the attack with specified parameters."""
 	print("=== PERFORMING ", "HEAVY" if is_heavy else "LIGHT", " ATTACK ===")
 	
 	# Get attack parameters based on type
-	var damage = heavy_attack_damage if is_heavy else light_attack_damage
-	var attack_range = heavy_attack_range if is_heavy else light_attack_range
-	var attack_radius = heavy_attack_radius if is_heavy else light_attack_radius
-	var cooldown = heavy_attack_cooldown if is_heavy else light_attack_cooldown
-	var knockback_horizontal = heavy_knockback_force if is_heavy else light_knockback_force
-	var knockback_vertical = heavy_knockback_upward if is_heavy else light_knockback_upward
+	var damage = light_attack_damage
+	var attack_range = light_attack_range
+	var attack_radius = light_attack_radius
+	var cooldown = light_attack_cooldown
+	var knockback_horizontal = light_knockback_force
+	var knockback_vertical = light_knockback_upward
 	
 	print("Attack params - Damage: ", damage, " Knockback H: ", knockback_horizontal, " V: ", knockback_vertical)
 	

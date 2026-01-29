@@ -15,6 +15,8 @@
 [ext_resource type="Script" uid="uid://cnh2eyma6qxwk" path="res://scripts/characters/Player/StateMachine/dodge_dash_state.gd" id="12_43ywd"]
 [ext_resource type="Script" uid="uid://ciwurlmtwa4wm" path="res://scripts/characters/Player/grapple_hook_state.gd" id="13_enllq"]
 [ext_resource type="Script" uid="uid://2s58wfqgfi06" path="res://scripts/characters/Player/ledge_hanging_state.gd" id="14_yqnh4"]
+[ext_resource type="Script" uid="uid://brpdq62nf3md4" path="res://scripts/characters/Player/wall_sliding_state.gd" id="15_v4knh"]
+[ext_resource type="Script" uid="uid://dq1ph3yvky7hl" path="res://scripts/characters/Player/spin_attack_state.gd" id="16_2xw1s"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -92,6 +94,12 @@ script = ExtResource("13_enllq")
 [node name="LedgeHangingState" type="Node" parent="StateMachine" unique_id=853626327]
 script = ExtResource("14_yqnh4")
 hang_offset = 1.0
+
+[node name="WallSlidingState" type="Node" parent="StateMachine" unique_id=1307219831]
+script = ExtResource("15_v4knh")
+
+[node name="SpinAttackState" type="Node" parent="StateMachine" unique_id=532446007]
+script = ExtResource("16_2xw1s")
 
 [node name="CameraController" type="Node3D" parent="." unique_id=1547743962]
 top_level = true
