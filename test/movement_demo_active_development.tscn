@@ -47,6 +47,17 @@ size = Vector3(3, 1.25, 5)
 [sub_resource type="BoxShape3D" id="BoxShape3D_07svi"]
 size = Vector3(3, 1.25, 5)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_1d5ko"]
+size = Vector3(2, 1.25, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_icac4"]
+transparency = 1
+cull_mode = 2
+albedo_color = Color(0, 1, 0, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gdr2d"]
+size = Vector3(2, 1.25, 2)
+
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_1d5ko"]
 plane = Plane(0, 0, 1, 0)
 
@@ -71,6 +82,10 @@ checkpoint_id = "checkpoint 1"
 [node name="Checkpoint2" parent="Checkpoints" unique_id=919102919 instance=ExtResource("9_y1o73")]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 1, -147)
 checkpoint_id = "checkpoint 2"
+
+[node name="Checkpoint3" parent="Checkpoints" unique_id=511528279 instance=ExtResource("9_y1o73")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 0.07594323, 30.857079, -469.81067)
+checkpoint_id = "checkpoint 3"
 
 [node name="Environments and DialogueUI" type="Node" parent="." unique_id=587922091]
 
@@ -104,6 +119,26 @@ floor_size = Vector3(20, 0.5, 20)
 [node name="Floor10" parent="Floors" unique_id=1294814309 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -321)
 floor_size = Vector3(20, 0.5, 20)
+
+[node name="Floor14" parent="Floors" unique_id=875631048 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 29.75, -405)
+floor_type = 4
+floor_size = Vector3(20, 0.5, 20)
+movement_axis = Vector3(0, 0, -40)
+movement_duration = 4.5
+
+[node name="Floor15" parent="Floors" unique_id=1524001222 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -470)
+floor_size = Vector3(20, 0.5, 20)
+movement_axis = Vector3(0, 0, -40)
+
+[node name="Floor12" parent="Floors" unique_id=1204567574 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -365)
+floor_size = Vector3(20, 40, 20)
+
+[node name="Floor13" parent="Floors" unique_id=180262945 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -385)
+floor_size = Vector3(20, 50, 20)
 
 [node name="Floor11" parent="Floors" unique_id=728896212 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -345)
@@ -140,7 +175,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.897
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@36989" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=311687741]
+[node name="@CollisionShape3D@18785" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1553256608]
 shape = SubResource("BoxShape3D_y1o73")
 
 [node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("6_07svi")]
@@ -150,7 +185,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@36990" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1548490033]
+[node name="@CollisionShape3D@18786" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1367617068]
 shape = SubResource("BoxShape3D_py3vs")
 
 [node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("6_07svi")]
@@ -160,7 +195,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@36991" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=336155726]
+[node name="@CollisionShape3D@18787" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=2143522948]
 shape = SubResource("BoxShape3D_3w4o3")
 
 [node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("6_07svi")]
@@ -170,7 +205,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@36992" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1168353050]
+[node name="@CollisionShape3D@18788" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=317177131]
 shape = SubResource("BoxShape3D_uylq5")
 
 [node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("6_07svi")]
@@ -180,7 +215,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign4"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@36993" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1186182755]
+[node name="@CollisionShape3D@18789" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1285674447]
 shape = SubResource("BoxShape3D_0t3uf")
 
 [node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("6_07svi")]
@@ -190,15 +225,32 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@36994" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=1583961751]
+[node name="@CollisionShape3D@18790" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=154821996]
 shape = SubResource("BoxShape3D_07svi")
+
+[node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 30.127289, -479.05234)
+
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign6" unique_id=1601585871 instance=ExtResource("5_4w42i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
+dialogue_file = "Sign6"
+box_size = Vector3(2, 1.25, 2)
+show_debug_visualization = true
+
+[node name="@CollisionShape3D@45429" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=148527026]
+shape = SubResource("BoxShape3D_1d5ko")
+
+[node name="@MeshInstance3D@45430" type="MeshInstance3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=647216325]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_icac4")
+mesh = SubResource("BoxMesh_gdr2d")
 
 [node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("5_4w42i")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@36995" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=992164305]
+[node name="@CollisionShape3D@18791" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1729408642]
 shape = SubResource("WorldBoundaryShape3D_1d5ko")
 
 [node name="Items" type="Node" parent="." unique_id=1097220712]

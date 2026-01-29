@@ -1,0 +1,29 @@
+{
+  "dialogue": [
+	{
+	  "speaker": "S-1GN",
+	  "text": "I missed you.",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Did you miss me? (*＞ω＜*)♡",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "...",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Oh. Okay. Yeah. That makes sense.",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Ahead is a grapple point. Press L1 to grapple. ",
+	  "portrait": "S-1GN-uwu"
+	}
+  ]
+}
