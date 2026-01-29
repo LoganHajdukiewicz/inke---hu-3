@@ -9,6 +9,10 @@ class_name WallJumpingState
 @export var momentum_fade_duration: float = 0.15  # Gradually give back control over this time
 @export var total_lock_time: float = 0.5  # Total time before full control returns
 
+@export_category("Wall Slide Variables")
+@export var wall_slide_check_time: float = 0.3  # Time after jump before checking for slide
+@export var wall_slide_velocity_threshold: float = -3.0  # Start sliding when falling this fast
+
 var wall_jump_horizontal_force: float = 12.0
 var wall_direction: Vector3 = Vector3.ZERO
 var wall_jump_timer: float = 0.0
@@ -45,10 +49,18 @@ func physics_update(delta: float):
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
 		return
+		
 	wall_jump_timer += delta
 	
 	# Apply gravity
 	player.velocity += player.get_gravity() * delta
+	
+	# NEW: Check for wall sliding transition after initial jump phase
+	if wall_jump_timer > wall_slide_check_time and player.velocity.y < wall_slide_velocity_threshold:
+		if is_near_wall():
+			print("Transitioning to wall slide")
+			change_to("WallSlidingState")
+			return
 	
 	# Check for wall jump input first (highest priority)
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
@@ -102,6 +114,32 @@ func physics_update(delta: float):
 		return
 	
 	player.move_and_slide()
+
+func is_near_wall() -> bool:
+	"""Check if player is near a wall using raycasts"""
+	var space_state = player.get_world_3d().direct_space_state
+	var check_distance = 0.8
+	
+	# Get player's forward direction
+	var forward = -player.global_transform.basis.z
+	var right = player.global_transform.basis.x
+	
+	# Check multiple directions
+	var check_directions = [forward, -forward, right, -right]
+	
+	for direction in check_directions:
+		var ray_start = player.global_position + Vector3(0, 1.0, 0)
+		var ray_end = ray_start + direction * check_distance
+		
+		var query = PhysicsRayQueryParameters3D.create(ray_start, ray_end)
+		query.collision_mask = 1
+		query.exclude = [player]
+		
+		var result = space_state.intersect_ray(query)
+		if result:
+			return true
+	
+	return false
 
 func handle_wall_jump_movement(delta: float):
 	"""
