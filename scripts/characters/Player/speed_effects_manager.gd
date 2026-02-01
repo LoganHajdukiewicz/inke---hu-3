@@ -9,11 +9,13 @@ class_name SpeedEffectsManager
 
 @export_category("Motion Lines Appearance")
 @export var line_color: Color = Color(1.0, 1.0, 1.0, 0.8)  # White with transparency
-@export var line_count: int = 16  # Number of radial lines (lower = less carnival-like)
-@export var line_thickness: float = 0.005  # How thick the lines are 
-# Here I want a line thickness that is 0.03 that is under the 0.005 thickness line. 
+@export var line_count_min: int = 12  # Minimum number of radial lines
+@export var line_count_max: int = 20  # Maximum number of radial lines
+@export var line_thickness_primary: float = 0.005  # Thickness of main lines
+@export var line_thickness_secondary: float = 0.03  # Thickness of underlayer lines
 @export var line_length_min: float = 0.3  # Minimum distance from center where lines start
 @export var line_length_max: float = 0.9  # Maximum distance from center where lines end
+@export var line_individual_length_variation: float = 0.5  # How much each line can vary in length (0.0 = no variation, 1.0 = max variation)
 @export var line_sharpness: float = 0.95  # How sharp/crisp the lines are (higher = sharper)
 
 # Internal state
@@ -21,6 +23,7 @@ var shader_material: ShaderMaterial
 var color_rect: ColorRect
 var canvas_layer: CanvasLayer
 var current_intensity: float = 0.0
+var actual_line_count: int = 16  # Randomized on setup
 
 var player: CharacterBody3D
 var camera_controller: Node3D
@@ -29,7 +32,15 @@ func _ready():
 	player = get_parent() as CharacterBody3D
 	camera_controller = player.get_node("CameraController") if player.has_node("CameraController") else null
 	
+	# Randomize line count on startup
+	randomize_line_count()
+	
 	call_deferred("setup_effect")
+
+func randomize_line_count():
+	"""Randomize the number of speed lines within the specified range"""
+	actual_line_count = randi_range(line_count_min, line_count_max)
+	print("Speed lines randomized to: ", actual_line_count, " lines")
 
 func setup_effect():
 	"""Setup the motion lines effect"""
@@ -73,7 +84,7 @@ func setup_effect():
 	
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child(canvas_layer)
-		print("Anime-style motion lines created!")
+		print("Anime-style motion lines created with ", actual_line_count, " lines!")
 	else:
 		print("Could not add motion lines - no current scene found")
 
@@ -95,11 +106,18 @@ uniform float intensity : hint_range(0.0, 1.0) = 0.0;
 uniform vec2 center = vec2(0.5, 0.5);
 uniform vec4 line_color : source_color = vec4(1.0, 1.0, 1.0, 0.8);
 uniform int line_count = 16;
-uniform float line_thickness = 0.005;
+uniform float line_thickness_primary = 0.005;
+uniform float line_thickness_secondary = 0.03;
 uniform float line_length_min = 0.3;
 uniform float line_length_max = 0.9;
+uniform float line_length_variation = 0.3;
 uniform float line_sharpness = 0.95;
 uniform float animation_speed = 1.0;
+
+// Simple hash function for pseudo-random values per line
+float hash(float n) {
+	return fract(sin(n) * 43758.5453123);
+}
 
 void fragment() {
 	vec2 uv = UV - center;
@@ -108,31 +126,50 @@ void fragment() {
 	float dist = length(uv);
 	float angle = atan(uv.y, uv.x);
 	
-	// Create sharp radial lines (anime-style)
-	float line_angle = 6.28318530718 / float(line_count); // TAU / line_count
-	float angle_normalized = mod(angle + 3.14159265359, 6.28318530718); // Normalize angle
+	// Normalize angle to 0-TAU range
+	float angle_normalized = mod(angle + 3.14159265359, 6.28318530718);
+	
+	// Calculate which line segment we're in
+	float line_angle = 6.28318530718 / float(line_count);
+	float line_index = floor(angle_normalized / line_angle);
 	float line_position = mod(angle_normalized, line_angle) / line_angle;
 	
-	// Make lines very sharp and thin
-	float line = smoothstep(0.5 - line_thickness, 0.5, line_position) * 
-	             smoothstep(0.5 + line_thickness, 0.5, line_position);
+	// Generate per-line random values using hash
+	float line_random = hash(line_index);
 	
-	// Apply sharpness
-	line = pow(line, 1.0 / line_sharpness);
+	// Calculate random length for this specific line
+	float length_range = line_length_max - line_length_min;
+	float random_length_offset = line_random * line_length_variation * length_range;
+	float this_line_max = line_length_max - random_length_offset;
 	
-	// Only show lines in outer region (like anime speed lines)
+	// Create dual-thickness lines
+	// Primary (thin) line
+	float primary_line = smoothstep(0.5 - line_thickness_primary, 0.5, line_position) * 
+	                     smoothstep(0.5 + line_thickness_primary, 0.5, line_position);
+	primary_line = pow(primary_line, 1.0 / line_sharpness);
+	
+	// Secondary (thick underlayer) line
+	float secondary_line = smoothstep(0.5 - line_thickness_secondary, 0.5, line_position) * 
+	                       smoothstep(0.5 + line_thickness_secondary, 0.5, line_position);
+	secondary_line = pow(secondary_line, 1.0 / (line_sharpness * 0.8)); // Slightly softer
+	
+	// Combine lines - secondary is darker/more transparent base
+	float combined_line = max(secondary_line * 0.4, primary_line);
+	
+	// Apply randomized radial mask for this line
 	float radial_mask = smoothstep(line_length_min, line_length_min + 0.05, dist) * 
-	                     smoothstep(line_length_max, line_length_max - 0.1, dist);
+	                     smoothstep(this_line_max, this_line_max - 0.1, dist);
 	
-	// Add subtle animation - lines pulse outward
-	float pulse = sin(TIME * animation_speed - dist * 3.0) * 0.5 + 0.5;
+	// Add subtle animation - lines pulse outward with some randomness
+	float pulse_offset = line_random * 3.14159; // Random phase offset per line
+	float pulse = sin(TIME * animation_speed - dist * 3.0 + pulse_offset) * 0.5 + 0.5;
 	radial_mask *= (0.8 + pulse * 0.2);
 	
 	// Add slight edge vignette for clean look
 	float edge_fade = smoothstep(1.0, 0.85, dist);
 	
 	// Combine everything
-	float alpha = line * radial_mask * edge_fade * intensity;
+	float alpha = combined_line * radial_mask * edge_fade * intensity;
 	
 	COLOR = vec4(line_color.rgb, alpha * line_color.a);
 }
@@ -143,10 +180,12 @@ func setup_shader_parameters():
 	shader_material.set_shader_parameter("intensity", 0.0)
 	shader_material.set_shader_parameter("center", Vector2(0.5, 0.5))
 	shader_material.set_shader_parameter("line_color", line_color)
-	shader_material.set_shader_parameter("line_count", line_count)
-	shader_material.set_shader_parameter("line_thickness", line_thickness)
+	shader_material.set_shader_parameter("line_count", actual_line_count)
+	shader_material.set_shader_parameter("line_thickness_primary", line_thickness_primary)
+	shader_material.set_shader_parameter("line_thickness_secondary", line_thickness_secondary)
 	shader_material.set_shader_parameter("line_length_min", line_length_min)
 	shader_material.set_shader_parameter("line_length_max", line_length_max)
+	shader_material.set_shader_parameter("line_length_variation", line_individual_length_variation)
 	shader_material.set_shader_parameter("line_sharpness", line_sharpness)
 	shader_material.set_shader_parameter("animation_speed", 1.0)
 
@@ -210,14 +249,21 @@ func set_max_speed(max: float):
 	"""Change the max speed at runtime"""
 	max_speed = max
 
-func set_line_count(count: int):
-	"""Change the number of lines at runtime"""
-	line_count = count
+func rerandomize_lines():
+	"""Re-randomize the number and appearance of lines"""
+	randomize_line_count()
 	if shader_material:
-		shader_material.set_shader_parameter("line_count", line_count)
+		shader_material.set_shader_parameter("line_count", actual_line_count)
+		print("Speed lines re-randomized to: ", actual_line_count, " lines")
 
 func set_line_color(color: Color):
 	"""Change the line color at runtime"""
 	line_color = color
 	if shader_material:
 		shader_material.set_shader_parameter("line_color", line_color)
+
+func set_line_count_range(min_count: int, max_count: int):
+	"""Change the range of possible line counts"""
+	line_count_min = min_count
+	line_count_max = max_count
+	rerandomize_lines()
