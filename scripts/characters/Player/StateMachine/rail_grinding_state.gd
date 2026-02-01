@@ -42,16 +42,17 @@ func physics_update(delta: float):
 		# Smoothly rotate the player to match the rail direction
 		player.transform.basis = player.transform.basis.slerp(target_rotation, delta * lerp_speed).orthonormalized()
 		
-		# Set horizontal velocity based on rail movement direction
+		# Set velocity based on rail movement direction
 		var rail_velocity = Vector3.ZERO
 		if rail_grind_node.forward:
 			rail_velocity = rail_grind_node.transform.basis.z * grind_exit_speed
 		else:
 			rail_velocity = -rail_grind_node.transform.basis.z * grind_exit_speed
 		
-		player.velocity.x = rail_velocity.x
-		player.velocity.z = rail_velocity.z
-		player.velocity.y = 0  # No vertical movement while grinding
+		# CRITICAL FIX: Set the ACTUAL velocity so speed effects can detect it
+		# The speed effects manager reads player.velocity to determine speed
+		player.velocity = rail_velocity
+		player.velocity.y = 0  # Keep it horizontal for grinding
 		
 		# Check for manual jump input for mid-grind jumping
 		if Input.is_action_just_pressed("jump"):

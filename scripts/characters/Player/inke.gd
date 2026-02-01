@@ -38,9 +38,7 @@ var jump_shadow_manager: JumpShadowManager
 var gear_collection_manager: GearCollectionManager
 var rail_detection_manager: RailDetectionManager
 var wall_jump_detector: WallJumpDetector
-# var motion_lines_manager: MotionLinesManager        # Option 1
-# var motion_blur_manager: MotionBlurManager          # Option 2
-# var sonic_boom_manager: SonicBoomManager            # Option 3
+var speed_effects_manager: SpeedEffectsManager
 
 # References
 @onready var player = self
@@ -131,6 +129,11 @@ func initialize_components():
 	var attack_manager = AttackManager.new()
 	attack_manager.name = "AttackManager"
 	add_child(attack_manager)
+	
+	# Speed effects (motion lines/blur/sonic boom)
+	speed_effects_manager = SpeedEffectsManager.new()
+	speed_effects_manager.name = "SpeedEffectsManager"
+	add_child(speed_effects_manager)
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""
