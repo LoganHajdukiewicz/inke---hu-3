@@ -42,6 +42,12 @@ func physics_update(delta: float):
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrapplingState")
 		return
+		
+	if Input.is_action_just_pressed("dash"):
+		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
+		if dodge_dash_state and dodge_dash_state.can_perform_dash():
+			change_to("DodgeDashState")
+		
 	# Check for wall jump input first
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
 		var wall_normal = player.get_wall_jump_direction()
