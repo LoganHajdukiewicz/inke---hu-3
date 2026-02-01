@@ -21,6 +21,9 @@ var can_long_jump: bool = false
 var long_jump_window: float = 0.3  # Time window after dash to trigger long jump
 var long_jump_timer: float = 0.0
 
+# Dash jump momentum storage (NEW)
+var stored_dash_momentum: Vector3 = Vector3.ZERO
+
 # Coyote time variables
 var coyote_time_duration: float = 0.15  
 var coyote_time_counter: float = 0.0
@@ -203,6 +206,8 @@ func update_long_jump_timer(delta: float):
 		long_jump_timer -= delta
 		if long_jump_timer <= 0.0:
 			can_long_jump = false
+			# Clear stored dash momentum when long jump window expires
+			stored_dash_momentum = Vector3.ZERO
 
 func enable_long_jump():
 	"""Enable long jump window after a dash"""

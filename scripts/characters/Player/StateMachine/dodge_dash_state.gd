@@ -133,21 +133,44 @@ func physics_update(delta: float):
 		change_to("GrappleHookState")
 		return
 	
-	# Allow canceling into jump
+	# Allow canceling into jump - preserve full dash momentum for dash jump!
 	if Input.is_action_just_pressed("jump") and player.is_on_floor():
-		exit_dash()
+		# Store the current dash velocity before exiting
+		var dash_momentum = Vector3(player.velocity.x, 0, player.velocity.z)
+		if player.has_method("set"):
+			player.set("stored_dash_momentum", dash_momentum)
+		print("=== DASH JUMP INITIATED ===")
+		print("Stored dash momentum: ", dash_momentum.length())
+		exit_dash_for_jump()
 		change_to("JumpingState")
 		return
 	
 	player.move_and_slide()
 
-func exit_dash():
+func exit_dash_for_jump():
+	"""Special exit that preserves momentum for dash jumps"""
+	# DON'T reduce momentum - jumping state will use it!
+	# Just clean up the dash state
 	
-	# Preserve some momentum
-	var momentum_factor = 0.6
-	player.velocity.x *= momentum_factor
-	player.velocity.z *= momentum_factor
+	# Handle cooldown
+	if cooldown_timer <= 0:
+		can_dash = true
+		print("Cooldown already complete - dash enabled")
+	elif is_air_dash and player.is_on_floor():
+		can_dash = true
+		cooldown_timer = 0.0
+		print("Air dash landed - dash enabled immediately")
+	else:
+		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
+	
+	# Enable long jump window
+	if player.has_method("enable_long_jump"):
+		player.enable_long_jump()
+		print("Long jump window enabled for dash jump!")
 
+func exit_dash():
+	"""Normal exit that reduces momentum"""
+	
 	# CRITICAL FIX: Always ensure cooldown continues after exit
 	# The physics_update will handle making can_dash true when ready
 	# Don't override can_dash here - let the cooldown timer do its job
@@ -168,9 +191,20 @@ func exit_dash():
 		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
 
 	# NEW: Enable long jump window if we're on the ground
+	# Store the current dash velocity for potential long jump
+	var stored_dash_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
+	
 	if player.is_on_floor() and player.has_method("enable_long_jump"):
 		player.enable_long_jump()
-		print("Long jump window enabled after dash!")
+		# Store dash momentum for long jump
+		if player.has_method("set"):
+			player.set("stored_dash_momentum", stored_dash_velocity)
+		print("Long jump window enabled after dash! Stored momentum: ", stored_dash_velocity.length())
+
+	# Reduce momentum for normal exit
+	var momentum_factor = 0.6
+	player.velocity.x *= momentum_factor
+	player.velocity.z *= momentum_factor
 
 	# Transition to correct state
 	if player.is_on_floor():

@@ -8,12 +8,15 @@ var jump_time : float = 1.0
 var peak_time : float = 0.0  
 var horizontal_movement_decel = 0.8  # CHANGED from 0.8 to 0.5 - less momentum preservation
 var is_long_jump: bool = false  # NEW: Track if this is a long jump
+var used_dash_momentum: bool = false  # NEW: Track if we used stored dash momentum
 
 func enter():
 	print("Entered Jumping State")
 	
 	# NEW: Check if this is a long jump
 	is_long_jump = false
+	used_dash_momentum = false
+	
 	if player.has_method("is_long_jump_available") and player.is_long_jump_available():
 		is_long_jump = true
 		print("=== LONG JUMP ACTIVATED! ===")
@@ -21,37 +24,63 @@ func enter():
 		if player.has_method("enable_long_jump"):
 			player.can_long_jump = false
 			player.long_jump_timer = 0.0
-		
+	
 	# Don't override velocity if being launched by a spring
 	if not player.is_being_sprung:
 		player.velocity.y = jump_velocity
 		jump_time = 0.0
 		
-		# FIX: Reduce momentum preservation from 0.8 to 0.5
-		# This prevents too much dash momentum from carrying into air dash
-		print("=== JUMP ENTER ===")
-		print("Before decel: ", player.velocity)
+		# NEW: Check for stored dash momentum
+		var stored_momentum = Vector3.ZERO
+		if player.has_method("get") and player.get("stored_dash_momentum") != null:
+			stored_momentum = player.get("stored_dash_momentum")
+			print("=== DASH JUMP DETECTED ===")
+			print("Stored dash momentum: ", stored_momentum.length())
 		
-		player.velocity.x *= horizontal_movement_decel
-		player.velocity.z *= horizontal_movement_decel
-		
-		# NEW: Apply long jump boost if active
-		if is_long_jump:
-			print("Applying long jump multiplier: ", long_jump_multiplier)
-			player.velocity.x *= long_jump_multiplier
-			player.velocity.z *= long_jump_multiplier
+		# If we have stored dash momentum, use it directly instead of reducing current velocity
+		if stored_momentum.length() > 0:
+			# Use the full stored dash momentum
+			player.velocity.x = stored_momentum.x
+			player.velocity.z = stored_momentum.z
+			used_dash_momentum = true
 			
-			# Create visual effect for long jump
-			create_long_jump_effect()
-		
-		print("After decel: ", player.velocity)
+			# Clear the stored momentum
+			if player.has_method("set"):
+				player.set("stored_dash_momentum", Vector3.ZERO)
+			
+			print("Applied stored dash momentum: ", Vector2(player.velocity.x, player.velocity.z).length())
+			
+			# Apply long jump boost on top if active
+			if is_long_jump:
+				print("Applying long jump multiplier ON TOP of dash momentum: ", long_jump_multiplier)
+				player.velocity.x *= long_jump_multiplier
+				player.velocity.z *= long_jump_multiplier
+				create_long_jump_effect()
+		else:
+			# Normal jump - reduce momentum preservation
+			print("=== NORMAL JUMP ===")
+			print("Before decel: ", player.velocity)
+			
+			player.velocity.x *= horizontal_movement_decel
+			player.velocity.z *= horizontal_movement_decel
+			
+			# NEW: Apply long jump boost if active (and no dash momentum)
+			if is_long_jump:
+				print("Applying long jump multiplier: ", long_jump_multiplier)
+				player.velocity.x *= long_jump_multiplier
+				player.velocity.z *= long_jump_multiplier
+				create_long_jump_effect()
+			
+			print("After decel: ", player.velocity)
 		
 		# SAFETY: Cap maximum horizontal velocity on jump entry
 		var horizontal_speed = Vector2(player.velocity.x, player.velocity.z).length()
-		var max_jump_horizontal = 50.0  # Max 50 units/sec horizontal on jump
 		
-		# NEW: Increase cap for long jump
-		if is_long_jump:
+		# Higher cap for dash jumps and long jumps
+		var max_jump_horizontal = 50.0  # Base cap
+		if used_dash_momentum:
+			max_jump_horizontal = 70.0  # Much higher cap for dash jumps
+		elif is_long_jump:
 			max_jump_horizontal = 65.0  # Higher cap for long jumps
 		
 		if horizontal_speed > max_jump_horizontal:
@@ -149,8 +178,11 @@ func physics_update(delta: float):
 		var target_speed = max(current_horizontal_speed, 6.0)  # Much lower air speed
 		var target_velocity = direction * target_speed
 		
-		# Minimal air control - mostly preserve momentum
-		var air_control_factor = 0.5  # Even less control
+		# Less air control for dash jumps to preserve momentum
+		var air_control_factor = 0.5  # Base control
+		if used_dash_momentum:
+			air_control_factor = 0.2  # Much less control for dash jumps
+		
 		player.velocity.x = lerp(player.velocity.x, target_velocity.x, air_control_factor)
 		player.velocity.z = lerp(player.velocity.z, target_velocity.z, air_control_factor)
 		
@@ -158,6 +190,8 @@ func physics_update(delta: float):
 		if direction.length() > 0.1:
 			var target_rotation = atan2(-direction.x, -direction.z)
 			var rotation_speed = 8.0  # Much slower rotation
+			if used_dash_momentum:
+				rotation_speed = 4.0  # Even slower for dash jumps
 			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, rotation_speed * delta)
 	else:
 		# Preserve momentum direction with minimal drift
@@ -170,6 +204,8 @@ func physics_update(delta: float):
 		
 		# Minimal air resistance - preserve horizontal momentum
 		var air_resistance = 0.005  # Very low resistance
+		if used_dash_momentum:
+			air_resistance = 0.003  # Almost no resistance for dash jumps
 		player.velocity.x *= (1.0 - air_resistance)
 		player.velocity.z *= (1.0 - air_resistance)
 
@@ -184,9 +220,11 @@ func exit():
 	print("=== JUMP EXIT ===")
 	print("Final velocity: ", player.velocity)
 	print("Was long jump: ", is_long_jump)
+	print("Used dash momentum: ", used_dash_momentum)
 	
 	# Reset flags
 	is_long_jump = false
+	used_dash_momentum = false
 	
 	# Reset scale to normal
 	player.scale = Vector3.ONE
