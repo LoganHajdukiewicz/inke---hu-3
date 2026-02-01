@@ -6,7 +6,7 @@ class_name DodgeDashState
 @export var dash_duration: float = 0.3
 @export var dash_cooldown: float = 0.1
 @export var iframe_duration: float = 0.4  # Invincibility frames duration
-@export var max_dash_distance: float = 15.0  # Maximum distance the dash can cover
+@export var max_dash_distance: float = 10.0  # Maximum distance the dash can cover
 
 # Internal state
 var dash_timer: float = 0.0

@@ -37,41 +37,45 @@ func enter():
 			print("=== DASH JUMP DETECTED ===")
 			print("Stored dash momentum: ", stored_momentum.length())
 		
-		# If we have stored dash momentum, use it directly instead of reducing current velocity
+		# Normal momentum reduction first
+		print("=== NORMAL JUMP ===")
+		print("Before decel: ", player.velocity)
+		
+		player.velocity.x *= horizontal_movement_decel
+		player.velocity.z *= horizontal_movement_decel
+		
+		print("After decel: ", player.velocity)
+		
+		# If we have stored dash momentum, apply a 1.2x boost
 		if stored_momentum.length() > 0:
-			# Use the full stored dash momentum
-			player.velocity.x = stored_momentum.x
-			player.velocity.z = stored_momentum.z
+			# Calculate the direction from the stored momentum
+			var dash_direction = stored_momentum.normalized()
+			
+			# Get the current horizontal speed (after deceleration)
+			var current_horizontal = Vector2(player.velocity.x, player.velocity.z).length()
+			
+			# Apply a 1.4x boost to the current speed in the dash direction
+			var boosted_speed = current_horizontal * 0.5
+			
+			# Apply the boosted speed in the dash direction
+			player.velocity.x = dash_direction.x * boosted_speed
+			player.velocity.z = dash_direction.z * boosted_speed
 			used_dash_momentum = true
 			
 			# Clear the stored momentum
 			if player.has_method("set"):
 				player.set("stored_dash_momentum", Vector3.ZERO)
 			
-			print("Applied stored dash momentum: ", Vector2(player.velocity.x, player.velocity.z).length())
-			
-			# Apply long jump boost on top if active
-			if is_long_jump:
-				print("Applying long jump multiplier ON TOP of dash momentum: ", long_jump_multiplier)
-				player.velocity.x *= long_jump_multiplier
-				player.velocity.z *= long_jump_multiplier
-				create_long_jump_effect()
-		else:
-			# Normal jump - reduce momentum preservation
-			print("=== NORMAL JUMP ===")
-			print("Before decel: ", player.velocity)
-			
-			player.velocity.x *= horizontal_movement_decel
-			player.velocity.z *= horizontal_movement_decel
-			
-			# NEW: Apply long jump boost if active (and no dash momentum)
-			if is_long_jump:
-				print("Applying long jump multiplier: ", long_jump_multiplier)
-				player.velocity.x *= long_jump_multiplier
-				player.velocity.z *= long_jump_multiplier
-				create_long_jump_effect()
-			
-			print("After decel: ", player.velocity)
+			print("Applied dash jump 1.4x boost: ", Vector2(player.velocity.x, player.velocity.z).length())
+		
+		# NEW: Apply long jump boost if active (can stack with dash boost)
+		if is_long_jump:
+			print("Applying long jump multiplier: ", long_jump_multiplier)
+			player.velocity.x *= long_jump_multiplier
+			player.velocity.z *= long_jump_multiplier
+			create_long_jump_effect()
+		
+		print("Final velocity after all boosts: ", player.velocity)
 		
 		# SAFETY: Cap maximum horizontal velocity on jump entry
 		var horizontal_speed = Vector2(player.velocity.x, player.velocity.z).length()
@@ -79,9 +83,9 @@ func enter():
 		# Higher cap for dash jumps and long jumps
 		var max_jump_horizontal = 50.0  # Base cap
 		if used_dash_momentum:
-			max_jump_horizontal = 70.0  # Much higher cap for dash jumps
+			max_jump_horizontal = 60.0  # Cap for dash jumps
 		elif is_long_jump:
-			max_jump_horizontal = 65.0  # Higher cap for long jumps
+			max_jump_horizontal = 55.0  # Cap for long jumps
 		
 		if horizontal_speed > max_jump_horizontal:
 			print("!!! Jump velocity cap triggered: ", horizontal_speed, " -> ", max_jump_horizontal)
