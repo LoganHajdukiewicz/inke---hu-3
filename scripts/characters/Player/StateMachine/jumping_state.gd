@@ -2,13 +2,25 @@ extends State
 class_name JumpingState
 
 @export var jump_velocity : float = 15.0
+@export var long_jump_multiplier: float = 1.3  # Multiplier for long jump horizontal speed
 var gravity_multiplier : float = 1.0
 var jump_time : float = 1.0
 var peak_time : float = 0.0  
 var horizontal_movement_decel = 0.8  # CHANGED from 0.8 to 0.5 - less momentum preservation
+var is_long_jump: bool = false  # NEW: Track if this is a long jump
 
 func enter():
 	print("Entered Jumping State")
+	
+	# NEW: Check if this is a long jump
+	is_long_jump = false
+	if player.has_method("is_long_jump_available") and player.is_long_jump_available():
+		is_long_jump = true
+		print("=== LONG JUMP ACTIVATED! ===")
+		# Consume the long jump
+		if player.has_method("enable_long_jump"):
+			player.can_long_jump = false
+			player.long_jump_timer = 0.0
 		
 	# Don't override velocity if being launched by a spring
 	if not player.is_being_sprung:
@@ -23,11 +35,24 @@ func enter():
 		player.velocity.x *= horizontal_movement_decel
 		player.velocity.z *= horizontal_movement_decel
 		
+		# NEW: Apply long jump boost if active
+		if is_long_jump:
+			print("Applying long jump multiplier: ", long_jump_multiplier)
+			player.velocity.x *= long_jump_multiplier
+			player.velocity.z *= long_jump_multiplier
+			
+			# Create visual effect for long jump
+			create_long_jump_effect()
+		
 		print("After decel: ", player.velocity)
 		
 		# SAFETY: Cap maximum horizontal velocity on jump entry
 		var horizontal_speed = Vector2(player.velocity.x, player.velocity.z).length()
 		var max_jump_horizontal = 50.0  # Max 50 units/sec horizontal on jump
+		
+		# NEW: Increase cap for long jump
+		if is_long_jump:
+			max_jump_horizontal = 65.0  # Higher cap for long jumps
 		
 		if horizontal_speed > max_jump_horizontal:
 			print("!!! Jump velocity cap triggered: ", horizontal_speed, " -> ", max_jump_horizontal)
@@ -41,6 +66,18 @@ func enter():
 	
 	if player.is_on_floor():
 		player.can_double_jump = true
+
+func create_long_jump_effect():
+	"""Create a visual effect to indicate long jump"""
+	# Create a quick flash/burst effect
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	# Quick scale pulse
+	tween.tween_property(player, "scale", Vector3(1.2, 0.8, 1.2), 0.1)
+	tween.tween_property(player, "scale", Vector3.ONE, 0.2).set_delay(0.1)
+	
+	# You could also add particle effects here if you have a particle system
 
 func update_dash_cooldown(delta: float):
 	"""Update the dash cooldown timer in the dodge dash state"""
@@ -146,5 +183,10 @@ func physics_update(delta: float):
 func exit():
 	print("=== JUMP EXIT ===")
 	print("Final velocity: ", player.velocity)
+	print("Was long jump: ", is_long_jump)
+	
+	# Reset flags
+	is_long_jump = false
+	
 	# Reset scale to normal
 	player.scale = Vector3.ONE

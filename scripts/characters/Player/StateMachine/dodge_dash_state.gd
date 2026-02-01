@@ -167,6 +167,11 @@ func exit_dash():
 		# Cooldown still running - it will enable dash when timer reaches 0
 		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
 
+	# NEW: Enable long jump window if we're on the ground
+	if player.is_on_floor() and player.has_method("enable_long_jump"):
+		player.enable_long_jump()
+		print("Long jump window enabled after dash!")
+
 	# Transition to correct state
 	if player.is_on_floor():
 		var input_dir = Input.get_vector("left", "right", "forward", "back")

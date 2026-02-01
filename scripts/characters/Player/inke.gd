@@ -16,6 +16,11 @@ var can_double_jump: bool = false
 var has_air_dashed: bool = false
 var can_air_dash: bool = false
 
+# Long jump variables (NEW)
+var can_long_jump: bool = false
+var long_jump_window: float = 0.3  # Time window after dash to trigger long jump
+var long_jump_timer: float = 0.0
+
 # Coyote time variables
 var coyote_time_duration: float = 0.15  
 var coyote_time_counter: float = 0.0
@@ -176,6 +181,7 @@ func _physics_process(delta: float) -> void:
 	
 	update_coyote_time(delta)
 	update_invulnerability(delta)
+	update_long_jump_timer(delta)
 	check_fall_death()
 	
 	# Sync wall jump cooldown from detector to player (for state compatibility)
@@ -190,6 +196,23 @@ func _physics_process(delta: float) -> void:
 		can_air_dash = true
 	
 	$CameraController.follow_character(position, velocity)
+
+func update_long_jump_timer(delta: float):
+	"""Update the long jump window timer"""
+	if long_jump_timer > 0.0:
+		long_jump_timer -= delta
+		if long_jump_timer <= 0.0:
+			can_long_jump = false
+
+func enable_long_jump():
+	"""Enable long jump window after a dash"""
+	can_long_jump = true
+	long_jump_timer = long_jump_window
+	print("Long jump enabled for ", long_jump_window, " seconds")
+
+func is_long_jump_available() -> bool:
+	"""Check if player can perform a long jump"""
+	return can_long_jump and long_jump_timer > 0.0
 
 func update_invulnerability(delta: float):
 	"""Update invulnerability timer and CONDITIONAL visual feedback"""
