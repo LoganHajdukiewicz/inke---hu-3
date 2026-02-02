@@ -9,8 +9,8 @@ enum PaintType {
 }
 
 # Current selected paint
-var current_paint: PaintType = PaintType.SAVE
-var previous_paint: PaintType = PaintType.SAVE
+var current_paint: PaintType = PaintType.HEAL
+var previous_paint: PaintType = PaintType.HEAL
 
 # Paint meter system
 var current_paint_amount: int = 100  # Start with full paint
