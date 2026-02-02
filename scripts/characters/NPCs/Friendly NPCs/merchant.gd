@@ -356,8 +356,7 @@ func _process(delta):
 		# Only check for ui_accept if cooldown has passed
 		if input_cooldown <= 0 and Input.is_action_just_pressed("ui_accept"):
 			open_shop()
-			# Set cooldown to prevent immediate purchase trigger
-			input_cooldown = input_cooldown_time * 2
+			# CRITICAL: Don't set cooldown here - let open_shop() handle it
 	
 	# Handle shop navigation when shop is open
 	if shop_open:
@@ -404,17 +403,23 @@ func open_shop():
 		return
 	
 	print("Opening shop...")
+	
+	# CRITICAL FIX: Tell the player to ignore the next jump input
+	# This prevents the interaction button from also triggering a jump
+	if current_player.has_method("set"):
+		current_player.set("ignore_next_jump", true)
+	
 	shop_open = true
 	current_upgrade_index = 0
 	
-	# Show UI first
+	# Pause the game
+	get_tree().paused = true
+	
+	# Show UI
 	shop_panel.visible = true
 	
 	# Update selection to show current state
 	update_selection()
-	
-	# Pause the game AFTER showing UI
-	get_tree().paused = true
 	
 	# Set cooldown to prevent immediate input
 	input_cooldown = input_cooldown_time * 2
@@ -447,18 +452,7 @@ func update_selection():
 	
 	var selected_upgrade = upgrade_data[current_upgrade_index]
 	
-	# DEBUG: Check what GameManager says about this upgrade
-	print("===== MERCHANT DEBUG =====")
-	print("Selected upgrade: ", selected_upgrade.name)
-	print("Upgrade key: ", selected_upgrade.key)
-	print("Checking GameManager.is_upgrade_purchased(", selected_upgrade.key, ")")
 	var is_purchased = GameManager.is_upgrade_purchased(selected_upgrade.key)
-	print("Result: ", is_purchased)
-	print("GameManager.double_jump_purchased = ", GameManager.double_jump_purchased)
-	print("GameManager.wall_jump_purchased = ", GameManager.wall_jump_purchased)
-	print("GameManager.dash_purchased = ", GameManager.dash_purchased)
-	print("========================")
-	
 	var can_afford = player_gears >= selected_upgrade.cost
 	
 	# Update selection indicators

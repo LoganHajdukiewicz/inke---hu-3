@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bx58ch1j8e8bo"]
+[gd_scene format=3 uid="uid://bx58ch1j8e8bo"]
 
 [ext_resource type="Script" uid="uid://djp8lmohg81ly" path="res://scripts/characters/NPCs/Friendly NPCs/merchant.gd" id="1_4l1ay"]
 
@@ -13,17 +13,17 @@ material = SubResource("StandardMaterial3D_4l1ay")
 [sub_resource type="SphereShape3D" id="SphereShape3D_iyjy8"]
 radius = 1.7229
 
-[node name="Merchant" type="CharacterBody3D"]
+[node name="Merchant" type="CharacterBody3D" unique_id=742257988]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.04232, 0)
 script = ExtResource("1_4l1ay")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1867227209]
 mesh = SubResource("CapsuleMesh_2blnl")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1201465856]
 shape = SubResource("CapsuleShape3D_iyjy8")
 
-[node name="Area3D" type="Area3D" parent="."]
+[node name="Area3D" type="Area3D" parent="." unique_id=1356582206]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=544036674]
 shape = SubResource("SphereShape3D_iyjy8")
