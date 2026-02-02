@@ -44,6 +44,11 @@ var has_been_triggered: bool = false
 var collision_shape: CollisionShape3D
 var debug_mesh: MeshInstance3D
 
+# Floating X button variables
+var floating_button: Node3D
+var button_label: Label3D
+var bob_tween: Tween
+
 @onready var interaction_prompt = $InteractionPrompt if has_node("InteractionPrompt") else null
 
 signal interaction_available(trigger: DialogueTrigger)
@@ -58,6 +63,10 @@ func _ready() -> void:
 	
 	# Only connect gameplay signals when not in editor
 	if not Engine.is_editor_hint():
+		# Create floating X button for proximity boxes
+		if trigger_type == TriggerType.PROXIMITY_BOX:
+			create_floating_button()
+		
 		# Connect signals
 		body_entered.connect(_on_body_entered)
 		body_exited.connect(_on_body_exited)
@@ -68,6 +77,54 @@ func _ready() -> void:
 		
 		# Add to dialogue triggers group
 		add_to_group("dialogue_triggers")
+
+func create_floating_button():
+	# Create the floating button node
+	floating_button = Node3D.new()
+	floating_button.name = "FloatingButton"
+	add_child(floating_button)
+	
+	# Position it above the trigger center
+	floating_button.position = Vector3(0, 2.5, 0)
+	
+	# Create the 3D label for 'X' with bold white text and black outline
+	button_label = Label3D.new()
+	button_label.text = "X"
+	button_label.font_size = 64
+	button_label.modulate = Color.WHITE
+	button_label.outline_size = 16  # Thicker black outline
+	button_label.outline_modulate = Color.BLACK
+	button_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	button_label.position = Vector3(0, 0, 0)  # Centered position
+	
+	floating_button.add_child(button_label)
+	
+	# Hide the button initially
+	floating_button.visible = false
+
+func start_bobbing_animation():
+	# Kill any existing tween
+	if bob_tween:
+		bob_tween.kill()
+	
+	# Create new tween for bobbing animation
+	bob_tween = create_tween()
+	bob_tween.set_loops()
+	
+	# Animate the floating button up and down
+	var start_pos = floating_button.position
+	var bob_height = 0.3
+	
+	bob_tween.tween_property(floating_button, "position", start_pos + Vector3(0, bob_height, 0), 1.0)
+	bob_tween.tween_property(floating_button, "position", start_pos - Vector3(0, bob_height, 0), 1.0)
+
+func stop_bobbing_animation():
+	if bob_tween:
+		bob_tween.kill()
+	
+	# Reset position
+	if floating_button:
+		floating_button.position = Vector3(0, 2.5, 0)
 
 func setup_collision_shape() -> void:
 	# Remove any existing collision shapes
@@ -160,6 +217,11 @@ func _on_body_entered(body: Node3D) -> void:
 		# Proximity box requires player to press button
 		player_nearby = true
 		
+		# Show floating X button and start bobbing
+		if show_prompt and floating_button:
+			floating_button.visible = true
+			start_bobbing_animation()
+		
 		if show_prompt and interaction_prompt:
 			interaction_prompt.visible = true
 		
@@ -177,6 +239,11 @@ func _on_body_exited(body: Node3D) -> void:
 	
 	if trigger_type == TriggerType.PROXIMITY_BOX:
 		player_nearby = false
+		
+		# Hide floating X button and stop bobbing
+		if floating_button:
+			floating_button.visible = false
+			stop_bobbing_animation()
 		
 		if interaction_prompt:
 			interaction_prompt.visible = false
@@ -212,6 +279,11 @@ func start_dialogue() -> void:
 	
 	has_been_triggered = true
 	
+	# Hide floating X button when dialogue starts
+	if floating_button:
+		floating_button.visible = false
+		stop_bobbing_animation()
+	
 	if interaction_prompt:
 		interaction_prompt.visible = false
 	
@@ -227,8 +299,13 @@ func end_dialogue() -> void:
 		
 	# This is called by DialogueManager when dialogue ends
 	# Show prompt again if player still nearby (unless trigger_once is true)
-	if player_nearby and show_prompt and interaction_prompt and not (trigger_once and has_been_triggered):
-		interaction_prompt.visible = true
+	if player_nearby and show_prompt and not (trigger_once and has_been_triggered):
+		if floating_button:
+			floating_button.visible = true
+			start_bobbing_animation()
+		
+		if interaction_prompt:
+			interaction_prompt.visible = true
 
 func reset_trigger() -> void:
 	"""Manually reset the trigger (useful for debugging or specific game logic)"""
