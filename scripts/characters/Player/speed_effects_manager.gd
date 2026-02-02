@@ -145,12 +145,12 @@ void fragment() {
 	// Create dual-thickness lines
 	// Primary (thin) line
 	float primary_line = smoothstep(0.5 - line_thickness_primary, 0.5, line_position) * 
-	                     smoothstep(0.5 + line_thickness_primary, 0.5, line_position);
+						 smoothstep(0.5 + line_thickness_primary, 0.5, line_position);
 	primary_line = pow(primary_line, 1.0 / line_sharpness);
 	
 	// Secondary (thick underlayer) line
 	float secondary_line = smoothstep(0.5 - line_thickness_secondary, 0.5, line_position) * 
-	                       smoothstep(0.5 + line_thickness_secondary, 0.5, line_position);
+						   smoothstep(0.5 + line_thickness_secondary, 0.5, line_position);
 	secondary_line = pow(secondary_line, 1.0 / (line_sharpness * 0.8)); // Slightly softer
 	
 	// Combine lines - secondary is darker/more transparent base
@@ -158,7 +158,7 @@ void fragment() {
 	
 	// Apply randomized radial mask for this line
 	float radial_mask = smoothstep(line_length_min, line_length_min + 0.05, dist) * 
-	                     smoothstep(this_line_max, this_line_max - 0.1, dist);
+						 smoothstep(this_line_max, this_line_max - 0.1, dist);
 	
 	// Add subtle animation - lines pulse outward with some randomness
 	float pulse_offset = line_random * 3.14159; // Random phase offset per line
