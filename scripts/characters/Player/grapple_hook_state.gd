@@ -61,7 +61,7 @@ func enter():
 		var angle_to_grapple = rad_to_deg(acos(to_grapple.normalized().dot(Vector3.UP)))
 		
 		# If grapple point is above and ahead, swing. Otherwise, pull directly
-		if angle_to_grapple < 60 and to_grapple.y > 0:
+		if angle_to_grapple < 90 and to_grapple.y > 0:
 			grapple_mode = "swing"
 			# Preserve horizontal momentum for swinging
 			swing_velocity = player.velocity
