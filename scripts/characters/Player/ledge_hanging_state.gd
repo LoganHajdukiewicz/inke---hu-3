@@ -70,7 +70,7 @@ func position_at_ledge():
 	player.global_position = hang_pos
 	
 	# Rotate player to face the wall
-	var target_rotation = atan2(-ledge_normal.x, -ledge_normal.z)
+	var target_rotation = atan2(ledge_normal.x, ledge_normal.z)
 	player.rotation.y = target_rotation
 	
 	print("Positioned player at: ", hang_pos)
