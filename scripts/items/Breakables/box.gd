@@ -13,7 +13,7 @@ class_name Box
 
 @export_group("Bounce Settings")
 @export var bounce_enabled: bool = true        # Whether boxes bounce the player
-@export var bounce_force: float = 5.0         # Upward bounce velocity
+@export var bounce_force: float = 8.0         # Upward bounce velocity
 @export var break_on_bounce: bool = true       # Break immediately after bounce
 @export var bounce_damage: int = 2             # Damage dealt when bounced on
 

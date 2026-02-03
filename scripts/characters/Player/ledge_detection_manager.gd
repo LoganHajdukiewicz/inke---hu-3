@@ -10,6 +10,9 @@ class_name LedgeDetectionManager
 @export var enable_debug_draw: bool = false  # Draw debug lines showing raycasts (disabled by default)
 @export var velocity_check_threshold: float = -5.0  # Only check when falling at this speed or faster
 
+# NEW: Allowed scene names for ledge grabbing
+@export var allowed_ledge_scenes: Array[String] = ["wall", "floor"]  # Scenes that can be grabbed
+
 var player: CharacterBody3D
 var state_machine: StateMachine
 var game_manager
@@ -31,6 +34,7 @@ func _ready():
 	print("=== LEDGE DETECTION MANAGER INITIALIZED ===")
 	print("Player: ", player.name if player else "NULL")
 	print("State Machine: ", state_machine.name if state_machine else "NULL")
+	print("Allowed ledge scenes: ", allowed_ledge_scenes)
 
 func setup_debug_draw():
 	"""Setup debug visualization"""
@@ -69,10 +73,6 @@ func check_for_ledge_grab():
 	if current_state_name in ["LedgeHangingState", "IdleState", "WalkingState", "RunningState", "DodgeDashState", "RailGrindingState", "WallJumpingState"]:
 		return
 	
-	# Allow ledge grabs during jumping AND falling states
-	# NEW: Removed velocity check - allow grabbing at any point in the jump/fall arc
-	# NEW: Removed input requirement - grab automatically when near a ledge
-	
 	# Check if there's a ledge to grab
 	var ledge_data = detect_ledge()
 	
@@ -89,6 +89,45 @@ func check_for_ledge_grab():
 		else:
 			print("ERROR: LedgeHangingState not found in state machine!")
 			print("Available states: ", state_machine.states.keys())
+
+func is_allowed_ledge_object(collider: Object) -> bool:
+	"""
+	Check if the collider is from an allowed ledge scene.
+	
+	WHY WE DO THIS:
+	We want ledge grabbing to only work on specific objects like walls and floors,
+	not on things like boxes, enemies, or other dynamic objects.
+	
+	HOW IT WORKS:
+	1. Get the scene file path of the collider
+	2. Extract the filename (e.g., "wall.tscn" or "floor.tscn")
+	3. Check if the filename (without extension) is in our allowed list
+	"""
+	if not collider:
+		return false
+	
+	# Get the scene file path
+	var scene_path = collider.scene_file_path
+	
+	if scene_path == "":
+		if enable_debug_draw:
+			print("  Object has no scene_file_path: ", collider.name)
+		return false
+	
+	# Extract filename from path (e.g., "res://scenes/wall.tscn" -> "wall.tscn")
+	var filename = scene_path.get_file()
+	
+	# Remove extension (e.g., "wall.tscn" -> "wall")
+	var scene_name = filename.get_basename()
+	
+	if enable_debug_draw:
+		print("  Checking object: ", collider.name)
+		print("  Scene path: ", scene_path)
+		print("  Scene name: ", scene_name)
+		print("  Is allowed: ", scene_name in allowed_ledge_scenes)
+	
+	# Check if this scene name is in our allowed list
+	return scene_name in allowed_ledge_scenes
 
 func detect_ledge() -> Dictionary:
 	"""Detect if there's a valid ledge in front of the player using direct raycasts"""
@@ -126,15 +165,22 @@ func detect_ledge() -> Dictionary:
 	if not wall_result:
 		return result
 	
+	# NEW: Check if the wall is an allowed ledge object
+	var wall_collider = wall_result.collider
+	if not is_allowed_ledge_object(wall_collider):
+		if enable_debug_draw:
+			print("  REJECTED: Wall is not an allowed ledge object")
+		return result
+	
 	var wall_point = wall_result.position
 	var wall_normal = wall_result.normal
 	
 	if enable_debug_draw:
 		print("  Wall point: ", wall_point)
 		print("  Wall normal: ", wall_normal)
+		print("  Wall is ALLOWED for ledge grab!")
 	
 	# Step 2: Check for ledge top - cast DOWN from above the wall
-	# Start from a point above and slightly past the wall
 	var ledge_check_start = wall_point + Vector3(0, ledge_check_height, 0) + wall_normal * -0.2
 	var ledge_check_end = ledge_check_start + Vector3(0, -ledge_top_check_distance, 0)
 	
@@ -151,6 +197,13 @@ func detect_ledge() -> Dictionary:
 	if not ledge_result:
 		return result
 	
+	# NEW: Check if the ledge top is an allowed object
+	var ledge_collider = ledge_result.collider
+	if not is_allowed_ledge_object(ledge_collider):
+		if enable_debug_draw:
+			print("  REJECTED: Ledge top is not an allowed ledge object")
+		return result
+	
 	var ledge_point = ledge_result.position
 	var ledge_normal = ledge_result.normal
 	
@@ -158,6 +211,7 @@ func detect_ledge() -> Dictionary:
 		print("  Ledge point: ", ledge_point)
 		print("  Ledge normal: ", ledge_normal)
 		print("  Ledge normal dot UP: ", ledge_normal.dot(Vector3.UP))
+		print("  Ledge is ALLOWED for ledge grab!")
 	
 	# Verify ledge normal points upward (is a floor/platform)
 	if ledge_normal.dot(Vector3.UP) < 0.7:
