@@ -195,8 +195,13 @@ func follow_player_smooth(delta: float):
 	# Smooth rotation towards movement direction (not player direction)
 	if velocity.length() > 0.5:
 		var look_direction = velocity.normalized()
-		var target_basis = Basis.looking_at(look_direction, Vector3.UP)
-		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
+		
+		# FIXED: Check if look direction is too vertical (colinear with UP)
+		# If the direction is nearly straight up or down, skip rotation to avoid errors
+		var up_dot = abs(look_direction.dot(Vector3.UP))
+		if up_dot < 0.98:  # Only rotate if not too vertical (98% aligned with up)
+			var target_basis = Basis.looking_at(look_direction, Vector3.UP)
+			global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
 
 func is_player_rail_grinding() -> bool:
 	"""Check if the player is currently rail grinding"""
