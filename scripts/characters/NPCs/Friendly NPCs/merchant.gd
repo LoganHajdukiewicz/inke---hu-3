@@ -404,12 +404,12 @@ func open_shop():
 	
 	print("Opening shop...")
 	
-	# FIX 1: Always set ignore_next_jump with guaranteed cleanup
-	if current_player.has_method("set"):
-		current_player.set("ignore_next_jump", true)
-		print("Set ignore_next_jump = true")
+	# TEACHING MOMENT: This is the KEY fix - we now use a helper function
+	# that works exactly like the dialogue trigger
+	# It sets the flag AND schedules automatic cleanup
+	set_player_ignore_jump(true)
 	
-	# FIX 2: Disable player physics processing to prevent movement behind menu
+	# Disable player physics processing to prevent movement behind menu
 	if current_player.has_method("set_physics_process"):
 		current_player.set_physics_process(false)
 		print("Disabled player physics processing")
@@ -442,10 +442,11 @@ func close_shop():
 	# Unpause the game
 	get_tree().paused = false
 	
-	# FIX 1: ALWAYS clear ignore_next_jump flag when closing
-	ensure_player_can_jump()
+	# TEACHING MOMENT: Same cleanup as dialogue trigger
+	# Set the flag again to block the close button from causing a jump
+	set_player_ignore_jump(true)
 	
-	# FIX 2: Re-enable player physics processing
+	# Re-enable player physics processing
 	if current_player and is_instance_valid(current_player):
 		if current_player.has_method("set_physics_process"):
 			current_player.set_physics_process(true)
@@ -456,21 +457,61 @@ func close_shop():
 	
 	print(merchant_name + "'s shop closed - Game paused: ", get_tree().paused)
 
-func ensure_player_can_jump():
-	"""Ensures the ignore_next_jump flag is cleared so player can jump"""
+# ==========================================
+# IGNORE JUMP HELPER FUNCTIONS
+# ==========================================
+# TEACHING MOMENT: These functions are modeled EXACTLY after how dialogue_trigger.gd
+# handles the ignore_next_jump flag. This is the proper pattern to follow.
+
+func set_player_ignore_jump(should_ignore: bool):
+	"""
+	Set the player's ignore_next_jump flag with automatic cleanup.
+	
+	WHY THIS WORKS:
+	1. We set the flag immediately to block the current input
+	2. We schedule cleanup after a tiny delay (0.01 seconds)
+	3. The cleanup happens on the next frame, ensuring the flag is cleared
+	
+	This is the EXACT pattern used by dialogue_trigger.gd in _on_dialogue_ended()
+	"""
 	if not current_player or not is_instance_valid(current_player):
 		return
 	
 	if current_player.has_method("set"):
-		current_player.set("ignore_next_jump", false)
-		print("Cleared ignore_next_jump = false")
+		current_player.set("ignore_next_jump", should_ignore)
+		print("Set ignore_next_jump = ", should_ignore)
+		
+		if should_ignore:
+			# Schedule automatic cleanup (just like dialogue trigger)
+			# This ensures the flag doesn't stay set forever
+			clear_ignore_jump_after_delay()
+
+func clear_ignore_jump_after_delay():
+	"""
+	Clear the ignore_next_jump flag after a short delay.
 	
-	# Double-check with a short delay as extra safety
-	get_tree().create_timer(0.1, false, false, true).timeout.connect(func():
-		if is_instance_valid(current_player) and current_player.has_method("set"):
-			current_player.set("ignore_next_jump", false)
-			print("Double-checked: ignore_next_jump = false")
-	)
+	TEACHING MOMENT: This timer-based approach is CRITICAL because:
+	1. It gives the current input event time to be fully processed
+	2. It ensures the flag is cleared before the next frame's input check
+	3. It prevents the flag from "sticking" and blocking future jumps
+	
+	The 0.01 second delay is the SAME as dialogue_trigger uses - it's the
+	minimum safe delay that works reliably.
+	"""
+	# Use await with create_timer to wait, then clear the flag
+	# processable=false means timer runs even when game is paused (important!)
+	# ignore_time_scale=false means timer respects time scale
+	# Note: The third parameter (process_in_physics) is true to ensure it runs in physics
+	await get_tree().create_timer(0.01, false, false, true).timeout
+	
+	# Only clear if player is still valid
+	if is_instance_valid(current_player) and current_player.has_method("set"):
+		current_player.set("ignore_next_jump", false)
+		print("Cleared ignore_next_jump = false (after delay)")
+
+# ==========================================
+# SELECTION AND PURCHASE
+# ==========================================
 
 func update_selection():
 	"""Update UI to reflect current selection"""
@@ -583,13 +624,13 @@ func _on_area_3d_body_exited(body):
 	if body.is_in_group("Player"):
 		player_in_range = false
 		
-		# FIX 1: If shop is open when player leaves, close it AND clean up flag
+		# If shop is open when player leaves, close it AND clean up flag
 		if shop_open:
 			print("Player left while shop open - force closing with cleanup")
 			close_shop()
 		else:
-			# FIX 1: Even if shop wasn't open, ensure flag is clean
-			ensure_player_can_jump()
+			# Even if shop wasn't open, ensure flag is clean
+			set_player_ignore_jump(false)
 		
 		current_player = null
 		interaction_label.visible = false
