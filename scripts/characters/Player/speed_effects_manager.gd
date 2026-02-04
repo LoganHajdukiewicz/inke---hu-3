@@ -245,9 +245,9 @@ func set_speed_threshold(threshold: float):
 	"""Change the speed threshold at runtime"""
 	speed_threshold = threshold
 
-func set_max_speed(max: float):
+func set_max_speed(max_speed: float):
 	"""Change the max speed at runtime"""
-	max_speed = max
+	max_speed = max_speed
 
 func rerandomize_lines():
 	"""Re-randomize the number and appearance of lines"""

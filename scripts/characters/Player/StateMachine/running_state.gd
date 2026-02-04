@@ -63,7 +63,7 @@ func physics_update(delta: float):
 	var direction: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
 	# NEW: Get ice friction multiplier
-	var ice_control = player.get_ice_friction_multiplier()
+	var _ice_control = player.get_ice_friction_multiplier()
 	
 	# NEW: On ice, fast acceleration but limited turning
 	if player.is_on_ice:

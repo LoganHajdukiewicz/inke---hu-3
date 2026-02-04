@@ -31,10 +31,6 @@ func _ready():
 	game_manager = get_node("/root/GameManager")
 	
 	setup_debug_draw()
-	print("=== LEDGE DETECTION MANAGER INITIALIZED ===")
-	print("Player: ", player.name if player else "NULL")
-	print("State Machine: ", state_machine.name if state_machine else "NULL")
-	print("Allowed ledge scenes: ", allowed_ledge_scenes)
 
 func setup_debug_draw():
 	"""Setup debug visualization"""

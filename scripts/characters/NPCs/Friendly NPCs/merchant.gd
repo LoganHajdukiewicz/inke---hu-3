@@ -61,9 +61,9 @@ var COLOR_EXPENSIVE = Color(0.8, 0.3, 0.3)
 var COLOR_SELECTED = Color(0.2, 0.6, 1.0)
 var COLOR_UNSELECTED = Color(0.4, 0.4, 0.4)
 
-# Input cooldown
+# Input cooldown - FIXED: Increased to prevent accidental input
 var input_cooldown: float = 0.0
-var input_cooldown_time: float = 0.15
+var input_cooldown_time: float = 0.2  # Base cooldown time
 
 # ==========================================
 # INITIALIZATION
@@ -230,7 +230,7 @@ func setup_upgrade_list(start_y: int):
 	# Calculate total width needed and starting position
 	var total_items = upgrade_data.size()
 	var total_width = (item_width * total_items) + (spacing * (total_items - 1))
-	var start_x = container_x + (container_width - total_width) / 2
+	var start_x : float = container_x + (container_width - total_width) / 2
 	
 	for i in range(upgrade_data.size()):
 		var upgrade = upgrade_data[i]
@@ -351,19 +351,19 @@ func _process(delta):
 	if input_cooldown > 0:
 		input_cooldown -= delta
 	
-	# Check for interaction when near merchant
+	# FIXED: Only check for interaction when shop is NOT open
 	if player_in_range and not shop_open:
 		# Only check for ui_accept if cooldown has passed
 		if input_cooldown <= 0 and Input.is_action_just_pressed("ui_accept"):
 			open_shop()
-			# CRITICAL: Don't set cooldown here - let open_shop() handle it
 	
-	# Handle shop navigation when shop is open
-	if shop_open:
+	# FIXED: Only handle shop input when shop is actually open AND cooldown expired
+	if shop_open and input_cooldown <= 0:
 		handle_shop_input()
 
 func handle_shop_input():
 	"""Handle controller/keyboard input for shop navigation"""
+	# SAFETY CHECK: Don't process if cooldown is active
 	if input_cooldown > 0:
 		return
 	
@@ -404,10 +404,15 @@ func open_shop():
 	
 	print("Opening shop...")
 	
-	# CRITICAL FIX: Tell the player to ignore the next jump input
+	# CRITICAL FIX: Tell the player to ignore jump inputs
 	# This prevents the interaction button from also triggering a jump
 	if current_player.has_method("set"):
 		current_player.set("ignore_next_jump", true)
+		# Clear it after a delay as a safety measure
+		get_tree().create_timer(0.3, false, false, true).timeout.connect(func():
+			if is_instance_valid(current_player) and current_player.has_method("set"):
+				current_player.set("ignore_next_jump", false)
+		)
 	
 	shop_open = true
 	current_upgrade_index = 0
@@ -421,8 +426,8 @@ func open_shop():
 	# Update selection to show current state
 	update_selection()
 	
-	# Set cooldown to prevent immediate input
-	input_cooldown = input_cooldown_time * 2
+	# FIXED: Longer initial cooldown to prevent any inputs from bleeding through
+	input_cooldown = 0.5
 	
 	print(merchant_name + "'s shop opened - Game paused: ", get_tree().paused)
 
@@ -437,8 +442,18 @@ func close_shop():
 	# Unpause the game
 	get_tree().paused = false
 	
-	# Set cooldown to prevent immediate re-opening
-	input_cooldown = input_cooldown_time * 2
+	# FIXED: Longer cooldown to prevent immediate re-opening or accidental jumps
+	input_cooldown = 0.5
+	
+	# ADDITIONAL FIX: Set ignore_next_jump again when closing
+	# to prevent the close button from triggering a jump
+	if current_player and is_instance_valid(current_player) and current_player.has_method("set"):
+		current_player.set("ignore_next_jump", true)
+		# Clear it after a delay
+		get_tree().create_timer(0.3, false, false, true).timeout.connect(func():
+			if is_instance_valid(current_player) and current_player.has_method("set"):
+				current_player.set("ignore_next_jump", false)
+		)
 	
 	print(merchant_name + "'s shop closed - Game paused: ", get_tree().paused)
 

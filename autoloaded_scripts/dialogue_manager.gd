@@ -26,7 +26,7 @@ func _process(delta: float) -> void:
 	if input_block_timer > 0:
 		input_block_timer -= delta
 
-func _input(event: InputEvent) -> void:
+func _input(_event: InputEvent) -> void:
 	# Block ALL inputs during the timer - this runs FIRST before any other input handling
 	if input_block_timer > 0:
 		get_viewport().set_input_as_handled()
