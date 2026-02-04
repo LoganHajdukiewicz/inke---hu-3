@@ -65,16 +65,26 @@ func physics_update(delta: float):
 	# NEW: Get ice friction multiplier
 	var ice_control = player.get_ice_friction_multiplier()
 	
-	# NEW: On ice, lerp toward target velocity instead of setting it directly
+	# NEW: On ice, fast acceleration but limited turning
 	if player.is_on_ice:
 		var target_velocity = direction * SPEED
-		player.velocity.x = lerp(player.velocity.x, target_velocity.x, ice_control * delta * 10.0)
-		player.velocity.z = lerp(player.velocity.z, target_velocity.z, ice_control * delta * 10.0)
+		# Fast acceleration: use normal lerp speed for forward movement
+		# But use 0.5 control for direction changes (instead of ice_control which is 0.01)
+		var current_direction = Vector2(player.velocity.x, player.velocity.z).normalized()
+		var target_direction = Vector2(target_velocity.x, target_velocity.z).normalized()
+		var direction_similarity = current_direction.dot(target_direction)
 		
-		# Slower rotation on ice
+		# If moving in a similar direction, accelerate quickly
+		# If changing direction drastically, use 0.5 control (50% effectiveness)
+		var accel_factor = lerp(0.5, 1.0, max(0.0, direction_similarity))
+		
+		player.velocity.x = lerp(player.velocity.x, target_velocity.x, accel_factor * delta * 10.0)
+		player.velocity.z = lerp(player.velocity.z, target_velocity.z, accel_factor * delta * 10.0)
+		
+		# Use 0.5 rotation speed on ice (instead of very slow ice_control)
 		if direction.length() > 0.1:
 			var target_rotation = atan2(-direction.x, -direction.z)
-			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * ice_control * delta)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * 0.5 * delta)
 	else:
 		# Normal movement
 		# Rotate player to face movement direction
