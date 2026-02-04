@@ -98,7 +98,7 @@ func apply_purchased_upgrades():
 	if health_upgrade_purchased and player.has_method("unlock_health_upgrade"):
 		player.unlock_health_upgrade()
 		# Also increase max health
-		player_max_health = 5  # Or whatever the upgraded value should be
+		player_max_health = 4
 	
 	if damage_upgrade_purchased and player.has_method("unlock_damage_upgrade"):
 		player.unlock_damage_upgrade()
@@ -216,7 +216,9 @@ func purchase_upgrade(upgrade_type: String) -> bool:
 				player.unlock_speed_upgrade()
 		"health_upgrade":
 			health_upgrade_purchased = true
-			player_max_health = 5  # Upgrade max health
+			player_max_health = 4  # Upgrade max health
+			# Set health to max when upgrading (also triggers signal)
+			set_player_health(player_max_health)
 			if player and player.has_method("unlock_health_upgrade"):
 				player.unlock_health_upgrade()
 		"damage_upgrade":
