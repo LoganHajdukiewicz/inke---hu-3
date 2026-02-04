@@ -404,15 +404,15 @@ func open_shop():
 	
 	print("Opening shop...")
 	
-	# CRITICAL FIX: Tell the player to ignore jump inputs
-	# This prevents the interaction button from also triggering a jump
+	# FIX 1: Always set ignore_next_jump with guaranteed cleanup
 	if current_player.has_method("set"):
 		current_player.set("ignore_next_jump", true)
-		# Clear it after a delay as a safety measure
-		get_tree().create_timer(0.3, false, false, true).timeout.connect(func():
-			if is_instance_valid(current_player) and current_player.has_method("set"):
-				current_player.set("ignore_next_jump", false)
-		)
+		print("Set ignore_next_jump = true")
+	
+	# FIX 2: Disable player physics processing to prevent movement behind menu
+	if current_player.has_method("set_physics_process"):
+		current_player.set_physics_process(false)
+		print("Disabled player physics processing")
 	
 	shop_open = true
 	current_upgrade_index = 0
@@ -442,20 +442,35 @@ func close_shop():
 	# Unpause the game
 	get_tree().paused = false
 	
+	# FIX 1: ALWAYS clear ignore_next_jump flag when closing
+	ensure_player_can_jump()
+	
+	# FIX 2: Re-enable player physics processing
+	if current_player and is_instance_valid(current_player):
+		if current_player.has_method("set_physics_process"):
+			current_player.set_physics_process(true)
+			print("Re-enabled player physics processing")
+	
 	# FIXED: Longer cooldown to prevent immediate re-opening or accidental jumps
 	input_cooldown = 0.5
 	
-	# ADDITIONAL FIX: Set ignore_next_jump again when closing
-	# to prevent the close button from triggering a jump
-	if current_player and is_instance_valid(current_player) and current_player.has_method("set"):
-		current_player.set("ignore_next_jump", true)
-		# Clear it after a delay
-		get_tree().create_timer(0.3, false, false, true).timeout.connect(func():
-			if is_instance_valid(current_player) and current_player.has_method("set"):
-				current_player.set("ignore_next_jump", false)
-		)
-	
 	print(merchant_name + "'s shop closed - Game paused: ", get_tree().paused)
+
+func ensure_player_can_jump():
+	"""Ensures the ignore_next_jump flag is cleared so player can jump"""
+	if not current_player or not is_instance_valid(current_player):
+		return
+	
+	if current_player.has_method("set"):
+		current_player.set("ignore_next_jump", false)
+		print("Cleared ignore_next_jump = false")
+	
+	# Double-check with a short delay as extra safety
+	get_tree().create_timer(0.1, false, false, true).timeout.connect(func():
+		if is_instance_valid(current_player) and current_player.has_method("set"):
+			current_player.set("ignore_next_jump", false)
+			print("Double-checked: ignore_next_jump = false")
+	)
 
 func update_selection():
 	"""Update UI to reflect current selection"""
@@ -567,12 +582,16 @@ func _on_area_3d_body_entered(body):
 func _on_area_3d_body_exited(body):
 	if body.is_in_group("Player"):
 		player_in_range = false
+		
+		# FIX 1: If shop is open when player leaves, close it AND clean up flag
+		if shop_open:
+			print("Player left while shop open - force closing with cleanup")
+			close_shop()
+		else:
+			# FIX 1: Even if shop wasn't open, ensure flag is clean
+			ensure_player_can_jump()
+		
 		current_player = null
 		interaction_label.visible = false
-		
-		# Close shop if open when player leaves
-		if shop_open:
-			print("Player left - force closing shop")
-			close_shop()
 		
 		print("Player left merchant range")
