@@ -7,37 +7,43 @@ extends CharacterBody3D
 
 # Following behavior
 var follow_distance: float = 2.0
-var base_follow_speed: float = 9.0  # Base speed when player is idle/walking
-var follow_speed_multiplier: float = 1.2  # Multiplier for player speed (20% faster to catch up)
-var max_follow_speed: float = 40.0  # Maximum speed cap
+var base_follow_speed: float = 20.0
+var max_follow_speed: float = 50.0
 var hover_height: float = 1.5
-var hover_amplitude: float = 0.3
-var hover_frequency: float = 2.0
-var side_offset: float = 1.5  # Offset to the right of player
-var forward_offset: float = 1.0  # Slight forward offset
-var catchup_distance: float = 5.0  # Distance at which HU-3 goes into "catchup mode"
-var catchup_speed_multiplier: float = 2.5  # Speed multiplier when catching up
+var hover_amplitude: float = 0.2
+var hover_frequency: float = 1.5
+var side_offset: float = 1.5
+var forward_offset: float = 1.0
+var catchup_threshold: float = 5.0
+var catchup_speed_boost: float = 5.0
+
+# NEW: Completely rewritten smooth following system
+var smooth_follow_position: Vector3 = Vector3.ZERO
+var smooth_follow_velocity: Vector3 = Vector3.ZERO
+var follow_acceleration: float = 25.0  # How fast to accelerate towards target
+var follow_max_speed: float = 35.0  # Maximum speed when following
+var follow_damping: float = 0.92  # Velocity damping (0.0 = instant stop, 1.0 = no damping)
 
 # Gear collection
-var gear_collection_distance: float = 8.0  # Increased detection range
-var gear_collection_speed: float = 15.0  # Increased collection speed
-var collected_gears: Array[Node] = []  # This tracks gears HU-3 has collected for internal purposes
+var gear_collection_distance: float = 8.0
+var gear_collection_speed: float = 15.0
+var collected_gears: Array[Node] = []
 
 # Internal state
 var hover_time: float = 0.0
 var is_collecting_gear: bool = false
 var target_gear: Node = null
 var collection_timer: float = 0.0
-var collection_timeout: float = 5.0  # Give up after 5 seconds
-
-# Track player's previous position for detecting platform movement
-var player_previous_position: Vector3 = Vector3.ZERO
-var player_actual_velocity: Vector3 = Vector3.ZERO
+var collection_timeout: float = 5.0
 
 # Health indicator
 var game_manager
 
 func _ready():
+	# Initialize smooth follow position before anything else
+	smooth_follow_position = global_position
+	smooth_follow_velocity = Vector3.ZERO
+	
 	# Find the player in the scene
 	find_player()
 	
@@ -65,7 +71,10 @@ func find_player():
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
 		player = players[0]
-		player_previous_position = player.global_position
+		# Initialize smooth follow position to current position
+		if smooth_follow_position == Vector3.ZERO:
+			smooth_follow_position = global_position
+			smooth_follow_velocity = Vector3.ZERO
 	else:
 		print("HU-3: No player found in scene!")
 
@@ -74,11 +83,6 @@ func _physics_process(delta: float):
 		find_player()
 		return
 	
-	# Calculate player's actual velocity (including platform movement)
-	if delta > 0:
-		player_actual_velocity = (player.global_position - player_previous_position) / delta
-		player_previous_position = player.global_position
-	
 	# Update hover animation
 	hover_time += delta
 	
@@ -86,7 +90,6 @@ func _physics_process(delta: float):
 	if is_collecting_gear:
 		collection_timer += delta
 		if collection_timer > collection_timeout:
-			# Give up on current gear and find another
 			reset_collection_state()
 	
 	# Check for nearby gears to collect
@@ -97,74 +100,115 @@ func _physics_process(delta: float):
 	if is_collecting_gear and target_gear and is_instance_valid(target_gear):
 		move_to_gear(delta)
 	else:
-		follow_player(delta)
+		follow_player_smooth(delta)
 	
 	# Apply movement
 	move_and_slide()
 
-func get_dynamic_follow_speed(distance_to_target: float) -> float:
-	"""Calculate HU-3's speed based on player's current speed and distance"""
-	var player_speed = base_follow_speed
-	
-	# Use actual velocity instead of state machine speed
-	var player_horizontal_speed = Vector2(player_actual_velocity.x, player_actual_velocity.z).length()
-	
-	# If player is moving (either by input or platform), use that speed
-	if player_horizontal_speed > 0.5:
-		player_speed = player_horizontal_speed
-	else:
-		# Fallback to state machine speed if available
-		if player and player.has_method("get_player_speed"):
-			player_speed = player.get_player_speed()
-	
-	# Base speed is slightly faster than player to catch up
-	var target_speed = player_speed * follow_speed_multiplier
-	
-	# If we're too far behind, activate catchup mode
-	if distance_to_target > catchup_distance:
-		target_speed = max(player_speed * catchup_speed_multiplier, base_follow_speed * 2.0)
-	
-	# Cap the maximum speed
-	target_speed = min(target_speed, max_follow_speed)
-	
-	# Ensure minimum speed
-	target_speed = max(target_speed, base_follow_speed)
-	
-	return target_speed
-
-func follow_player(delta: float):
-	if not player:
+func follow_player_smooth(delta: float):
+	"""
+	Completely rewritten following system using physics-based smooth following.
+	This eliminates ALL bobbing by using acceleration/velocity instead of lerping position.
+	"""
+	if not player or not is_instance_valid(player):
 		return
 	
-	# Get player's transform to follow their facing direction
-	var player_pos = player.global_position
-	var player_basis = player.global_transform.basis
+	# Safety check: ensure smooth_follow_position is initialized
+	if smooth_follow_position == null or smooth_follow_position == Vector3.ZERO:
+		smooth_follow_position = global_position
+		smooth_follow_velocity = Vector3.ZERO
 	
-	# Calculate follow position (slightly up, to the right, and a bit forward)
-	var right_offset = player_basis.x * side_offset  # Player's right direction
-	var forward_offset_vec = player_basis.z * -forward_offset  # Player's forward direction (negative z)
-	var follow_pos = player_pos + Vector3(0, hover_height, 0) + right_offset + forward_offset_vec
+	# Check if player is rail grinding for speed boost
+	var is_player_grinding = is_player_rail_grinding()
+	var speed_multiplier = 2.0 if is_player_grinding else 1.0
 	
-	# Add subtle hovering motion
-	follow_pos.y += sin(hover_time * hover_frequency) * hover_amplitude
+	# Calculate the ideal target position in PURE WORLD SPACE
+	# Step 1: Start with player's world position
+	var target_pos = player.global_position
 	
-	# Calculate movement direction and distance
-	var direction = (follow_pos - global_position).normalized()
-	var distance = global_position.distance_to(follow_pos)
+	# Step 2: Calculate offsets using player's CURRENT world orientation
+	# Get player's facing direction in world space
+	var player_basis = player.global_transform.basis.orthonormalized()
+	var player_right = player_basis.x
+	var player_forward = -player_basis.z
 	
-	# Get dynamic speed based on distance and player speed
-	var dynamic_speed = get_dynamic_follow_speed(distance)
+	# Apply horizontal offsets (right and forward)
+	target_pos += player_right * side_offset
+	target_pos += player_forward * forward_offset
 	
-	# Only move if we're too far from follow position
-	if distance > follow_distance * 0.5:
-		velocity = direction * dynamic_speed
+	# Step 3: Add base hover height in WORLD Y AXIS ONLY
+	target_pos.y += hover_height
+	
+	# Step 4: Add subtle hover animation ONLY in world Y
+	var hover_wave = sin(hover_time * hover_frequency) * hover_amplitude
+	target_pos.y += hover_wave
+	
+	# NOW: Use smooth_follow_position instead of directly moving to target
+	# This position smoothly accelerates towards target_pos
+	
+	# Calculate direction and distance to target
+	var to_target = target_pos - smooth_follow_position
+	var distance = to_target.length()
+	
+	# Calculate desired velocity towards target
+	var desired_velocity = Vector3.ZERO
+	if distance > 0.1:
+		var direction = to_target.normalized()
 		
-		# Smoothly rotate to face movement direction
-		if velocity.length() > 0.1:
-			var target_transform = global_transform.looking_at(global_position + velocity.normalized(), Vector3.UP)
-			global_transform = global_transform.interpolate_with(target_transform, delta * 3.0)
+		# Speed scales with distance for smoother arrival
+		var speed_factor = min(distance / follow_distance, 1.0)
+		
+		# Check if we need catchup boost
+		var target_speed = base_follow_speed * speed_multiplier  # Apply rail grinding multiplier
+		if distance > catchup_threshold:
+			target_speed = base_follow_speed * catchup_speed_boost * speed_multiplier
+		
+		desired_velocity = direction * target_speed * speed_factor
+		
+		# Cap maximum speed (with multiplier for rail grinding)
+		var max_vel = follow_max_speed * speed_multiplier
+		if desired_velocity.length() > max_vel:
+			desired_velocity = desired_velocity.normalized() * max_vel
+	
+	# Accelerate smooth_follow_velocity towards desired_velocity
+	var velocity_diff = desired_velocity - smooth_follow_velocity
+	smooth_follow_velocity += velocity_diff * follow_acceleration * delta
+	
+	# Apply damping to prevent oscillation
+	smooth_follow_velocity *= follow_damping
+	
+	# Update smooth follow position using velocity
+	smooth_follow_position += smooth_follow_velocity * delta
+	
+	# Set HU-3's actual velocity to move towards smooth_follow_position
+	var to_smooth_pos = smooth_follow_position - global_position
+	var distance_to_smooth = to_smooth_pos.length()
+	
+	if distance_to_smooth > 0.1:
+		# Move towards the smoothed position (with speed multiplier)
+		var max_move_speed = follow_max_speed * speed_multiplier
+		velocity = to_smooth_pos.normalized() * min(distance_to_smooth / delta, max_move_speed)
 	else:
-		velocity = velocity.lerp(Vector3.ZERO, delta * 5.0)
+		# We're close enough, maintain position
+		velocity = smooth_follow_velocity
+	
+	# Smooth rotation towards movement direction (not player direction)
+	if velocity.length() > 0.5:
+		var look_direction = velocity.normalized()
+		var target_basis = Basis.looking_at(look_direction, Vector3.UP)
+		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
+
+func is_player_rail_grinding() -> bool:
+	"""Check if the player is currently rail grinding"""
+	if not player or not player.has_node("StateMachine"):
+		return false
+	
+	var state_machine = player.get_node("StateMachine")
+	if not state_machine or not state_machine.current_state:
+		return false
+	
+	var current_state_name = state_machine.current_state.get_script().get_global_name()
+	return current_state_name == "RailGrindingState"
 
 func find_nearest_gear():
 	var gears = get_tree().get_nodes_in_group("Gear")
@@ -172,11 +216,9 @@ func find_nearest_gear():
 	var nearest_distance = gear_collection_distance
 	
 	for gear in gears:
-		# Skip if already collected or invalid
 		if not is_instance_valid(gear) or gear in collected_gears:
 			continue
 		
-		# Skip if gear is already collected (check gear's collected flag)
 		if gear.has_method("get") and gear.get("collected"):
 			continue
 			
@@ -189,30 +231,31 @@ func find_nearest_gear():
 		target_gear = nearest_gear
 		is_collecting_gear = true
 		collection_timer = 0.0
-		print("HU-3: Targeting gear: ", target_gear.name, " at distance: ", nearest_distance)
+		# Reset smooth following when switching to gear collection
+		smooth_follow_position = global_position
+		smooth_follow_velocity = Vector3.ZERO
 
 func move_to_gear(delta: float):
 	if not target_gear or not is_instance_valid(target_gear):
 		reset_collection_state()
 		return
 	
-	# Check if gear was collected by someone else
 	if target_gear.has_method("get") and target_gear.get("collected"):
 		reset_collection_state()
 		return
 	
-	# Move towards the gear
+	# Direct movement towards gear
 	var direction = (target_gear.global_position - global_position).normalized()
 	velocity = direction * gear_collection_speed
 	
-	# Smoothly rotate to face the gear
+	# Rotate to face gear
 	if velocity.length() > 0.1:
-		var target_transform = global_transform.looking_at(global_position + velocity.normalized(), Vector3.UP)
-		global_transform = global_transform.interpolate_with(target_transform, delta * 5.0)
+		var target_basis = Basis.looking_at(velocity.normalized(), Vector3.UP)
+		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 5.0)
 	
-	# Check if we're close enough to collect
+	# Check if close enough to collect
 	var distance = global_position.distance_to(target_gear.global_position)
-	if distance < 1.5:  # Increased collection radius
+	if distance < 1.5:
 		collect_gear(target_gear)
 
 func collect_gear(gear: Node):
@@ -220,24 +263,24 @@ func collect_gear(gear: Node):
 		reset_collection_state()
 		return
 	
-	# Check if gear has already been collected
 	if gear.has_method("get") and gear.get("collected"):
 		reset_collection_state()
 		return
 	
-	# Collect the gear using the unified method
 	if gear.has_method("collect_gear"):
 		gear.collect_gear()
 	else:
 		gear.queue_free()
 	
-	# Reset collection state
 	reset_collection_state()
 
 func reset_collection_state():
 	is_collecting_gear = false
 	target_gear = null
 	collection_timer = 0.0
+	# Reinitialize smooth following from current position
+	smooth_follow_position = global_position
+	smooth_follow_velocity = Vector3.ZERO
 
 func update_health_indicator():
 	"""Update the health indicator color based on player's exact health value"""
@@ -247,32 +290,21 @@ func update_health_indicator():
 	var current_health = game_manager.get_player_health()
 	var new_color: Color
 	
-	# FIXED: Determine color based on exact health value
-	# 4 = Blue, 3 = Green, 2 = Yellow, 1 = Red, 0 = Dead (Red)
 	if current_health >= 4:
-		# Blue (full health with upgrade)
 		new_color = Color(0.0, 0.5, 1.0, 1.0)
 	elif current_health == 3:
-		# Green (full base health)
 		new_color = Color(0.254902, 1.0, 0.0, 1.0)
 	elif current_health == 2:
-		# Yellow (wounded)
 		new_color = Color(1.0, 1.0, 0.0, 1.0)
 	elif current_health == 1:
-		# Red (critical)
 		new_color = Color(1.0, 0.0, 0.0, 1.0)
 	else:
-		# Dead or invalid (0 or less)
 		new_color = Color(1.0, 0.0, 0.0, 1.0)
 	
-	print("HU-3 Health Indicator: Health=", current_health, " Color=", new_color)
-	
-	# Update the health indicator material
 	var material = health_indicator.get_active_material(0)
 	if material is StandardMaterial3D:
 		material.albedo_color = new_color
 	else:
-		# Create new material if none exists
 		var new_material = StandardMaterial3D.new()
 		new_material.albedo_color = new_color
 		health_indicator.set_surface_override_material(0, new_material)
@@ -287,11 +319,9 @@ func setup_mouth_shader():
 	if not mouth:
 		return
 	
-	# Create shader material
 	var shader_material = ShaderMaterial.new()
 	var shader = Shader.new()
 	
-	# Oscilloscope line shader code
 	shader.code = """
 shader_type spatial;
 render_mode unshaded;
@@ -303,42 +333,31 @@ uniform float line_thickness = 0.01;
 uniform float wave_frequency = 200.0;
 
 void fragment() {
-	// Get UV coordinates
 	vec2 uv = UV;
 	
-	// Create multiple wave layers for oscilloscope effect
 	float wave1 = sin(TIME * activity_speed + uv.x * wave_frequency) * 1.0;
 	float wave2 = sin(TIME * activity_speed * 1.5 + uv.x * wave_frequency * 0.8) * 0.5;
 	float wave3 = sin(TIME * activity_speed * 0.7 + uv.x * wave_frequency * 1.3) * 0.3;
 	
-	// Combine waves for complex oscilloscope pattern
 	float combined_wave = wave1 + wave2 + wave3;
 	
-	// Create steep envelope - stationary at edges, VERY intense in middle
 	float edge_distance = abs(uv.x - 0.5) * 2.0;
-	// Use higher power for more extreme middle intensity
 	float envelope = pow(1.0 - edge_distance, 5.0);
 	
-	// Apply envelope to waves for vertical middle movement
 	float activity = combined_wave * envelope * activity_amount;
 	
-	// Calculate distance from center line with oscilloscope activity
 	float center_line = 0.5 + activity;
 	float dist = abs(uv.y - center_line);
 	
-	// Create sharp line like oscilloscope trace
 	float line = 1.0 - smoothstep(0.0, line_thickness, dist);
 	
-	// Add bright glow for oscilloscope CRT effect
 	float glow = exp(-dist * 40.0) * 0.4;
 	line = clamp(line + glow, 0.0, 1.0);
 	
-	// Make the rest transparent
 	if (line < 0.05) {
 		discard;
 	}
 	
-	// Apply color
 	ALBEDO = line_color.rgb;
 	ALPHA = line;
 }
@@ -347,7 +366,6 @@ void fragment() {
 	shader_material.shader = shader
 	mouth.material_override = shader_material
 	
-	# Set initial color
 	update_mouth_color()
 
 func update_mouth_color():
@@ -360,22 +378,19 @@ func update_mouth_color():
 		var current_health = game_manager.get_player_health()
 		var new_color: Color
 		
-		# FIXED: Same color logic as health indicator
-		# 4 = Blue, 3 = Green, 2 = Yellow, 1 = Red, 0 = Dead (Red)
 		if current_health >= 4:
-			new_color = Color(0.0, 0.5, 1.0, 1.0)  # Blue
+			new_color = Color(0.0, 0.5, 1.0, 1.0)
 		elif current_health == 3:
-			new_color = Color(0.254902, 1.0, 0.0, 1.0)  # Green
+			new_color = Color(0.254902, 1.0, 0.0, 1.0)
 		elif current_health == 2:
-			new_color = Color(1.0, 1.0, 0.0, 1.0)  # Yellow
+			new_color = Color(1.0, 1.0, 0.0, 1.0)
 		elif current_health == 1:
-			new_color = Color(1.0, 0.0, 0.0, 1.0)  # Red
+			new_color = Color(1.0, 0.0, 0.0, 1.0)
 		else:
-			new_color = Color(1.0, 0.0, 0.0, 1.0)  # Dead (Red)
+			new_color = Color(1.0, 0.0, 0.0, 1.0)
 		
-		print("HU-3 Mouth Color: Health=", current_health, " Color=", new_color)
 		material.set_shader_parameter("line_color", new_color)
-	
+
 func _on_gear_entered(body: Node3D):
 	if body.is_in_group("Gear"):
 		pass
