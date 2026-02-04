@@ -65,11 +65,8 @@ enum SpinDirection {
 @export var movement_transition: Tween.TransitionType = Tween.TRANS_SINE
 
 @export_group("Frozen Floor Settings")
-@export var frozen_friction: float = 0.05  # Very low friction for ice
-@export var frozen_slide_multiplier: float = 1.5  # How much faster you slide
-@export var frozen_control_reduction: float = 0.8  # How much control is reduced (0-1)
-@export var frozen_acceleration_penalty: float = 0.5  # How hard it is to speed up
-@export var frozen_enable_visual_effects: bool = false  # Enable ice visual effects
+@export var frozen_friction: float = 0.01  # Very low friction for ice (reduced from 0.05)
+@export var frozen_enable_visual_effects: bool = true  # Enable ice visual effects
 @export var frozen_shimmer_speed: float = 2.0  # Speed of the shimmer effect
 @export var frozen_shimmer_intensity: float = 0.3  # How noticeable the shimmer is
 
@@ -504,7 +501,7 @@ func setup_spinning_floor():
 		spring_area.visible = true
 
 func setup_frozen_floor():
-	"""Setup a frozen/icy floor"""
+	"""Setup a frozen/icy floor with physics material"""
 	var material = create_textured_material(Color(0.7, 0.9, 1.0, 0.95))
 	material.metallic = 0.4
 	material.roughness = 0.1
@@ -516,6 +513,12 @@ func setup_frozen_floor():
 		material.emission_energy = 0.2
 	
 	mesh_instance.set_surface_override_material(0, material)
+	
+	# CRITICAL: Set up physics material for classic ice behavior
+	var physics_mat = PhysicsMaterial.new()
+	physics_mat.friction = frozen_friction  # Very low friction
+	physics_mat.bounce = 0.0  # No bounce
+	physics_material_override = physics_mat
 	
 	if spring_area:
 		spring_area.monitoring = true
@@ -551,7 +554,7 @@ func setup_damage_floor():
 				spring_collision.position.y = floor_shape_obj.size.y * 0.25
 
 func handle_frozen_floor(delta: float):
-	"""Handle frozen floor logic"""
+	"""Handle frozen floor visual effects only - physics are handled by PhysicsMaterial"""
 	if frozen_enable_visual_effects:
 		frozen_time += delta
 		
@@ -560,25 +563,9 @@ func handle_frozen_floor(delta: float):
 			var shimmer = sin(frozen_time * frozen_shimmer_speed) * frozen_shimmer_intensity
 			material.emission_energy = 0.2 + shimmer
 	
-	for player in players_on_floor:
-		if player and is_instance_valid(player):
-			if player.has_method("get") and player.get("state_machine"):
-				var state_machine = player.get("state_machine")
-				var current_state = state_machine.current_state
-				
-				# Only trigger sliding if:
-				# 1. Not already sliding
-				# 2. Player is on the floor
-				# 3. Player is in WalkingState or RunningState (has momentum)
-				if current_state and current_state.get_script().get_global_name() != "SlidingState":
-					var current_state_name = current_state.get_script().get_global_name()
-					if player.is_on_floor() and (current_state_name == "WalkingState" or current_state_name == "RunningState"):
-						# Check if player has any horizontal movement
-						var horizontal_velocity = Vector2(player.velocity.x, player.velocity.z)
-						if horizontal_velocity.length() > 1.0:  # Only slide if moving
-							if state_machine.has_method("change_state"):
-								print("Frozen floor triggering slide from: ", current_state_name)
-								state_machine.change_state("SlidingState")
+	# Classic ice floor behavior:
+	# The low friction is handled by the physics_material_override
+	# No forced state changes - player keeps full control but slides more due to low friction
 
 func handle_damage_floor(delta: float):
 	"""Handle damage floor logic - deal damage and knockback to players on floor"""

@@ -62,12 +62,27 @@ func physics_update(delta: float):
 	var camera_basis = player.get_node("CameraController").transform.basis
 	var direction: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	
-	# Rotate player to face movement direction
-	if direction.length() > 0.1:
-		var target_rotation = atan2(-direction.x, -direction.z)
-		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+	# NEW: Get ice friction multiplier
+	var ice_control = player.get_ice_friction_multiplier()
 	
-	player.velocity.x = direction.x * SPEED
-	player.velocity.z = direction.z * SPEED
+	# NEW: On ice, lerp toward target velocity instead of setting it directly
+	if player.is_on_ice:
+		var target_velocity = direction * SPEED
+		player.velocity.x = lerp(player.velocity.x, target_velocity.x, ice_control * delta * 10.0)
+		player.velocity.z = lerp(player.velocity.z, target_velocity.z, ice_control * delta * 10.0)
+		
+		# Slower rotation on ice
+		if direction.length() > 0.1:
+			var target_rotation = atan2(-direction.x, -direction.z)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * ice_control * delta)
+	else:
+		# Normal movement
+		# Rotate player to face movement direction
+		if direction.length() > 0.1:
+			var target_rotation = atan2(-direction.x, -direction.z)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+		
+		player.velocity.x = direction.x * SPEED
+		player.velocity.z = direction.z * SPEED
 	
 	player.move_and_slide()

@@ -41,6 +41,10 @@ var is_dead: bool = false
 var death_y_threshold: float = -50.0  # Fall death threshold
 var should_flash: bool = false 
 
+# NEW: Ice floor detection
+var is_on_ice: bool = false
+var ice_friction_multiplier: float = 0.01  # How much control you have on ice (0.0 = no control, 1.0 = full control)
+
 # Component references (now managed by separate managers)
 var jump_shadow_manager: JumpShadowManager
 var gear_collection_manager: GearCollectionManager
@@ -185,6 +189,7 @@ func _physics_process(delta: float) -> void:
 	update_coyote_time(delta)
 	update_invulnerability(delta)
 	update_long_jump_timer(delta)
+	update_ice_detection()  # NEW: Check for ice floor using get_last_slide_collision
 	check_fall_death()
 	
 	# Sync wall jump cooldown from detector to player (for state compatibility)
@@ -199,6 +204,30 @@ func _physics_process(delta: float) -> void:
 		can_air_dash = true
 	
 	$CameraController.follow_character(position, velocity)
+
+func update_ice_detection():
+	"""Check if player is currently on a frozen floor using collision detection"""
+	is_on_ice = false
+	
+	if not is_on_floor():
+		return
+	
+	# Use get_slide_collision to check what we're standing on
+	# This is more reliable than raycasting
+	for i in range(get_slide_collision_count()):
+		var collision = get_slide_collision(i)
+		var collider = collision.get_collider()
+		
+		if collider and collider.has_method("get"):
+			var floor_type = collider.get("floor_type")
+			if floor_type != null and floor_type == 6:  # FloorType.FROZEN
+				is_on_ice = true
+				print("ON ICE! Friction multiplier: ", ice_friction_multiplier)
+				return
+
+func get_ice_friction_multiplier() -> float:
+	"""Get the friction multiplier based on whether we're on ice"""
+	return ice_friction_multiplier if is_on_ice else 1.0
 
 func update_long_jump_timer(delta: float):
 	"""Update the long jump window timer"""
