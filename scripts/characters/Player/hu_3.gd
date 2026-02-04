@@ -247,23 +247,25 @@ func update_health_indicator():
 	var current_health = game_manager.get_player_health()
 	var new_color: Color
 	
-	# Determine color based on exact health value
-	match current_health:
-		4:
-			# Blue (full health with upgrade)
-			new_color = Color(0, 0.5, 1, 1)
-		3:
-			# Green (full base health)
-			new_color = Color(0.254902, 1, 0, 1)
-		2:
-			# Yellow (wounded)
-			new_color = Color(1, 1, 0, 1)
-		1:
-			# Red (critical)
-			new_color = Color(1, 0, 0, 1)
-		_:
-			# Default to red for 0 or other values
-			new_color = Color(1, 0, 0, 1)
+	# FIXED: Determine color based on exact health value
+	# 4 = Blue, 3 = Green, 2 = Yellow, 1 = Red, 0 = Dead (Red)
+	if current_health >= 4:
+		# Blue (full health with upgrade)
+		new_color = Color(0.0, 0.5, 1.0, 1.0)
+	elif current_health == 3:
+		# Green (full base health)
+		new_color = Color(0.254902, 1.0, 0.0, 1.0)
+	elif current_health == 2:
+		# Yellow (wounded)
+		new_color = Color(1.0, 1.0, 0.0, 1.0)
+	elif current_health == 1:
+		# Red (critical)
+		new_color = Color(1.0, 0.0, 0.0, 1.0)
+	else:
+		# Dead or invalid (0 or less)
+		new_color = Color(1.0, 0.0, 0.0, 1.0)
+	
+	print("HU-3 Health Indicator: Health=", current_health, " Color=", new_color)
 	
 	# Update the health indicator material
 	var material = health_indicator.get_active_material(0)
@@ -358,19 +360,20 @@ func update_mouth_color():
 		var current_health = game_manager.get_player_health()
 		var new_color: Color
 		
-		# Same color logic as health indicator
-		match current_health:
-			4:
-				new_color = Color(0, 0.5, 1, 1)  # Blue
-			3:
-				new_color = Color(0.254902, 1, 0, 1)  # Green
-			2:
-				new_color = Color(1, 1, 0, 1)  # Yellow
-			1:
-				new_color = Color(1, 0, 0, 1)  # Red
-			_:
-				new_color = Color(1, 0, 0, 1)  # Default red
+		# FIXED: Same color logic as health indicator
+		# 4 = Blue, 3 = Green, 2 = Yellow, 1 = Red, 0 = Dead (Red)
+		if current_health >= 4:
+			new_color = Color(0.0, 0.5, 1.0, 1.0)  # Blue
+		elif current_health == 3:
+			new_color = Color(0.254902, 1.0, 0.0, 1.0)  # Green
+		elif current_health == 2:
+			new_color = Color(1.0, 1.0, 0.0, 1.0)  # Yellow
+		elif current_health == 1:
+			new_color = Color(1.0, 0.0, 0.0, 1.0)  # Red
+		else:
+			new_color = Color(1.0, 0.0, 0.0, 1.0)  # Dead (Red)
 		
+		print("HU-3 Mouth Color: Health=", current_health, " Color=", new_color)
 		material.set_shader_parameter("line_color", new_color)
 	
 func _on_gear_entered(body: Node3D):
