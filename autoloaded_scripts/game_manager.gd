@@ -71,7 +71,8 @@ func initialize_player():
 		player.set_health(player_health)
 	
 	if not hu3_companion:
-		spawn_hu3_companion()
+		# FIXED: Defer HU-3 spawning to next frame to ensure player is in tree
+		call_deferred("spawn_hu3_companion")
 
 func apply_purchased_upgrades():
 	"""Apply all purchased upgrades to the player"""
@@ -106,28 +107,45 @@ func apply_purchased_upgrades():
 
 func spawn_hu3_companion():
 	"""Spawn HU-3 companion robot"""
-	if not player:
-		print("GameManager: Cannot spawn HU-3 without player reference")
+	# FIXED: Add safety checks to ensure player is valid and in scene tree
+	if not player or not is_instance_valid(player):
+		print("GameManager: Cannot spawn HU-3 - invalid player reference")
+		return
+	
+	if not player.is_inside_tree():
+		print("GameManager: Cannot spawn HU-3 - player not in scene tree yet, deferring...")
+		call_deferred("spawn_hu3_companion")
 		return
 	
 	if hu3_companion and is_instance_valid(hu3_companion):
+		print("GameManager: HU-3 already exists, skipping spawn")
 		return
 	
 	if hu3_scene:
 		hu3_companion = hu3_scene.instantiate()
 		
+		# FIXED: Wait one frame before accessing player's global_position
+		await get_tree().process_frame
+		
+		if not player or not is_instance_valid(player) or not player.is_inside_tree():
+			print("GameManager: Player became invalid during HU-3 spawn")
+			if hu3_companion:
+				hu3_companion.queue_free()
+			hu3_companion = null
+			return
+		
 		# Position HU-3 to the right and above player
 		hu3_companion.global_position = player.global_position + Vector3(1.5, 1.5, 1.0)
 		
 		# Add to scene
-		player.get_parent().add_child.call_deferred(hu3_companion)
+		player.get_parent().add_child(hu3_companion)
 		
 		# Set up HU-3's reference to player
 		if hu3_companion.has_method("set_player_reference"):
 			hu3_companion.set_player_reference(player)
 		
-		
 		hu3_spawned.emit(hu3_companion)
+		print("GameManager: HU-3 spawned successfully")
 	else:
 		print("GameManager: Could not load HU-3 scene!")
 
