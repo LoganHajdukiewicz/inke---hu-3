@@ -2,11 +2,12 @@ extends State
 class_name SlidingState
 
 const BASE_SLIDE_SPEED: float = 10.0
-const SLIDE_FRICTION: float = 2.0  # How quickly sliding slows down
+const SLIDE_FRICTION: float = 0.98  # REDUCED friction (was 2.0) - keeps speed better!
 const MIN_SLIDE_SPEED: float = 0.5  # Minimum speed before stopping slide
-const ROTATION_SPEED: float = 5.0  # Slower rotation while sliding
-const SLIDE_CONTROL_STRENGTH: float = 0.3  # How much control player has while sliding
+const ROTATION_SPEED: float = 8.0  # Faster rotation for responsive feel
+const SLIDE_CONTROL_STRENGTH: float = 0.5  # More control while sliding
 const MIN_ENTRY_SPEED: float = 1.0  # Minimum speed needed to start sliding
+const MAX_SLIDE_SPEED: float = 70.0  # Cap for safety (sliding floors can push higher)
 
 var slide_velocity: Vector3 = Vector3.ZERO
 var slide_direction: Vector3 = Vector3.ZERO
@@ -40,8 +41,12 @@ func enter():
 		call_deferred("change_to", "IdleState")
 		return
 	
-	# Set initial slide velocity
+	# Set initial slide velocity - PRESERVE MOMENTUM!
 	slide_velocity = slide_direction * initial_slide_speed
+	
+	# CRITICAL: Set player velocity to match (don't reset it!)
+	player.velocity.x = slide_velocity.x
+	player.velocity.z = slide_velocity.z
 	
 	print("Sliding! Direction: ", slide_direction, " Initial Speed: ", initial_slide_speed, " Slide Velocity: ", slide_velocity)
 
@@ -73,6 +78,8 @@ func physics_update(delta: float):
 		return
 	
 	if Input.is_action_just_pressed("jump") and not player.ignore_next_jump:
+		# PRESERVE MOMENTUM WHEN JUMPING FROM SLIDE!
+		print("Jump from slide - preserving momentum: ", player.velocity)
 		change_to("JumpingState")
 		return
 	
@@ -82,7 +89,7 @@ func physics_update(delta: float):
 	# Get player input for limited control while sliding
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
-	# Apply limited steering control
+	# Apply steering control (more responsive now!)
 	if input_dir.length() > 0.1:
 		var camera_basis = player.get_node("CameraController").transform.basis
 		var input_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
@@ -90,11 +97,20 @@ func physics_update(delta: float):
 		# Blend the slide direction with input direction
 		slide_direction = slide_direction.lerp(input_direction, SLIDE_CONTROL_STRENGTH * delta).normalized()
 	
-	# Apply friction to slide velocity
-	var current_speed = slide_velocity.length()
+	# MARIO 64 STYLE: Preserve and maintain speed!
+	# Get current horizontal speed from player velocity (sliding floors add to this!)
+	var current_horizontal = Vector2(player.velocity.x, player.velocity.z)
+	var current_speed = current_horizontal.length()
+	
+	# Apply MINIMAL friction - keep that speed!
 	current_speed = max(current_speed - SLIDE_FRICTION * delta, 0.0)
 	
-	print("Current speed: ", current_speed, " On frozen: ", on_frozen)
+	# Safety cap (but high enough for frantic slides!)
+	if current_speed > MAX_SLIDE_SPEED:
+		current_speed = MAX_SLIDE_SPEED
+		print("Capping slide speed at: ", MAX_SLIDE_SPEED)
+	
+	print("Slide speed: ", current_speed, " On frozen: ", on_frozen)
 	
 	# Stop sliding if speed gets too low AND we're not on frozen floor
 	if current_speed < MIN_SLIDE_SPEED and not on_frozen:
@@ -120,13 +136,14 @@ func physics_update(delta: float):
 			# Keep sliding with momentum even off ice
 			pass
 	
-	# Update slide velocity
+	# Update slide velocity based on current speed and direction
 	slide_velocity = slide_direction * current_speed
 	
-	# Rotate player to face slide direction (slower than normal movement)
+	# Rotate player to face slide direction (faster when going faster!)
 	if slide_direction.length() > 0.1:
 		var target_rotation = atan2(-slide_direction.x, -slide_direction.z)
-		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+		var rotation_factor = ROTATION_SPEED * (1.0 + current_speed / MAX_SLIDE_SPEED)
+		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, rotation_factor * delta)
 	
 	# Apply slide movement to player velocity
 	player.velocity.x = slide_velocity.x
@@ -156,6 +173,5 @@ func get_speed() -> float:
 	return slide_velocity.length()
 
 func exit():
-	# Clear slide velocity when exiting
-	slide_velocity = Vector3.ZERO
-	print("Exited Sliding State")
+	# DON'T clear slide velocity - preserve momentum!
+	print("Exited Sliding State - Preserving momentum: ", slide_velocity.length())

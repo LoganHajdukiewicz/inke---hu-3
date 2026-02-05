@@ -9,7 +9,8 @@ enum FloorType {
 	SPINNING,
 	MOVING, 
 	DAMAGE, # non-lethal damaging floors, i.e. lava, electric
-	FROZEN
+	FROZEN,
+	SLIDING  # Forces player into sliding state, sliding down the slope
 }
 
 enum FloorShape {
@@ -42,8 +43,17 @@ enum SpinDirection {
 @export var spring_force: float = 20.0
 @export var spring_cooldown: float = 0.5
 @export var spring_tween_duration: float = 0.1
+@export var use_directional_bounce: bool = true  # NEW: If true, bounces in the direction the floor is facing
 @onready var spring_area: Area3D = $SpringArea
 @onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
+
+@export_group("Sliding Floor Settings")
+@export var slide_acceleration: float = 35.0  # How fast you accelerate down the slope (Mario 64 style!)
+@export var max_slide_speed: float = 60.0  # Maximum slide speed (FAST!)
+@export var slide_friction: float = 0.99  # How much the player slows down (higher = less friction)
+@export var auto_rotate_to_slope: bool = true  # Auto-rotate player to face downhill
+@export var speed_boost_multiplier: float = 1.5  # Extra speed boost when already going fast
+@export var gravity_boost: float = 2.0  # Extra gravity pull down the slope
 
 @export_group("Falling Floor Settings")
 @export var fall_speed: float = 5.0
@@ -274,6 +284,8 @@ func _update_editor_preview():
 			base_color = Color(1.0, 0.3, 0.0, 0.8)
 		FloorType.FROZEN:
 			base_color = Color(0.6, 0.9, 1.0, 0.8)
+		FloorType.SLIDING:
+			base_color = Color(0.9, 0.9, 0.3, 0.8)  # Yellow for sliding floors
 		_:
 			base_color = Color(0.5, 0.5, 0.5, 0.8)
 	
@@ -391,6 +403,10 @@ func _process(delta):
 	
 	if floor_type == FloorType.DAMAGE:
 		handle_damage_floor(delta)
+	
+	# NEW: Handle sliding floor
+	if floor_type == FloorType.SLIDING:
+		handle_sliding_floor(delta)
 
 func calculate_floor_velocity(delta: float):
 	"""Calculate the floor's current velocity for momentum transfer"""
@@ -421,6 +437,8 @@ func setup_floor_type():
 			setup_frozen_floor()
 		FloorType.DAMAGE:
 			setup_damage_floor()
+		FloorType.SLIDING:
+			setup_sliding_floor()
 
 func setup_normal_floor():
 	"""Setup a normal floor"""
@@ -552,6 +570,154 @@ func setup_damage_floor():
 			if spring_shape:
 				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
 				spring_collision.position.y = floor_shape_obj.size.y * 0.25
+
+func setup_sliding_floor():
+	"""
+	Setup a sliding floor that forces players into sliding state.
+	
+	WHY THIS WORKS:
+	- Creates a slippery surface with low friction
+	- Forces player into sliding state when they touch it
+	- Applies force down the slope based on floor rotation
+	- Player slides down naturally following the floor's tilt
+	"""
+	var material = create_textured_material(Color(0.9, 0.9, 0.4, 1))
+	material.metallic = 0.2
+	material.roughness = 0.8
+	
+	# Add subtle visual effect
+	material.emission_enabled = true
+	material.emission = Color(0.9, 0.9, 0.5)
+	material.emission_energy = 0.1
+	
+	mesh_instance.set_surface_override_material(0, material)
+	
+	# Set up low friction physics material
+	var physics_mat = PhysicsMaterial.new()
+	physics_mat.friction = 0.02  # Very slippery
+	physics_mat.bounce = 0.0
+	physics_material_override = physics_mat
+	
+	if spring_area:
+		spring_area.monitoring = true
+		spring_area.visible = true
+		
+		var floor_shape_obj = collision_shape.shape as BoxShape3D
+		if floor_shape_obj and spring_collision:
+			var spring_shape = spring_collision.shape as BoxShape3D
+			if spring_shape:
+				spring_shape.size = Vector3(floor_shape_obj.size.x, floor_shape_obj.size.y + 0.5, floor_shape_obj.size.z)
+				spring_collision.position.y = floor_shape_obj.size.y * 0.25
+
+func handle_sliding_floor(_delta: float):
+	"""
+	Handle sliding floor logic - force players into sliding state and apply downward force.
+	
+	HOW IT WORKS:
+	1. For each player on the floor, check if they're in sliding state
+	2. If not in sliding state, force them into it
+	3. Calculate the "downhill" direction based on floor rotation
+	4. Apply force down the slope to keep them sliding
+	"""
+	for player in players_on_floor:
+		if not player or not is_instance_valid(player):
+			continue
+		
+		# Get player's state machine
+		var state_machine = player.get_node_or_null("StateMachine")
+		if not state_machine:
+			continue
+		
+		var current_state = state_machine.current_state
+		if not current_state:
+			continue
+		
+		var current_state_name = current_state.get_script().get_global_name()
+		
+		# If player is on the floor and NOT in sliding state, force them into it
+		if player.is_on_floor() and current_state_name != "SlidingState":
+			print("Forcing player into sliding state on sliding floor")
+			state_machine.change_state("SlidingState")
+		
+		# Apply downward force along the slope
+		if current_state_name == "SlidingState" or player.is_on_floor():
+			apply_slide_force_to_player(player)
+
+func apply_slide_force_to_player(player: CharacterBody3D):
+	"""
+	Apply accelerating force down the slope to a player - MARIO 64 STYLE!
+	
+	HOW THIS WORKS (MARIO 64 PHYSICS):
+	1. Calculate the downhill direction from floor tilt
+	2. ACCELERATE the player continuously (builds up speed!)
+	3. Apply speed boost when already going fast (momentum!)
+	4. Add extra gravity pull down the slope
+	5. Cap at max speed to prevent infinite acceleration
+	6. Result: Fast, frantic, exhilarating slides!
+	"""
+	# Get the floor's forward direction (the way it's tilted)
+	var floor_forward = -global_transform.basis.z
+	var floor_up = global_transform.basis.y
+	
+	# Calculate the "downhill" direction
+	var downhill_direction = floor_forward
+	downhill_direction.y = 0  # Keep horizontal for now
+	
+	# Calculate tilt factor (how steep the slope is)
+	var tilt_factor = 1.0 - abs(floor_up.dot(Vector3.UP))  # 0 = flat, 1 = vertical
+	
+	if downhill_direction.length() > 0.01 and tilt_factor > 0.1:
+		downhill_direction = downhill_direction.normalized()
+		
+		# Get current speed in the downhill direction
+		var current_velocity = Vector2(player.velocity.x, player.velocity.z)
+		var current_speed = current_velocity.length()
+		var velocity_direction = current_velocity.normalized() if current_speed > 0.1 else Vector2.ZERO
+		
+		# Calculate how aligned we are with the downhill direction
+		var downhill_2d = Vector2(downhill_direction.x, downhill_direction.z).normalized()
+		var alignment = velocity_direction.dot(downhill_2d) if velocity_direction.length() > 0 else 0.0
+		
+		# MARIO 64 MAGIC: Acceleration increases when going downhill
+		var acceleration = slide_acceleration * tilt_factor
+		
+		# Speed boost when already moving fast downhill (momentum!)
+		if current_speed > max_slide_speed * 0.5 and alignment > 0.7:
+			acceleration *= speed_boost_multiplier
+			print("SPEED BOOST! Current speed: ", current_speed)
+		
+		# Apply acceleration down the slope
+		var acceleration_vector = downhill_direction * acceleration * get_process_delta_time()
+		player.velocity.x += acceleration_vector.x
+		player.velocity.z += acceleration_vector.z
+		
+		# Add extra gravity pull down the slope (makes it feel more intense)
+		var slope_gravity = downhill_direction * gravity_boost * tilt_factor
+		player.velocity.x += slope_gravity.x
+		player.velocity.z += slope_gravity.z
+		
+		# Cap at maximum speed (but still FAST!)
+		var new_speed = Vector2(player.velocity.x, player.velocity.z).length()
+		if new_speed > max_slide_speed:
+			var capped = Vector2(player.velocity.x, player.velocity.z).normalized() * max_slide_speed
+			player.velocity.x = capped.x
+			player.velocity.z = capped.y
+			print("MAX SPEED REACHED: ", max_slide_speed, " - GOING WILD!")
+		
+		# Apply minimal friction (keep the speed!)
+		player.velocity.x *= slide_friction
+		player.velocity.z *= slide_friction
+		
+		# Rotate player to face downhill for that authentic slide feel
+		if auto_rotate_to_slope and downhill_direction.length() > 0.1:
+			var target_rotation = atan2(-downhill_direction.x, -downhill_direction.z)
+			# Faster rotation when going faster (feels more responsive)
+			var rotation_speed = 0.15 * (1.0 + current_speed / max_slide_speed)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, rotation_speed)
+		
+		# Debug output for speed tracking
+		if Engine.get_physics_frames() % 30 == 0:  # Print every 30 frames
+			print("Slide speed: ", new_speed, " / ", max_slide_speed, " | Tilt: ", tilt_factor)
 
 func handle_frozen_floor(delta: float):
 	"""Handle frozen floor visual effects only - physics are handled by PhysicsMaterial"""
@@ -845,19 +1011,43 @@ func activate_spring():
 	spring_cooldown_timer = spring_cooldown
 
 func apply_spring_effect(player: CharacterBody3D):
-	"""Apply spring effect to a specific player"""
+	"""
+	Apply spring effect to a specific player.
+	
+	NEW: Now uses directional bounce based on floor rotation.
+	
+	HOW IT WORKS:
+	- If use_directional_bounce is TRUE:
+	  * Gets the floor's "up" direction (which way it's facing)
+	  * Applies spring force in that direction
+	  * Result: Tilted floor = angled bounce
+	- If use_directional_bounce is FALSE:
+	  * Uses standard upward bounce (original behavior)
+	"""
 	if not player:
 		return
 	
+	# Reset double jump ability when bouncing
 	if player.has_method("get") and player.get("has_double_jumped") != null:
 		player.has_double_jumped = false
 		player.can_double_jump = true
+	
+	# NEW: Calculate bounce direction based on floor rotation
+	var bounce_direction: Vector3
+	if use_directional_bounce:
+		# Get the floor's "up" direction (the way it's facing)
+		bounce_direction = global_transform.basis.y.normalized()
+		print("Directional bounce - Floor up: ", bounce_direction)
+	else:
+		# Standard upward bounce
+		bounce_direction = Vector3.UP
 	
 	var tween = create_tween()
 	tween.set_parallel(true)
 	
 	var original_y = player.global_position.y
 	
+	# Visual bounce effect (small upward bump)
 	tween.tween_method(
 		func(pos_y): _set_player_y_position(player, pos_y),
 		original_y,
@@ -865,26 +1055,45 @@ func apply_spring_effect(player: CharacterBody3D):
 		spring_tween_duration
 	).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 	
-	_apply_spring_velocity(player)
+	# Apply the directional spring velocity
+	_apply_directional_spring_velocity(player, bounce_direction)
 	
-	tween.tween_callback(func(): _apply_spring_velocity(player)).set_delay(spring_tween_duration)
+	tween.tween_callback(func(): _apply_directional_spring_velocity(player, bounce_direction)).set_delay(spring_tween_duration)
 
 func _set_player_y_position(player: CharacterBody3D, y_pos: float):
 	"""Helper function to set player Y position"""
 	if player and is_instance_valid(player):
 		player.global_position.y = y_pos
 
-func _apply_spring_velocity(player: CharacterBody3D):
-	"""Apply upward velocity to the player"""
+func _apply_directional_spring_velocity(player: CharacterBody3D, direction: Vector3):
+	"""
+	Apply spring velocity in the specified direction.
+	
+	WHY THIS WORKS:
+	- Takes the bounce direction (could be angled if floor is tilted)
+	- Multiplies by spring_force to get the velocity
+	- Sets player's velocity to this bounce velocity
+	- Result: Player bounces in the direction the floor is facing
+	"""
 	if player and is_instance_valid(player):
-		player.velocity.y = spring_force
+		# Apply velocity in the bounce direction
+		var bounce_velocity = direction * spring_force
+		player.velocity = bounce_velocity
 		
+		print("Applied directional spring: ", bounce_velocity)
+		
+		# Transition to jumping state
 		if player.has_method("get") and player.get("state_machine"):
 			var state_machine = player.get("state_machine")
 			if state_machine and state_machine.has_method("change_state"):
 				state_machine.change_state("JumpingState")
 		
 		player.move_and_slide()
+
+func _apply_spring_velocity(player: CharacterBody3D):
+	"""Legacy method - redirects to directional version for compatibility"""
+	var direction = global_transform.basis.y.normalized() if use_directional_bounce else Vector3.UP
+	_apply_directional_spring_velocity(player, direction)
 
 func start_falling():
 	"""Start the falling sequence"""
