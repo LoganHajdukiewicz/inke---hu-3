@@ -26,12 +26,12 @@ var being_stomped := false
 
 @export_group("Hit Loot (Paint Droplets)")
 @export var drops_paint_on_hit: bool = true
-@export var paint_droplet_count_min: int = 1
-@export var paint_droplet_count_max: int = 3
+@export var paint_droplet_count_min: int = 5
+@export var paint_droplet_count_max: int = 10
 @export var paint_explosion_force_min: float = 100.0
 @export var paint_explosion_force_max: float = 250.0
-@export var paint_droplet_value_min: int = 3  # NEW: Min paint value per droplet
-@export var paint_droplet_value_max: int = 7  # NEW: Max paint value per droplet
+@export var paint_droplet_value_min: int = 10  # NEW: Min paint value per droplet
+@export var paint_droplet_value_max: int = 25  # NEW: Max paint value per droplet
 
 # Preloaded scenes
 var gear_scene = preload("res://scenes/items/Collectibles/six_teeth_gear.tscn")
