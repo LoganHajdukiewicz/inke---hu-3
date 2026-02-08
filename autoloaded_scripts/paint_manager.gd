@@ -264,8 +264,88 @@ func use_current_paint():
 
 func execute_save_paint():
 	"""Save paint functionality - saves checkpoint"""
-	print("Save Paint: Creating checkpoint...")
-	# TODO: Implement save/checkpoint logic
+	if not player or not is_instance_valid(player):
+		print("Save Paint: No valid player reference")
+		return
+	
+	# Check if player is on the floor
+	if not player.is_on_floor():
+		print("Save Paint: Must be on the ground to create checkpoint!")
+		# Refund the paint since we couldn't use it
+		add_paint(paint_ability_costs[PaintType.SAVE])
+		return
+	
+	# Check if player has zero velocity (not moving)
+	var horizontal_velocity = Vector2(player.velocity.x, player.velocity.z)
+	if horizontal_velocity.length() > 0.5:  # Small threshold for "standing still"
+		print("Save Paint: Must be standing still to create checkpoint!")
+		# Refund the paint since we couldn't use it
+		add_paint(paint_ability_costs[PaintType.SAVE])
+		return
+	
+	# All conditions met - create checkpoint!
+	var checkpoint_manager = get_node_or_null("/root/CheckpointManager")
+	if checkpoint_manager:
+		var checkpoint_pos = player.global_position
+		var checkpoint_rot = player.rotation
+		
+		checkpoint_manager.set_checkpoint(checkpoint_pos, checkpoint_rot)
+		print("Save Paint: Checkpoint created at ", checkpoint_pos)
+		
+		# Create visual feedback for checkpoint creation
+		create_checkpoint_effect()
+	else:
+		print("Save Paint: CheckpointManager not found!")
+		# Refund the paint since we couldn't use it
+		add_paint(paint_ability_costs[PaintType.SAVE])
+
+func create_checkpoint_effect():
+	"""Create visual feedback for checkpoint creation"""
+	if not player or not is_instance_valid(player):
+		return
+	
+	# Create a temporary checkpoint glow effect
+	var checkpoint_glow = MeshInstance3D.new()
+	checkpoint_glow.name = "CheckpointGlow"
+	
+	# Create cylinder mesh for ground marker
+	var cylinder_mesh = CylinderMesh.new()
+	cylinder_mesh.top_radius = 1.5
+	cylinder_mesh.bottom_radius = 1.5
+	cylinder_mesh.height = 0.1
+	checkpoint_glow.mesh = cylinder_mesh
+	
+	# Create glowing cyan material (save paint color)
+	var glow_material = StandardMaterial3D.new()
+	glow_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow_material.albedo_color = Color(0.0, 0.8, 1.0, 0.6)  # Cyan with transparency
+	glow_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow_material.emission_enabled = true
+	glow_material.emission = Color(0.0, 0.8, 1.0, 1.0)
+	glow_material.emission_energy_multiplier = 3.0
+	
+	checkpoint_glow.material_override = glow_material
+	checkpoint_glow.position = Vector3(0, 0.05, 0)  # Slightly above ground
+	
+	# Add to player
+	player.add_child(checkpoint_glow)
+	
+	# Animate the glow - pulse and expand
+	var tween = create_tween()
+	tween.set_parallel(true)
+	
+	# Pulse scale
+	tween.tween_property(checkpoint_glow, "scale", Vector3(1.5, 1.0, 1.5), 0.3)
+	tween.tween_property(checkpoint_glow, "scale", Vector3(2.0, 1.0, 2.0), 0.4).set_delay(0.3)
+	
+	# Fade out
+	tween.tween_property(glow_material, "albedo_color:a", 0.0, 0.7)
+	
+	# Clean up after animation
+	tween.finished.connect(func(): 
+		if is_instance_valid(checkpoint_glow):
+			checkpoint_glow.queue_free()
+	)
 
 func execute_heal_paint():
 	"""Heal paint functionality - restores health"""
