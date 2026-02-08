@@ -94,6 +94,7 @@ Enemy="This is a general group of characters that could hurt the player"
 Player="This is the player"
 Breakables="This is for all objects that can break that do not hurt the player"
 Hazards="This is for floors or walls that hurt the player to touch them."
+Collectibles="Anything that the player can collect"
 
 [input]
 
