@@ -1,4 +1,4 @@
-extends RigidBody3D
+extends Area3D
 class_name PaintDroplet
 
 # Paint droplet configuration
@@ -7,6 +7,9 @@ class_name PaintDroplet
 @export var collection_distance: float = 2.0  # Distance at which it's collected
 @export var attraction_distance: float = 5.0  # Distance at which it starts moving toward player
 @export var attraction_speed: float = 15.0  # Speed when moving toward player
+@export var ground_offset: float = 0.2  # How high above ground to float
+@export var bob_height: float = 0.15  # Bobbing animation height
+@export var bob_speed: float = 2.0  # Bobbing animation speed
 
 # Visual configuration
 @export var droplet_color: Color = Color(0.0, 0.8, 1.0)  # Cyan by default
@@ -16,32 +19,52 @@ var lifetime_timer: float = 0.0
 var collected: bool = false
 var attracted_to_player: bool = false
 var target_player: Node3D = null
+var ground_level: float = 0.0
+var time_passed: float = 0.0
 
 # References
 var mesh_instance: MeshInstance3D
-var collection_area: Area3D
 
 func _ready():
-	# FIXED: Add to Collectible group instead of Gear group
+	# Add to Collectible groups
 	add_to_group("Collectible")
-	add_to_group("PaintDroplet")  # Specific group for paint droplets
+	add_to_group("PaintDroplet")
+	
+	# CRITICAL: Set collision properties to NOT affect player
+	collision_layer = 0  # Don't exist on any physics layer
+	collision_mask = 1   # Only detect player on layer 1
+	monitorable = false  # Other things can't detect us
+	monitoring = true    # We can detect others
+	
+	# Find ground level
+	find_ground_level()
 	
 	# Setup visual mesh
 	setup_mesh()
 	
-	# Setup collection area
-	setup_collection_area()
-	
-	# Add some initial random spin
-	angular_velocity = Vector3(
-		randf_range(-5, 5),
-		randf_range(-5, 5),
-		randf_range(-5, 5)
+	# Connect signals
+	body_entered.connect(_on_body_entered)
+	area_entered.connect(_on_area_entered)
+
+func find_ground_level():
+	"""Raycast down to find ground and position above it"""
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(
+		global_position,
+		global_position + Vector3(0, -100, 0)
 	)
+	query.collision_mask = 1  # Check ground layer
+	
+	var result = space_state.intersect_ray(query)
+	if result:
+		ground_level = result.position.y + ground_offset
+		global_position.y = ground_level
+	else:
+		ground_level = global_position.y
 
 func setup_mesh():
 	"""Create the visual mesh for the paint droplet"""
-	# BUGFIX: Check if mesh already exists from scene
+	# Check if mesh already exists from scene
 	mesh_instance = get_node_or_null("Mesh")
 	
 	if not mesh_instance:
@@ -71,7 +94,6 @@ func setup_mesh():
 
 func create_pulse_animation():
 	"""Create a gentle pulsing glow effect"""
-	# BUGFIX: Check if mesh_instance is valid before creating tween
 	if not mesh_instance or not is_instance_valid(mesh_instance):
 		return
 	
@@ -85,26 +107,6 @@ func create_pulse_animation():
 		tween.tween_property(material, "emission_energy_multiplier", 3.0, 0.5)
 		tween.tween_property(material, "emission_energy_multiplier", 1.5, 0.5)
 
-func setup_collection_area():
-	"""Setup area for detecting player"""
-	collection_area = Area3D.new()
-	collection_area.name = "CollectionArea"
-	
-	# BUGFIX: Set proper collision layers/masks
-	collection_area.collision_layer = 0  # Don't collide with anything
-	collection_area.collision_mask = 1   # Detect player on layer 1
-	
-	var collision_shape = CollisionShape3D.new()
-	var sphere_shape = SphereShape3D.new()
-	sphere_shape.radius = collection_distance
-	collision_shape.shape = sphere_shape
-	
-	collection_area.add_child(collision_shape)
-	add_child(collection_area)
-	
-	# Connect signals
-	collection_area.body_entered.connect(_on_body_entered)
-
 func _physics_process(delta: float):
 	# Update lifetime
 	lifetime_timer += delta
@@ -112,8 +114,13 @@ func _physics_process(delta: float):
 		fade_out_and_delete()
 		return
 	
-	# Check for nearby player for attraction
+	# Bobbing animation (only when not attracted)
 	if not attracted_to_player and not collected:
+		time_passed += delta
+		var bob_offset = sin(time_passed * bob_speed) * bob_height
+		global_position.y = ground_level + bob_offset
+		
+		# Check for nearby player for attraction
 		check_for_player_attraction()
 	
 	# Move toward player if attracted
@@ -128,7 +135,6 @@ func check_for_player_attraction():
 	
 	var player = players[0]
 	
-	# BUGFIX: Validate player is valid before accessing properties
 	if not is_instance_valid(player):
 		return
 	
@@ -137,18 +143,12 @@ func check_for_player_attraction():
 	if distance <= attraction_distance:
 		attracted_to_player = true
 		target_player = player
-		
-		# Disable physics when attracted
-		freeze = true
-		gravity_scale = 0.0
 
 func move_toward_player(delta: float):
 	"""Move toward the player when attracted"""
 	if not target_player or not is_instance_valid(target_player):
 		attracted_to_player = false
 		target_player = null
-		freeze = false
-		gravity_scale = 1.0
 		return
 	
 	var direction = (target_player.global_position - global_position).normalized()
@@ -169,6 +169,14 @@ func _on_body_entered(body: Node3D):
 	if body.is_in_group("Player"):
 		collect()
 
+func _on_area_entered(area: Area3D):
+	"""Handle area entered (for player's collection area)"""
+	if collected:
+		return
+	
+	if area.name == "GearCollectionArea":
+		collect()
+
 func collect():
 	"""Collect this paint droplet"""
 	if collected:
@@ -182,7 +190,6 @@ func collect():
 		paint_manager.add_paint(paint_value)
 		print("Paint droplet collected! +", paint_value, " paint")
 	else:
-		# BUGFIX: Add warning if PaintManager not found
 		print("WARNING: PaintManager not found or doesn't have add_paint method!")
 	
 	# Visual feedback
@@ -191,13 +198,11 @@ func collect():
 	# Delete after effect
 	await get_tree().create_timer(0.2).timeout
 	
-	# BUGFIX: Check if still valid before freeing
 	if is_instance_valid(self):
 		queue_free()
 
 func create_collection_effect():
 	"""Create visual effect when collected"""
-	# BUGFIX: Validate mesh_instance before creating effect
 	if not mesh_instance or not is_instance_valid(mesh_instance):
 		return
 	
@@ -217,7 +222,6 @@ func fade_out_and_delete():
 	if collected:
 		return
 	
-	# BUGFIX: Validate mesh_instance before fading
 	if not mesh_instance or not is_instance_valid(mesh_instance):
 		queue_free()
 		return
@@ -230,17 +234,14 @@ func fade_out_and_delete():
 		
 		await tween.finished
 	
-	# BUGFIX: Check if still valid before freeing
 	if is_instance_valid(self):
 		queue_free()
 
-# Public API for external scripts
+# Public API
 func set_paint_value(value: int):
-	"""Set the paint value of this droplet"""
 	paint_value = value
 
 func set_color(color: Color):
-	"""Set the color of this droplet"""
 	droplet_color = color
 	if mesh_instance and is_instance_valid(mesh_instance) and mesh_instance.material_override:
 		var material = mesh_instance.material_override as StandardMaterial3D

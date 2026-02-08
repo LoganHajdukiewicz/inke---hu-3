@@ -6,16 +6,16 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_ehjxu"]
 size = Vector3(0.298584, 0.0593262, 0.296379)
 
-[node name="SixTeethGear" type="Area3D"]
+[node name="SixTeethGear" type="Area3D" unique_id=1287358382 groups=["Collectibles"]]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 script = ExtResource("1_r7s1f")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=195635280]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 cast_shadow = 0
 mesh = ExtResource("2_r7s1f")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=231621186]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00720219, -0.0020752, -0.000835419)
 shape = SubResource("BoxShape3D_ehjxu")
 

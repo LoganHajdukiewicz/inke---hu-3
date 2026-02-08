@@ -8,6 +8,7 @@ class_name CRED
 @export var float_amplitude: float = 0.2
 @export var float_speed: float = 1.5
 @export var rotation_speed: float = 1.0
+@export var ground_offset: float = 0.3  # How high above ground to float
 
 # Cutscene Properties
 @export var cutscene_duration: float = 2.0
@@ -17,7 +18,6 @@ class_name CRED
 # Node References
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
-#@onready var audio_player: AudioStreamPlayer3D = $AudioStreamPlayer3D
 
 # GameManager reference
 var game_manager: Node = null
@@ -25,6 +25,7 @@ var game_manager: Node = null
 # Animation variables
 var time_elapsed: float = 0.0
 var original_position: Vector3
+var ground_level: float = 0.0
 var original_material: Material
 var rainbow_material: ShaderMaterial
 var is_playing_cutscene: bool = false
@@ -41,13 +42,20 @@ signal cutscene_finished(cred_node: CRED)
 
 func _ready():
 	add_to_group("CRED")
+	add_to_group("Collectible")
 	
-	# Store original position for floating animation
-	original_position = global_position
+	# CRITICAL: Set collision properties to NOT affect player
+	collision_layer = 0  # Don't exist on any physics layer
+	collision_mask = 1   # Only detect player on layer 1
+	monitorable = false  # Other things can't detect us
+	monitoring = true    # We can detect others
 	
 	# Get GameManager reference
 	game_manager = get_node("/root/GameManager")
-
+	
+	# Find ground level and position above it
+	call_deferred("find_ground_level")
+	
 	setup_rainbow_material()
 	
 	# Connect area signals
@@ -57,10 +65,28 @@ func _ready():
 	if game_manager and game_manager.has_signal("player_spawned"):
 		game_manager.player_spawned.connect(_on_player_spawned)
 
+func find_ground_level():
+	"""Raycast down to find ground and position above it"""
+	await get_tree().process_frame
+	
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(
+		global_position,
+		global_position + Vector3(0, -100, 0)
+	)
+	query.collision_mask = 1
+	
+	var result = space_state.intersect_ray(query)
+	if result:
+		ground_level = result.position.y + ground_offset
+		global_position.y = ground_level
+		original_position = global_position
+	else:
+		ground_level = global_position.y
+		original_position = global_position
 
 func setup_rainbow_material():
 	"""Create and apply rainbow shader material to the CRED sphere"""
-
 	# Store original material
 	if mesh_instance.get_surface_override_material_count() > 0:
 		original_material = mesh_instance.get_surface_override_material(0)
@@ -68,30 +94,7 @@ func setup_rainbow_material():
 	# Create shader material for rainbow effect
 	rainbow_material = ShaderMaterial.new()
 	
-	# Create the rainbow shader code
-	var shader = Shader.new()
-	shader.code = """
-shader_type canvas_item;
-
-uniform float speed : hint_range(0.0, 5.0) = 2.0;
-uniform float brightness : hint_range(0.0, 2.0) = 1.0;
-uniform float saturation : hint_range(0.0, 2.0) = 1.0;
-
-vec3 hsv_to_rgb(vec3 c) {
-	vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-	vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
-
-void fragment() {
-	float time_offset = TIME * speed;
-	float hue = fract(time_offset + UV.x * 0.5 + UV.y * 0.3);
-	vec3 hsv = vec3(hue, saturation, brightness);
-	COLOR = vec4(hsv_to_rgb(hsv), 1.0);
-}
-"""
-	
-	# For 3D, we need a different shader type
+	# For 3D, we need a spatial shader
 	var spatial_shader = Shader.new()
 	spatial_shader.code = """
 shader_type spatial;
@@ -137,9 +140,9 @@ func _process(delta: float):
 	
 	time_elapsed += delta
 	
-	# Floating animation
+	# Floating animation (stays above ground)
 	var float_offset = sin(time_elapsed * float_speed) * float_amplitude
-	global_position.y = original_position.y + float_offset
+	global_position.y = ground_level + float_offset
 	
 	# Rotation animation
 	rotation.y += rotation_speed * delta
@@ -153,13 +156,11 @@ func handle_cutscene(delta: float):
 	cutscene_timer += delta
 	
 	if cutscene_timer >= cutscene_duration:
-		# End cutscene
 		end_cutscene()
 	else:
-		# Cutscene effects (camera zoom, slow motion, etc.)
 		var progress = cutscene_timer / cutscene_duration
 		
-		# Scale effect - grow then shrink
+		# Scale effect
 		var scale_factor = 1.0 + sin(progress * PI) * 0.3
 		scale = Vector3.ONE * scale_factor
 		
@@ -173,11 +174,9 @@ func _on_body_entered(body: Node3D):
 	if collected or is_playing_cutscene:
 		return
 	
-	# Check if it's the player or player's collection area
 	if body.is_in_group("Player") or body.name == "GearCollectionArea":
 		var player_node = body
 		
-		# If it's the collection area, get the parent (player)
 		if body.name == "GearCollectionArea":
 			player_node = body.get_parent()
 		
@@ -189,7 +188,6 @@ func _on_area_entered(area: Area3D):
 	if collected or is_playing_cutscene:
 		return
 	
-	# Check if it's a gear collection area from the player
 	if area.name == "GearCollectionArea":
 		var player_node = area.get_parent()
 		if player_node and player_node.is_in_group("Player"):
@@ -206,21 +204,13 @@ func start_collection_cutscene(player_node: CharacterBody3D):
 	
 	print("CRED: Starting collection cutscene")
 	
-	# Emit cutscene started signal
 	cutscene_started.emit(self)
 	
-	# Disable player movement if possible
 	if player and player.has_method("set_movement_enabled"):
 		player.set_movement_enabled(false)
 	
-	# Camera effects
 	apply_cutscene_camera_effects()
 	
-	# Play collection sound if available
-	#if audio_player and audio_player.stream:
-	#	audio_player.play()
-	
-	# Schedule collection after delay
 	await get_tree().create_timer(collection_delay).timeout
 	collect_cred()
 
@@ -240,9 +230,7 @@ func collect_cred():
 		game_manager.add_CRED(cred_value)
 	else:
 		print("CRED: Could not add CRED to GameManager!")
-
 	
-	# Emit collection signal
 	cred_collected.emit(self, cred_value)
 	queue_free()
 
@@ -250,19 +238,15 @@ func end_cutscene():
 	"""End the collection cutscene"""
 	is_playing_cutscene = false
 	
-	# Re-enable player movement
 	if player and player.has_method("set_movement_enabled"):
 		player.set_movement_enabled(true)
 	
-	# Emit cutscene finished signal
 	cutscene_finished.emit(self)
 	
-	# Hide and remove the CRED
 	visible = false
 	collision_shape.disabled = true
 	
-	
-	# You win! Hopefully it works. 
+	# You win message
 	var canvas_layer = CanvasLayer.new()
 	add_child(canvas_layer)
 	var you_win = Label.new()
@@ -272,23 +256,16 @@ func end_cutscene():
 	you_win.visible = true
 	canvas_layer.add_child(you_win)
 	
-	
-	
-	# Wait a moment then queue free
 	queue_free()
 
-# === PUBLIC METHODS ===
-
+# Public methods
 func set_cred_value(new_value: int):
-	"""Set the CRED value"""
 	cred_value = new_value
 
 func get_cred_value() -> int:
-	"""Get the CRED value"""
 	return cred_value
 
 func is_collected() -> bool:
-	"""Check if this CRED has been collected"""
 	return collected
 
 func force_collect():
@@ -301,10 +278,8 @@ func force_collect():
 	collision_shape.disabled = true
 	queue_free()
 
-# === SAVE/LOAD SUPPORT ===
-
+# Save/Load support
 func get_save_data() -> Dictionary:
-	"""Get save data for this CRED"""
 	return {
 		"collected": collected,
 		"position": global_position,
@@ -312,15 +287,12 @@ func get_save_data() -> Dictionary:
 	}
 
 func load_save_data(data: Dictionary):
-	"""Load save data for this CRED"""
 	collected = data.get("collected", false)
 	cred_value = data.get("cred_value", 10)
 	
 	if collected:
-		# If already collected, remove from scene
 		queue_free()
 	else:
-		# Set position if provided
 		var saved_position = data.get("position", Vector3.ZERO)
 		if saved_position != Vector3.ZERO:
 			global_position = saved_position

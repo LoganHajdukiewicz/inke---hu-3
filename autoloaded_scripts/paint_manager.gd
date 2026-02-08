@@ -136,7 +136,7 @@ func setup_paint_ui():
 		return
 	
 	# Load the PaintUIManager script
-	var paint_ui_script = load("res://scripts/ui/paint_ui_manager.gd")
+	var paint_ui_script = load("res://autoloaded_scripts/paint_ui_manager.gd")
 	if not paint_ui_script:
 		print("PaintManager: ERROR - Could not load paint_ui_manager.gd!")
 		return
@@ -147,7 +147,7 @@ func setup_paint_ui():
 	
 	# Add to scene tree
 	if get_tree() and get_tree().current_scene:
-		get_tree().current_scene.add_child(paint_ui)
+		get_tree().current_scene.add_child.call_deferred(paint_ui)
 		print("Paint UI created successfully!")
 	else:
 		print("PaintManager: Could not add paint UI - no current scene found")

@@ -9,8 +9,7 @@ radius = 0.2
 radius = 0.15
 height = 0.3
 
-[node name="PaintDroplet" type="RigidBody3D" unique_id=635290687 groups=["Collectibles"]]
-mass = 0.1
+[node name="PaintDroplet" type="Area3D" unique_id=1209176892 groups=["Collectibles"]]
 linear_damp = 0.5
 angular_damp = 2.0
 script = ExtResource("1_paint")
