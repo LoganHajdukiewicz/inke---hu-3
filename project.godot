@@ -26,6 +26,7 @@ GameManager="*res://autoloaded_scripts/game_manager.gd"
 CutsceneManager="*res://autoloaded_scripts/cutscene_manager.gd"
 DialogueManager="*res://autoloaded_scripts/dialogue_manager.gd"
 PaintManager="*uid://428tu2ybxugn"
+PaintUiManager="*uid://b8qhf4vxh06wg"
 
 [dialogic]
 

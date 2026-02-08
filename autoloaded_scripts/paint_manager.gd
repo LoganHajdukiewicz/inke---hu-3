@@ -28,7 +28,7 @@ var paint_ability_costs: Dictionary = {
 signal paint_amount_changed(current: int, maximum: int)
 signal paint_collected(amount: int)
 signal paint_depleted  # When paint runs out
-signal insufficient_paint(cost: int, current: int)  # NEW: When trying to use without enough paint
+signal insufficient_paint(cost: int, current: int)  # When trying to use without enough paint
 
 # Paint colors for visual feedback
 var paint_colors: Dictionary = {
@@ -48,7 +48,7 @@ var paint_names: Dictionary = {
 
 # References
 var player: CharacterBody3D
-var paint_indicator: MeshInstance3D  # Visual indicator on player
+var paint_ui: CanvasLayer  # UI-based paint meter
 
 # Cooldown to prevent rapid switching
 var switch_cooldown: float = 0.0
@@ -68,15 +68,8 @@ func _ready():
 
 func register_player(player_node: CharacterBody3D):
 	"""Called by player to register itself with PaintManager"""
-	# Clean up old references if they exist
-	if is_initialized and paint_indicator and is_instance_valid(paint_indicator):
-		print("PaintManager: Cleaning up old paint indicator")
-		paint_indicator.queue_free()
-		paint_indicator = null
-	
 	player = player_node
-	setup_paint_indicator()
-	update_paint_indicator()
+	setup_paint_ui()
 	is_initialized = true
 	print("Paint Manager initialized - Current paint: ", paint_names[current_paint])
 	print("Starting paint amount: ", current_paint_amount, "/", max_paint_amount)
@@ -133,108 +126,56 @@ func get_ability_cost(paint_type: PaintType) -> int:
 	return paint_ability_costs.get(paint_type, 0)
 
 # ==========================================
+# UI SETUP
+# ==========================================
+
+func setup_paint_ui():
+	"""Create the UI-based paint meter"""
+	if not player or not is_instance_valid(player):
+		print("PaintManager: Cannot setup UI - invalid player reference")
+		return
+	
+	# Load the PaintUIManager script
+	var paint_ui_script = load("res://scripts/ui/paint_ui_manager.gd")
+	if not paint_ui_script:
+		print("PaintManager: ERROR - Could not load paint_ui_manager.gd!")
+		return
+	
+	# Create the UI instance
+	paint_ui = paint_ui_script.new()
+	paint_ui.name = "PaintUI"
+	
+	# Add to scene tree
+	if get_tree() and get_tree().current_scene:
+		get_tree().current_scene.add_child(paint_ui)
+		print("Paint UI created successfully!")
+	else:
+		print("PaintManager: Could not add paint UI - no current scene found")
+
+# ==========================================
 # EXISTING PAINT SYSTEM FUNCTIONS
 # ==========================================
 
-func setup_paint_indicator():
-	"""Create a visual indicator showing current paint type"""
-	if not player or not is_instance_valid(player):
-		print("PaintManager: Cannot setup indicator - invalid player reference")
-		return
-	
-	paint_indicator = MeshInstance3D.new()
-	paint_indicator.name = "PaintIndicator"
-	
-	# Create a small sphere that floats above the player
-	var sphere_mesh = SphereMesh.new()
-	sphere_mesh.radius = 0.15
-	sphere_mesh.height = 0.3
-	paint_indicator.mesh = sphere_mesh
-	
-	# Create glowing material
-	var indicator_material = StandardMaterial3D.new()
-	indicator_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	indicator_material.albedo_color = paint_colors[current_paint]
-	indicator_material.emission_enabled = true
-	indicator_material.emission = paint_colors[current_paint]
-	indicator_material.emission_energy_multiplier = 2.0
-	
-	paint_indicator.material_override = indicator_material
-	
-	# Position above player's head
-	paint_indicator.position = Vector3(0, 2.5, 0)
-	
-	player.add_child(paint_indicator)
-	
-	# Add gentle bobbing animation
-	create_bobbing_animation()
-
-func create_bobbing_animation():
-	"""Create a gentle floating animation for the paint indicator"""
-	if not paint_indicator or not is_instance_valid(paint_indicator):
-		return
-	
-	var tween = create_tween()
-	tween.set_loops()
-	tween.set_trans(Tween.TRANS_SINE)
-	tween.set_ease(Tween.EASE_IN_OUT)
-	
-	var base_y = 2.5
-	tween.tween_property(paint_indicator, "position:y", base_y + 0.2, 1.0)
-	tween.tween_property(paint_indicator, "position:y", base_y - 0.2, 1.0)
-
 func _process(delta: float):
-	# Check if player is still valid - if not, reset
-	if is_initialized and (not player or not is_instance_valid(player)):
-		print("PaintManager: Player no longer valid, resetting...")
-		cleanup()
-		return
-	
 	# Don't process if not initialized
 	if not is_initialized or not player:
+		return
+	
+	# Check if player is still valid - if not, reset
+	if not is_instance_valid(player):
+		print("PaintManager: Player no longer valid, resetting...")
+		cleanup()
 		return
 	
 	# Update switch cooldown
 	if switch_cooldown > 0:
 		switch_cooldown -= delta
 	
-	# Update indicator to show if we can afford current paint
-	update_paint_indicator()
-	
 	# Check for paint switching input
 	check_paint_switch_input()
 	
 	# Check for paint usage
 	check_paint_use_input()
-
-func update_paint_indicator():
-	"""Update the paint indicator color and state based on paint availability"""
-	if not paint_indicator or not is_instance_valid(paint_indicator):
-		return
-	
-	var material = paint_indicator.material_override as StandardMaterial3D
-	if material:
-		var color = paint_colors[current_paint]
-		var cost = paint_ability_costs.get(current_paint, 0)
-		var can_afford = current_paint_amount >= cost
-		
-		# If we can't afford, show dimmed/darkened
-		if not can_afford:
-			color = color.darkened(0.6)
-			material.albedo_color = color
-			material.emission = color
-			material.emission_energy_multiplier = 0.3
-		else:
-			# Normal bright color when we can afford
-			material.albedo_color = color
-			material.emission = color
-			material.emission_energy_multiplier = 2.0
-		
-		# Pulse effect on switch
-		if switch_cooldown > switch_cooldown_time - 0.1:  # Just switched
-			var tween = create_tween()
-			tween.tween_property(material, "emission_energy_multiplier", 4.0, 0.1)
-			tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.3)
 
 func check_paint_switch_input():
 	"""Check D-pad input for paint switching"""
@@ -276,35 +217,12 @@ func switch_paint(new_paint: PaintType):
 	# Start cooldown
 	switch_cooldown = switch_cooldown_time
 	
-	# Update visual indicator
-	update_paint_indicator()
-	
 	# Emit signal
 	paint_changed.emit(current_paint, previous_paint)
 	
 	# Print feedback
 	var cost = paint_ability_costs.get(current_paint, 0)
 	print("Paint switched: ", paint_names[previous_paint], " → ", paint_names[current_paint], " (Cost: ", cost, " paint)")
-	
-	# Visual/audio feedback
-	play_switch_effect()
-
-func play_switch_effect():
-	"""Visual effect when switching paints"""
-	if not paint_indicator or not is_instance_valid(paint_indicator):
-		return
-	
-	# Scale pulse
-	if paint_indicator:
-		var original_scale = paint_indicator.scale
-		var tween = create_tween()
-		tween.set_trans(Tween.TRANS_BACK)
-		tween.set_ease(Tween.EASE_OUT)
-		tween.tween_property(paint_indicator, "scale", original_scale * 1.5, 0.15)
-		tween.tween_property(paint_indicator, "scale", original_scale, 0.15)
-	
-	# TODO: Add sound effect here when you have audio
-	# $SwitchSound.play()
 
 func check_paint_use_input():
 	"""Check for spray button press to use current paint"""
@@ -318,15 +236,6 @@ func use_current_paint():
 	# Check if we have enough paint
 	if not has_enough_paint_for_ability(current_paint):
 		print("Not enough paint! Need ", cost, ", have ", current_paint_amount)
-		# Visual feedback for insufficient paint
-		if paint_indicator and is_instance_valid(paint_indicator):
-			var material = paint_indicator.material_override as StandardMaterial3D
-			if material:
-				# Quick red flash to indicate insufficient paint
-				var tween = create_tween()
-				var original_color = material.albedo_color
-				tween.tween_property(material, "albedo_color", Color(1.0, 0.0, 0.0, 1.0), 0.1)
-				tween.tween_property(material, "albedo_color", original_color, 0.2)
 		return
 	
 	print("Using ", paint_names[current_paint], " (Cost: ", cost, " paint)")
@@ -337,9 +246,6 @@ func use_current_paint():
 	
 	# Emit signal for other systems to handle
 	paint_used.emit(current_paint)
-	
-	# Visual feedback
-	play_use_effect()
 	
 	# Execute paint-specific logic
 	match current_paint:
@@ -352,21 +258,6 @@ func use_current_paint():
 		PaintType.COMBAT:
 			execute_combat_paint()
 
-func play_use_effect():
-	"""Visual effect when using paint"""
-	if not paint_indicator or not is_instance_valid(paint_indicator):
-		return
-	
-	# Quick flash
-	var material = paint_indicator.material_override as StandardMaterial3D
-	if material:
-		var tween = create_tween()
-		tween.tween_property(material, "emission_energy_multiplier", 6.0, 0.05)
-		tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.2)
-	
-	# TODO: Add particle effect for paint spray
-	# TODO: Add sound effect
-
 # ==========================================
 # PAINT ACTION METHODS
 # ==========================================
@@ -375,7 +266,6 @@ func execute_save_paint():
 	"""Save paint functionality - saves checkpoint"""
 	print("Save Paint: Creating checkpoint...")
 	# TODO: Implement save/checkpoint logic
-	# This will trigger checkpoint creation at player's current position
 
 func execute_heal_paint():
 	"""Heal paint functionality - restores health"""
@@ -453,26 +343,16 @@ func create_heal_effect():
 		if is_instance_valid(heal_glow):
 			heal_glow.queue_free()
 	)
-	
-	# Make paint indicator pulse
-	if paint_indicator and is_instance_valid(paint_indicator):
-		var indicator_material = paint_indicator.material_override as StandardMaterial3D
-		if indicator_material:
-			var pulse_tween = create_tween()
-			pulse_tween.tween_property(indicator_material, "emission_energy_multiplier", 8.0, 0.1)
-			pulse_tween.tween_property(indicator_material, "emission_energy_multiplier", 2.0, 0.4)
 
 func execute_fly_paint():
 	"""Fly paint functionality - temporary flight/glide"""
 	print("Fly Paint: Activating flight...")
 	# TODO: Implement flight logic
-	# This could give the player a temporary upward boost or glide ability
 
 func execute_combat_paint():
 	"""Combat paint functionality - offensive spray"""
 	print("Combat Paint: Attacking...")
 	# TODO: Implement combat spray logic
-	# This could create a damaging spray cone in front of the player
 
 # ==========================================
 # GETTERS
@@ -509,10 +389,10 @@ func set_paint(paint_type: PaintType):
 
 func cleanup():
 	"""Clean up resources when player is no longer valid"""
-	if paint_indicator and is_instance_valid(paint_indicator):
-		paint_indicator.queue_free()
+	if paint_ui and is_instance_valid(paint_ui):
+		paint_ui.queue_free()
 	
-	paint_indicator = null
+	paint_ui = null
 	player = null
 	is_initialized = false
 	print("PaintManager: Cleaned up resources")
