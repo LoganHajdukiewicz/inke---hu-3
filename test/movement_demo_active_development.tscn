@@ -517,6 +517,126 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
+[node name="Floor66" parent="Floors" unique_id=343424183 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2600)
+floor_size = Vector3(100, 0.5, 100)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor73" parent="Floors" unique_id=491423184 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2700)
+floor_size = Vector3(30, 0.5, 100)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor74" parent="Floors" unique_id=570652389 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2800)
+floor_size = Vector3(30, 0.5, 100)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor75" parent="Floors" unique_id=1180059027 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2900)
+floor_size = Vector3(100, 0.5, 100)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor69" parent="Floors" unique_id=416070267 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 25, -2652.5)
+floor_size = Vector3(40, 30, 5)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor70" parent="Floors" unique_id=2137991648 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 25, -2652.5)
+floor_size = Vector3(40, 30, 5)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor76" parent="Floors" unique_id=1278295434 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32.5, -2652.5)
+floor_size = Vector3(100, 15, 5)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor77" parent="Floors" unique_id=473265500 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32.5, -2547.5)
+floor_size = Vector3(100, 15, 5)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor71" parent="Floors" unique_id=31238470 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 25, -2547.5)
+floor_size = Vector3(40, 30, 5)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor72" parent="Floors" unique_id=2141571657 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 25, -2547.25)
+floor_size = Vector3(40, 30, 5)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor67" parent="Floors" unique_id=1617184144 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.5, 25, -2600)
+floor_size = Vector3(5, 30, 100)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
+[node name="Floor68" parent="Floors" unique_id=1106182242 instance=ExtResource("5_0t3uf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52.5, 25, -2600)
+floor_size = Vector3(5, 30, 100)
+spring_force = 30.0
+spin_speed = 120.0
+spin_direction = 1
+movement_axis = Vector3(0, 0, -40)
+frozen_friction = 0.05
+frozen_enable_visual_effects = false
+
 [node name="Floor61" parent="Floors" unique_id=1176780240 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 79, -1830)
 floor_size = Vector3(10, 100, 80)
@@ -675,7 +795,7 @@ script = null
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@54177" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=272143943]
+[node name="@CollisionShape3D@59402" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=783183929]
 shape = SubResource("BoxShape3D_uylq5")
 
 [node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("6_07svi")]
@@ -685,7 +805,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@54178" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=836171486]
+[node name="@CollisionShape3D@59403" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1026807843]
 shape = SubResource("BoxShape3D_0t3uf")
 
 [node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("6_07svi")]
@@ -695,7 +815,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@54179" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=558035444]
+[node name="@CollisionShape3D@59404" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=536603738]
 shape = SubResource("BoxShape3D_07svi")
 
 [node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("6_07svi")]
@@ -705,7 +825,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@54180" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=731290023]
+[node name="@CollisionShape3D@59405" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=532253013]
 shape = SubResource("BoxShape3D_1d5ko")
 
 [node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("6_07svi")]
@@ -715,7 +835,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign4"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@54181" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1808093690]
+[node name="@CollisionShape3D@59406" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=158357364]
 shape = SubResource("BoxShape3D_icac4")
 
 [node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("6_07svi")]
@@ -725,7 +845,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@54182" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=1103373045]
+[node name="@CollisionShape3D@59407" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=2041480181]
 shape = SubResource("BoxShape3D_gdr2d")
 
 [node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("6_07svi")]
@@ -736,7 +856,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign6"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@54183" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=1810383773]
+[node name="@CollisionShape3D@59408" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=2128264773]
 shape = SubResource("BoxShape3D_txrxq")
 
 [node name="Sign7" parent="Dialogue Triggers" unique_id=1404823017 instance=ExtResource("6_07svi")]
@@ -747,7 +867,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign7"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@54184" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=733684459]
+[node name="@CollisionShape3D@59409" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=1094040912]
 shape = SubResource("BoxShape3D_va7sb")
 
 [node name="DialogueTrigger2" parent="Dialogue Triggers/Sign7" unique_id=88354356 instance=ExtResource("5_4w42i")]
@@ -756,7 +876,7 @@ dialogue_file = "worldTrigger2"
 trigger_type = 1
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@54185" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1987029680]
+[node name="@CollisionShape3D@59410" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1100858410]
 shape = SubResource("WorldBoundaryShape3D_4mfs1")
 
 [node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("5_4w42i")]
@@ -764,7 +884,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@54186" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=2119548644]
+[node name="@CollisionShape3D@59411" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1761369604]
 shape = SubResource("WorldBoundaryShape3D_qrayo")
 
 [node name="Items" type="Node" parent="." unique_id=1097220712]
@@ -801,6 +921,102 @@ paint_droplet_count_min = null
 paint_droplet_count_max = null
 paint_explosion_force_min = null
 paint_explosion_force_max = null
+
+[node name="Enemy2" parent="Enemies" unique_id=477838601 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy3" parent="Enemies" unique_id=720459507 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.85124, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy4" parent="Enemies" unique_id=810272029 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1252594, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy5" parent="Enemies" unique_id=645526219 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.8747406, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy6" parent="Enemies" unique_id=1791681140 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8747406, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy7" parent="Enemies" unique_id=1903310538 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.874741, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy8" parent="Enemies" unique_id=2000942642 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.125259, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy9" parent="Enemies" unique_id=935826127 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.874741, 10.02, -2600)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy10" parent="Enemies" unique_id=896553267 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7372932, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy11" parent="Enemies" unique_id=825638090 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.113947, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy12" parent="Enemies" unique_id=1103817384 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.3879662, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy13" parent="Enemies" unique_id=70413640 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.612034, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy14" parent="Enemies" unique_id=327400117 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.612034, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy15" parent="Enemies" unique_id=133812384 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.612034, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy16" parent="Enemies" unique_id=958052374 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.387966, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
+
+[node name="Enemy17" parent="Enemies" unique_id=658732205 instance=ExtResource("6_v0x7v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.612034, 10.02, -2604.371)
+paint_droplet_count_max = 5
+paint_droplet_value_min = 10
+paint_droplet_value_max = 20
 
 [node name="Grapple Points" type="Node" parent="." unique_id=2056787001]
 
