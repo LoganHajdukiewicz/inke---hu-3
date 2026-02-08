@@ -15,12 +15,20 @@ var previous_paint: PaintType = PaintType.HEAL
 # Paint meter system
 var current_paint_amount: int = 100  # Start with full paint
 var max_paint_amount: int = 100
-var paint_per_use: int = 20  # How much paint each spray costs
+
+# Paint ability costs (in paint units)
+var paint_ability_costs: Dictionary = {
+	PaintType.SAVE: 20,
+	PaintType.HEAL: 20,
+	PaintType.FLY: 20,
+	PaintType.COMBAT: 10  # Combat is cheaper since it's used more often
+}
 
 # Signals for paint meter
 signal paint_amount_changed(current: int, maximum: int)
 signal paint_collected(amount: int)
 signal paint_depleted  # When paint runs out
+signal insufficient_paint(cost: int, current: int)  # NEW: When trying to use without enough paint
 
 # Paint colors for visual feedback
 var paint_colors: Dictionary = {
@@ -45,21 +53,6 @@ var paint_indicator: MeshInstance3D  # Visual indicator on player
 # Cooldown to prevent rapid switching
 var switch_cooldown: float = 0.0
 var switch_cooldown_time: float = 0.2
-
-# Paint ability cooldowns
-var paint_ability_cooldowns: Dictionary = {
-	PaintType.SAVE: 0.0,
-	PaintType.HEAL: 0.0,
-	PaintType.FLY: 0.0,
-	PaintType.COMBAT: 0.0
-}
-
-var paint_ability_cooldown_times: Dictionary = {
-	PaintType.SAVE: 2.0,    # 2 second cooldown for save
-	PaintType.HEAL: 5.0,    # 5 second cooldown for heal
-	PaintType.FLY: 3.0,     # 3 second cooldown for fly
-	PaintType.COMBAT: 1.0   # 1 second cooldown for combat
-}
 
 # Signals for other systems to respond to paint changes
 signal paint_changed(new_paint: PaintType, previous_paint: PaintType)
@@ -111,9 +104,11 @@ func consume_paint(amount: int) -> bool:
 		if current_paint_amount == 0:
 			paint_depleted.emit()
 		
+		print("Paint consumed: -", amount, " (", current_paint_amount, "/", max_paint_amount, " remaining)")
 		return true
 	else:
 		print("Not enough paint! Need ", amount, ", have ", current_paint_amount)
+		insufficient_paint.emit(amount, current_paint_amount)
 		return false
 
 func get_paint_amount() -> int:
@@ -128,9 +123,14 @@ func get_paint_percentage() -> float:
 	"""Get paint amount as percentage (0.0 to 1.0)"""
 	return float(current_paint_amount) / float(max_paint_amount)
 
-func has_enough_paint_for_use() -> bool:
-	"""Check if player has enough paint to use ability"""
-	return current_paint_amount >= paint_per_use
+func has_enough_paint_for_ability(paint_type: PaintType) -> bool:
+	"""Check if player has enough paint to use the specified ability"""
+	var cost = paint_ability_costs.get(paint_type, 0)
+	return current_paint_amount >= cost
+
+func get_ability_cost(paint_type: PaintType) -> int:
+	"""Get the paint cost for a specific ability"""
+	return paint_ability_costs.get(paint_type, 0)
 
 # ==========================================
 # EXISTING PAINT SYSTEM FUNCTIONS
@@ -198,14 +198,8 @@ func _process(delta: float):
 	if switch_cooldown > 0:
 		switch_cooldown -= delta
 	
-	# Update paint ability cooldowns
-	for paint_type in paint_ability_cooldowns.keys():
-		if paint_ability_cooldowns[paint_type] > 0:
-			paint_ability_cooldowns[paint_type] -= delta
-			
-			# Update indicator if this is the current paint
-			if paint_type == current_paint:
-				update_cooldown_visual()
+	# Update indicator to show if we can afford current paint
+	update_paint_indicator()
 	
 	# Check for paint switching input
 	check_paint_switch_input()
@@ -213,29 +207,34 @@ func _process(delta: float):
 	# Check for paint usage
 	check_paint_use_input()
 
-func update_cooldown_visual():
-	"""Update the visual state of paint indicator based on cooldown"""
+func update_paint_indicator():
+	"""Update the paint indicator color and state based on paint availability"""
 	if not paint_indicator or not is_instance_valid(paint_indicator):
 		return
 	
 	var material = paint_indicator.material_override as StandardMaterial3D
-	if not material:
-		return
-	
-	var cooldown_remaining = paint_ability_cooldowns[current_paint]
-	
-	if cooldown_remaining > 0:
-		# On cooldown - darker and dim
-		var color = paint_colors[current_paint].darkened(0.5)
-		material.albedo_color = color
-		material.emission = color
-		material.emission_energy_multiplier = 0.5
-	else:
-		# Ready - bright and glowing
+	if material:
 		var color = paint_colors[current_paint]
-		material.albedo_color = color
-		material.emission = color
-		material.emission_energy_multiplier = 2.0
+		var cost = paint_ability_costs.get(current_paint, 0)
+		var can_afford = current_paint_amount >= cost
+		
+		# If we can't afford, show dimmed/darkened
+		if not can_afford:
+			color = color.darkened(0.6)
+			material.albedo_color = color
+			material.emission = color
+			material.emission_energy_multiplier = 0.3
+		else:
+			# Normal bright color when we can afford
+			material.albedo_color = color
+			material.emission = color
+			material.emission_energy_multiplier = 2.0
+		
+		# Pulse effect on switch
+		if switch_cooldown > switch_cooldown_time - 0.1:  # Just switched
+			var tween = create_tween()
+			tween.tween_property(material, "emission_energy_multiplier", 4.0, 0.1)
+			tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.3)
 
 func check_paint_switch_input():
 	"""Check D-pad input for paint switching"""
@@ -284,37 +283,11 @@ func switch_paint(new_paint: PaintType):
 	paint_changed.emit(current_paint, previous_paint)
 	
 	# Print feedback
-	print("Paint switched: ", paint_names[previous_paint], " → ", paint_names[current_paint])
+	var cost = paint_ability_costs.get(current_paint, 0)
+	print("Paint switched: ", paint_names[previous_paint], " → ", paint_names[current_paint], " (Cost: ", cost, " paint)")
 	
 	# Visual/audio feedback
 	play_switch_effect()
-
-func update_paint_indicator():
-	"""Update the paint indicator color and emission"""
-	if not paint_indicator or not is_instance_valid(paint_indicator):
-		return
-	
-	var material = paint_indicator.material_override as StandardMaterial3D
-	if material:
-		var color = paint_colors[current_paint]
-		
-		# Check if current paint is on cooldown
-		if paint_ability_cooldowns[current_paint] > 0:
-			# Darken color and reduce emission when on cooldown
-			color = color.darkened(0.5)
-			material.albedo_color = color
-			material.emission = color
-			material.emission_energy_multiplier = 0.5
-		else:
-			# Normal bright color when ready
-			material.albedo_color = color
-			material.emission = color
-			material.emission_energy_multiplier = 2.0
-		
-		# Pulse effect on switch
-		var tween = create_tween()
-		tween.tween_property(material, "emission_energy_multiplier", 4.0, 0.1)
-		tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.3)
 
 func play_switch_effect():
 	"""Visual effect when switching paints"""
@@ -340,21 +313,27 @@ func check_paint_use_input():
 
 func use_current_paint():
 	"""Execute the action for the current paint type"""
-	# Check if paint is on cooldown
-	if paint_ability_cooldowns[current_paint] > 0:
-		print("Paint on cooldown! Wait ", paint_ability_cooldowns[current_paint], " seconds")
-		# Visual feedback for cooldown
+	var cost = paint_ability_costs.get(current_paint, 0)
+	
+	# Check if we have enough paint
+	if not has_enough_paint_for_ability(current_paint):
+		print("Not enough paint! Need ", cost, ", have ", current_paint_amount)
+		# Visual feedback for insufficient paint
 		if paint_indicator and is_instance_valid(paint_indicator):
 			var material = paint_indicator.material_override as StandardMaterial3D
 			if material:
-				# Quick red flash to indicate cooldown
+				# Quick red flash to indicate insufficient paint
 				var tween = create_tween()
 				var original_color = material.albedo_color
 				tween.tween_property(material, "albedo_color", Color(1.0, 0.0, 0.0, 1.0), 0.1)
 				tween.tween_property(material, "albedo_color", original_color, 0.2)
 		return
 	
-	print("Using ", paint_names[current_paint])
+	print("Using ", paint_names[current_paint], " (Cost: ", cost, " paint)")
+	
+	# Consume the paint BEFORE executing the ability
+	if not consume_paint(cost):
+		return
 	
 	# Emit signal for other systems to handle
 	paint_used.emit(current_paint)
@@ -372,27 +351,24 @@ func use_current_paint():
 			execute_fly_paint()
 		PaintType.COMBAT:
 			execute_combat_paint()
-	
-	# Start cooldown for this paint type
-	paint_ability_cooldowns[current_paint] = paint_ability_cooldown_times[current_paint]
 
 func play_use_effect():
 	"""Visual effect when using paint"""
 	if not paint_indicator or not is_instance_valid(paint_indicator):
 		return
 	
-		# Quick flash
-		var material = paint_indicator.material_override as StandardMaterial3D
-		if material:
-			var tween = create_tween()
-			tween.tween_property(material, "emission_energy_multiplier", 6.0, 0.05)
-			tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.2)
+	# Quick flash
+	var material = paint_indicator.material_override as StandardMaterial3D
+	if material:
+		var tween = create_tween()
+		tween.tween_property(material, "emission_energy_multiplier", 6.0, 0.05)
+		tween.tween_property(material, "emission_energy_multiplier", 2.0, 0.2)
 	
 	# TODO: Add particle effect for paint spray
 	# TODO: Add sound effect
 
 # ==========================================
-# PAINT ACTION METHODS (Placeholders)
+# PAINT ACTION METHODS
 # ==========================================
 
 func execute_save_paint():
@@ -415,6 +391,8 @@ func execute_heal_paint():
 		
 		if current_health >= max_health:
 			print("Heal Paint: Already at max health!")
+			# Refund the paint since we couldn't use it
+			add_paint(paint_ability_costs[PaintType.HEAL])
 			return
 	
 	# Heal the player
@@ -512,21 +490,13 @@ func get_current_paint_color() -> Color:
 	"""Get the color of the current paint"""
 	return paint_colors[current_paint]
 
+func get_current_paint_cost() -> int:
+	"""Get the cost of the current paint ability"""
+	return paint_ability_costs.get(current_paint, 0)
+
 func is_paint_type(paint_type: PaintType) -> bool:
 	"""Check if current paint matches the given type"""
 	return current_paint == paint_type
-
-func is_paint_on_cooldown(paint_type: PaintType) -> bool:
-	"""Check if a specific paint type is on cooldown"""
-	return paint_ability_cooldowns.get(paint_type, 0.0) > 0
-
-func get_paint_cooldown(paint_type: PaintType) -> float:
-	"""Get the remaining cooldown time for a specific paint type"""
-	return paint_ability_cooldowns.get(paint_type, 0.0)
-
-func get_current_paint_cooldown() -> float:
-	"""Get the remaining cooldown time for the current paint"""
-	return paint_ability_cooldowns.get(current_paint, 0.0)
 
 # ==========================================
 # SETTERS (for external control if needed)

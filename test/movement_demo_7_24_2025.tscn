@@ -1,14 +1,14 @@
-[gd_scene load_steps=22 format=3 uid="uid://1xtg2gv8rted"]
+[gd_scene format=3 uid="uid://1xtg2gv8rted"]
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_122qs"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_ontye"]
 [ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="3_e5bud"]
 [ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="3_tf372"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="5_n7jej"]
-[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="6_16sj7"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="6_16sj7"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="7_lnigw"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="9_bd3gf"]
-[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/CRED/cred.tscn" id="10_vfcgb"]
+[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="10_vfcgb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)

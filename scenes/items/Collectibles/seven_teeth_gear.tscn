@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cae3ypeluiqcl"]
+[gd_scene format=3 uid="uid://cae3ypeluiqcl"]
 
-[ext_resource type="Script" uid="uid://cucja4ftd10jj" path="res://scripts/items/Gears/gears.gd" id="1_jdq6m"]
+[ext_resource type="Script" uid="uid://cucja4ftd10jj" path="res://scripts/items/Collectibles/gears.gd" id="1_jdq6m"]
 [ext_resource type="ArrayMesh" uid="uid://cf323hdovfc1d" path="res://assets/models/gears/seven_teeth_gear.res" id="2_jdq6m"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ehjxu"]

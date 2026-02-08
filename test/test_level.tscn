@@ -1,7 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://jv0f638wtp43"]
+[gd_scene format=3 uid="uid://jv0f638wtp43"]
 
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_8rkqs"]
-[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Gears/six_teeth_gear.tscn" id="2_klfgi"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="2_klfgi"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="3_ls30l"]
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="3_oxjuh"]
 [ext_resource type="PackedScene" uid="uid://b3f0b4fqn0pob" path="res://scenes/environments/wall.tscn" id="4_k117l"]

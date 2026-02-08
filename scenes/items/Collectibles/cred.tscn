@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://bcxt1banj6acv"]
+[gd_scene format=3 uid="uid://bcxt1banj6acv"]
 
-[ext_resource type="Script" uid="uid://jfvdlwihmnu0" path="res://scripts/items/CRED/cred.gd" id="1_8pvcp"]
+[ext_resource type="Script" uid="uid://jfvdlwihmnu0" path="res://scripts/items/Collectibles/cred.gd" id="1_8pvcp"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_yawmh"]
 radius = 0.25785

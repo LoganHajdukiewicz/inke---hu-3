@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://ni8vvddu6gmn"]
+[gd_scene format=3 uid="uid://ni8vvddu6gmn"]
 
-[ext_resource type="Script" uid="uid://cucja4ftd10jj" path="res://scripts/items/Gears/gears.gd" id="1_r7s1f"]
+[ext_resource type="Script" uid="uid://cucja4ftd10jj" path="res://scripts/items/Collectibles/gears.gd" id="1_r7s1f"]
 [ext_resource type="ArrayMesh" uid="uid://b71mb0717y0be" path="res://assets/models/gears/nine_teeth_gear.res" id="2_r7s1f"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ehjxu"]

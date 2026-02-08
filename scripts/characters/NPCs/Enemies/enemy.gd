@@ -30,10 +30,12 @@ var being_stomped := false
 @export var paint_droplet_count_max: int = 3
 @export var paint_explosion_force_min: float = 100.0
 @export var paint_explosion_force_max: float = 250.0
+@export var paint_droplet_value_min: int = 3  # NEW: Min paint value per droplet
+@export var paint_droplet_value_max: int = 7  # NEW: Max paint value per droplet
 
 # Preloaded scenes
 var gear_scene = preload("res://scenes/items/Gears/six_teeth_gear.tscn")
-# var paint_droplet_scene = preload("res://scenes/items/Collectibles/paint_droplet.tscn")
+var paint_droplet_scene = preload("res://scenes/items/Collectibles/paint_droplet.tscn")
 
 # Physics
 var gravity: float = 9.8
@@ -193,9 +195,9 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	# Visual feedback
 	flash_color()
 	
-	# Drop paint droplets ONLY if not dying
-	# if current_health > 0 and drops_paint_on_hit:
-	# 	spawn_paint_droplets()
+	# NEW: Drop paint droplets when hit (but not when dying)
+	if current_health > 0 and drops_paint_on_hit:
+		spawn_paint_droplets()
 	
 	# CRITICAL: Set the knockback BEFORE changing state
 	if state_machine:
@@ -215,6 +217,56 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	# Check for death
 	if current_health <= 0:
 		die()
+
+func spawn_paint_droplets():
+	"""Spawn paint droplets when enemy is hit"""
+	if not paint_droplet_scene:
+		print("ERROR: Paint droplet scene not found!")
+		return
+	
+	var spawn_position = global_position + Vector3(0, 0.5, 0)
+	var droplet_count = randi_range(paint_droplet_count_min, paint_droplet_count_max)
+	
+	print("Spawning ", droplet_count, " paint droplets from enemy hit")
+	
+	for i in range(droplet_count):
+		var droplet = paint_droplet_scene.instantiate()
+		get_parent().add_child(droplet)
+		
+		# Random spawn offset
+		var offset = Vector3(
+			randf_range(-0.5, 0.5),
+			randf_range(0.2, 0.5),
+			randf_range(-0.5, 0.5)
+		)
+		droplet.global_position = spawn_position + offset
+		
+		# Set random paint value
+		var paint_value = randi_range(paint_droplet_value_min, paint_droplet_value_max)
+		if droplet.has_method("set_paint_value"):
+			droplet.set_paint_value(paint_value)
+		
+		# Apply explosive force
+		if droplet is RigidBody3D:
+			# Create radial explosion pattern
+			var explosion_direction = Vector3(
+				randf_range(-1.0, 1.0),
+				randf_range(0.3, 0.8),
+				randf_range(-1.0, 1.0)
+			).normalized()
+			
+			var explosion_force = randf_range(paint_explosion_force_min, paint_explosion_force_max)
+			var impulse = explosion_direction * explosion_force
+			
+			droplet.apply_impulse(impulse)
+			
+			# Add random spin
+			var torque = Vector3(
+				randf_range(-5, 5),
+				randf_range(-5, 5),
+				randf_range(-5, 5)
+			)
+			droplet.apply_torque_impulse(torque)
 
 func die():
 	"""Enemy dies, spawns gears, and is removed from scene"""
