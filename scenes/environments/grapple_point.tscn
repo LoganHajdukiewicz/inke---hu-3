@@ -1,6 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://7rlf6gb13oqe"]
+[gd_scene format=3 uid="uid://7rlf6gb13oqe"]
 
 [ext_resource type="Script" uid="uid://dqn3egydy1jod" path="res://scripts/environments/grapple_point.gd" id="1_0kdix"]
 
-[node name="GrapplePoint" type="Node3D" groups=["GrapplePoint"]]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0kdix"]
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_0kdix"]
+material = SubResource("StandardMaterial3D_0kdix")
+
+[node name="GrapplePoint" type="Node3D" unique_id=297201783 groups=["GrapplePoint"]]
 script = ExtResource("1_0kdix")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1116739278]
+mesh = SubResource("SphereMesh_0kdix")

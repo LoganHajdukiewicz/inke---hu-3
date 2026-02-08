@@ -46,7 +46,7 @@ func enter():
 	player.wall_jump_cooldown = 0.0
 
 func physics_update(delta: float):
-	if Input.is_action_just_pressed("yoyo"):
+	if Input.is_action_just_pressed("yoyo") and !player.is_on_floor():
 		change_to("GrappleHookState")
 		return
 		

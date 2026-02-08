@@ -3,7 +3,7 @@ class_name GrappleHookState
 
 # Grappling configuration
 @export var grapple_speed: float = 30.0
-@export var max_grapple_distance: float = 20.0
+@export var max_grapple_distance: float = 70.0
 @export var grapple_pull_force: float = 25.0
 @export var swing_control_strength: float = 8.0
 @export var release_boost: float = 15.0
@@ -61,7 +61,7 @@ func enter():
 		var angle_to_grapple = rad_to_deg(acos(to_grapple.normalized().dot(Vector3.UP)))
 		
 		# If grapple point is above and ahead, swing. Otherwise, pull directly
-		if angle_to_grapple < 90 and to_grapple.y > 0:
+		if angle_to_grapple < 270 and to_grapple.y > 0:
 			grapple_mode = "swing"
 			# Preserve horizontal momentum for swinging
 			swing_velocity = player.velocity

@@ -129,7 +129,7 @@ func physics_update(delta: float):
 		else:
 			player.velocity.y = 0
 	
-	if Input.is_action_just_pressed("yoyo"):
+	if Input.is_action_just_pressed("yoyo") and !player.is_on_floor():
 		change_to("GrappleHookState")
 		return
 	

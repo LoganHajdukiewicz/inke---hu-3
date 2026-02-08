@@ -70,7 +70,7 @@ func physics_update(delta: float):
 	update_dash_cooldown(delta)
 	
 	# Allow grapple hook exit
-	if Input.is_action_just_pressed("yoyo"):
+	if Input.is_action_just_pressed("yoyo") and !player.is_on_floor():
 		change_to("GrappleHookState")
 		return
 	

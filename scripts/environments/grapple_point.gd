@@ -4,7 +4,7 @@ class_name GrapplePoint
 # Visual configuration
 @export var glow_color: Color = Color(0.0, 1.0, 0.8, 1.0)
 @export var highlight_on_aim: bool = true
-@export var detection_radius: float = 0.5
+@export var detection_radius: float = 5
 
 # Visual components
 var visual_sphere: MeshInstance3D
@@ -27,8 +27,8 @@ func create_visual():
 	"""Create a glowing sphere to indicate grapple point"""
 	visual_sphere = MeshInstance3D.new()
 	var sphere_mesh = SphereMesh.new()
-	sphere_mesh.radius = 0.3
-	sphere_mesh.height = 0.6
+	sphere_mesh.radius = 0.5
+	sphere_mesh.height = 1
 	visual_sphere.mesh = sphere_mesh
 	
 	# Create glowing material

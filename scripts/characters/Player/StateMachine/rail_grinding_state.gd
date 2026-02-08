@@ -24,7 +24,7 @@ func enter():
 	player.has_air_dashed = false
 
 func physics_update(delta: float):
-	if Input.is_action_just_pressed("yoyo"):
+	if Input.is_action_just_pressed("yoyo") and !player.is_on_floor():
 		change_to("GrappleHookState")
 		return
 	# Handle the grinding movement and physics

@@ -39,7 +39,7 @@ func physics_update(delta: float):
 	var gravity_multiplier = get_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 
-	if Input.is_action_just_pressed("yoyo"):
+	if Input.is_action_just_pressed("yoyo") and !player.is_on_floor():
 		change_to("GrapplingState")
 		return
 		
