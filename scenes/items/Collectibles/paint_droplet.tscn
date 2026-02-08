@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://csfqpj8nsbrvu"]
+
+[ext_resource type="Script" uid="uid://dkuyu3xiwoysw" path="res://scripts/items/Collectibles/paint_droplet.gd" id="1_paint"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_paint1"]
+radius = 0.2
+
+[sub_resource type="SphereMesh" id="SphereMesh_paint1"]
+radius = 0.15
+height = 0.3
+
+[node name="PaintDroplet" type="RigidBody3D" unique_id=635290687 groups=["Collectible"]]
+mass = 0.1
+linear_damp = 0.5
+angular_damp = 2.0
+script = ExtResource("1_paint")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1545775441]
+shape = SubResource("SphereShape3D_paint1")
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=2071916216]
+mesh = SubResource("SphereMesh_paint1")

@@ -34,7 +34,7 @@ class_name Box
 @onready var audio: AudioStreamPlayer3D = $AudioStreamPlayer3D if has_node("AudioStreamPlayer3D") else null
 
 # Preloaded scenes
-var gear_scene = preload("res://scenes/items/Gears/six_teeth_gear.tscn")
+var gear_scene = preload("res://scenes/items/Collectibles/six_teeth_gear.tscn")
 
 # State
 var is_broken: bool = false

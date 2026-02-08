@@ -34,7 +34,7 @@ var being_stomped := false
 @export var paint_droplet_value_max: int = 7  # NEW: Max paint value per droplet
 
 # Preloaded scenes
-var gear_scene = preload("res://scenes/items/Gears/six_teeth_gear.tscn")
+var gear_scene = preload("res://scenes/items/Collectibles/six_teeth_gear.tscn")
 var paint_droplet_scene = preload("res://scenes/items/Collectibles/paint_droplet.tscn")
 
 # Physics

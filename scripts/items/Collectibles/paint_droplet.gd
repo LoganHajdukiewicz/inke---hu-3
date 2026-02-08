@@ -22,8 +22,9 @@ var mesh_instance: MeshInstance3D
 var collection_area: Area3D
 
 func _ready():
-	# Add to Gear group so existing collection systems can find it
-	add_to_group("Gear")
+	# FIXED: Add to Collectible group instead of Gear group
+	add_to_group("Collectible")
+	add_to_group("PaintDroplet")  # Specific group for paint droplets
 	
 	# Setup visual mesh
 	setup_mesh()
@@ -40,14 +41,20 @@ func _ready():
 
 func setup_mesh():
 	"""Create the visual mesh for the paint droplet"""
-	mesh_instance = MeshInstance3D.new()
-	mesh_instance.name = "Mesh"
+	# BUGFIX: Check if mesh already exists from scene
+	mesh_instance = get_node_or_null("Mesh")
 	
-	# Create a small sphere mesh
-	var sphere_mesh = SphereMesh.new()
-	sphere_mesh.radius = 0.15
-	sphere_mesh.height = 0.3
-	mesh_instance.mesh = sphere_mesh
+	if not mesh_instance:
+		mesh_instance = MeshInstance3D.new()
+		mesh_instance.name = "Mesh"
+		
+		# Create a small sphere mesh
+		var sphere_mesh = SphereMesh.new()
+		sphere_mesh.radius = 0.15
+		sphere_mesh.height = 0.3
+		mesh_instance.mesh = sphere_mesh
+		
+		add_child(mesh_instance)
 	
 	# Create glowing material
 	var material = StandardMaterial3D.new()
@@ -58,26 +65,34 @@ func setup_mesh():
 	material.emission_energy_multiplier = 2.0
 	
 	mesh_instance.material_override = material
-	add_child(mesh_instance)
 	
 	# Add gentle pulsing animation
 	create_pulse_animation()
 
 func create_pulse_animation():
 	"""Create a gentle pulsing glow effect"""
+	# BUGFIX: Check if mesh_instance is valid before creating tween
+	if not mesh_instance or not is_instance_valid(mesh_instance):
+		return
+	
 	var tween = create_tween()
 	tween.set_loops()
 	tween.set_trans(Tween.TRANS_SINE)
 	tween.set_ease(Tween.EASE_IN_OUT)
 	
 	var material = mesh_instance.material_override as StandardMaterial3D
-	tween.tween_property(material, "emission_energy_multiplier", 3.0, 0.5)
-	tween.tween_property(material, "emission_energy_multiplier", 1.5, 0.5)
+	if material:
+		tween.tween_property(material, "emission_energy_multiplier", 3.0, 0.5)
+		tween.tween_property(material, "emission_energy_multiplier", 1.5, 0.5)
 
 func setup_collection_area():
 	"""Setup area for detecting player"""
 	collection_area = Area3D.new()
 	collection_area.name = "CollectionArea"
+	
+	# BUGFIX: Set proper collision layers/masks
+	collection_area.collision_layer = 0  # Don't collide with anything
+	collection_area.collision_mask = 1   # Detect player on layer 1
 	
 	var collision_shape = CollisionShape3D.new()
 	var sphere_shape = SphereShape3D.new()
@@ -112,6 +127,11 @@ func check_for_player_attraction():
 		return
 	
 	var player = players[0]
+	
+	# BUGFIX: Validate player is valid before accessing properties
+	if not is_instance_valid(player):
+		return
+	
 	var distance = global_position.distance_to(player.global_position)
 	
 	if distance <= attraction_distance:
@@ -125,6 +145,10 @@ func check_for_player_attraction():
 func move_toward_player(delta: float):
 	"""Move toward the player when attracted"""
 	if not target_player or not is_instance_valid(target_player):
+		attracted_to_player = false
+		target_player = null
+		freeze = false
+		gravity_scale = 1.0
 		return
 	
 	var direction = (target_player.global_position - global_position).normalized()
@@ -157,16 +181,26 @@ func collect():
 	if paint_manager and paint_manager.has_method("add_paint"):
 		paint_manager.add_paint(paint_value)
 		print("Paint droplet collected! +", paint_value, " paint")
+	else:
+		# BUGFIX: Add warning if PaintManager not found
+		print("WARNING: PaintManager not found or doesn't have add_paint method!")
 	
 	# Visual feedback
 	create_collection_effect()
 	
 	# Delete after effect
 	await get_tree().create_timer(0.2).timeout
-	queue_free()
+	
+	# BUGFIX: Check if still valid before freeing
+	if is_instance_valid(self):
+		queue_free()
 
 func create_collection_effect():
 	"""Create visual effect when collected"""
+	# BUGFIX: Validate mesh_instance before creating effect
+	if not mesh_instance or not is_instance_valid(mesh_instance):
+		return
+	
 	# Quick scale up and fade
 	var tween = create_tween()
 	tween.set_parallel(true)
@@ -183,6 +217,11 @@ func fade_out_and_delete():
 	if collected:
 		return
 	
+	# BUGFIX: Validate mesh_instance before fading
+	if not mesh_instance or not is_instance_valid(mesh_instance):
+		queue_free()
+		return
+	
 	var material = mesh_instance.material_override as StandardMaterial3D
 	if material:
 		var tween = create_tween()
@@ -191,7 +230,9 @@ func fade_out_and_delete():
 		
 		await tween.finished
 	
-	queue_free()
+	# BUGFIX: Check if still valid before freeing
+	if is_instance_valid(self):
+		queue_free()
 
 # Public API for external scripts
 func set_paint_value(value: int):
@@ -201,7 +242,7 @@ func set_paint_value(value: int):
 func set_color(color: Color):
 	"""Set the color of this droplet"""
 	droplet_color = color
-	if mesh_instance and mesh_instance.material_override:
+	if mesh_instance and is_instance_valid(mesh_instance) and mesh_instance.material_override:
 		var material = mesh_instance.material_override as StandardMaterial3D
 		material.albedo_color = color
 		material.emission = color
