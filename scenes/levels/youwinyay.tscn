@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://bs0v2hxubr288"]
+
+[ext_resource type="Texture2D" uid="uid://bn08e7obsoucy" path="res://assets/youwinyay.png" id="1_pyrrn"]
+
+[node name="Youwinyay" type="Node2D" unique_id=468261302]
+
+[node name="Youwinyay" type="Sprite2D" parent="." unique_id=2052604487]
+position = Vector2(976, 536)
+texture = ExtResource("1_pyrrn")
