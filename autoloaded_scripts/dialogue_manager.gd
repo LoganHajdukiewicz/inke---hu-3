@@ -1,6 +1,6 @@
 extends Node
 
-# Base dialogue path - will be combined with scene-specific paths
+# Will be combined with scene-specific paths
 const DIALOGUE_BASE_PATH = "res://dialogue/"
 
 var current_dialogue: Array = []
@@ -16,10 +16,7 @@ signal dialogue_line_changed(speaker: String, text: String, portrait: String)
 signal dialogue_ended
 
 func _ready() -> void:
-	# The UI will register itself when ready
-	# Get the current scene name
 	update_scene_name()
-	# Set to always process so timer runs and input is processed
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _process(delta: float) -> void:

@@ -71,7 +71,6 @@ func initialize_player():
 		player.set_health(player_health)
 	
 	if not hu3_companion:
-		# FIXED: Defer HU-3 spawning to next frame to ensure player is in tree
 		call_deferred("spawn_hu3_companion")
 
 func apply_purchased_upgrades():
@@ -99,6 +98,7 @@ func apply_purchased_upgrades():
 		player.unlock_health_upgrade()
 		# Also increase max health
 		player_max_health = 4
+		player_health = player_max_health
 	
 	if damage_upgrade_purchased and player.has_method("unlock_damage_upgrade"):
 		player.unlock_damage_upgrade()
