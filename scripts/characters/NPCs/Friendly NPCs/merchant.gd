@@ -409,10 +409,10 @@ func open_shop():
 	# It sets the flag AND schedules automatic cleanup
 	set_player_ignore_jump(true)
 	
-	# Disable player physics processing to prevent movement behind menu
-	if current_player.has_method("set_physics_process"):
-		current_player.set_physics_process(false)
-		print("Disabled player physics processing")
+	# Disable player controls to prevent movement behind menu
+	current_player.controls_disabled = true
+	current_player.velocity = Vector3.ZERO
+
 	
 	shop_open = true
 	current_upgrade_index = 0
@@ -446,11 +446,9 @@ func close_shop():
 	# Set the flag again to block the close button from causing a jump
 	set_player_ignore_jump(true)
 	
-	# Re-enable player physics processing
+	# Re-enable player controls
 	if current_player and is_instance_valid(current_player):
-		if current_player.has_method("set_physics_process"):
-			current_player.set_physics_process(true)
-			print("Re-enabled player physics processing")
+		current_player.controls_disabled = false
 	
 	# FIXED: Longer cooldown to prevent immediate re-opening or accidental jumps
 	input_cooldown = 0.5

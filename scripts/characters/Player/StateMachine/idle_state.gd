@@ -23,6 +23,10 @@ func update_dash_cooldown(delta: float):
 				print("Dash cooldown completed in ", get_script().get_global_name())
 
 func physics_update(delta: float):
+	# for Merchant UI 
+	if player.controls_disabled:
+		return
+
 	update_dash_cooldown(delta)
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")

@@ -7,6 +7,7 @@ var gravity_default: float = 9.8
 var jump_velocity: float = 5.0
 var is_being_sprung: bool = false
 var ignore_next_jump: bool = false
+var controls_disabled: bool = false
 
 # Double jump variables
 var has_double_jumped: bool = false

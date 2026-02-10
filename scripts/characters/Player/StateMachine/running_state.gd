@@ -13,6 +13,10 @@ func get_speed():
 	return SPEED
 
 func update_dash_cooldown(delta: float):
+	# for Merchant UI 
+	if player.controls_disabled:
+		return
+		
 	"""Update the dash cooldown timer in the dodge dash state"""
 	var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 	if dodge_dash_state:
