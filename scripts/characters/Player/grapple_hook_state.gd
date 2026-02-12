@@ -37,8 +37,8 @@ var rope_mesh_instance: MeshInstance3D = null
 func enter():
 	print("Entered Grappling State")
 	# Reset state
-    state_timer = 0.0
-    closest_distance = INF
+	state_timer = 0.0
+	closest_distance = INF
 	has_attacked_enemy = false
 	grapple_target_enemy = null
 	
@@ -64,7 +64,7 @@ func enter():
 		# Calculate and apply ballistic launch velocity
 		calculate_launch_velocity()
 
-            # Reset double jump and air dash abilities
+			# Reset double jump and air dash abilities
 			player.can_double_jump = true
 			player.has_double_jumped = false
 			player.can_air_dash = true
@@ -76,64 +76,30 @@ func enter():
  
 
 func calculate_launch_velocity():
+	"""Calculate initial velocity for a ballistic parabolic arc to the grapple point."""
+	var to_target = grapple_point - player.global_position
+	var distance = to_target.length()
+	# Flight time from distance and speed, clamped to feel snappy
+	launch_time = distance / grapple_speed
+	launch_time = clamp(launch_time, 0.25, 1.2)
+	var gravity = player.gravity  # 9.8
+	# Horizontal velocity: constant speed to reach target in launch_time
+	var vx = to_target.x / launch_time
+	var vz = to_target.z / launch_time
+	# Vertical velocity to land at target height under gravity:
+	# vy = (dy + 0.5 * g * t^2) / t
+	var vy = (to_target.y + 0.5 * gravity * launch_time * launch_time) / launch_time
 
-               """Calculate initial velocity for a ballistic parabolic arc to the grapple point."""
-
-               var to_target = grapple_point - player.global_position
-
-               var distance = to_target.length()
-
- 
-
-               # Flight time from distance and speed, clamped to feel snappy
-
-               launch_time = distance / grapple_speed
-
-               launch_time = clamp(launch_time, 0.25, 1.2)
-
- 
-
-               var gravity = player.gravity  # 9.8
-
- 
-
-               # Horizontal velocity: constant speed to reach target in launch_time
-
-               var vx = to_target.x / launch_time
-
-               var vz = to_target.z / launch_time
-
- 
-
-               # Vertical velocity to land at target height under gravity:
-
-               # vy = (dy + 0.5 * g * t^2) / t
-
-               var vy = (to_target.y + 0.5 * gravity * launch_time * launch_time) / launch_time
-
- 
-
-               # Enforce minimum arc height above the higher endpoint
-
-               # Peak of arc = start_y + vy^2 / (2g)
-
-               var higher_y = max(player.global_position.y, grapple_point.y)
-
-               var min_peak_y = higher_y + min_arc_height
-
-               var natural_peak_y = player.global_position.y + (vy * vy) / (2.0 * gravity)
-
- 
-
-               if natural_peak_y < min_peak_y:
-
-                              var needed_height = min_peak_y - player.global_position.y
-
-                              vy = sqrt(2.0 * gravity * needed_height)
-
- 
-
-               player.velocity = Vector3(vx, vy, vz)
+	# Enforce minimum arc height above the higher endpoint
+	# Peak of arc = start_y + vy^2 / (2g)
+	var higher_y = max(player.global_position.y, grapple_point.y)
+	var min_peak_y = higher_y + min_arc_height
+	var natural_peak_y = player.global_position.y + (vy * vy) / (2.0 * gravity)
+	
+	if natural_peak_y < min_peak_y:
+		var needed_height = min_peak_y - player.global_position.y
+		vy = sqrt(2.0 * gravity * needed_height)
+	player.velocity = Vector3(vx, vy, vz)
 
  
 

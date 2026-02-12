@@ -571,7 +571,7 @@ func setup_damage_floor():
 
 # REPLACE handle_sliding_floor() in floor.gd with this:
 func handle_sliding_floor(_delta: float):
-"""Force players on this floor into SlidingState. Physics handled by SlidingState."""
+	"""Force players on this floor into SlidingState. Physics handled by SlidingState."""
 	for player in players_on_floor:
 		if not player or not is_instance_valid(player):
 			continue
@@ -588,8 +588,8 @@ func handle_sliding_floor(_delta: float):
 		var current_state_name = current_state.get_script().get_global_name()
 
 		# Allow airborne states so jumping works — the floor will re-capture the player when they land back on it
-        if current_state_name in ["JumpingState", "DoubleJumpState", "FallingState", "WallJumpingState", "GrappleHookState", "DodgeDashState", "SpinAttackState"]:
-            continue
+		if current_state_name in ["JumpingState", "DoubleJumpState", "FallingState", "WallJumpingState", "GrappleHookState", "DodgeDashState", "SpinAttackState"]:
+			continue
 
 		# Force into sliding state if not already in it
 		if current_state_name != "SlidingState":
@@ -597,7 +597,7 @@ func handle_sliding_floor(_delta: float):
 			state_machine.change_state("SlidingState")
 
 func setup_sliding_floor():
-"""Setup a sliding floor that forces players into sliding state."""
+	"""Setup a sliding floor that forces players into sliding state."""
 	var material = create_textured_material(Color(0.9, 0.9, 0.4, 1))
 	material.metallic = 0.2
 	material.roughness = 0.8

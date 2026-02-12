@@ -229,8 +229,8 @@ func detect_ledge() -> Dictionary:
 		print("Height difference: ", height_difference, " (min: ", min_ledge_height, ", max: ", max_ledge_height, ")")
 
 	if height_difference < min_ledge_height or height_difference > max_ledge_height:
-	if enable_debug_draw:
-		print("  REJECTED: Height out of range")
+		if enable_debug_draw:
+			print("  REJECTED: Height out of range")
 	return result
 	
 	# All checks passed - valid ledge found!
@@ -268,7 +268,7 @@ func draw_debug_line(start: Vector3, end: Vector3, color: Color):
 	await player.get_tree().create_timer(0.1).timeout
 
 	if is_instance_valid(mesh_instance):
-    	mesh_instance.queue_free()
+		mesh_instance.queue_free()
 
 func can_grab_ledge() -> bool:
 	var ledge_data = detect_ledge()

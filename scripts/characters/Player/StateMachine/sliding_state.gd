@@ -31,11 +31,13 @@ func enter():
 		slide_direction = current_horizontal_velocity.normalized()
 		initial_slide_speed = current_speed
 		print("Using current velocity - Speed: ", current_speed)
-    elif sliding_floor:
-		# On a sliding floor with no velocity — let the slope physics handle it
-		slide_direction = Vector3.FORWARD
-		initial_slide_speed = 0.0
-		print("On sliding floor with no velocity - slope will accelerate")
+
+#	CURRENTLY BROKEN SLIDING_FLOOR isn't declared here
+#	elif sliding_floor:
+#		# On a sliding floor with no velocity — let the slope physics handle it
+#		slide_direction = Vector3.FORWARD
+#		initial_slide_speed = 0.0
+#		print("On sliding floor with no velocity - slope will accelerate")
 	elif input_dir.length() > 0.1:
 		# Use input direction if player is actively moving
 		var camera_basis = player.get_node("CameraController").transform.basis
@@ -85,7 +87,7 @@ func physics_update(delta: float):
 			change_to("DodgeDashState")
 			return
 
-    # Check if we're on a SLIDING type floor
+	# Check if we're on a SLIDING type floor
 	var sliding_floor = _get_sliding_floor()
 	if sliding_floor:
 		_handle_sliding_floor_physics(sliding_floor, delta)
@@ -216,7 +218,7 @@ func _handle_sliding_floor_physics(floor_obj: Node, delta: float):
 		
 		# Project input onto the plane perpendicular to the downhill direction
 		var lateral = (input_world - downhill * input_world.dot(downhill))
-\		new_velocity += lateral * SLOPE_STEER_STRENGTH
+		new_velocity += lateral * SLOPE_STEER_STRENGTH
 	
 	player.velocity = new_velocity
 	
@@ -235,7 +237,7 @@ func _handle_sliding_floor_physics(floor_obj: Node, delta: float):
 # === HELPER FUNCTIONS ===
 
 func _get_sliding_floor() -> Node:
-"""Get the sliding floor object the player is on, or null."""
+	"""Get the sliding floor object the player is on, or null."""
 	var space_state = player.get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(
 		player.global_position,
