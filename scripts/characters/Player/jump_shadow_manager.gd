@@ -5,12 +5,12 @@ class_name JumpShadowManager
 var jump_shadow_decal: Decal
 var shadow_raycasts: Array[RayCast3D] = []
 var shadow_max_distance: float = 50.0
-var shadow_base_size: float = 1.2
+var shadow_base_size: float = 4.0
 var shadow_fade_start: float = 5.0
 
 # Multi-raycast variables for surface detection
 var raycast_count: int = 12
-var raycast_radius: float = 0.5
+var raycast_radius: float = 0.7
 
 # Decal configuration
 var shadow_texture: Texture2D
