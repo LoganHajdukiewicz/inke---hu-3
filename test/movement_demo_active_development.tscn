@@ -60,18 +60,21 @@ size = Vector3(3, 1.25, 5)
 size = Vector3(3, 1.25, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_4mfs1"]
-size = Vector3(2, 1.25, 2)
+size = Vector3(3, 1.25, 5)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qrayo"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_8cjm4"]
-plane = Plane(0, 0, 1, 0)
+[sub_resource type="BoxShape3D" id="BoxShape3D_8cjm4"]
+size = Vector3(2, 1.25, 2)
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_jd4qd"]
 plane = Plane(0, 0, 1, 0)
 
-[sub_resource type="Curve3D" id="Curve3D_773q5"]
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_773q5"]
+plane = Plane(0, 0, 1, 0)
+
+[sub_resource type="Curve3D" id="Curve3D_nygr8"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.5630279, -13.891914, -70.07703),
@@ -79,7 +82,7 @@ _data = {
 }
 point_count = 9
 
-[sub_resource type="Curve3D" id="Curve3D_nygr8"]
+[sub_resource type="Curve3D" id="Curve3D_gx2om"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.009274626, -0.29055023, -1.6022949, 0, 0, 0, 0, 0, 0, -0.024463536, -0.8751221, -4.8444824, 0, 0, 0, 0, 0, 0, -0.043418005, -1.6046219, -8.890625, 0, 0, 0, 0, 0, 0, -0.06327556, -2.3688583, -13.129761, 0, 0, 0, 0, 0, 0, -0.086671084, -3.2692642, -18.124023, 0, 0, 0, 0, 0, 0, -0.10643028, -4.0297318, -22.341919, 0, 0, 0, 0, 0, 0, -0.12717614, -4.828163, -26.770508, 0, 0, 0, 0, 0, 0, -0.14986534, -5.7013855, -31.614014, 0, 0, 0, 0, 0, 0, -0.17476669, -6.659752, -36.929688, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.21315342, -8.1371155, -45.124146, 0, 0, 0, 0, 0, 0, -0.2639069, -10.090439, -55.958496, 0, 0, 0, 0, 0, 0, -0.34496272, -13.209984, -73.261475, 0, 0, 0, 0, 0, 0, -0.41804245, -16.02256, -88.86182, 0, 0, 0, 0, 0, 0, -0.4886003, -18.738075, -103.92383, 0, 0, 0, 0, 0, 0, -0.5683352, -21.806786, -120.944824, 0, 0, 0, 0, 0, 0, -0.6880897, -26.415703, -146.50879, 0, 0, 0, 0, 0, 0, -0.7959162, -30.565552, -169.52661, 0, 0, 0, 0, 0, 0, -0.9129753, -35.07074, -194.51514, 0, 0, 0, 0, 0, 0, -1.0136012, -38.943466, -215.99585, 0, 0, 0, 0, 0, 0, -1.1869593, -45.615395, -253.00269, 0, 0, 0, 0, 0, 0, -1.3661476, -52.51171, -291.2539, 0, 0, 0, 0, 0, 0, -1.583277, -60.868233, -337.6045, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -2.1613584, -83.116516, -461.00757),
@@ -797,7 +800,7 @@ script = null
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@30666" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1891198943]
+[node name="@CollisionShape3D@24281" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=459043187]
 shape = SubResource("BoxShape3D_07svi")
 
 [node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("6_07svi")]
@@ -807,7 +810,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@30667" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1954052946]
+[node name="@CollisionShape3D@24282" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=2110677679]
 shape = SubResource("BoxShape3D_1d5ko")
 
 [node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("6_07svi")]
@@ -817,7 +820,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@30668" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=1970955639]
+[node name="@CollisionShape3D@24283" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=1175353443]
 shape = SubResource("BoxShape3D_icac4")
 
 [node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("6_07svi")]
@@ -827,7 +830,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@30669" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1589423005]
+[node name="@CollisionShape3D@24284" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1031616944]
 shape = SubResource("BoxShape3D_gdr2d")
 
 [node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("6_07svi")]
@@ -837,7 +840,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign4"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@30670" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1912227117]
+[node name="@CollisionShape3D@24285" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1949229898]
 shape = SubResource("BoxShape3D_txrxq")
 
 [node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("6_07svi")]
@@ -847,8 +850,18 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@30671" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=1405375147]
+[node name="@CollisionShape3D@24286" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=403934342]
 shape = SubResource("BoxShape3D_va7sb")
+
+[node name="Sign5_5" parent="Dialogue Triggers" unique_id=1096489912 instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.5, 25, -373.288)
+
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign5_5" unique_id=94758757 instance=ExtResource("5_4w42i")]
+dialogue_file = "Sign5"
+box_size = Vector3(3, 1.25, 5)
+
+[node name="@CollisionShape3D@28366" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=1320556452]
+shape = SubResource("BoxShape3D_4mfs1")
 
 [node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("6_07svi")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 30.127289, -479.05234)
@@ -858,8 +871,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign6"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@30672" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=165263767]
-shape = SubResource("BoxShape3D_4mfs1")
+[node name="@CollisionShape3D@24287" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=1408958019]
+shape = SubResource("BoxShape3D_qrayo")
 
 [node name="Sign7" parent="Dialogue Triggers" unique_id=1404823017 instance=ExtResource("6_07svi")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -536.41797)
@@ -869,8 +882,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign7"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@30673" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=851630075]
-shape = SubResource("BoxShape3D_qrayo")
+[node name="@CollisionShape3D@24288" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=1363676280]
+shape = SubResource("BoxShape3D_8cjm4")
 
 [node name="DialogueTrigger2" parent="Dialogue Triggers/Sign7" unique_id=88354356 instance=ExtResource("5_4w42i")]
 transform = Transform3D(-8.742278e-08, 4.3711392e-08, -1, -1, 4.371139e-08, 8.742278e-08, 4.3711392e-08, 1, 4.371139e-08, 11.876282, 0.76537704, 4.6172566)
@@ -878,16 +891,16 @@ dialogue_file = "worldTrigger2"
 trigger_type = 1
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@30674" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=605038743]
-shape = SubResource("WorldBoundaryShape3D_8cjm4")
+[node name="@CollisionShape3D@24289" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1742001239]
+shape = SubResource("WorldBoundaryShape3D_jd4qd")
 
 [node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("5_4w42i")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@30675" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1864205113]
-shape = SubResource("WorldBoundaryShape3D_jd4qd")
+[node name="@CollisionShape3D@24290" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1549150760]
+shape = SubResource("WorldBoundaryShape3D_773q5")
 
 [node name="Items" type="Node" parent="." unique_id=1097220712]
 
@@ -1066,8 +1079,8 @@ glow_color = Color(1, 0, 0, 1)
 
 [node name="Rail" parent="." unique_id=187344327 instance=ExtResource("8_qyni3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 130.31953, -1872.7477)
-curve = SubResource("Curve3D_773q5")
+curve = SubResource("Curve3D_nygr8")
 
 [node name="Rail2" parent="." unique_id=1929700592 instance=ExtResource("8_qyni3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 117.436516, -1968.2397)
-curve = SubResource("Curve3D_nygr8")
+curve = SubResource("Curve3D_gx2om")

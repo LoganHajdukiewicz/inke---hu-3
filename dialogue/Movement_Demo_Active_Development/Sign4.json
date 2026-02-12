@@ -2,7 +2,7 @@
   "dialogue": [
 	{
 	  "speaker": "S-1GN",
-	  "text": "If you got hurt in that last fight, you can switch to healing with Down on the D-Pad.",
+	  "text": "If you got hurt in that last fight, you can switch to healing with Down on the D-Pad. Hitting arrows on the D pad can help switch between your PAINT POWERS.",
 	  "portrait": "S-1GN-uwu"
 	},
 	{
@@ -12,7 +12,7 @@
 	},
 	{
 	  "speaker": "S-1GN",
-	  "text": "...",
+	  "text": "A little bit of PAINT will be used, but don't worry, hit some bad guys and the paint will come back soon!",
 	  "portrait": "S-1GN-uwu"
 	},
 	{
