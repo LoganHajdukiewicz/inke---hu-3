@@ -9,13 +9,15 @@ const SLIDE_CONTROL_STRENGTH: float = 0.5  # More control while sliding
 const MIN_ENTRY_SPEED: float = 0.0  # Minimum speed needed to start sliding
 const MAX_SLIDE_SPEED: float = 70.0  # Cap for safety (sliding floors can push higher)
 
+# Sliding floor steering
+const SLOPE_STEER_STRENGTH: float = 8.0  # How much lateral control on slopes
+
 var slide_velocity: Vector3 = Vector3.ZERO
 var slide_direction: Vector3 = Vector3.ZERO
 var initial_slide_speed: float = 10.0
 
 func enter():
 	print("Entered Sliding State")
-	
 	# Get the player's current horizontal velocity
 	var current_horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
 	var current_speed = current_horizontal_velocity.length()
@@ -29,6 +31,11 @@ func enter():
 		slide_direction = current_horizontal_velocity.normalized()
 		initial_slide_speed = current_speed
 		print("Using current velocity - Speed: ", current_speed)
+    elif sliding_floor:
+		# On a sliding floor with no velocity — let the slope physics handle it
+		slide_direction = Vector3.FORWARD
+		initial_slide_speed = 0.0
+		print("On sliding floor with no velocity - slope will accelerate")
 	elif input_dir.length() > 0.1:
 		# Use input direction if player is actively moving
 		var camera_basis = player.get_node("CameraController").transform.basis
@@ -62,10 +69,7 @@ func update_dash_cooldown(delta: float):
 				dodge_dash_state.cooldown_timer = 0.0
 				print("Dash cooldown completed in ", get_script().get_global_name())
 
-# SLIDING STATE - ULTIMATE FIX
-# Prevents stopping and deceleration on sliding floors
 
-# REPLACE the entire physics_update() function with this:
 func physics_update(delta: float):
 	update_dash_cooldown(delta)
 	
@@ -80,8 +84,14 @@ func physics_update(delta: float):
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():
 			change_to("DodgeDashState")
 			return
+
+    # Check if we're on a SLIDING type floor
+	var sliding_floor = _get_sliding_floor()
+	if sliding_floor:
+		_handle_sliding_floor_physics(sliding_floor, delta)
+		return
 	
-	# Handle gravity
+	# NOT on a sliding floor
 	if not player.is_on_floor():
 		player.velocity += player.get_gravity() * delta
 		change_to("FallingState")
@@ -92,25 +102,7 @@ func physics_update(delta: float):
 		print("Jump from slide - preserving momentum: ", player.velocity)
 		change_to("JumpingState")
 		return
-	
-	# Check if we're on a SLIDING type floor
-	var is_on_sliding_floor = _is_on_sliding_floor()
-	
-	if is_on_sliding_floor:
-		# ON SLIDING FLOOR: 
-		# The floor's apply_slide_force_to_player() handles ALL velocity control
-		# We ONLY need to call move_and_slide() here
-		# DO NOT modify velocity - the floor controls it completely!
-		
-		print("On sliding floor - floor controls velocity")
-		
-		# Just move - don't touch velocity!
-		player.move_and_slide()
-		return  # EXIT - don't run any of the normal sliding code below!
-	
-	# NOT on sliding floor - this is normal ice/frozen floor sliding
-	# (All the original sliding code below this point)
-	
+
 	var on_frozen = _is_on_frozen_floor()
 	
 	# Get player input for limited control while sliding
@@ -148,7 +140,7 @@ func physics_update(delta: float):
 		return
 	
 	# Transition check for non-frozen floors
-	if not on_frozen and not is_on_sliding_floor and current_speed > MIN_SLIDE_SPEED:
+	if not on_frozen and current_speed > MIN_SLIDE_SPEED:
 		var exit_input_dir = Input.get_vector("left", "right", "forward", "back")
 		if exit_input_dir.length() > 0.1:
 			if Input.is_action_pressed("run"):
@@ -174,25 +166,96 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 
-# Keep the helper function the same:
-func _is_on_sliding_floor() -> bool:
-	"""Check if the player is currently on a SLIDING type floor"""
+# === SLIDING FLOOR PHYSICS (Mario 64-style) ===
+func _handle_sliding_floor_physics(floor_obj: Node, delta: float):
+	# Prevent Godot's built-in slope deceleration
+	player.floor_stop_on_slope = false
+	player.floor_constant_speed = true
+	
+	# Allow jump
+	if Input.is_action_just_pressed("jump") and player.is_on_floor() and not player.ignore_next_jump:
+		print("Jump from sliding floor! Momentum: ", player.velocity)
+		player.velocity.y = player.jump_velocity
+		change_to("JumpingState")
+		return
+	
+	# Get slope info from the floor's transform
+	var floor_normal = floor_obj.global_transform.basis.y.normalized()
+	var tilt_factor = 1.0 - floor_normal.dot(Vector3.UP)
+	if tilt_factor < 0.01:
+	# Flat floor — just move, no downhill force
+		player.move_and_slide()
+		return
+	
+	# Calculate downhill direction: project gravity onto the slope surface
+	var gravity_dir = Vector3.DOWN
+	var downhill = (gravity_dir - floor_normal * gravity_dir.dot(floor_normal)).normalized()
+	
+	# Get current speed along the downhill axis
+	var current_downhill_speed = player.velocity.dot(downhill)
+	
+	# Apply gravity-based acceleration — steeper slopes accelerate faster
+	var accel = floor_obj.slide_acceleration * tilt_factor
+	var new_speed = current_downhill_speed + accel * delta
+	
+	# Cap at max speed
+	new_speed = min(new_speed, floor_obj.slide_max_speed)
+	
+	# Block uphill movement — can't overcome gravity on the slope
+	if new_speed < 0.0:
+		new_speed = 0.0
+	
+	# Build velocity along the 3D downhill direction (includes Y component for slope)
+	var new_velocity = downhill * new_speed
+	
+	# Allow limited lateral steering perpendicular to the slope
+	var input_dir = Input.get_vector("left", "right", "forward", "back")
+	if input_dir.length() > 0.1:
+		var camera_basis = player.get_node("CameraController").transform.basis
+		var input_world = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+		
+		# Project input onto the plane perpendicular to the downhill direction
+		var lateral = (input_world - downhill * input_world.dot(downhill))
+\		new_velocity += lateral * SLOPE_STEER_STRENGTH
+	
+	player.velocity = new_velocity
+	
+	# Rotate player to face movement direction
+	var move_dir = Vector2(player.velocity.x, player.velocity.z)
+	if floor_obj.auto_rotate_to_slope and move_dir.length() > 0.5:
+		var target_rot = atan2(-player.velocity.x, -player.velocity.z)
+		player.rotation.y = lerp_angle(player.rotation.y, target_rot, 8.0 * delta)
+
+	player.move_and_slide()
+	# If briefly off the floor (small bumps on the slope), pull back down
+	
+	if not player.is_on_floor():
+		player.velocity += player.get_gravity() * delta
+
+# === HELPER FUNCTIONS ===
+
+func _get_sliding_floor() -> Node:
+"""Get the sliding floor object the player is on, or null."""
 	var space_state = player.get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(
 		player.global_position,
 		player.global_position + Vector3(0, -1.1, 0)
 	)
 	query.collision_mask = 1
-	
+	query.exclude = [player]
 	var result = space_state.intersect_ray(query)
 	if result:
 		var collider = result.collider
 		if collider and collider.has_method("get") and collider.get("floor_type") != null:
 			# FloorType.SLIDING = 7
-			return collider.floor_type == 7
-	
-	return false
-	
+			if collider.floor_type == 7:
+				return collider
+			return null
+
+func _is_on_sliding_floor() -> bool:
+	"""Check if the player is currently on a SLIDING type floor"""
+	return _get_sliding_floor() != null
+
 func _is_on_frozen_floor() -> bool:
 	"""Check if the player is currently on a frozen floor"""
 	# Cast a ray downward to check what we're standing on
@@ -215,5 +278,8 @@ func get_speed() -> float:
 	return slide_velocity.length()
 
 func exit():
+	# Restore floor physics properties
+	player.floor_stop_on_slope = true
+	player.floor_constant_speed = false
 	# DON'T clear slide velocity - preserve momentum!
 	print("Exited Sliding State - Preserving momentum: ", slide_velocity.length())

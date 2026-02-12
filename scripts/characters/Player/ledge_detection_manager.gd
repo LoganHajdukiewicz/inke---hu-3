@@ -73,9 +73,9 @@ func check_for_ledge_grab():
 		capsule_height = collision_shape.shape.height
 	
 	var midpoint_threshold = capsule_height / 2.0	
-	if height_difference <= midpoint_threshold:
+	if height_difference <= midpoint_threshold and height_difference > 0.0:
 	# Low ledge — auto-vault
-	print("=== LOW LEDGE DETECTED (", height_difference, " <= ", midpoint_threshold, ")! Vaulting ===")
+		print("=== LOW LEDGE DETECTED (", height_difference, " <= ", midpoint_threshold, ")! Vaulting ===")
 		var jump_state = state_machine.states.get("ledgejumpstate")
 		if jump_state:
 			jump_state.setup_ledge_hang(ledge_data.ledge_position, ledge_data.wall_normal)

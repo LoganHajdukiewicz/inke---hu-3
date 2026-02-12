@@ -1,4 +1,5 @@
 [gd_scene format=3 uid="uid://bdxo4fr0da0vb"]
+
 [ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_2pj2q"]
 [ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://scripts/characters/Player/camera_controller.gd" id="2_hiafp"]
 [ext_resource type="Script" uid="uid://b164e1bhx0p62" path="res://scripts/characters/Player/StateMachine/state_machine.gd" id="2_r0lcg"]
@@ -16,7 +17,8 @@
 [ext_resource type="Script" uid="uid://2s58wfqgfi06" path="res://scripts/characters/Player/ledge_hanging_state.gd" id="14_yqnh4"]
 [ext_resource type="Script" uid="uid://brpdq62nf3md4" path="res://scripts/characters/Player/wall_sliding_state.gd" id="15_v4knh"]
 [ext_resource type="Script" uid="uid://dq1ph3yvky7hl" path="res://scripts/characters/Player/spin_attack_state.gd" id="16_2xw1s"]
-[ext_resource type="Script" path="res://scripts/characters/Player/ledge_jump_state.gd" id="17_ljump"]
+[ext_resource type="Script" uid="uid://b728sapj83noa" path="res://scripts/characters/Player/ledge_jump_state.gd" id="17_8tjjk"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
 albedo_color = Color(0, 0, 1, 1)
@@ -94,14 +96,14 @@ script = ExtResource("13_enllq")
 script = ExtResource("14_yqnh4")
 hang_offset = 1.0
 
-[node name="LedgeJumpState" type="Node" parent="StateMachine"]
-script = ExtResource("17_ljump")
-
 [node name="WallSlidingState" type="Node" parent="StateMachine" unique_id=1307219831]
 script = ExtResource("15_v4knh")
 
 [node name="SpinAttackState" type="Node" parent="StateMachine" unique_id=532446007]
 script = ExtResource("16_2xw1s")
+
+[node name="LedgeJumpState" type="Node" parent="StateMachine" unique_id=2073128132]
+script = ExtResource("17_8tjjk")
 
 [node name="CameraController" type="Node3D" parent="." unique_id=1547743962]
 top_level = true

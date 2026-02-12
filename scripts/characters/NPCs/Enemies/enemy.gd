@@ -175,28 +175,17 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
-	"""Reduce health and apply knockback"""
-	print("=== TAKE_DAMAGE CALLED ===")
-	print("Damage amount: ", amount)
-	print("Knockback velocity: ", knockback_velocity)
-	print("Knockback Y component: ", knockback_velocity.y)
-	
 	# Ignore damage if still in cooldown
 	if damage_cooldown > 0:
-		print("✗ DAMAGE BLOCKED - Still in cooldown!")
 		return
-	
-	print("✓ DAMAGE ACCEPTED!")
-	print("Health: ", current_health, " -> ", current_health - amount)
-	
+		
 	current_health -= amount
 	damage_cooldown = damage_cooldown_time
 	
 	# Visual feedback
 	flash_color()
 	
-	# NEW: Drop paint droplets when hit (but not when dying)
-	if current_health > 0 and drops_paint_on_hit:
+	if drops_paint_on_hit:
 		spawn_paint_droplets()
 	
 	# CRITICAL: Set the knockback BEFORE changing state
