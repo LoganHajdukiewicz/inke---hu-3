@@ -1,0 +1,164 @@
+[gd_scene format=3 uid="uid://bdxo4fr0da0vb"]
+
+[ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_2pj2q"]
+[ext_resource type="Script" uid="uid://cx780oqqdx253" path="res://scripts/characters/Player/camera_controller.gd" id="2_hiafp"]
+[ext_resource type="Script" uid="uid://b164e1bhx0p62" path="res://scripts/characters/Player/StateMachine/state_machine.gd" id="2_r0lcg"]
+[ext_resource type="Script" uid="uid://cc26ths8yx5b7" path="res://scripts/characters/Player/StateMachine/idle_state.gd" id="4_t0ghx"]
+[ext_resource type="Script" uid="uid://coek0e7serlvq" path="res://scripts/characters/Player/StateMachine/jumping_state.gd" id="5_5n7dv"]
+[ext_resource type="Script" uid="uid://ygtkcbjletyn" path="res://scripts/characters/Player/StateMachine/running_state.gd" id="5_5pe7g"]
+[ext_resource type="Script" uid="uid://ck50hd5hostap" path="res://scripts/characters/Player/StateMachine/walking_state.gd" id="5_xr1x7"]
+[ext_resource type="Script" uid="uid://dvbngax6l30iw" path="res://scripts/characters/Player/StateMachine/falling_state.gd" id="6_5n7dv"]
+[ext_resource type="Script" uid="uid://d0nfcgmke1446" path="res://scripts/characters/Player/StateMachine/rail_grinding_state.gd" id="8_04s0v"]
+[ext_resource type="Script" uid="uid://cyispbhw6d3re" path="res://scripts/characters/Player/StateMachine/wall_jumping_state.gd" id="9_joeft"]
+[ext_resource type="Script" uid="uid://ca1ianwc3dqij" path="res://scripts/characters/Player/StateMachine/double_jump_state.gd" id="10_v87o4"]
+[ext_resource type="Script" uid="uid://1sd3orje0xq8" path="res://scripts/characters/Player/StateMachine/sliding_state.gd" id="11_xnk82"]
+[ext_resource type="Script" uid="uid://cnh2eyma6qxwk" path="res://scripts/characters/Player/StateMachine/dodge_dash_state.gd" id="12_43ywd"]
+[ext_resource type="Script" uid="uid://ciwurlmtwa4wm" path="res://scripts/characters/Player/grapple_hook_state.gd" id="13_enllq"]
+[ext_resource type="Script" uid="uid://2s58wfqgfi06" path="res://scripts/characters/Player/ledge_hanging_state.gd" id="14_yqnh4"]
+[ext_resource type="Script" uid="uid://brpdq62nf3md4" path="res://scripts/characters/Player/wall_sliding_state.gd" id="15_v4knh"]
+[ext_resource type="Script" uid="uid://dq1ph3yvky7hl" path="res://scripts/characters/Player/spin_attack_state.gd" id="16_2xw1s"]
+[ext_resource type="Script" uid="uid://b728sapj83noa" path="res://scripts/characters/Player/ledge_jump_state.gd" id="17_ljump"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
+shading_mode = 2
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_hiafp"]
+height = 1.5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v87o4"]
+albedo_color = Color(1, 0, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_04s0v"]
+material = SubResource("StandardMaterial3D_v87o4")
+size = Vector3(0.9, 0.05, 0.75)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xnk82"]
+albedo_color = Color(1, 0, 1, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_43ywd"]
+material = SubResource("StandardMaterial3D_xnk82")
+radius = 0.48
+height = 1.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_04s0v"]
+height = 1.5
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_04s0v"]
+radius = 2.34364
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_xnk82"]
+radius = 0.545352
+
+[node name="Inke" type="CharacterBody3D" unique_id=2088239389 node_paths=PackedStringArray("wall_jump_rays", "rail_grind_area") groups=["Player"]]
+script = ExtResource("1_2pj2q")
+wall_jump_rays = NodePath("WallJumpRays")
+rail_grind_area = NodePath("RailGrindArea")
+
+[node name="StateMachine" type="Node" parent="." unique_id=1653188693 node_paths=PackedStringArray("initial_state")]
+script = ExtResource("2_r0lcg")
+initial_state = NodePath("IdleState")
+
+[node name="IdleState" type="Node" parent="StateMachine" unique_id=846045106]
+script = ExtResource("4_t0ghx")
+
+[node name="WalkingState" type="Node" parent="StateMachine" unique_id=714431950]
+script = ExtResource("5_xr1x7")
+
+[node name="RunningState" type="Node" parent="StateMachine" unique_id=1478368001]
+script = ExtResource("5_5pe7g")
+
+[node name="JumpingState" type="Node" parent="StateMachine" unique_id=163381021]
+script = ExtResource("5_5n7dv")
+
+[node name="FallingState" type="Node" parent="StateMachine" unique_id=1737815121]
+script = ExtResource("6_5n7dv")
+
+[node name="RailGrindingState" type="Node" parent="StateMachine" unique_id=287296849]
+script = ExtResource("8_04s0v")
+
+[node name="WallJumpingState" type="Node" parent="StateMachine" unique_id=477891032]
+script = ExtResource("9_joeft")
+
+[node name="DoubleJumpState" type="Node" parent="StateMachine" unique_id=449451149]
+script = ExtResource("10_v87o4")
+
+[node name="SlidingState" type="Node" parent="StateMachine" unique_id=1944258380]
+script = ExtResource("11_xnk82")
+
+[node name="DodgeDashState" type="Node" parent="StateMachine" unique_id=1210208202]
+script = ExtResource("12_43ywd")
+
+[node name="GrappleHookState" type="Node" parent="StateMachine" unique_id=222415437]
+script = ExtResource("13_enllq")
+
+[node name="LedgeHangingState" type="Node" parent="StateMachine" unique_id=853626327]
+script = ExtResource("14_yqnh4")
+hang_offset = 1.0
+
+[node name="LedgeJumpState" type="Node" parent="StateMachine" unique_id=1220740655]
+script = ExtResource("17_ljump")
+
+[node name="WallSlidingState" type="Node" parent="StateMachine" unique_id=1307219831]
+script = ExtResource("15_v4knh")
+
+[node name="SpinAttackState" type="Node" parent="StateMachine" unique_id=532446007]
+script = ExtResource("16_2xw1s")
+
+[node name="CameraController" type="Node3D" parent="." unique_id=1547743962]
+top_level = true
+script = ExtResource("2_hiafp")
+
+[node name="CameraTarget" type="Node3D" parent="CameraController" unique_id=768056888]
+transform = Transform3D(1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 3.65233, 8.02931)
+
+[node name="Camera3D" type="Camera3D" parent="CameraController/CameraTarget" unique_id=956583969]
+
+[node name="Body" type="MeshInstance3D" parent="." unique_id=1859136823]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.828082, 0)
+material_overlay = SubResource("StandardMaterial3D_hiafp")
+mesh = SubResource("CapsuleMesh_hiafp")
+
+[node name="HatBrim" type="MeshInstance3D" parent="Body" unique_id=1943084423]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00622028, 0.402546, -0.41257)
+mesh = SubResource("BoxMesh_04s0v")
+
+[node name="HatTop" type="MeshInstance3D" parent="Body" unique_id=2073504652]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.142328, 0)
+mesh = SubResource("CapsuleMesh_43ywd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1017894074]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.849195, 0)
+shape = SubResource("CapsuleShape3D_04s0v")
+
+[node name="WallJumpRays" type="Node3D" parent="." unique_id=1806715501]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.792745, 0)
+
+[node name="Right" type="RayCast3D" parent="WallJumpRays" unique_id=1809721435]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.485969, 0)
+target_position = Vector3(1, 0, 0)
+
+[node name="Left" type="RayCast3D" parent="WallJumpRays" unique_id=639957661]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.524077, 0)
+target_position = Vector3(-1, 0, 0)
+
+[node name="Front" type="RayCast3D" parent="WallJumpRays" unique_id=1883202903]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.476682, 0)
+target_position = Vector3(0, 0, -1.5)
+
+[node name="Back" type="RayCast3D" parent="WallJumpRays" unique_id=1500604653]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.564396, 0)
+target_position = Vector3(0, 0, 1.5)
+
+[node name="HU-3Boundary" type="Area3D" parent="." unique_id=957896764]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98123, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HU-3Boundary" unique_id=1632300590]
+shape = SubResource("SphereShape3D_04s0v")
+
+[node name="RailGrindArea" type="Area3D" parent="." unique_id=680159255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.342711, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RailGrindArea" unique_id=1259709538]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.165205, 0)
+shape = SubResource("SphereShape3D_xnk82")

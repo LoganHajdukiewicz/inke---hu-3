@@ -65,11 +65,11 @@ func enter():
 		calculate_launch_velocity()
 
 			# Reset double jump and air dash abilities
-			player.can_double_jump = true
-			player.has_double_jumped = false
-			player.can_air_dash = true
-			player.has_air_dashed = false
-			print("Grapple launch to: ", grapple_point, " Flight time: ", launch_time)
+		player.can_double_jump = true
+		player.has_double_jumped = false
+		player.can_air_dash = true
+		player.has_air_dashed = false
+		print("Grapple launch to: ", grapple_point, " Flight time: ", launch_time)
 		# Create visual rope
 		create_rope_visual()
 
