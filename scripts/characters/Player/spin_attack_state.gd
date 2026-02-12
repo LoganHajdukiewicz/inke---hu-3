@@ -137,8 +137,8 @@ func physics_update(delta: float):
 	
 	player.move_and_slide()
 	
-	# Check for landing - exit immediately when touching ground
-	if player.is_on_floor() and spin_timer > 0.05:  # Very brief ground time before exit
+	# Check for landing - only exit on ground contact if spin started in the air
+	if not started_on_ground and player.is_on_floor() and spin_timer > 0.05:
 		exit_spin()
 		return
 
