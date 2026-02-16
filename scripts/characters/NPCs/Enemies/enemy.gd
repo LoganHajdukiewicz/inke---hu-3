@@ -11,8 +11,10 @@ class_name Enemy
 @export var wander_speed: float = 3.0
 @export var damage_to_player: int = 1
 @export var bounce_feedback: int = 9
+@export var max_roam_distance: float = 10.0  # Maximum distance from spawn point
 var can_chase := true
-var being_stomped := false  
+var being_stomped := false
+var spawn_position: Vector3 = Vector3.ZERO  # Track where enemy spawned  
 
 # Loot system
 @export_group("Death Loot (Gears)")
@@ -56,6 +58,10 @@ var initial_color: Color
 func _ready():
 	add_to_group("Enemy")
 	print("Enemy added to 'Enemy' group")
+	
+	# Store spawn position for roaming constraint
+	spawn_position = global_position
+	print("Enemy spawn position: ", spawn_position)
 	
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
