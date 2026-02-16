@@ -1,0 +1,14 @@
+{
+  "dialogue": [
+	{
+	  "speaker": "S-1GN",
+	  "text": "This is a merchant!",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "He sells power ups for GEARs! Try talking to him and see what he has on sale!",
+	  "portrait": "S-1GN-uwu"
+	},
+  ]
+}

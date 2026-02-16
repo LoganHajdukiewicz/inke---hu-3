@@ -71,24 +71,33 @@ size = Vector3(2, 1.25, 2)
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_jd4qd"]
 plane = Plane(0, 0, 1, 0)
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_773q5"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_773q5"]
+size = Vector3(2, 1.25, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nygr8"]
+size = Vector3(2, 1.25, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gx2om"]
+size = Vector3(2, 1.25, 2)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_v808e"]
 plane = Plane(0, 0, 1, 0)
 
-[sub_resource type="Curve3D" id="Curve3D_nygr8"]
+[sub_resource type="Curve3D" id="Curve3D_7yrn7"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.5630279, -13.891914, -70.07703),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.6928496, -14.145325, -65.10193, 0, 0, 0, 0, 0, 0, 1.4870296, -8.107712, -88.48889),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
-point_count = 9
+point_count = 10
 
-[sub_resource type="Curve3D" id="Curve3D_gx2om"]
+[sub_resource type="Curve3D" id="Curve3D_wgnq6"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.009274626, -0.29055023, -1.6022949, 0, 0, 0, 0, 0, 0, -0.024463536, -0.8751221, -4.8444824, 0, 0, 0, 0, 0, 0, -0.043418005, -1.6046219, -8.890625, 0, 0, 0, 0, 0, 0, -0.06327556, -2.3688583, -13.129761, 0, 0, 0, 0, 0, 0, -0.086671084, -3.2692642, -18.124023, 0, 0, 0, 0, 0, 0, -0.10643028, -4.0297318, -22.341919, 0, 0, 0, 0, 0, 0, -0.12717614, -4.828163, -26.770508, 0, 0, 0, 0, 0, 0, -0.14986534, -5.7013855, -31.614014, 0, 0, 0, 0, 0, 0, -0.17476669, -6.659752, -36.929688, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.21315342, -8.1371155, -45.124146, 0, 0, 0, 0, 0, 0, -0.2639069, -10.090439, -55.958496, 0, 0, 0, 0, 0, 0, -0.34496272, -13.209984, -73.261475, 0, 0, 0, 0, 0, 0, -0.41804245, -16.02256, -88.86182, 0, 0, 0, 0, 0, 0, -0.4886003, -18.738075, -103.92383, 0, 0, 0, 0, 0, 0, -0.5683352, -21.806786, -120.944824, 0, 0, 0, 0, 0, 0, -0.6880897, -26.415703, -146.50879, 0, 0, 0, 0, 0, 0, -0.7959162, -30.565552, -169.52661, 0, 0, 0, 0, 0, 0, -0.9129753, -35.07074, -194.51514, 0, 0, 0, 0, 0, 0, -1.0136012, -38.943466, -215.99585, 0, 0, 0, 0, 0, 0, -1.1869593, -45.615395, -253.00269, 0, 0, 0, 0, 0, 0, -1.3661476, -52.51171, -291.2539, 0, 0, 0, 0, 0, 0, -1.583277, -60.868233, -337.6045, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -2.1613584, -83.116516, -461.00757),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, -0.005207447, -0.13402557, -0.7338867, 0, 0, 0, 0, 0, 0, -0.009274626, -0.29055023, -1.6022949, 0, 0, 0, 0, 0, 0, -0.012905238, -0.43027496, -2.3771973, 0, 0, 0, 0, 0, 0, -0.018195037, -0.63386536, -3.5064697, 0, 0, 0, 0, 0, 0, -0.024463536, -0.8751221, -4.8444824, 0, 0, 0, 0, 0, 0, -0.030775404, -1.1180496, -6.1918945, 0, 0, 0, 0, 0, 0, -0.03625301, -1.328865, -7.361084, 0, 0, 0, 0, 0, 0, -0.043418005, -1.6046219, -8.890625, 0, 0, 0, 0, 0, 0, -0.050138623, -1.8632736, -10.325439, 0, 0, 0, 0, 0, 0, -0.055998735, -2.0887985, -11.576416, 0, 0, 0, 0, 0, 0, -0.06327556, -2.3688583, -13.129761, 0, 0, 0, 0, 0, 0, -0.07472632, -2.809555, -15.574219, 0, 0, 0, 0, 0, 0, -0.07472632, -2.809555, -15.574219, 0, 0, 0, 0, 0, 0, -0.07472632, -2.809555, -15.574219, 0, 0, 0, 0, 0, 0, -0.07472632, -2.809555, -15.574219, 0, 0, 0, 0, 0, 0, -0.07472632, -2.809555, -15.574219, 0, 0, 0, 0, 0, 0, -0.07472632, -2.809555, -15.574219, 0, 0, 0, 0, 0, 0, -0.086671084, -3.2692642, -18.124023, 0, 0, 0, 0, 0, 0, -0.097119436, -3.6713867, -20.35437, 0, 0, 0, 0, 0, 0, -0.10643028, -4.0297318, -22.341919, 0, 0, 0, 0, 0, 0, -0.113461375, -4.300331, -23.842896, 0, 0, 0, 0, 0, 0, -0.11792494, -4.472122, -24.795654, 0, 0, 0, 0, 0, 0, -0.12717614, -4.828163, -26.770508, 0, 0, 0, 0, 0, 0, -0.13506106, -5.13163, -28.453613, 0, 0, 0, 0, 0, 0, -0.14041734, -5.3377686, -29.597168, 0, 0, 0, 0, 0, 0, -0.14986534, -5.7013855, -31.614014, 0, 0, 0, 0, 0, 0, -0.15593985, -5.935173, -32.910767, 0, 0, 0, 0, 0, 0, -0.16168615, -6.156334, -34.13745, 0, 0, 0, 0, 0, 0, -0.16587093, -6.3173904, -35.03076, 0, 0, 0, 0, 0, 0, -0.17476669, -6.659752, -36.929688, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.18910266, -7.2114944, -39.98999, 0, 0, 0, 0, 0, 0, -0.2007505, -7.659775, -42.476563, 0, 0, 0, 0, 0, 0, -0.21315342, -8.1371155, -45.124146, 0, 0, 0, 0, 0, 0, -0.22847682, -8.72686, -48.395264, 0, 0, 0, 0, 0, 0, -0.23957884, -9.154137, -50.76526, 0, 0, 0, 0, 0, 0, -0.2514736, -9.611931, -53.304443, 0, 0, 0, 0, 0, 0, -0.2639069, -10.090439, -55.958496, 0, 0, 0, 0, 0, 0, -0.2714827, -10.381996, -57.575684, 0, 0, 0, 0, 0, 0, -0.27704677, -10.596138, -58.763428, 0, 0, 0, 0, 0, 0, -0.28998172, -11.093964, -61.52466, 0, 0, 0, 0, 0, 0, -0.30304152, -11.5965805, -64.31262, 0, 0, 0, 0, 0, 0, -0.31080592, -11.895409, -65.97009, 0, 0, 0, 0, 0, 0, -0.31766558, -12.159416, -67.434326, 0, 0, 0, 0, 0, 0, -0.32728183, -12.5295105, -69.48718, 0, 0, 0, 0, 0, 0, -0.337107, -12.907646, -71.58447, 0, 0, 0, 0, 0, 0, -0.34496272, -13.209984, -73.261475, 0, 0, 0, 0, 0, 0, -0.3555664, -13.618088, -75.525024, 0, 0, 0, 0, 0, 0, -0.36175483, -13.856255, -76.84619, 0, 0, 0, 0, 0, 0, -0.36743897, -14.07502, -78.05957, 0, 0, 0, 0, 0, 0, -0.41804245, -16.02256, -88.86182, 0, 0, 0, 0, 0, 0, -0.4886003, -18.738075, -103.92383, 0, 0, 0, 0, 0, 0, -0.5683352, -21.806786, -120.944824, 0, 0, 0, 0, 0, 0, -0.6880897, -26.415703, -146.50879, 0, 0, 0, 0, 0, 0, -0.7959162, -30.565552, -169.52661, 0, 0, 0, 0, 0, 0, -0.9129753, -35.07074, -194.51514, 0, 0, 0, 0, 0, 0, -1.0136012, -38.943466, -215.99585, 0, 0, 0, 0, 0, 0, -1.1869593, -45.615395, -253.00269, 0, 0, 0, 0, 0, 0, -1.3661476, -52.51171, -291.2539, 0, 0, 0, 0, 0, 0, -1.583277, -60.868233, -337.6045, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -1.8499368, -71.13101, -394.52832, 0, 0, 0, 0, 0, 0, -2.1613584, -83.116516, -461.00757),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 }
-point_count = 31
+point_count = 71
 
 [node name="Movement_Demo_Active_Development" type="Node3D" unique_id=1332278585]
 
@@ -679,8 +688,6 @@ floor_size = Vector3(10, 0.5, 20)
 spin_speed = 120.0
 spin_direction = 1
 movement_axis = Vector3(0, 0, -40)
-frozen_friction = 0.05
-frozen_enable_visual_effects = false
 
 [node name="Floor37" parent="Floors" unique_id=452031924 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -855)
@@ -689,8 +696,6 @@ floor_size = Vector3(5, 0.5, 20)
 spin_speed = 120.0
 spin_direction = 1
 movement_axis = Vector3(0, 0, -40)
-frozen_friction = 0.05
-frozen_enable_visual_effects = false
 
 [node name="Floor41" parent="Floors" unique_id=1746828129 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -875)
@@ -699,8 +704,6 @@ floor_size = Vector3(2, 0.5, 20)
 spin_speed = 120.0
 spin_direction = 1
 movement_axis = Vector3(0, 0, -40)
-frozen_friction = 0.05
-frozen_enable_visual_effects = false
 
 [node name="Floor34" parent="Floors" unique_id=418421769 instance=ExtResource("5_0t3uf")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 75.01, -795)
@@ -800,7 +803,7 @@ script = null
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@24281" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=459043187]
+[node name="@CollisionShape3D@25503" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=353895759]
 shape = SubResource("BoxShape3D_07svi")
 
 [node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("6_07svi")]
@@ -810,7 +813,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@24282" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=2110677679]
+[node name="@CollisionShape3D@25504" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=420795873]
 shape = SubResource("BoxShape3D_1d5ko")
 
 [node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("6_07svi")]
@@ -820,7 +823,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@24283" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=1175353443]
+[node name="@CollisionShape3D@25505" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=209517123]
 shape = SubResource("BoxShape3D_icac4")
 
 [node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("6_07svi")]
@@ -830,7 +833,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@24284" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1031616944]
+[node name="@CollisionShape3D@25506" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1472584813]
 shape = SubResource("BoxShape3D_gdr2d")
 
 [node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("6_07svi")]
@@ -840,7 +843,7 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign4"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@24285" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1949229898]
+[node name="@CollisionShape3D@25507" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1707523751]
 shape = SubResource("BoxShape3D_txrxq")
 
 [node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("6_07svi")]
@@ -850,17 +853,17 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@24286" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=403934342]
+[node name="@CollisionShape3D@25508" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=783191955]
 shape = SubResource("BoxShape3D_va7sb")
 
 [node name="Sign5_5" parent="Dialogue Triggers" unique_id=1096489912 instance=ExtResource("6_07svi")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.5, 25, -373.288)
 
 [node name="DialogueTrigger" parent="Dialogue Triggers/Sign5_5" unique_id=94758757 instance=ExtResource("5_4w42i")]
-dialogue_file = "Sign5"
+dialogue_file = "Sign5_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@28366" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=1320556452]
+[node name="@CollisionShape3D@25509" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=273877731]
 shape = SubResource("BoxShape3D_4mfs1")
 
 [node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("6_07svi")]
@@ -871,7 +874,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign6"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@24287" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=1408958019]
+[node name="@CollisionShape3D@25510" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=1076079547]
 shape = SubResource("BoxShape3D_qrayo")
 
 [node name="Sign7" parent="Dialogue Triggers" unique_id=1404823017 instance=ExtResource("6_07svi")]
@@ -882,7 +885,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign7"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@24288" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=1363676280]
+[node name="@CollisionShape3D@25511" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=2125940697]
 shape = SubResource("BoxShape3D_8cjm4")
 
 [node name="DialogueTrigger2" parent="Dialogue Triggers/Sign7" unique_id=88354356 instance=ExtResource("5_4w42i")]
@@ -891,16 +894,49 @@ dialogue_file = "worldTrigger2"
 trigger_type = 1
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@24289" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1742001239]
+[node name="@CollisionShape3D@25512" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1658717263]
 shape = SubResource("WorldBoundaryShape3D_jd4qd")
+
+[node name="Sign8" parent="Dialogue Triggers" unique_id=1347666954 instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -570.49384)
+
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign8" unique_id=2123454319 instance=ExtResource("5_4w42i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
+dialogue_file = "Sign8"
+box_size = Vector3(2, 1.25, 2)
+
+[node name="@CollisionShape3D@25513" type="CollisionShape3D" parent="Dialogue Triggers/Sign8/DialogueTrigger" unique_id=341376178]
+shape = SubResource("BoxShape3D_773q5")
+
+[node name="Sign9" parent="Dialogue Triggers" unique_id=124815936 instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -625.54584)
+
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign9" unique_id=1511637085 instance=ExtResource("5_4w42i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
+dialogue_file = "Sign9"
+box_size = Vector3(2, 1.25, 2)
+
+[node name="@CollisionShape3D@25514" type="CollisionShape3D" parent="Dialogue Triggers/Sign9/DialogueTrigger" unique_id=1769422669]
+shape = SubResource("BoxShape3D_nygr8")
+
+[node name="Sign10" parent="Dialogue Triggers" unique_id=634036317 instance=ExtResource("6_07svi")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 75.131584, -819.7884)
+
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign10" unique_id=343201913 instance=ExtResource("5_4w42i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
+dialogue_file = "Sign10"
+box_size = Vector3(2, 1.25, 2)
+
+[node name="@CollisionShape3D@25515" type="CollisionShape3D" parent="Dialogue Triggers/Sign10/DialogueTrigger" unique_id=1775302751]
+shape = SubResource("BoxShape3D_gx2om")
 
 [node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("5_4w42i")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@24290" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1549150760]
-shape = SubResource("WorldBoundaryShape3D_773q5")
+[node name="@CollisionShape3D@25516" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=628977622]
+shape = SubResource("WorldBoundaryShape3D_v808e")
 
 [node name="Items" type="Node" parent="." unique_id=1097220712]
 
@@ -924,6 +960,8 @@ target_scene = "uid://bs0v2hxubr288"
 
 [node name="Enemy" parent="Enemies" unique_id=1436873857 instance=ExtResource("6_v0x7v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84948015, 0.019714236, -91.703186)
+max_health = 30
+current_health = 30
 
 [node name="Enemy2" parent="Enemies" unique_id=1492288736 instance=ExtResource("6_v0x7v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7246895, 10.019714, -2615.4702)
@@ -1079,8 +1117,8 @@ glow_color = Color(1, 0, 0, 1)
 
 [node name="Rail" parent="." unique_id=187344327 instance=ExtResource("8_qyni3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 130.31953, -1872.7477)
-curve = SubResource("Curve3D_nygr8")
+curve = SubResource("Curve3D_7yrn7")
 
 [node name="Rail2" parent="." unique_id=1929700592 instance=ExtResource("8_qyni3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 117.436516, -1968.2397)
-curve = SubResource("Curve3D_gx2om")
+curve = SubResource("Curve3D_wgnq6")

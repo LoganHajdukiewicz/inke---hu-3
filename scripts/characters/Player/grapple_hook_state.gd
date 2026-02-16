@@ -3,7 +3,7 @@ class_name GrappleHookState
 
 # Grappling configuration
 @export var grapple_speed: float = 30.0
-@export var max_grapple_distance: float = 70.0
+@export var max_grapple_distance: float = 30.0
 @export var grapple_pull_force: float = 25.0
 @export var swing_control_strength: float = 8.0
 @export var release_boost: float = 15.0
