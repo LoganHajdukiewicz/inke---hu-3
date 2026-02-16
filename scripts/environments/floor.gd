@@ -48,8 +48,8 @@ enum SpinDirection {
 @onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
 
 @export_group("Sliding Floor Settings")
-@export var slide_speed: float = 50.0  # Base slide speed (faster than before!)
-@export var instant_acceleration: bool = true  # Instantly reach slide speed
+@export var slide_max_speed: float = 50.0  # Maximum slide speed
+@export var slide_acceleration: float = 30.0  # How fast the player accelerates downhill
 @export var lock_player_to_slope: bool = true  # Prevent player from moving off the slope direction
 @export var auto_rotate_to_slope: bool = true  # Auto-rotate player to face downhill
 
@@ -571,20 +571,7 @@ func setup_damage_floor():
 
 # REPLACE handle_sliding_floor() in floor.gd with this:
 func handle_sliding_floor(_delta: float):
-	"""
-	Handle sliding floor logic - ALWAYS force downhill sliding.
-	
-	TEACHER EXPLANATION:
-	====================
-	The problem was that the old code only worked while in SlidingState.
-	Once you "stopped" (exited SlidingState), the checks stopped running.
-	
-	This new version:
-	1. ALWAYS applies slide force while on the floor (no state checks!)
-	2. PREVENTS transitioning out of slide (can't stop on the slide!)
-	3. Applies force BEFORE move_and_slide() so it can't be overridden
-	====================
-	"""
+	"""Force players on this floor into SlidingState. Physics handled by SlidingState."""
 	for player in players_on_floor:
 		if not player or not is_instance_valid(player):
 			continue
@@ -599,98 +586,18 @@ func handle_sliding_floor(_delta: float):
 			continue
 		
 		var current_state_name = current_state.get_script().get_global_name()
-		
-		# CRITICAL: Force into sliding state if not already in it
-		# This prevents ANY other state from taking control
+
+		# Allow airborne states so jumping works — the floor will re-capture the player when they land back on it
+		if current_state_name in ["JumpingState", "DoubleJumpState", "FallingState", "WallJumpingState", "GrappleHookState", "DodgeDashState", "SpinAttackState"]:
+			continue
+
+		# Force into sliding state if not already in it
 		if current_state_name != "SlidingState":
 			print("Forcing player into sliding state")
 			state_machine.change_state("SlidingState")
-			# Continue to apply force even on the transition frame
-		
-		# ALWAYS apply slide force, regardless of state
-		# This ensures the player can NEVER stop or go uphill
-		apply_slide_force_to_player(player)
 
-
-# REPLACE apply_slide_force_to_player() in floor.gd with this:
-func apply_slide_force_to_player(player: CharacterBody3D):
-	"""
-	FORCEFULLY lock player to downhill sliding - ZERO tolerance for stopping or uphill.
-	
-	TEACHER EXPLANATION:
-	====================
-	This function is called EVERY frame while on the sliding floor.
-	It does THREE critical things:
-	
-	1. BLOCKS uphill movement (sets velocity to 0 if going uphill)
-	2. FORCES constant downhill velocity (no deceleration!)
-	3. OVERRIDES any other velocity changes (total control!)
-	====================
-	"""
-	# Get the floor's orientation
-	var floor_forward = -global_transform.basis.z
-	var floor_up = global_transform.basis.y
-	
-	# Calculate how steep the slope is
-	var tilt_factor = 1.0 - abs(floor_up.dot(Vector3.UP))
-	
-	# Only slide if there's actually a slope
-	if tilt_factor < 0.05:
-		print("Slope too flat to slide (tilt: ", tilt_factor, ")")
-		return
-	
-	# Calculate the pure downhill direction (including Y component!)
-	# IMPORTANT: Don't zero out Y - we want to slide along the actual slope surface
-	var downhill_direction = floor_forward.normalized()
-	
-	# Get current horizontal velocity as 2D vector for easier math
-	var current_velocity_2d = Vector2(player.velocity.x, player.velocity.z)
-	var downhill_2d = Vector2(downhill_direction.x, downhill_direction.z).normalized()
-	
-	# CRITICAL CHECK #1: Are they trying to go uphill?
-	var velocity_magnitude = current_velocity_2d.length()
-	
-	if velocity_magnitude > 0.1:  # Only check if actually moving
-		var current_direction = current_velocity_2d.normalized()
-		var alignment = current_direction.dot(downhill_2d)
-		
-		# If alignment is negative, they're going uphill
-		if alignment < -0.1:  # Small threshold to avoid floating point issues
-			print("❌ BLOCKING UPHILL MOVEMENT! Alignment: ", alignment)
-			# STOP all horizontal movement immediately
-			player.velocity.x = 0
-			player.velocity.z = 0
-	
-	# CRITICAL FIX #2: ALWAYS set to slide speed (prevents deceleration)
-	# This runs EVERY frame, so velocity is LOCKED to this value
-	var slide_velocity = downhill_direction * slide_speed
-	
-	# FORCE the velocity - no lerping, no gradual change
-	player.velocity.x = slide_velocity.x
-	player.velocity.z = slide_velocity.z
-	
-	# Handle vertical velocity
-	# Keep some gravity but don't let them fly off
-	if player.velocity.y > 5.0:
-		player.velocity.y = 5.0
-	elif player.velocity.y < -10.0:
-		player.velocity.y = -10.0
-	
-	# CRITICAL FIX #3: Force rotation to face downhill
-	if auto_rotate_to_slope:
-		var target_rotation = atan2(-downhill_direction.x, -downhill_direction.z)
-		player.rotation.y = target_rotation  # Instant rotation
-	
-	# Debug output
-	if Engine.get_physics_frames() % 60 == 0:
-		print("🎢 SLIDE LOCKED | Speed: ", velocity_magnitude, " → ", slide_speed, " | Tilt: ", tilt_factor)
-
-
-# ALSO UPDATE setup_sliding_floor() to disable ALL friction:
 func setup_sliding_floor():
-	"""
-	Setup a sliding floor that forces players into sliding state.
-	"""
+	"""Setup a sliding floor that forces players into sliding state."""
 	var material = create_textured_material(Color(0.9, 0.9, 0.4, 1))
 	material.metallic = 0.2
 	material.roughness = 0.8
