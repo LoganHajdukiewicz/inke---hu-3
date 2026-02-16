@@ -18,13 +18,9 @@ class_name GrappleHookState
 # Grapple state
 var grapple_point: Vector3 = Vector3.ZERO
 var is_grappling: bool = false
-var grapple_mode: String = "launch"  # "launch" or "enemy"
-
-# Launch arc tracking
-var launch_time: float = 0.0
-var state_timer: float = 0.0
-var closest_distance: float = INF
-var arrival_radius: float = 2.5
+var grapple_mode: String = "pull"  # "pull", "swing", or "enemy"
+var rope_length: float = 0.0
+var swing_velocity: Vector3 = Vector3.ZERO
 
 # Enemy grapple state
 var grapple_target_enemy: Node3D = null
@@ -36,9 +32,8 @@ var rope_mesh_instance: MeshInstance3D = null
 
 func enter():
 	print("Entered Grappling State")
-	# Reset state
-	state_timer = 0.0
-	closest_distance = INF
+	
+	# Reset enemy grapple state
 	has_attacked_enemy = false
 	grapple_target_enemy = null
 	
@@ -59,49 +54,33 @@ func enter():
 		
 		grapple_point = grapple_target
 		is_grappling = true
-		grapple_mode = "launch"
-
-		# Calculate and apply ballistic launch velocity
-		calculate_launch_velocity()
-
-			# Reset double jump and air dash abilities
-		player.can_double_jump = true
-		player.has_double_jumped = false
-		player.can_air_dash = true
-		player.has_air_dashed = false
-		print("Grapple launch to: ", grapple_point, " Flight time: ", launch_time)
-		# Create visual rope
-		create_rope_visual()
-
- 
-
-func calculate_launch_velocity():
-	"""Calculate initial velocity for a ballistic parabolic arc to the grapple point."""
-	var to_target = grapple_point - player.global_position
-	var distance = to_target.length()
-	# Flight time from distance and speed, clamped to feel snappy
-	launch_time = distance / grapple_speed
-	launch_time = clamp(launch_time, 0.25, 1.2)
-	var gravity = player.gravity  # 9.8
-	# Horizontal velocity: constant speed to reach target in launch_time
-	var vx = to_target.x / launch_time
-	var vz = to_target.z / launch_time
-	# Vertical velocity to land at target height under gravity:
-	# vy = (dy + 0.5 * g * t^2) / t
-	var vy = (to_target.y + 0.5 * gravity * launch_time * launch_time) / launch_time
-
-	# Enforce minimum arc height above the higher endpoint
-	# Peak of arc = start_y + vy^2 / (2g)
-	var higher_y = max(player.global_position.y, grapple_point.y)
-	var min_peak_y = higher_y + min_arc_height
-	var natural_peak_y = player.global_position.y + (vy * vy) / (2.0 * gravity)
+		rope_length = player.global_position.distance_to(grapple_point)
+		
+		# Determine grapple mode based on initial conditions
+		var to_grapple = grapple_point - player.global_position
+		var angle_to_grapple = rad_to_deg(acos(to_grapple.normalized().dot(Vector3.UP)))
+		
+		# If grapple point is above and ahead, swing. Otherwise, pull directly
+		if angle_to_grapple < 270 and to_grapple.y > 0:
+			grapple_mode = "swing"
+			# Preserve horizontal momentum for swinging
+			swing_velocity = player.velocity
+			
+			# Reset double jump and air dash abilities when entering swing mode
+			player.can_double_jump = true
+			player.has_double_jumped = false
+			player.can_air_dash = true
+			player.has_air_dashed = false
+			print("Swing mode - abilities reset!")
+		else:
+			grapple_mode = "pull"
+			# Start pulling immediately
+			player.velocity = Vector3.ZERO
+		
+		print("Grappling to point: ", grapple_point, " Mode: ", grapple_mode)
 	
-	if natural_peak_y < min_peak_y:
-		var needed_height = min_peak_y - player.global_position.y
-		vy = sqrt(2.0 * gravity * needed_height)
-	player.velocity = Vector3(vx, vy, vz)
-
- 
+	# Create visual rope
+	create_rope_visual()
 
 func setup_enemy_grapple(enemy: Node3D):
 	"""Setup grapple to enemy"""
@@ -143,8 +122,6 @@ func create_rope_visual():
 	# Add to scene
 	player.get_parent().add_child(rope_mesh_instance)
 
- 
-
 func physics_update(delta: float):
 	if not is_grappling:
 		exit_grapple()
@@ -154,47 +131,19 @@ func physics_update(delta: float):
 	if Input.is_action_just_pressed("yoyo") or Input.is_action_just_pressed("jump"):
 		release_grapple()
 		return
-	state_timer += delta
 	
 	# Update based on grapple mode
 	if grapple_mode == "enemy":
 		handle_enemy_grapple(delta)
-	elif grapple_mode == "launch":
-		handle_launch_grapple(delta)
+	elif grapple_mode == "pull":
+		handle_pull_grapple(delta)
+	elif grapple_mode == "swing":
+		handle_swing_grapple(delta)
+	
 	# Update rope visual
 	update_rope_visual()
 	
 	player.move_and_slide()
-
-func handle_launch_grapple(delta: float):
-	player.velocity += player.get_gravity() * delta
-	
-	# Very limited air control for slight trajectory adjustments
-	var input_dir = Input.get_vector("left", "right", "forward", "back")
-	
-	if input_dir.length() > 0.1:
-		var camera_basis = player.get_node("CameraController").transform.basis
-		var input_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-		player.velocity.x += input_direction.x * air_control * delta
-		player.velocity.z += input_direction.z * air_control * delta
-		
-	# Rotate player to face movement direction
-	var horizontal_vel = Vector2(player.velocity.x, player.velocity.z)
-	if horizontal_vel.length() > 1.0:
-		var target_rotation = atan2(-player.velocity.x, -player.velocity.z)
-		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, 10.0 * delta)
-	
-	# Track closest approach to grapple point
-	var distance = player.global_position.distance_to(grapple_point)
-	closest_distance = min(closest_distance, distance)
-
-	# Arrival checks
-	var arrived = distance < arrival_radius
-	var passed_point = closest_distance < arrival_radius * 2.0 and distance > closest_distance + 1.5
-	var timed_out = state_timer > launch_time * 2.5
-
-	if arrived or passed_point or timed_out:
-		release_grapple()
 
 func handle_enemy_grapple(delta: float):
 	"""Pull player toward enemy and attack on contact"""
@@ -264,7 +213,57 @@ func create_attack_flash():
 	tween.tween_property(player, "scale", Vector3(1.3, 0.7, 1.3), 0.08)
 	tween.tween_property(player, "scale", Vector3.ONE, 0.15).set_delay(0.08)
 
- 
+func handle_pull_grapple(delta: float):
+	"""Pull player directly to grapple point"""
+	var to_grapple = (grapple_point - player.global_position).normalized()
+	
+	# Apply pull force
+	player.velocity = to_grapple * grapple_pull_force
+	
+	# Light gravity for smoother pull
+	player.velocity += player.get_gravity() * delta * 0.3
+	
+	# Rotate to face grapple point
+	if to_grapple.length() > 0.1:
+		var target_rotation = atan2(-to_grapple.x, -to_grapple.z)
+		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, 10.0 * delta)
+	
+	# Check if reached grapple point
+	if player.global_position.distance_to(grapple_point) < 1.0:
+		release_grapple()
+
+func handle_swing_grapple(delta: float):
+	"""Swing player like a pendulum"""
+	var to_grapple = grapple_point - player.global_position
+	var distance = to_grapple.length()
+	
+	# Apply gravity
+	player.velocity += player.get_gravity() * delta
+	
+	# Player input for swing control
+	var input_dir = Input.get_vector("left", "right", "forward", "back")
+	if input_dir.length() > 0.1:
+		var camera_basis = player.get_node("CameraController").transform.basis
+		var input_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+		
+		# Apply swing control perpendicular to rope
+		var rope_direction = to_grapple.normalized()
+		var perpendicular = input_direction - rope_direction * input_direction.dot(rope_direction)
+		player.velocity += perpendicular * swing_control_strength * delta
+	
+	# Constrain to rope length (pendulum physics)
+	var current_direction = to_grapple.normalized()
+	var radial_velocity = player.velocity.dot(current_direction)
+	
+	# If moving away from grapple point and exceeding rope length, apply tension
+	if distance >= rope_length and radial_velocity < 0:
+		# Remove radial component (tension force)
+		player.velocity -= current_direction * radial_velocity
+		
+		# Apply slight pull to maintain rope length
+		var excess = distance - rope_length
+		if excess > 0:
+			player.velocity += current_direction * excess * 10.0
 
 func find_nearest_enemy() -> Node3D:
 	"""Find the nearest enemy within grapple range"""
@@ -357,13 +356,16 @@ func update_rope_visual():
 	rope_line.surface_end()
 
 func release_grapple():
-	"""Release the grapple and preserve arc momentum"""
+	"""Release the grapple and apply momentum boost"""
 	print("Releasing grapple!")
-	# For launch mode, the player already has good velocity from the arc.
-	# Add a small boost in the current direction to make the release feel punchy.
-	if grapple_mode == "launch" and player.velocity.length() > 0.1:
-		var boost_direction = player.velocity.normalized()
-		player.velocity += boost_direction * release_boost
+	
+	# Only apply release boost for non-enemy grapples (enemy grapple already has bounce)
+	if grapple_mode != "enemy":
+		# Apply release boost in current velocity direction
+		if player.velocity.length() > 0.1:
+			var boost_direction = player.velocity.normalized()
+			player.velocity += boost_direction * release_boost
+	
 	exit_grapple()
 
 func exit_grapple():
