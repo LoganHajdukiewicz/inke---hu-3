@@ -69,8 +69,14 @@ func _ready():
 func register_player(player_node: CharacterBody3D):
 	"""Called by player to register itself with PaintManager"""
 	player = player_node
-	setup_paint_ui()
 	is_initialized = true
+
+	# Show existing UI if already created, otherwise create it
+	if paint_ui and is_instance_valid(paint_ui):
+		paint_ui.visible = true
+	else:
+		setup_paint_ui()
+
 	print("Paint Manager initialized - Current paint: ", paint_names[current_paint])
 	print("Starting paint amount: ", current_paint_amount, "/", max_paint_amount)
 
@@ -130,11 +136,7 @@ func get_ability_cost(paint_type: PaintType) -> int:
 # ==========================================
 
 func setup_paint_ui():
-	"""Create the UI-based paint meter"""
-	if not player or not is_instance_valid(player):
-		print("PaintManager: Cannot setup UI - invalid player reference")
-		return
-	
+	"""Create the UI-based paint meter (only called once)"""
 	# Load the PaintUIManager script
 	var paint_ui_script = load("res://autoloaded_scripts/paint_ui_manager.gd")
 	if not paint_ui_script:
@@ -144,8 +146,9 @@ func setup_paint_ui():
 	# Create the UI instance
 	paint_ui = paint_ui_script.new()
 	paint_ui.name = "PaintUI"
-	
-	# Add to scene tree
+	paint_ui.visible = true
+
+	# Add to scene tree (persists across scene changes since we manage visibility)
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child.call_deferred(paint_ui)
 		print("Paint UI created successfully!")
@@ -468,11 +471,11 @@ func set_paint(paint_type: PaintType):
 		switch_paint(paint_type)
 
 func cleanup():
-	"""Clean up resources when player is no longer valid"""
+	"""Called when player is no longer valid - hide UI and reset state"""
+	# Hide UI rather than destroy it, so it can be shown again on re-registration
 	if paint_ui and is_instance_valid(paint_ui):
-		paint_ui.queue_free()
-	
-	paint_ui = null
+		paint_ui.visible = false
+
 	player = null
 	is_initialized = false
-	print("PaintManager: Cleaned up resources")
+	print("PaintManager: Player unregistered - UI hidden")
