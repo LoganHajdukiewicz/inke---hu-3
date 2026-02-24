@@ -1,0 +1,19 @@
+{
+  "dialogue": [
+	{
+	  "speaker": "S-1GN",
+	  "text": "Oh that floor looks super cold and slippery!!",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "And under it looks like lava. ",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "I don't understand the weather here.",
+	  "portrait": "S-1GN-uwu"
+	}
+  ]
+}

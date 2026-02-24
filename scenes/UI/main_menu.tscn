@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://1ig8y86te4l8" path="res://scripts/UI/main_menu.gd" id="1_qwnig"]
 [ext_resource type="PackedScene" uid="uid://cp3b1eyikepf0" path="res://scenes/levels/battle_arena.tscn" id="2_5jstl"]
-[ext_resource type="PackedScene" uid="uid://dqvjp1oslocn4" path="res://test/movement_demo_active_development.tscn" id="3_tfcbk"]
+[ext_resource type="PackedScene" uid="uid://jjyrde5gow0w" path="res://test/movement_demo_02_24_2026.tscn" id="3_tfcbk"]
 [ext_resource type="Texture2D" uid="uid://bcnprxj65kvtq" path="res://assets/UI/Main Menu Picture.png" id="4_tfcbk"]
 
 [node name="MainMenu" type="Control" unique_id=895467260]

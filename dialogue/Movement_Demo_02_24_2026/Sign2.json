@@ -1,0 +1,29 @@
+{
+  "dialogue": [
+	{
+	  "speaker": "S-1GN",
+	  "text": "WOW! WAIT!",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Before you is a CHASM!!! ",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "WHATEVER YOU DO MAKE SURE TO PRESS X TO SURVIVE. AND MAKE SURE TO GET A RUNNING HEAD START!",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "(,,>﹏<,,)",
+	  "portrait": "S-1GN-anxious"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "But you're so smart I bet you already knew that. ",
+	  "portrait": "S-1GN-uwu"
+	}
+  ]
+}

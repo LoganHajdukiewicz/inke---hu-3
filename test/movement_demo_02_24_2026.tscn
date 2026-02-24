@@ -1,18 +1,18 @@
-[gd_scene format=3 uid="uid://dqvjp1oslocn4"]
+[gd_scene format=3 uid="uid://jjyrde5gow0w"]
 
-[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_y1o73"]
-[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="3_3w4o3"]
-[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="5_0t3uf"]
-[ext_resource type="PackedScene" uid="uid://dyx5autvv3t1e" path="res://scenes/environments/dialogue_trigger.tscn" id="5_4w42i"]
-[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="6_07svi"]
-[ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="6_l503h"]
-[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="6_v0x7v"]
-[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="8_qyni3"]
-[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="9_y1o73"]
-[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="10_py3vs"]
-[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="10_uylq5"]
-[ext_resource type="PackedScene" uid="uid://bfg2o2wtbkhpj" path="res://scenes/environments/scene_transitioner.tscn" id="11_0t3uf"]
-[ext_resource type="PackedScene" uid="uid://cu7ok4tvrfhg5" path="res://scenes/UI/dialogue_ui.tscn" id="11_3w4o3"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_afaow"]
+[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="2_438eq"]
+[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="3_exege"]
+[ext_resource type="PackedScene" uid="uid://cu7ok4tvrfhg5" path="res://scenes/UI/dialogue_ui.tscn" id="4_qdea4"]
+[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="5_25ear"]
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="6_11yqd"]
+[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="7_ch5mm"]
+[ext_resource type="PackedScene" uid="uid://dyx5autvv3t1e" path="res://scenes/environments/dialogue_trigger.tscn" id="8_rtagd"]
+[ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="9_n1mrh"]
+[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="10_21ip3"]
+[ext_resource type="PackedScene" uid="uid://bfg2o2wtbkhpj" path="res://scenes/environments/scene_transitioner.tscn" id="11_c51mo"]
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="12_o3aab"]
+[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="13_qts2m"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
@@ -137,35 +137,35 @@ point_count = 10
 
 [node name="Movement_Demo_Active_Development" type="Node3D" unique_id=1332278585]
 
-[node name="Inke" parent="." unique_id=726886399 instance=ExtResource("1_y1o73")]
+[node name="Inke" parent="." unique_id=726886399 instance=ExtResource("1_afaow")]
 
-[node name="Merchant" parent="." unique_id=484471078 instance=ExtResource("3_3w4o3")]
+[node name="Merchant" parent="." unique_id=484471078 instance=ExtResource("2_438eq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8438473, 56.04232, -581.3526)
 available_upgrades = Array[int]([0, 1, 4])
 
 [node name="Checkpoints" type="Node" parent="." unique_id=747803184]
 
-[node name="Checkpoint1" parent="Checkpoints" unique_id=1762583334 instance=ExtResource("9_y1o73")]
+[node name="Checkpoint1" parent="Checkpoints" unique_id=1762583334 instance=ExtResource("3_exege")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.042130113, 0, 0.03278637)
 checkpoint_id = "checkpoint 1"
 
-[node name="Checkpoint2" parent="Checkpoints" unique_id=919102919 instance=ExtResource("9_y1o73")]
+[node name="Checkpoint2" parent="Checkpoints" unique_id=919102919 instance=ExtResource("3_exege")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 1, -147)
 checkpoint_id = "checkpoint 2"
 
-[node name="Checkpoint3" parent="Checkpoints" unique_id=511528279 instance=ExtResource("9_y1o73")]
+[node name="Checkpoint3" parent="Checkpoints" unique_id=511528279 instance=ExtResource("3_exege")]
 transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, 0.07594323, 30.857079, -469.81067)
 checkpoint_id = "checkpoint 3"
 
-[node name="Checkpoint4" parent="Checkpoints" unique_id=311339033 instance=ExtResource("9_y1o73")]
+[node name="Checkpoint4" parent="Checkpoints" unique_id=311339033 instance=ExtResource("3_exege")]
 transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, 0, 76.5, -658)
 checkpoint_id = "checkpoint 4"
 
-[node name="Checkpoint5" parent="Checkpoints" unique_id=1268518294 instance=ExtResource("9_y1o73")]
+[node name="Checkpoint5" parent="Checkpoints" unique_id=1268518294 instance=ExtResource("3_exege")]
 transform = Transform3D(30, 0, 0, 0, 30, 0, 0, 0, 30, 0, 75.36966, -919.2215)
 checkpoint_id = "checkpoint 5"
 
-[node name="Checkpoint6" parent="Checkpoints" unique_id=1570012012 instance=ExtResource("9_y1o73")]
+[node name="Checkpoint6" parent="Checkpoints" unique_id=1570012012 instance=ExtResource("3_exege")]
 transform = Transform3D(100, 0, 0, 0, 100, 0, 0, 0, 100, 0, 50, -1550)
 checkpoint_id = "checkpoint 6"
 
@@ -178,44 +178,44 @@ environment = SubResource("Environment_16sj7")
 transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
 light_color = Color(1, 1, 0.211765, 1)
 
-[node name="DialogueUI" parent="Environments and DialogueUI" unique_id=554888634 instance=ExtResource("11_3w4o3")]
+[node name="DialogueUI" parent="Environments and DialogueUI" unique_id=554888634 instance=ExtResource("4_qdea4")]
 
-[node name="Rail" parent="Environments and DialogueUI" unique_id=276686664 instance=ExtResource("8_qyni3")]
+[node name="Rail" parent="Environments and DialogueUI" unique_id=276686664 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.306, -154)
 curve = SubResource("Curve3D_0t3uf")
 
 [node name="Floors" type="Node" parent="." unique_id=309590724]
 
-[node name="Floor" parent="Floors" unique_id=977876403 instance=ExtResource("5_0t3uf")]
+[node name="Floor" parent="Floors" unique_id=977876403 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -21.135)
 floor_size = Vector3(20, 0.5, 50)
 frozen_enable_visual_effects = false
 
-[node name="Floor2" parent="Floors" unique_id=68630590 instance=ExtResource("5_0t3uf")]
+[node name="Floor2" parent="Floors" unique_id=68630590 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -68)
 floor_size = Vector3(20, 0.5, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor3" parent="Floors" unique_id=404208303 instance=ExtResource("5_0t3uf")]
+[node name="Floor3" parent="Floors" unique_id=404208303 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -92)
 floor_size = Vector3(20, 0.5, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor9" parent="Floors" unique_id=1258845798 instance=ExtResource("5_0t3uf")]
+[node name="Floor9" parent="Floors" unique_id=1258845798 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -145)
 floor_size = Vector3(20, 0.5, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor10" parent="Floors" unique_id=1294814309 instance=ExtResource("5_0t3uf")]
+[node name="Floor10" parent="Floors" unique_id=1294814309 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -321)
 floor_size = Vector3(20, 0.5, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor14" parent="Floors" unique_id=875631048 instance=ExtResource("5_0t3uf")]
+[node name="Floor14" parent="Floors" unique_id=875631048 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 29.75, -405)
 floor_type = 4
 floor_size = Vector3(20, 0.5, 20)
@@ -224,21 +224,21 @@ movement_duration = 4.5
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor15" parent="Floors" unique_id=1524001222 instance=ExtResource("5_0t3uf")]
+[node name="Floor15" parent="Floors" unique_id=1524001222 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -470)
 floor_size = Vector3(20, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor16" parent="Floors" unique_id=1223044977 instance=ExtResource("5_0t3uf")]
+[node name="Floor16" parent="Floors" unique_id=1223044977 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 30, -535)
 floor_size = Vector3(20, 50, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor17" parent="Floors" unique_id=304780205 instance=ExtResource("5_0t3uf")]
+[node name="Floor17" parent="Floors" unique_id=304780205 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 55, -560)
 floor_type = 2
 floor_size = Vector3(20, 0.5, 20)
@@ -246,70 +246,70 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor18" parent="Floors" unique_id=1019403646 instance=ExtResource("5_0t3uf")]
+[node name="Floor18" parent="Floors" unique_id=1019403646 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 55, -580)
 floor_size = Vector3(20, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor19" parent="Floors" unique_id=1419914008 instance=ExtResource("5_0t3uf")]
+[node name="Floor19" parent="Floors" unique_id=1419914008 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 55, -620)
 floor_size = Vector3(20, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor20" parent="Floors" unique_id=235493379 instance=ExtResource("5_0t3uf")]
+[node name="Floor20" parent="Floors" unique_id=235493379 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 55, -640)
 floor_size = Vector3(20, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor24" parent="Floors" unique_id=1926738276 instance=ExtResource("5_0t3uf")]
+[node name="Floor24" parent="Floors" unique_id=1926738276 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 65.25, -650)
 floor_size = Vector3(20, 20, 2)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor47" parent="Floors" unique_id=1812103919 instance=ExtResource("5_0t3uf")]
+[node name="Floor47" parent="Floors" unique_id=1812103919 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 65.25, -631)
 floor_size = Vector3(5, 20, 2)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor48" parent="Floors" unique_id=76427118 instance=ExtResource("5_0t3uf")]
+[node name="Floor48" parent="Floors" unique_id=76427118 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 65.25, -631)
 floor_size = Vector3(5, 20, 2)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor23" parent="Floors" unique_id=1469929702 instance=ExtResource("5_0t3uf")]
+[node name="Floor23" parent="Floors" unique_id=1469929702 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -660)
 floor_size = Vector3(20, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor45" parent="Floors" unique_id=1314040944 instance=ExtResource("5_0t3uf")]
+[node name="Floor45" parent="Floors" unique_id=1314040944 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 75, -640)
 floor_size = Vector3(5, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor46" parent="Floors" unique_id=880849176 instance=ExtResource("5_0t3uf")]
+[node name="Floor46" parent="Floors" unique_id=880849176 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5, 75, -640)
 floor_size = Vector3(5, 0.5, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor25" parent="Floors" unique_id=806978082 instance=ExtResource("5_0t3uf")]
+[node name="Floor25" parent="Floors" unique_id=806978082 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -685)
 floor_shape = 1
 floor_size = Vector3(20, 0.5, 20)
@@ -317,7 +317,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor26" parent="Floors" unique_id=1733155490 instance=ExtResource("5_0t3uf")]
+[node name="Floor26" parent="Floors" unique_id=1733155490 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -705)
 floor_shape = 1
 floor_size = Vector3(20, 0.5, 20)
@@ -325,7 +325,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor27" parent="Floors" unique_id=2126910342 instance=ExtResource("5_0t3uf")]
+[node name="Floor27" parent="Floors" unique_id=2126910342 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -720)
 floor_type = 3
 floor_shape = 1
@@ -334,7 +334,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor28" parent="Floors" unique_id=965924656 instance=ExtResource("5_0t3uf")]
+[node name="Floor28" parent="Floors" unique_id=965924656 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -730)
 floor_type = 3
 floor_shape = 1
@@ -344,7 +344,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor29" parent="Floors" unique_id=1393754972 instance=ExtResource("5_0t3uf")]
+[node name="Floor29" parent="Floors" unique_id=1393754972 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -740)
 floor_type = 3
 floor_shape = 1
@@ -355,7 +355,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor30" parent="Floors" unique_id=1636091451 instance=ExtResource("5_0t3uf")]
+[node name="Floor30" parent="Floors" unique_id=1636091451 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -750)
 floor_shape = 1
 floor_size = Vector3(20, 0.5, 20)
@@ -365,7 +365,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor31" parent="Floors" unique_id=1313726443 instance=ExtResource("5_0t3uf")]
+[node name="Floor31" parent="Floors" unique_id=1313726443 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -775)
 floor_size = Vector3(20, 0.5, 20)
 spin_speed = 120.0
@@ -374,7 +374,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor33" parent="Floors" unique_id=1247459361 instance=ExtResource("5_0t3uf")]
+[node name="Floor33" parent="Floors" unique_id=1247459361 instance=ExtResource("6_11yqd")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 75.01, -775)
 floor_type = 3
 floor_shape = 1
@@ -385,7 +385,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor32" parent="Floors" unique_id=1652974112 instance=ExtResource("5_0t3uf")]
+[node name="Floor32" parent="Floors" unique_id=1652974112 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -795)
 floor_size = Vector3(20, 0.5, 20)
 spin_speed = 120.0
@@ -394,7 +394,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor35" parent="Floors" unique_id=565679530 instance=ExtResource("5_0t3uf")]
+[node name="Floor35" parent="Floors" unique_id=565679530 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -815)
 floor_size = Vector3(20, 0.5, 20)
 spin_speed = 120.0
@@ -403,7 +403,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor38" parent="Floors" unique_id=1785442328 instance=ExtResource("5_0t3uf")]
+[node name="Floor38" parent="Floors" unique_id=1785442328 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 74, -835)
 floor_type = 5
 floor_size = Vector3(20, 0.5, 20)
@@ -413,7 +413,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor39" parent="Floors" unique_id=1290362460 instance=ExtResource("5_0t3uf")]
+[node name="Floor39" parent="Floors" unique_id=1290362460 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 74, -855)
 floor_type = 5
 floor_size = Vector3(20, 0.5, 20)
@@ -423,7 +423,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor40" parent="Floors" unique_id=76759069 instance=ExtResource("5_0t3uf")]
+[node name="Floor40" parent="Floors" unique_id=76759069 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 74, -875)
 floor_type = 5
 floor_size = Vector3(20, 0.5, 20)
@@ -433,7 +433,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor42" parent="Floors" unique_id=923327990 instance=ExtResource("5_0t3uf")]
+[node name="Floor42" parent="Floors" unique_id=923327990 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -895)
 floor_size = Vector3(20, 0.5, 20)
 spin_speed = 120.0
@@ -442,7 +442,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor49" parent="Floors" unique_id=353807015 instance=ExtResource("5_0t3uf")]
+[node name="Floor49" parent="Floors" unique_id=353807015 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -920)
 floor_size = Vector3(20, 0.5, 20)
 spin_speed = 120.0
@@ -451,7 +451,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor50" parent="Floors" unique_id=1474636207 instance=ExtResource("5_0t3uf")]
+[node name="Floor50" parent="Floors" unique_id=1474636207 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 75, -960)
 floor_type = 2
 floor_size = Vector3(10, 0.5, 60)
@@ -462,7 +462,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor51" parent="Floors" unique_id=1276989244 instance=ExtResource("5_0t3uf")]
+[node name="Floor51" parent="Floors" unique_id=1276989244 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 75, -1020)
 floor_type = 2
 floor_size = Vector3(10, 0.5, 60)
@@ -473,7 +473,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor52" parent="Floors" unique_id=1199760114 instance=ExtResource("5_0t3uf")]
+[node name="Floor52" parent="Floors" unique_id=1199760114 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 75, -1080)
 floor_type = 2
 floor_size = Vector3(10, 0.5, 60)
@@ -484,7 +484,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor53" parent="Floors" unique_id=1148957192 instance=ExtResource("5_0t3uf")]
+[node name="Floor53" parent="Floors" unique_id=1148957192 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.9, 0, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 75, -1140)
 floor_type = 2
 floor_size = Vector3(10, 0.5, 60)
@@ -495,7 +495,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor54" parent="Floors" unique_id=427694778 instance=ExtResource("5_0t3uf")]
+[node name="Floor54" parent="Floors" unique_id=427694778 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -1215)
 floor_size = Vector3(60, 0.5, 60)
 spin_speed = 120.0
@@ -504,7 +504,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor55" parent="Floors" unique_id=1950394710 instance=ExtResource("5_0t3uf")]
+[node name="Floor55" parent="Floors" unique_id=1950394710 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 50, -1550)
 floor_size = Vector3(60, 0.5, 60)
 spin_speed = 120.0
@@ -513,7 +513,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor56" parent="Floors" unique_id=213414068 instance=ExtResource("5_0t3uf")]
+[node name="Floor56" parent="Floors" unique_id=213414068 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 50, -1610)
 floor_type = 1
 floor_size = Vector3(60, 0.5, 60)
@@ -524,7 +524,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor57" parent="Floors" unique_id=1025755466 instance=ExtResource("5_0t3uf")]
+[node name="Floor57" parent="Floors" unique_id=1025755466 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 50, -1660)
 floor_type = 1
 floor_size = Vector3(60, 0.5, 60)
@@ -535,7 +535,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor58" parent="Floors" unique_id=1212367227 instance=ExtResource("5_0t3uf")]
+[node name="Floor58" parent="Floors" unique_id=1212367227 instance=ExtResource("6_11yqd")]
 transform = Transform3D(0.5, 0, 0, 0, 0.4711574, 0.167364, 0, -0.167364, 0.4711574, 0, 50, -1710)
 floor_type = 1
 floor_size = Vector3(60, 0.5, 60)
@@ -546,7 +546,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor64" parent="Floors" unique_id=793940923 instance=ExtResource("5_0t3uf")]
+[node name="Floor64" parent="Floors" unique_id=793940923 instance=ExtResource("6_11yqd")]
 transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, 10, -2058.599)
 floor_type = 5
 floor_size = Vector3(60, 0.5, 60)
@@ -557,7 +557,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor65" parent="Floors" unique_id=1105657574 instance=ExtResource("5_0t3uf")]
+[node name="Floor65" parent="Floors" unique_id=1105657574 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2500)
 floor_size = Vector3(60, 0.5, 60)
 spring_force = 30.0
@@ -567,7 +567,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor66" parent="Floors" unique_id=343424183 instance=ExtResource("5_0t3uf")]
+[node name="Floor66" parent="Floors" unique_id=343424183 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2600)
 floor_size = Vector3(100, 0.5, 100)
 spring_force = 30.0
@@ -577,7 +577,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor73" parent="Floors" unique_id=491423184 instance=ExtResource("5_0t3uf")]
+[node name="Floor73" parent="Floors" unique_id=491423184 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2700)
 floor_size = Vector3(30, 0.5, 100)
 spring_force = 30.0
@@ -587,7 +587,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor74" parent="Floors" unique_id=570652389 instance=ExtResource("5_0t3uf")]
+[node name="Floor74" parent="Floors" unique_id=570652389 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2800)
 floor_size = Vector3(30, 0.5, 100)
 spring_force = 30.0
@@ -597,7 +597,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor75" parent="Floors" unique_id=1180059027 instance=ExtResource("5_0t3uf")]
+[node name="Floor75" parent="Floors" unique_id=1180059027 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2900)
 floor_size = Vector3(100, 0.5, 100)
 spring_force = 30.0
@@ -607,7 +607,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor69" parent="Floors" unique_id=416070267 instance=ExtResource("5_0t3uf")]
+[node name="Floor69" parent="Floors" unique_id=416070267 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.5, 25, -2652.5)
 floor_size = Vector3(45, 30, 5)
 spring_force = 30.0
@@ -617,7 +617,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor70" parent="Floors" unique_id=2137991648 instance=ExtResource("5_0t3uf")]
+[node name="Floor70" parent="Floors" unique_id=2137991648 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.5, 25, -2652.5)
 floor_size = Vector3(45, 30, 5)
 spring_force = 30.0
@@ -627,7 +627,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor71" parent="Floors" unique_id=1612195402 instance=ExtResource("5_0t3uf")]
+[node name="Floor71" parent="Floors" unique_id=1612195402 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.5, 25, -2547.25)
 floor_size = Vector3(45, 30, 5)
 spring_force = 30.0
@@ -637,7 +637,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor72" parent="Floors" unique_id=481268456 instance=ExtResource("5_0t3uf")]
+[node name="Floor72" parent="Floors" unique_id=481268456 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.5, 25, -2547.25)
 floor_size = Vector3(45, 30, 5)
 spring_force = 30.0
@@ -647,7 +647,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor76" parent="Floors" unique_id=1278295434 instance=ExtResource("5_0t3uf")]
+[node name="Floor76" parent="Floors" unique_id=1278295434 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32.5, -2652.5)
 floor_size = Vector3(100, 15, 5)
 spring_force = 30.0
@@ -657,7 +657,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor77" parent="Floors" unique_id=473265500 instance=ExtResource("5_0t3uf")]
+[node name="Floor77" parent="Floors" unique_id=473265500 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32.5, -2547.5)
 floor_size = Vector3(100, 15, 5)
 spring_force = 30.0
@@ -667,7 +667,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor67" parent="Floors" unique_id=1617184144 instance=ExtResource("5_0t3uf")]
+[node name="Floor67" parent="Floors" unique_id=1617184144 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.5, 25, -2600)
 floor_size = Vector3(5, 30, 100)
 spring_force = 30.0
@@ -677,7 +677,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor68" parent="Floors" unique_id=1106182242 instance=ExtResource("5_0t3uf")]
+[node name="Floor68" parent="Floors" unique_id=1106182242 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52.5, 25, -2600)
 floor_size = Vector3(5, 30, 100)
 spring_force = 30.0
@@ -687,7 +687,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor61" parent="Floors" unique_id=1176780240 instance=ExtResource("5_0t3uf")]
+[node name="Floor61" parent="Floors" unique_id=1176780240 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 79, -1830)
 floor_size = Vector3(10, 100, 80)
 spring_force = 30.0
@@ -697,7 +697,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor62" parent="Floors" unique_id=1324105187 instance=ExtResource("5_0t3uf")]
+[node name="Floor62" parent="Floors" unique_id=1324105187 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 80, -1820)
 floor_size = Vector3(3, 100, 100)
 spring_force = 30.0
@@ -707,7 +707,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor63" parent="Floors" unique_id=2049482458 instance=ExtResource("5_0t3uf")]
+[node name="Floor63" parent="Floors" unique_id=2049482458 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 80, -1820)
 floor_size = Vector3(3, 100, 100)
 spring_force = 30.0
@@ -717,7 +717,7 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor36" parent="Floors" unique_id=801536604 instance=ExtResource("5_0t3uf")]
+[node name="Floor36" parent="Floors" unique_id=801536604 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -835)
 floor_type = 6
 floor_size = Vector3(10, 0.5, 20)
@@ -725,7 +725,7 @@ spin_speed = 120.0
 spin_direction = 1
 movement_axis = Vector3(0, 0, -40)
 
-[node name="Floor37" parent="Floors" unique_id=452031924 instance=ExtResource("5_0t3uf")]
+[node name="Floor37" parent="Floors" unique_id=452031924 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -855)
 floor_type = 6
 floor_size = Vector3(5, 0.5, 20)
@@ -733,7 +733,7 @@ spin_speed = 120.0
 spin_direction = 1
 movement_axis = Vector3(0, 0, -40)
 
-[node name="Floor41" parent="Floors" unique_id=1746828129 instance=ExtResource("5_0t3uf")]
+[node name="Floor41" parent="Floors" unique_id=1746828129 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 75, -875)
 floor_type = 6
 floor_size = Vector3(2, 0.5, 20)
@@ -741,7 +741,7 @@ spin_speed = 120.0
 spin_direction = 1
 movement_axis = Vector3(0, 0, -40)
 
-[node name="Floor34" parent="Floors" unique_id=418421769 instance=ExtResource("5_0t3uf")]
+[node name="Floor34" parent="Floors" unique_id=418421769 instance=ExtResource("6_11yqd")]
 transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 75.01, -795)
 floor_type = 3
 floor_shape = 1
@@ -751,47 +751,47 @@ movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor21" parent="Floors" unique_id=1223693837 instance=ExtResource("5_0t3uf")]
+[node name="Floor21" parent="Floors" unique_id=1223693837 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 65.25, -640)
 floor_size = Vector3(2, 20, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor43" parent="Floors" unique_id=1437229743 instance=ExtResource("5_0t3uf")]
+[node name="Floor43" parent="Floors" unique_id=1437229743 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.75, 67.5, -640)
 floor_size = Vector3(2, 25, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor44" parent="Floors" unique_id=517438449 instance=ExtResource("5_0t3uf")]
+[node name="Floor44" parent="Floors" unique_id=517438449 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.75, 67.5, -640)
 floor_size = Vector3(2, 25, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor22" parent="Floors" unique_id=1946766934 instance=ExtResource("5_0t3uf")]
+[node name="Floor22" parent="Floors" unique_id=1946766934 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 65.25, -640)
 floor_size = Vector3(2, 20, 20)
 movement_axis = Vector3(0, 0, -40)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor12" parent="Floors" unique_id=1204567574 instance=ExtResource("5_0t3uf")]
+[node name="Floor12" parent="Floors" unique_id=1204567574 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -365)
 floor_size = Vector3(20, 40, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor13" parent="Floors" unique_id=180262945 instance=ExtResource("5_0t3uf")]
+[node name="Floor13" parent="Floors" unique_id=180262945 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, -385)
 floor_size = Vector3(20, 50, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor11" parent="Floors" unique_id=728896212 instance=ExtResource("5_0t3uf")]
+[node name="Floor11" parent="Floors" unique_id=728896212 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -345)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
@@ -799,31 +799,31 @@ spring_force = 40.0
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor8" parent="Floors" unique_id=666514647 instance=ExtResource("5_0t3uf")]
+[node name="Floor8" parent="Floors" unique_id=666514647 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -120)
 floor_size = Vector3(20, 0.5, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor6" parent="Floors" unique_id=1796857783 instance=ExtResource("5_0t3uf")]
+[node name="Floor6" parent="Floors" unique_id=1796857783 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -102.22938)
 floor_size = Vector3(20, 2, 0.5)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor7" parent="Floors" unique_id=1703281622 instance=ExtResource("5_0t3uf")]
+[node name="Floor7" parent="Floors" unique_id=1703281622 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -81.73901)
 floor_size = Vector3(20, 2, 0.5)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor4" parent="Floors" unique_id=742031576 instance=ExtResource("5_0t3uf")]
+[node name="Floor4" parent="Floors" unique_id=742031576 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.22043, 0, -92)
 floor_size = Vector3(0.5, 2, 20)
 frozen_friction = 0.05
 frozen_enable_visual_effects = false
 
-[node name="Floor5" parent="Floors" unique_id=1209839366 instance=ExtResource("5_0t3uf")]
+[node name="Floor5" parent="Floors" unique_id=1209839366 instance=ExtResource("6_11yqd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.182289, 0, -92)
 floor_size = Vector3(0.5, 2, 20)
 frozen_friction = 0.05
@@ -831,384 +831,384 @@ frozen_enable_visual_effects = false
 
 [node name="Dialogue Triggers" type="Node" parent="." unique_id=726206168]
 
-[node name="Sign1" parent="Dialogue Triggers" unique_id=1333488699 instance=ExtResource("6_07svi")]
+[node name="Sign1" parent="Dialogue Triggers" unique_id=1333488699 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.8973751, 4.7683716e-07, -1.693975)
 script = null
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign1" unique_id=1568396047 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign1" unique_id=1568396047 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@18785" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1534645061]
+[node name="@CollisionShape3D@21416" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1109720240]
 shape = SubResource("BoxShape3D_07svi")
 
-[node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("6_07svi")]
+[node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -44.381172)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign2" unique_id=88414386 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign2" unique_id=88414386 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18786" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=2112570542]
+[node name="@CollisionShape3D@21417" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1426475326]
 shape = SubResource("BoxShape3D_1d5ko")
 
-[node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("6_07svi")]
+[node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -63.380905)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign3" unique_id=1468946614 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign3" unique_id=1468946614 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18787" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=1915258452]
+[node name="@CollisionShape3D@21418" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=970485235]
 shape = SubResource("BoxShape3D_icac4")
 
-[node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("6_07svi")]
+[node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -118.94741)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign3_5" unique_id=1783987990 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign3_5" unique_id=1783987990 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign3_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18788" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1861408410]
+[node name="@CollisionShape3D@21419" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1639384982]
 shape = SubResource("BoxShape3D_gdr2d")
 
-[node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("6_07svi")]
+[node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -151.4925)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign4" unique_id=711555142 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign4" unique_id=711555142 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign4"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18789" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=1638650082]
+[node name="@CollisionShape3D@21420" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=151382194]
 shape = SubResource("BoxShape3D_txrxq")
 
-[node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("6_07svi")]
+[node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -328.7592)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign5" unique_id=879658690 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign5" unique_id=879658690 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18790" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=645718398]
+[node name="@CollisionShape3D@21421" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=73395779]
 shape = SubResource("BoxShape3D_va7sb")
 
-[node name="Sign5_5" parent="Dialogue Triggers" unique_id=1096489912 instance=ExtResource("6_07svi")]
+[node name="Sign5_5" parent="Dialogue Triggers" unique_id=1096489912 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.5, 25, -373.288)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign5_5" unique_id=94758757 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign5_5" unique_id=94758757 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign5_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@18791" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=60152826]
+[node name="@CollisionShape3D@21422" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=391295924]
 shape = SubResource("BoxShape3D_4mfs1")
 
-[node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("6_07svi")]
+[node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 30.127289, -479.05234)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign6" unique_id=1601585871 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign6" unique_id=1601585871 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign6"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18792" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=276442678]
+[node name="@CollisionShape3D@21423" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=452485792]
 shape = SubResource("BoxShape3D_qrayo")
 
-[node name="Sign7" parent="Dialogue Triggers" unique_id=1404823017 instance=ExtResource("6_07svi")]
+[node name="Sign7" parent="Dialogue Triggers" unique_id=1404823017 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -536.41797)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign7" unique_id=1692025759 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign7" unique_id=1692025759 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign7"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18793" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=77015459]
+[node name="@CollisionShape3D@21424" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=542566306]
 shape = SubResource("BoxShape3D_8cjm4")
 
-[node name="DialogueTrigger2" parent="Dialogue Triggers/Sign7" unique_id=88354356 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger2" parent="Dialogue Triggers/Sign7" unique_id=88354356 instance=ExtResource("8_rtagd")]
 transform = Transform3D(-8.742278e-08, 4.3711392e-08, -1, -1, 4.371139e-08, 8.742278e-08, 4.3711392e-08, 1, 4.371139e-08, 11.876282, 0.76537704, 4.6172566)
 dialogue_file = "worldTrigger2"
 trigger_type = 1
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18794" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=107079916]
+[node name="@CollisionShape3D@21425" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1679761378]
 shape = SubResource("WorldBoundaryShape3D_jd4qd")
 
-[node name="Sign8" parent="Dialogue Triggers" unique_id=1347666954 instance=ExtResource("6_07svi")]
+[node name="Sign8" parent="Dialogue Triggers" unique_id=1347666954 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -574.0247)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign8" unique_id=2123454319 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign8" unique_id=2123454319 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign8"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18795" type="CollisionShape3D" parent="Dialogue Triggers/Sign8/DialogueTrigger" unique_id=1857711759]
+[node name="@CollisionShape3D@21426" type="CollisionShape3D" parent="Dialogue Triggers/Sign8/DialogueTrigger" unique_id=1598955126]
 shape = SubResource("BoxShape3D_773q5")
 
-[node name="Sign9" parent="Dialogue Triggers" unique_id=124815936 instance=ExtResource("6_07svi")]
+[node name="Sign9" parent="Dialogue Triggers" unique_id=124815936 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -625.54584)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign9" unique_id=1511637085 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign9" unique_id=1511637085 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign9"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18796" type="CollisionShape3D" parent="Dialogue Triggers/Sign9/DialogueTrigger" unique_id=1835428256]
+[node name="@CollisionShape3D@21427" type="CollisionShape3D" parent="Dialogue Triggers/Sign9/DialogueTrigger" unique_id=1953709860]
 shape = SubResource("BoxShape3D_nygr8")
 
-[node name="Sign10" parent="Dialogue Triggers" unique_id=634036317 instance=ExtResource("6_07svi")]
+[node name="Sign10" parent="Dialogue Triggers" unique_id=634036317 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 75.131584, -819.7884)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign10" unique_id=343201913 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign10" unique_id=343201913 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign10"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18797" type="CollisionShape3D" parent="Dialogue Triggers/Sign10/DialogueTrigger" unique_id=438921058]
+[node name="@CollisionShape3D@21428" type="CollisionShape3D" parent="Dialogue Triggers/Sign10/DialogueTrigger" unique_id=1896884475]
 shape = SubResource("BoxShape3D_gx2om")
 
-[node name="Sign11" parent="Dialogue Triggers" unique_id=205162809 instance=ExtResource("6_07svi")]
+[node name="Sign11" parent="Dialogue Triggers" unique_id=205162809 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 75.131584, -926.188)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign11" unique_id=1431048083 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign11" unique_id=1431048083 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign11"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18798" type="CollisionShape3D" parent="Dialogue Triggers/Sign11/DialogueTrigger" unique_id=1314328767]
+[node name="@CollisionShape3D@21429" type="CollisionShape3D" parent="Dialogue Triggers/Sign11/DialogueTrigger" unique_id=1235981212]
 shape = SubResource("BoxShape3D_v808e")
 
-[node name="Sign12" parent="Dialogue Triggers" unique_id=1632496677 instance=ExtResource("6_07svi")]
+[node name="Sign12" parent="Dialogue Triggers" unique_id=1632496677 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -12.611821, 75.131584, -1237.1674)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign12" unique_id=1974339706 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign12" unique_id=1974339706 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign12"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18799" type="CollisionShape3D" parent="Dialogue Triggers/Sign12/DialogueTrigger" unique_id=1238333888]
+[node name="@CollisionShape3D@21430" type="CollisionShape3D" parent="Dialogue Triggers/Sign12/DialogueTrigger" unique_id=1767361963]
 shape = SubResource("BoxShape3D_7yrn7")
 
-[node name="Sign13" parent="Dialogue Triggers" unique_id=756118867 instance=ExtResource("6_07svi")]
+[node name="Sign13" parent="Dialogue Triggers" unique_id=756118867 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -12.612, 10, -2488.08)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign13" unique_id=1646195080 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign13" unique_id=1646195080 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign13"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18800" type="CollisionShape3D" parent="Dialogue Triggers/Sign13/DialogueTrigger" unique_id=476122808]
+[node name="@CollisionShape3D@21431" type="CollisionShape3D" parent="Dialogue Triggers/Sign13/DialogueTrigger" unique_id=1813688224]
 shape = SubResource("BoxShape3D_wgnq6")
 
-[node name="Sign14" parent="Dialogue Triggers" unique_id=1127176149 instance=ExtResource("6_07svi")]
+[node name="Sign14" parent="Dialogue Triggers" unique_id=1127176149 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.6797152, 10, -2896.6868)
 
-[node name="DialogueTrigger" parent="Dialogue Triggers/Sign14" unique_id=1447262248 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers/Sign14" unique_id=1447262248 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign14"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@18801" type="CollisionShape3D" parent="Dialogue Triggers/Sign14/DialogueTrigger" unique_id=358452062]
+[node name="@CollisionShape3D@21432" type="CollisionShape3D" parent="Dialogue Triggers/Sign14/DialogueTrigger" unique_id=1511098920]
 shape = SubResource("BoxShape3D_hg1bc")
 
-[node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("5_4w42i")]
+[node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@18802" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=2017163257]
+[node name="@CollisionShape3D@21433" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1576884616]
 shape = SubResource("WorldBoundaryShape3D_2ycxs")
 
 [node name="Items" type="Node" parent="." unique_id=1097220712]
 
-[node name="Box" parent="Items" unique_id=1779844061 instance=ExtResource("6_l503h")]
+[node name="Box" parent="Items" unique_id=1779844061 instance=ExtResource("9_n1mrh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15877914, 0.5, -119.86501)
 
-[node name="Box2" parent="Items" unique_id=146449104 instance=ExtResource("6_l503h")]
+[node name="Box2" parent="Items" unique_id=146449104 instance=ExtResource("9_n1mrh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1639953, 0.5, -119.86501)
 
-[node name="Box3" parent="Items" unique_id=532161517 instance=ExtResource("6_l503h")]
+[node name="Box3" parent="Items" unique_id=532161517 instance=ExtResource("9_n1mrh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45913506, 1.5712571, -119.86501)
 
-[node name="CRED" parent="Items" unique_id=82336661 instance=ExtResource("10_uylq5")]
+[node name="CRED" parent="Items" unique_id=82336661 instance=ExtResource("10_21ip3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2900)
 
-[node name="SceneTransitioner" parent="Items" unique_id=1169437906 instance=ExtResource("11_0t3uf")]
+[node name="SceneTransitioner" parent="Items" unique_id=1169437906 instance=ExtResource("11_c51mo")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -2900)
 target_scene = "uid://bs0v2hxubr288"
 
 [node name="Enemies" type="Node" parent="." unique_id=1924263695]
 
-[node name="Enemy" parent="Enemies" unique_id=1436873857 instance=ExtResource("6_v0x7v")]
+[node name="Enemy" parent="Enemies" unique_id=1436873857 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84948015, 0.019714236, -91.703186)
 
-[node name="Enemy2" parent="Enemies" unique_id=1492288736 instance=ExtResource("6_v0x7v")]
+[node name="Enemy2" parent="Enemies" unique_id=1492288736 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7246895, 10.019714, -2615.4702)
 
-[node name="Enemy3" parent="Enemies" unique_id=907788561 instance=ExtResource("6_v0x7v")]
+[node name="Enemy3" parent="Enemies" unique_id=907788561 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.191805, 10.019714, -2624.9822)
 
-[node name="Enemy4" parent="Enemies" unique_id=1361827331 instance=ExtResource("6_v0x7v")]
+[node name="Enemy4" parent="Enemies" unique_id=1361827331 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.985224, 10.019714, -2616.7827)
 
-[node name="Enemy5" parent="Enemies" unique_id=1140595780 instance=ExtResource("6_v0x7v")]
+[node name="Enemy5" parent="Enemies" unique_id=1140595780 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.488862, 10.019714, -2625.8875)
 
-[node name="Enemy6" parent="Enemies" unique_id=1695302315 instance=ExtResource("6_v0x7v")]
+[node name="Enemy6" parent="Enemies" unique_id=1695302315 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.379456, 10.019714, -2616.8838)
 
-[node name="Enemy7" parent="Enemies" unique_id=188969436 instance=ExtResource("6_v0x7v")]
+[node name="Enemy7" parent="Enemies" unique_id=188969436 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8655567, 10.019714, -2623.99)
 
-[node name="Enemy8" parent="Enemies" unique_id=1485105027 instance=ExtResource("6_v0x7v")]
+[node name="Enemy8" parent="Enemies" unique_id=1485105027 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.527347, 10.019714, -2621.6113)
 
-[node name="Enemy9" parent="Enemies" unique_id=1579369830 instance=ExtResource("6_v0x7v")]
+[node name="Enemy9" parent="Enemies" unique_id=1579369830 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.423835, 10.019714, -2621.896)
 
-[node name="Enemy10" parent="Enemies" unique_id=119115366 instance=ExtResource("6_v0x7v")]
+[node name="Enemy10" parent="Enemies" unique_id=119115366 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.02378, 10.019714, -2624.3484)
 
-[node name="Enemy11" parent="Enemies" unique_id=1344790085 instance=ExtResource("6_v0x7v")]
+[node name="Enemy11" parent="Enemies" unique_id=1344790085 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.012974, 10.019714, -2614.524)
 
-[node name="Enemy12" parent="Enemies" unique_id=632301813 instance=ExtResource("6_v0x7v")]
+[node name="Enemy12" parent="Enemies" unique_id=632301813 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0647697, 10.019714, -2618.2358)
 
-[node name="Enemy13" parent="Enemies" unique_id=12948485 instance=ExtResource("6_v0x7v")]
+[node name="Enemy13" parent="Enemies" unique_id=12948485 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.448816, 10.019714, -2619.3503)
 
-[node name="Enemy14" parent="Enemies" unique_id=2035631298 instance=ExtResource("6_v0x7v")]
+[node name="Enemy14" parent="Enemies" unique_id=2035631298 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.300415, 10.019714, -2614.9648)
 
-[node name="Enemy15" parent="Enemies" unique_id=1293900208 instance=ExtResource("6_v0x7v")]
+[node name="Enemy15" parent="Enemies" unique_id=1293900208 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8534622, 10.019714, -2620.8264)
 
-[node name="Enemy16" parent="Enemies" unique_id=1434885725 instance=ExtResource("6_v0x7v")]
+[node name="Enemy16" parent="Enemies" unique_id=1434885725 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.288187, 10.019714, -2624.537)
 
-[node name="Enemy17" parent="Enemies" unique_id=200710531 instance=ExtResource("6_v0x7v")]
+[node name="Enemy17" parent="Enemies" unique_id=200710531 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.7732315, 10.019714, -2617.956)
 
-[node name="Enemy18" parent="Enemies" unique_id=1574112346 instance=ExtResource("6_v0x7v")]
+[node name="Enemy18" parent="Enemies" unique_id=1574112346 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.906929, 10.019714, -2623.402)
 
-[node name="Enemy19" parent="Enemies" unique_id=658363408 instance=ExtResource("6_v0x7v")]
+[node name="Enemy19" parent="Enemies" unique_id=658363408 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8935165, 10.019714, -2617.696)
 
-[node name="Enemy20" parent="Enemies" unique_id=1727195703 instance=ExtResource("6_v0x7v")]
+[node name="Enemy20" parent="Enemies" unique_id=1727195703 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.399849, 10.019714, -2619.5515)
 
-[node name="Enemy21" parent="Enemies" unique_id=1190305988 instance=ExtResource("6_v0x7v")]
+[node name="Enemy21" parent="Enemies" unique_id=1190305988 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.381056, 10.019714, -2622.4036)
 
-[node name="Enemy22" parent="Enemies" unique_id=1865449529 instance=ExtResource("6_v0x7v")]
+[node name="Enemy22" parent="Enemies" unique_id=1865449529 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.296128, 10.019714, -2612.1248)
 
-[node name="Enemy23" parent="Enemies" unique_id=1930659858 instance=ExtResource("6_v0x7v")]
+[node name="Enemy23" parent="Enemies" unique_id=1930659858 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.484198, 10.019714, -2615.4702)
 
-[node name="Enemy24" parent="Enemies" unique_id=853192372 instance=ExtResource("6_v0x7v")]
+[node name="Enemy24" parent="Enemies" unique_id=853192372 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.951313, 10.019714, -2624.9822)
 
-[node name="Enemy25" parent="Enemies" unique_id=455000303 instance=ExtResource("6_v0x7v")]
+[node name="Enemy25" parent="Enemies" unique_id=455000303 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.74473, 10.019714, -2616.7827)
 
-[node name="Enemy26" parent="Enemies" unique_id=944408867 instance=ExtResource("6_v0x7v")]
+[node name="Enemy26" parent="Enemies" unique_id=944408867 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.248371, 10.019714, -2625.8875)
 
-[node name="Enemy27" parent="Enemies" unique_id=1417241510 instance=ExtResource("6_v0x7v")]
+[node name="Enemy27" parent="Enemies" unique_id=1417241510 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.13896, 10.019714, -2616.8838)
 
-[node name="Enemy28" parent="Enemies" unique_id=130445400 instance=ExtResource("6_v0x7v")]
+[node name="Enemy28" parent="Enemies" unique_id=130445400 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.286854, 10.019714, -2621.6113)
 
-[node name="Enemy29" parent="Enemies" unique_id=1480290084 instance=ExtResource("6_v0x7v")]
+[node name="Enemy29" parent="Enemies" unique_id=1480290084 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.183342, 10.019714, -2621.896)
 
-[node name="Enemy30" parent="Enemies" unique_id=2005437712 instance=ExtResource("6_v0x7v")]
+[node name="Enemy30" parent="Enemies" unique_id=2005437712 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.783287, 10.019714, -2624.3484)
 
-[node name="Enemy31" parent="Enemies" unique_id=866958096 instance=ExtResource("6_v0x7v")]
+[node name="Enemy31" parent="Enemies" unique_id=866958096 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.772482, 10.019714, -2614.524)
 
-[node name="Enemy32" parent="Enemies" unique_id=695732178 instance=ExtResource("6_v0x7v")]
+[node name="Enemy32" parent="Enemies" unique_id=695732178 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.824278, 10.019714, -2618.2358)
 
-[node name="Enemy33" parent="Enemies" unique_id=1801075084 instance=ExtResource("6_v0x7v")]
+[node name="Enemy33" parent="Enemies" unique_id=1801075084 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.208324, 10.019714, -2619.3503)
 
-[node name="Enemy34" parent="Enemies" unique_id=7135899 instance=ExtResource("6_v0x7v")]
+[node name="Enemy34" parent="Enemies" unique_id=7135899 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34.05992, 10.019714, -2614.9648)
 
-[node name="Enemy35" parent="Enemies" unique_id=501363222 instance=ExtResource("6_v0x7v")]
+[node name="Enemy35" parent="Enemies" unique_id=501363222 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.61297, 10.019714, -2620.8264)
 
-[node name="Enemy36" parent="Enemies" unique_id=1012083769 instance=ExtResource("6_v0x7v")]
+[node name="Enemy36" parent="Enemies" unique_id=1012083769 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.047695, 10.019714, -2624.537)
 
-[node name="Enemy37" parent="Enemies" unique_id=1213762114 instance=ExtResource("6_v0x7v")]
+[node name="Enemy37" parent="Enemies" unique_id=1213762114 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.53274, 10.019714, -2617.956)
 
-[node name="Enemy38" parent="Enemies" unique_id=1980846651 instance=ExtResource("6_v0x7v")]
+[node name="Enemy38" parent="Enemies" unique_id=1980846651 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25.666437, 10.019714, -2623.402)
 
-[node name="Enemy39" parent="Enemies" unique_id=1805578024 instance=ExtResource("6_v0x7v")]
+[node name="Enemy39" parent="Enemies" unique_id=1805578024 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.653025, 10.019714, -2617.696)
 
-[node name="Enemy40" parent="Enemies" unique_id=971967586 instance=ExtResource("6_v0x7v")]
+[node name="Enemy40" parent="Enemies" unique_id=971967586 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.159357, 10.019714, -2619.5515)
 
-[node name="Enemy41" parent="Enemies" unique_id=1493637949 instance=ExtResource("6_v0x7v")]
+[node name="Enemy41" parent="Enemies" unique_id=1493637949 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.140564, 10.019714, -2622.4036)
 
-[node name="Enemy42" parent="Enemies" unique_id=816660659 instance=ExtResource("6_v0x7v")]
+[node name="Enemy42" parent="Enemies" unique_id=816660659 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.055637, 10.019714, -2612.1248)
 
 [node name="Grapple Points" type="Node" parent="." unique_id=2056787001]
 
-[node name="GrapplePoint" parent="Grapple Points" unique_id=1808940236 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint" parent="Grapple Points" unique_id=1808940236 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 44, -500)
 
-[node name="GrapplePoint2" parent="Grapple Points" unique_id=1498334503 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint2" parent="Grapple Points" unique_id=1498334503 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 85, -1270)
 glow_color = Color(1, 0, 0, 1)
 
-[node name="GrapplePoint3" parent="Grapple Points" unique_id=185618592 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint3" parent="Grapple Points" unique_id=185618592 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100.2838, -1310)
 glow_color = Color(1, 0, 0, 1)
 
-[node name="GrapplePoint4" parent="Grapple Points" unique_id=820697050 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint4" parent="Grapple Points" unique_id=820697050 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 110.401596, -1350)
 glow_color = Color(1, 0, 0, 1)
 
-[node name="GrapplePoint5" parent="Grapple Points" unique_id=189980878 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint5" parent="Grapple Points" unique_id=189980878 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 110.401596, -1400)
 glow_color = Color(1, 0, 0, 1)
 
-[node name="GrapplePoint6" parent="Grapple Points" unique_id=362950174 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint6" parent="Grapple Points" unique_id=362950174 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 110.401596, -1450)
 glow_color = Color(1, 0, 0, 1)
 
-[node name="GrapplePoint7" parent="Grapple Points" unique_id=1274170147 instance=ExtResource("10_py3vs")]
+[node name="GrapplePoint7" parent="Grapple Points" unique_id=1274170147 instance=ExtResource("13_qts2m")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 35, -2474.7654)
 glow_color = Color(1, 0, 0, 1)
 
-[node name="Rail" parent="." unique_id=187344327 instance=ExtResource("8_qyni3")]
+[node name="Rail" parent="." unique_id=187344327 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 130.31953, -1872.7477)
 curve = SubResource("Curve3D_n4cqv")
 
-[node name="Rail2" parent="." unique_id=8521629 instance=ExtResource("8_qyni3")]
+[node name="Rail2" parent="." unique_id=8521629 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 120.43263, -1975.7482)
 curve = SubResource("Curve3D_ta1ay")
 
-[node name="Rail3" parent="." unique_id=1478241651 instance=ExtResource("8_qyni3")]
+[node name="Rail3" parent="." unique_id=1478241651 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 95.24155, -2088.0076)
 curve = SubResource("Curve3D_u23dy")
 
-[node name="Rail4" parent="." unique_id=609487061 instance=ExtResource("8_qyni3")]
+[node name="Rail4" parent="." unique_id=609487061 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 83.13751, -2233.228)
 curve = SubResource("Curve3D_oqkbh")
 
-[node name="Rail5" parent="." unique_id=360501854 instance=ExtResource("8_qyni3")]
+[node name="Rail5" parent="." unique_id=360501854 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 69.83793, -2338.0854)
 curve = SubResource("Curve3D_1wiwh")

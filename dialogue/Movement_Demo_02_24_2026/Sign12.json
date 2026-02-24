@@ -1,0 +1,19 @@
+{
+  "dialogue": [
+	{
+	  "speaker": "S-1GN",
+	  "text": "Wow-ee up ahead looks difficult.",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "You may want to take a break and save here. ",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Press up on your D pad then hit the spray (R1) button to add a checkpoint here. ",
+	  "portrait": "S-1GN-uwu"
+	}
+  ]
+}

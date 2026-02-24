@@ -1,0 +1,29 @@
+{
+  "dialogue": [
+	{
+	  "speaker": "S-1GN",
+	  "text": "Oh hey! Wow, you actually stopped to read me—how polite!",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Most people just barge right through like they're too good for heartfelt woodland signage.",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Press the left stick to move and O to Dash. Press R2 to run!",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "Move the right stick to move the camera. ",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
+	  "text": "But you're so smart I bet you already knew that. ",
+	  "portrait": "S-1GN-uwu"
+	}
+  ]
+}
