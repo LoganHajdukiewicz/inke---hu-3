@@ -136,7 +136,7 @@ func physics_update(delta: float):
 			change_to("DodgeDashState")
 			return
 
-	if Input.is_action_just_pressed("yoyo") and !player.is_on_floor():
+	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
 		return
 
