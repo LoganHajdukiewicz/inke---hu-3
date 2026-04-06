@@ -132,7 +132,7 @@ func setup_ui():
 	
 	# Interaction prompt (visible when near merchant)
 	interaction_label = Label.new()
-	interaction_label.text = "[SPACE] or [A] Talk to " + merchant_name
+	interaction_label.text = "[SPACE] or [X] Talk to " + merchant_name
 	interaction_label.add_theme_font_size_override("font_size", 24)
 	interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	interaction_label.position = Vector2(860, 900)
@@ -211,7 +211,7 @@ func setup_ui():
 	
 	# Controls hint
 	controls_hint_label = Label.new()
-	controls_hint_label.text = "[A] or [SPACE] Purchase  |  [B] or [X] Close"
+	controls_hint_label.text = "[X] or [SPACE] Purchase  |  [B] or [X] Close"
 	controls_hint_label.add_theme_font_size_override("font_size", 22)
 	controls_hint_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8))
 	controls_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -570,7 +570,7 @@ func update_selection():
 		status_label.add_theme_color_override("font_color", COLOR_PURCHASED)
 	elif can_afford:
 		upgrade_cost_label.add_theme_color_override("font_color", COLOR_AFFORDABLE)
-		status_label.text = "Press [A] or [SPACE] to Purchase"
+		status_label.text = "Press [X] or [SPACE] to Purchase"
 		status_label.add_theme_color_override("font_color", COLOR_AFFORDABLE)
 	else:
 		upgrade_cost_label.add_theme_color_override("font_color", COLOR_EXPENSIVE)

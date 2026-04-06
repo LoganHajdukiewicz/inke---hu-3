@@ -33,6 +33,10 @@ var hu3_companion: CharacterBody3D = null
 # HU-3 Companion Scene
 var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
 
+# Quit Input
+var f1_held_time: float = 0.0
+const F1_QUIT_DURATION: float = 1.0  # Hold for 1 second to quit
+
 # Signals
 signal gear_collected(total_gears: int)
 signal cred_collected(amount: int, total_cred: int)
@@ -48,6 +52,15 @@ func _ready():
 		hu3_companion = player.get_hu3_companion()
 	
 	apply_purchased_upgrades()
+
+func _process(delta: float) -> void:
+	# F1 hold-to-quit
+	if Input.is_action_pressed("quit_game"):
+		f1_held_time += delta
+		if f1_held_time >= F1_QUIT_DURATION:
+			get_tree().quit()
+	else:
+		f1_held_time = 0.0
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")

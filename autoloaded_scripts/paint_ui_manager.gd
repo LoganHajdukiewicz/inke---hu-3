@@ -91,6 +91,9 @@ func _set_gameplay_visible(visible: bool) -> void:
 
 func _evaluate_visibility() -> void:
 	"""Show the UI only when a Player node exists in the current scene."""
+	# Guard against null tree during scene transitions
+	if not get_tree():
+		return
 	var players = get_tree().get_nodes_in_group("Player")
 	var has_player = players.size() > 0 and is_instance_valid(players[0])
 	_set_gameplay_visible(has_player)

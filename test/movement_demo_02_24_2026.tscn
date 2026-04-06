@@ -33,7 +33,7 @@ fog_sky_affect = 0.5
 fog_height = 10.0
 fog_height_density = 0.01
 
-[sub_resource type="Curve3D" id="Curve3D_0t3uf"]
+[sub_resource type="Curve3D" id="Curve3D_afaow"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 0.051644206, 0.04772061, -156.95462),
@@ -41,61 +41,61 @@ _data = {
 }
 point_count = 2
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_07svi"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_438eq"]
 size = Vector3(5, 5, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_1d5ko"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_exege"]
 size = Vector3(3, 1.25, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_icac4"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_qdea4"]
 size = Vector3(3, 1.25, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_gdr2d"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_25ear"]
 size = Vector3(3, 1.25, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_txrxq"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_11yqd"]
 size = Vector3(3, 1.25, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_va7sb"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_ch5mm"]
 size = Vector3(3, 1.25, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_4mfs1"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_rtagd"]
 size = Vector3(3, 1.25, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_qrayo"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_n1mrh"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_8cjm4"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_21ip3"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_jd4qd"]
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_c51mo"]
 plane = Plane(0, 0, 1, 0)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_773q5"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_o3aab"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_nygr8"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_qts2m"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_gx2om"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_s86fe"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_v808e"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_xwl70"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_7yrn7"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_x3a3r"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_wgnq6"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_dejnr"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_hg1bc"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_lppvd"]
 size = Vector3(2, 1.25, 2)
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_2ycxs"]
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_m6e8t"]
 plane = Plane(0, 0, 1, 0)
 
-[sub_resource type="Curve3D" id="Curve3D_n4cqv"]
+[sub_resource type="Curve3D" id="Curve3D_8a4a6"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.6928496, -14.145325, -65.10193, 0, 0, 0, 0, 0, 0, 1.4870296, -8.107712, -88.48889),
@@ -103,7 +103,7 @@ _data = {
 }
 point_count = 10
 
-[sub_resource type="Curve3D" id="Curve3D_ta1ay"]
+[sub_resource type="Curve3D" id="Curve3D_r6nx3"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.6928496, -14.145325, -65.10193, 0, 0, 0, 0, 0, 0, 1.4870296, -8.107712, -88.48889),
@@ -111,7 +111,7 @@ _data = {
 }
 point_count = 10
 
-[sub_resource type="Curve3D" id="Curve3D_u23dy"]
+[sub_resource type="Curve3D" id="Curve3D_wthy4"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.6928496, -14.145325, -65.10193, 0, 0, 0, 0, 0, 0, 1.4870296, -8.107712, -88.48889),
@@ -119,7 +119,7 @@ _data = {
 }
 point_count = 10
 
-[sub_resource type="Curve3D" id="Curve3D_oqkbh"]
+[sub_resource type="Curve3D" id="Curve3D_sppj5"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 36.38086, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.6928496, -14.145325, -65.10193, 0, 0, 0, 0, 0, 0, 1.4870296, -8.107712, -88.48889),
@@ -127,7 +127,7 @@ _data = {
 }
 point_count = 10
 
-[sub_resource type="Curve3D" id="Curve3D_1wiwh"]
+[sub_resource type="Curve3D" id="Curve3D_vl83r"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.070544004, -0.032806396, 0.08654785, 0, 0, 0, 0, 0, 0, 1.5984492, -2.3784943, -7.3675537, 0, 0, 0, 0, 0, 0, 4.4298325, -7.008415, -19.211182, 0, 0, 0, 0, 0, 0, 5.295253, -10.171837, -26.559448, 0, 0, 0, 0, 0, 0, 6.1135817, -13.125572, -33.503296, 0, 0, 0, 0, 0, 0, 5.2835464, -13.85865, -40.25537, 0, 0, 0, 0, 0, 0, 4.087261, -14.915199, -49.986816, 0, 0, 0, 0, 0, 0, 3.837017, -14.426727, -59.576904, 0, 0, 0, 0, 0, 0, 3.6928496, -14.145325, -65.10193, 0, 0, 0, 0, 0, 0, 1.4870296, -34.493576, -119.86987),
@@ -182,7 +182,7 @@ light_color = Color(1, 1, 0.211765, 1)
 
 [node name="Rail" parent="Environments and DialogueUI" unique_id=276686664 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.306, -154)
-curve = SubResource("Curve3D_0t3uf")
+curve = SubResource("Curve3D_afaow")
 
 [node name="Floors" type="Node" parent="." unique_id=309590724]
 
@@ -839,8 +839,8 @@ script = null
 dialogue_file = "Sign1"
 box_size = Vector3(5, 5, 5)
 
-[node name="@CollisionShape3D@21416" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1109720240]
-shape = SubResource("BoxShape3D_07svi")
+[node name="@CollisionShape3D@22474" type="CollisionShape3D" parent="Dialogue Triggers/Sign1/DialogueTrigger" unique_id=1462481452]
+shape = SubResource("BoxShape3D_438eq")
 
 [node name="Sign2" parent="Dialogue Triggers" unique_id=1120073632 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -44.381172)
@@ -849,8 +849,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign2"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@21417" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=1426475326]
-shape = SubResource("BoxShape3D_1d5ko")
+[node name="@CollisionShape3D@22475" type="CollisionShape3D" parent="Dialogue Triggers/Sign2/DialogueTrigger" unique_id=434018018]
+shape = SubResource("BoxShape3D_exege")
 
 [node name="Sign3" parent="Dialogue Triggers" unique_id=1892691243 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -63.380905)
@@ -859,8 +859,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@21418" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=970485235]
-shape = SubResource("BoxShape3D_icac4")
+[node name="@CollisionShape3D@22476" type="CollisionShape3D" parent="Dialogue Triggers/Sign3/DialogueTrigger" unique_id=1756003974]
+shape = SubResource("BoxShape3D_qdea4")
 
 [node name="Sign3_5" parent="Dialogue Triggers" unique_id=1137651857 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -118.94741)
@@ -869,8 +869,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign3_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@21419" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=1639384982]
-shape = SubResource("BoxShape3D_gdr2d")
+[node name="@CollisionShape3D@22477" type="CollisionShape3D" parent="Dialogue Triggers/Sign3_5/DialogueTrigger" unique_id=2003392947]
+shape = SubResource("BoxShape3D_25ear")
 
 [node name="Sign4" parent="Dialogue Triggers" unique_id=837872574 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -151.4925)
@@ -879,8 +879,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign4"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@21420" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=151382194]
-shape = SubResource("BoxShape3D_txrxq")
+[node name="@CollisionShape3D@22478" type="CollisionShape3D" parent="Dialogue Triggers/Sign4/DialogueTrigger" unique_id=2128746341]
+shape = SubResource("BoxShape3D_11yqd")
 
 [node name="Sign5" parent="Dialogue Triggers" unique_id=536490694 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349782, 4.7683716e-07, -328.7592)
@@ -889,8 +889,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.349
 dialogue_file = "Sign5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@21421" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=73395779]
-shape = SubResource("BoxShape3D_va7sb")
+[node name="@CollisionShape3D@22479" type="CollisionShape3D" parent="Dialogue Triggers/Sign5/DialogueTrigger" unique_id=1463525617]
+shape = SubResource("BoxShape3D_ch5mm")
 
 [node name="Sign5_5" parent="Dialogue Triggers" unique_id=1096489912 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.5, 25, -373.288)
@@ -899,8 +899,8 @@ transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5.5, 
 dialogue_file = "Sign5_5"
 box_size = Vector3(3, 1.25, 5)
 
-[node name="@CollisionShape3D@21422" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=391295924]
-shape = SubResource("BoxShape3D_4mfs1")
+[node name="@CollisionShape3D@22480" type="CollisionShape3D" parent="Dialogue Triggers/Sign5_5/DialogueTrigger" unique_id=1785445738]
+shape = SubResource("BoxShape3D_rtagd")
 
 [node name="Sign6" parent="Dialogue Triggers" unique_id=278487607 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 30.127289, -479.05234)
@@ -910,8 +910,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign6"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21423" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=452485792]
-shape = SubResource("BoxShape3D_qrayo")
+[node name="@CollisionShape3D@22481" type="CollisionShape3D" parent="Dialogue Triggers/Sign6/DialogueTrigger" unique_id=1048973742]
+shape = SubResource("BoxShape3D_n1mrh")
 
 [node name="Sign7" parent="Dialogue Triggers" unique_id=1404823017 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -536.41797)
@@ -921,8 +921,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign7"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21424" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=542566306]
-shape = SubResource("BoxShape3D_8cjm4")
+[node name="@CollisionShape3D@22482" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger" unique_id=9129713]
+shape = SubResource("BoxShape3D_21ip3")
 
 [node name="DialogueTrigger2" parent="Dialogue Triggers/Sign7" unique_id=88354356 instance=ExtResource("8_rtagd")]
 transform = Transform3D(-8.742278e-08, 4.3711392e-08, -1, -1, 4.371139e-08, 8.742278e-08, 4.3711392e-08, 1, 4.371139e-08, 11.876282, 0.76537704, 4.6172566)
@@ -930,8 +930,8 @@ dialogue_file = "worldTrigger2"
 trigger_type = 1
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21425" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=1679761378]
-shape = SubResource("WorldBoundaryShape3D_jd4qd")
+[node name="@CollisionShape3D@22483" type="CollisionShape3D" parent="Dialogue Triggers/Sign7/DialogueTrigger2" unique_id=902523418]
+shape = SubResource("WorldBoundaryShape3D_c51mo")
 
 [node name="Sign8" parent="Dialogue Triggers" unique_id=1347666954 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -574.0247)
@@ -941,8 +941,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign8"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21426" type="CollisionShape3D" parent="Dialogue Triggers/Sign8/DialogueTrigger" unique_id=1598955126]
-shape = SubResource("BoxShape3D_773q5")
+[node name="@CollisionShape3D@22484" type="CollisionShape3D" parent="Dialogue Triggers/Sign8/DialogueTrigger" unique_id=2059119051]
+shape = SubResource("BoxShape3D_o3aab")
 
 [node name="Sign9" parent="Dialogue Triggers" unique_id=124815936 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 54.848587, -625.54584)
@@ -952,8 +952,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign9"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21427" type="CollisionShape3D" parent="Dialogue Triggers/Sign9/DialogueTrigger" unique_id=1953709860]
-shape = SubResource("BoxShape3D_nygr8")
+[node name="@CollisionShape3D@22485" type="CollisionShape3D" parent="Dialogue Triggers/Sign9/DialogueTrigger" unique_id=754827486]
+shape = SubResource("BoxShape3D_qts2m")
 
 [node name="Sign10" parent="Dialogue Triggers" unique_id=634036317 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 75.131584, -819.7884)
@@ -963,8 +963,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign10"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21428" type="CollisionShape3D" parent="Dialogue Triggers/Sign10/DialogueTrigger" unique_id=1896884475]
-shape = SubResource("BoxShape3D_gx2om")
+[node name="@CollisionShape3D@22486" type="CollisionShape3D" parent="Dialogue Triggers/Sign10/DialogueTrigger" unique_id=1624468579]
+shape = SubResource("BoxShape3D_s86fe")
 
 [node name="Sign11" parent="Dialogue Triggers" unique_id=205162809 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -6.245578, 75.131584, -926.188)
@@ -974,8 +974,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign11"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21429" type="CollisionShape3D" parent="Dialogue Triggers/Sign11/DialogueTrigger" unique_id=1235981212]
-shape = SubResource("BoxShape3D_v808e")
+[node name="@CollisionShape3D@22487" type="CollisionShape3D" parent="Dialogue Triggers/Sign11/DialogueTrigger" unique_id=961943339]
+shape = SubResource("BoxShape3D_xwl70")
 
 [node name="Sign12" parent="Dialogue Triggers" unique_id=1632496677 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -12.611821, 75.131584, -1237.1674)
@@ -985,8 +985,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign12"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21430" type="CollisionShape3D" parent="Dialogue Triggers/Sign12/DialogueTrigger" unique_id=1767361963]
-shape = SubResource("BoxShape3D_7yrn7")
+[node name="@CollisionShape3D@22488" type="CollisionShape3D" parent="Dialogue Triggers/Sign12/DialogueTrigger" unique_id=1237695768]
+shape = SubResource("BoxShape3D_x3a3r")
 
 [node name="Sign13" parent="Dialogue Triggers" unique_id=756118867 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -12.612, 10, -2488.08)
@@ -996,8 +996,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign13"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21431" type="CollisionShape3D" parent="Dialogue Triggers/Sign13/DialogueTrigger" unique_id=1813688224]
-shape = SubResource("BoxShape3D_wgnq6")
+[node name="@CollisionShape3D@22489" type="CollisionShape3D" parent="Dialogue Triggers/Sign13/DialogueTrigger" unique_id=1591636015]
+shape = SubResource("BoxShape3D_dejnr")
 
 [node name="Sign14" parent="Dialogue Triggers" unique_id=1127176149 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -3.6797152, 10, -2896.6868)
@@ -1007,16 +1007,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.76537704, 0)
 dialogue_file = "Sign14"
 box_size = Vector3(2, 1.25, 2)
 
-[node name="@CollisionShape3D@21432" type="CollisionShape3D" parent="Dialogue Triggers/Sign14/DialogueTrigger" unique_id=1511098920]
-shape = SubResource("BoxShape3D_hg1bc")
+[node name="@CollisionShape3D@22490" type="CollisionShape3D" parent="Dialogue Triggers/Sign14/DialogueTrigger" unique_id=27512933]
+shape = SubResource("BoxShape3D_lppvd")
 
 [node name="DialogueTrigger" parent="Dialogue Triggers" unique_id=456286084 instance=ExtResource("8_rtagd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9939098, 0, -47.162487)
 dialogue_file = "worldTrigger1"
 trigger_type = 1
 
-[node name="@CollisionShape3D@21433" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1576884616]
-shape = SubResource("WorldBoundaryShape3D_2ycxs")
+[node name="@CollisionShape3D@22491" type="CollisionShape3D" parent="Dialogue Triggers/DialogueTrigger" unique_id=1859730258]
+shape = SubResource("WorldBoundaryShape3D_m6e8t")
 
 [node name="Items" type="Node" parent="." unique_id=1097220712]
 
@@ -1041,128 +1041,50 @@ target_scene = "uid://bs0v2hxubr288"
 [node name="Enemy" parent="Enemies" unique_id=1436873857 instance=ExtResource("12_o3aab")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.84948015, 0.019714236, -91.703186)
 
-[node name="Enemy2" parent="Enemies" unique_id=1492288736 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7246895, 10.019714, -2615.4702)
-
-[node name="Enemy3" parent="Enemies" unique_id=907788561 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.191805, 10.019714, -2624.9822)
-
-[node name="Enemy4" parent="Enemies" unique_id=1361827331 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.985224, 10.019714, -2616.7827)
-
-[node name="Enemy5" parent="Enemies" unique_id=1140595780 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.488862, 10.019714, -2625.8875)
-
-[node name="Enemy6" parent="Enemies" unique_id=1695302315 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.379456, 10.019714, -2616.8838)
-
-[node name="Enemy7" parent="Enemies" unique_id=188969436 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8655567, 10.019714, -2623.99)
-
-[node name="Enemy8" parent="Enemies" unique_id=1485105027 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.527347, 10.019714, -2621.6113)
-
-[node name="Enemy9" parent="Enemies" unique_id=1579369830 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.423835, 10.019714, -2621.896)
-
-[node name="Enemy10" parent="Enemies" unique_id=119115366 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.02378, 10.019714, -2624.3484)
-
-[node name="Enemy11" parent="Enemies" unique_id=1344790085 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.012974, 10.019714, -2614.524)
-
-[node name="Enemy12" parent="Enemies" unique_id=632301813 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.0647697, 10.019714, -2618.2358)
-
-[node name="Enemy13" parent="Enemies" unique_id=12948485 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.448816, 10.019714, -2619.3503)
-
-[node name="Enemy14" parent="Enemies" unique_id=2035631298 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.300415, 10.019714, -2614.9648)
-
-[node name="Enemy15" parent="Enemies" unique_id=1293900208 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.8534622, 10.019714, -2620.8264)
-
-[node name="Enemy16" parent="Enemies" unique_id=1434885725 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.288187, 10.019714, -2624.537)
-
-[node name="Enemy17" parent="Enemies" unique_id=200710531 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.7732315, 10.019714, -2617.956)
-
-[node name="Enemy18" parent="Enemies" unique_id=1574112346 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.906929, 10.019714, -2623.402)
-
-[node name="Enemy19" parent="Enemies" unique_id=658363408 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.8935165, 10.019714, -2617.696)
-
-[node name="Enemy20" parent="Enemies" unique_id=1727195703 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.399849, 10.019714, -2619.5515)
-
-[node name="Enemy21" parent="Enemies" unique_id=1190305988 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.381056, 10.019714, -2622.4036)
-
-[node name="Enemy22" parent="Enemies" unique_id=1865449529 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.296128, 10.019714, -2612.1248)
-
 [node name="Enemy23" parent="Enemies" unique_id=1930659858 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.484198, 10.019714, -2615.4702)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.1189995, 10.019714, -2615.4702)
 
 [node name="Enemy24" parent="Enemies" unique_id=853192372 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.951313, 10.019714, -2624.9822)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.348116, 10.019714, -2624.9822)
 
 [node name="Enemy25" parent="Enemies" unique_id=455000303 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.74473, 10.019714, -2616.7827)
-
-[node name="Enemy26" parent="Enemies" unique_id=944408867 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.248371, 10.019714, -2625.8875)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1415348, 10.019714, -2616.7827)
 
 [node name="Enemy27" parent="Enemies" unique_id=1417241510 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -39.13896, 10.019714, -2616.8838)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.5357647, 10.019714, -2616.8838)
 
 [node name="Enemy28" parent="Enemies" unique_id=130445400 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.286854, 10.019714, -2621.6113)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.3163433, 10.019714, -2621.6113)
 
 [node name="Enemy29" parent="Enemies" unique_id=1480290084 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.183342, 10.019714, -2621.896)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5801449, 10.019714, -2621.896)
 
 [node name="Enemy30" parent="Enemies" unique_id=2005437712 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.783287, 10.019714, -2624.3484)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18009, 10.019714, -2624.3484)
 
 [node name="Enemy31" parent="Enemies" unique_id=866958096 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.772482, 10.019714, -2614.524)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8307152, 10.019714, -2614.524)
 
 [node name="Enemy32" parent="Enemies" unique_id=695732178 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.824278, 10.019714, -2618.2358)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.778919, 10.019714, -2618.2358)
 
 [node name="Enemy33" parent="Enemies" unique_id=1801075084 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.208324, 10.019714, -2619.3503)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6051273, 10.019714, -2619.3503)
 
 [node name="Enemy34" parent="Enemies" unique_id=7135899 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34.05992, 10.019714, -2614.9648)
-
-[node name="Enemy35" parent="Enemies" unique_id=501363222 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.61297, 10.019714, -2620.8264)
-
-[node name="Enemy36" parent="Enemies" unique_id=1012083769 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.047695, 10.019714, -2624.537)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4567242, 10.019714, -2614.9648)
 
 [node name="Enemy37" parent="Enemies" unique_id=1213762114 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.53274, 10.019714, -2617.956)
-
-[node name="Enemy38" parent="Enemies" unique_id=1980846651 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25.666437, 10.019714, -2623.402)
-
-[node name="Enemy39" parent="Enemies" unique_id=1805578024 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22.653025, 10.019714, -2617.696)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.0704575, 10.019714, -2617.956)
 
 [node name="Enemy40" parent="Enemies" unique_id=971967586 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.159357, 10.019714, -2619.5515)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.44384, 10.019714, -2619.5515)
 
 [node name="Enemy41" parent="Enemies" unique_id=1493637949 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.140564, 10.019714, -2622.4036)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.537367, 10.019714, -2622.4036)
 
 [node name="Enemy42" parent="Enemies" unique_id=816660659 instance=ExtResource("12_o3aab")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -32.055637, 10.019714, -2612.1248)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.54755974, 10.019714, -2612.1248)
 
 [node name="Grapple Points" type="Node" parent="." unique_id=2056787001]
 
@@ -1195,20 +1117,20 @@ glow_color = Color(1, 0, 0, 1)
 
 [node name="Rail" parent="." unique_id=187344327 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 130.31953, -1872.7477)
-curve = SubResource("Curve3D_n4cqv")
+curve = SubResource("Curve3D_8a4a6")
 
 [node name="Rail2" parent="." unique_id=8521629 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 120.43263, -1975.7482)
-curve = SubResource("Curve3D_ta1ay")
+curve = SubResource("Curve3D_r6nx3")
 
 [node name="Rail3" parent="." unique_id=1478241651 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 95.24155, -2088.0076)
-curve = SubResource("Curve3D_u23dy")
+curve = SubResource("Curve3D_wthy4")
 
 [node name="Rail4" parent="." unique_id=609487061 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 83.13751, -2233.228)
-curve = SubResource("Curve3D_oqkbh")
+curve = SubResource("Curve3D_sppj5")
 
 [node name="Rail5" parent="." unique_id=360501854 instance=ExtResource("5_25ear")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 69.83793, -2338.0854)
-curve = SubResource("Curve3D_1wiwh")
+curve = SubResource("Curve3D_vl83r")
