@@ -17,6 +17,11 @@
 	},
 	{
 	  "speaker": "S-1GN",
+	  "text": "Or if you don't have a controller, you can use WASD to move and Shift to run. And C to dash (but it is highly recommended to use a controller for this game)",
+	  "portrait": "S-1GN-uwu"
+	},
+	{
+	  "speaker": "S-1GN",
 	  "text": "Move the right stick to move the camera. ",
 	  "portrait": "S-1GN-uwu"
 	},
