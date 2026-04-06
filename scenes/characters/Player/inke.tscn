@@ -13,7 +13,7 @@
 [ext_resource type="Script" uid="uid://ca1ianwc3dqij" path="res://scripts/characters/Player/StateMachine/double_jump_state.gd" id="10_v87o4"]
 [ext_resource type="Script" uid="uid://1sd3orje0xq8" path="res://scripts/characters/Player/StateMachine/sliding_state.gd" id="11_xnk82"]
 [ext_resource type="Script" uid="uid://cnh2eyma6qxwk" path="res://scripts/characters/Player/StateMachine/dodge_dash_state.gd" id="12_43ywd"]
-[ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/grapple_hook_state.gd" id="13_2xw1s"]
+[ext_resource type="Script" uid="uid://ciwurlmtwa4wm" path="res://scripts/characters/Player/StateMachine/grapple_hook_state.gd" id="13_2xw1s"]
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/ledge_hanging_state.gd" id="14_2xw1s"]
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/wall_sliding_state.gd" id="15_8tjjk"]
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/spin_attack_state.gd" id="16_1168t"]
