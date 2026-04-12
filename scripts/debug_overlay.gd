@@ -1251,9 +1251,6 @@ func _update_right() -> void:
 		txt += _row("Gear spd",     C_DIM + "%.2f u/s" % gear_spd + C_RESET)
 		var is_grinding := last_state_name == "RailGrindingState"
 		txt += _row("Speed mult",   (C_WARN + "2.0x  (grind!)" if is_grinding else C_DIM + "1.0x") + C_RESET)
-		txt += "\n"
-		txt += _header("◆ HU-3 DISTANCE  [close=green  far=red]")
-		txt += _ascii_graph_hu3(hu3_distance_history, 15.0, 4)
 	else:
 		txt += C_DANGER + "  HU-3 not in scene\n" + C_RESET
 	txt += "\n"
@@ -1429,6 +1426,54 @@ func _mini_bar_row(label: String, pct: float) -> String:
 	var col := C_GOOD if pct > 0.5 else (C_WARN if pct > 0.2 else C_DANGER)
 	var bar := C_DIM + "[" + C_RESET + col + "█".repeat(filled) + C_RESET + C_DIM + "░".repeat(W - filled) + "]" + C_RESET
 	return _row(label, bar)
+
+# ── NEW: HU-3 specific distance bar (green=close, red=far) ───
+func _hu3_dist_bar(dist: float, max_dist: float) -> String:
+	var pct := clampf(dist / max_dist, 0.0, 1.0)
+	const W := 18
+	var filled := int(pct * W)
+	# Inverted: more filled = farther = more red
+	var col := C_GOOD if pct < 0.3 else (C_WARN if pct < 0.65 else C_DANGER)
+	var bar := C_DIM + "[" + C_RESET + col + "█".repeat(filled) + C_RESET + C_DIM + "░".repeat(W - filled) + "]" + C_RESET
+	return _row("Dist bar", bar)
+
+# ── NEW: Responsiveness score based on current state ─────────
+func _responsiveness_score(csn: String) -> float:
+	match csn:
+		"IdleState":     return 95.0
+		"WalkingState":  return 90.0
+		"RunningState":  return 85.0
+		"JumpingState":
+			if state_machine and state_machine.get("current_state") != null:
+				var dm: bool = _prop(state_machine.current_state, "used_dash_momentum", false)
+				return 40.0 if dm else 55.0
+			return 55.0
+		"FallingState":  return 50.0
+		"DoubleJumpState": return 20.0
+		"DodgeDashState": return 5.0
+		"WallJumpingState":
+			var wt: float = 0.0
+			var ml: float = 0.35
+			var tl: float = 0.5
+			if state_machine and state_machine.get("current_state") != null:
+				wt = _prop(state_machine.current_state, "wall_jump_timer", 0.0)
+				ml = _prop(state_machine.current_state, "momentum_lock_duration", 0.35)
+				tl = _prop(state_machine.current_state, "total_lock_time", 0.5)
+			if wt < ml:   return 0.0
+			elif wt < tl: return 15.0
+			else:         return 65.0
+		"WallSlidingState": return 60.0
+		"RailGrindingState": return 30.0
+		"GrappleHookState":  return 25.0
+		"SlidingState":      return 35.0
+		"SpinAttackState":
+			return 70.0 if player.is_on_floor() else 80.0
+		"LedgeHangingState":
+			if state_machine and state_machine.get("current_state") != null:
+				var climbing: bool = _prop(state_machine.current_state, "is_climbing", false)
+				return 5.0 if climbing else 55.0
+			return 55.0
+		_: return 50.0
 
 func _speed_char(pct: float) -> String:
 	if pct > 0.85: return C_DANGER + "█" + C_RESET
