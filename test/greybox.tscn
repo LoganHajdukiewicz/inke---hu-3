@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_v8rb7"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_84upl"]
+[ext_resource type="Script" uid="uid://dyc6h37gq8v3p" path="res://scripts/debug_overlay.gd" id="3_sdd4f"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -54,3 +55,4 @@ debug_health_upgrade = true
 debug_damage_upgrade = true
 
 [node name="DebugOverlay" type="CanvasLayer" parent="." unique_id=100000001]
+script = ExtResource("3_sdd4f")

@@ -234,11 +234,11 @@ func _update_left_column(delta: float) -> void:
 	txt += "\n"
 
 	txt += _header("◆ PHYSICS VARS")
-	txt += _row("Gravity",      C_VAL + "%.4f" % _get(player, "gravity", 9.8) + C_RESET)
-	txt += _row("Grav default", C_DIM + "%.4f" % _get(player, "gravity_default", 9.8) + C_RESET)
-	txt += _row("On ice",       _bool(_get(player, "is_on_ice", false)))
-	txt += _row("Being sprung", _bool(_get(player, "is_being_sprung", false)))
-	txt += _row("Controls off", _bool(_get(player, "controls_disabled", false)))
+	txt += _row("Gravity",      C_VAL + "%.4f" % (_prop(player, "gravity", 9.8) as float) + C_RESET)
+	txt += _row("Grav default", C_DIM + "%.4f" % (_prop(player, "gravity_default", 9.8) as float) + C_RESET)
+	txt += _row("On ice",       _bool(_prop(player, "is_on_ice", false) as bool))
+	txt += _row("Being sprung", _bool(_prop(player, "is_being_sprung", false) as bool))
+	txt += _row("Controls off", _bool(_prop(player, "controls_disabled", false) as bool))
 
 	label_left.text = txt
 
@@ -262,25 +262,25 @@ func _update_right_column() -> void:
 	txt += "\n"
 
 	txt += _header("◆ COYOTE TIME")
-	var coyote     := _get(player, "coyote_time_counter", 0.0)
-	var coyote_dur := _get(player, "coyote_time_duration", 0.15)
-	var c_pct      := coyote / coyote_dur if coyote_dur > 0 else 0.0
+	var coyote: float     = _prop(player, "coyote_time_counter", 0.0)
+	var coyote_dur: float = _prop(player, "coyote_time_duration", 0.15)
+	var c_pct: float      = coyote / coyote_dur if coyote_dur > 0 else 0.0
 	txt += _row("Counter",    (C_GOOD if coyote > 0.05 else C_DANGER) + "%.3f s" % coyote + C_RESET)
 	txt += _row("Duration",   C_DIM + "%.3f s" % coyote_dur + C_RESET)
 	txt += _mini_bar_row("Bar", c_pct)
-	txt += _row("Ignore jump", _bool(_get(player, "ignore_next_jump", false)))
+	txt += _row("Ignore jump", _bool(_prop(player, "ignore_next_jump", false) as bool))
 	txt += "\n"
 
 	txt += _header("◆ RUNTIME ABILITIES")
-	var has_dj  := _get(player, "can_double_jump",   false)
-	var used_dj := _get(player, "has_double_jumped",  false)
-	var has_ad  := _get(player, "can_air_dash",      false)
-	var used_ad := _get(player, "has_air_dashed",    false)
-	var can_lj  := _get(player, "can_long_jump",     false)
-	var lj_t    := _get(player, "long_jump_timer",   0.0)
-	var lj_w    := _get(player, "long_jump_window",  0.3)
-	var sdm_raw := _get(player, "stored_dash_momentum", null)
-	var sdm_len := sdm_raw.length() if sdm_raw is Vector3 else 0.0
+	var has_dj: bool  = _prop(player, "can_double_jump",   false)
+	var used_dj: bool = _prop(player, "has_double_jumped",  false)
+	var has_ad: bool  = _prop(player, "can_air_dash",      false)
+	var used_ad: bool = _prop(player, "has_air_dashed",    false)
+	var can_lj: bool  = _prop(player, "can_long_jump",     false)
+	var lj_t: float   = _prop(player, "long_jump_timer",   0.0)
+	var lj_w: float   = _prop(player, "long_jump_window",  0.3)
+	var sdm_raw: Variant = _prop(player, "stored_dash_momentum", null)
+	var sdm_len: float = (sdm_raw as Vector3).length() if sdm_raw is Vector3 else 0.0
 	txt += _row("DJ avail",     _bool(has_dj))
 	txt += _row("DJ used",      _bool(used_dj))
 	txt += _row("Air dash OK",  _bool(has_ad))
@@ -294,37 +294,37 @@ func _update_right_column() -> void:
 	txt += "\n"
 
 	txt += _header("◆ WALL JUMP")
-	var wj_cd := _get(player, "wall_jump_cooldown", 0.0)
+	var wj_cd: float = _prop(player, "wall_jump_cooldown", 0.0)
 	txt += _row("Cooldown", C_VAL + "%.3f s" % wj_cd + C_RESET)
 	txt += _row("Ready",    _bool(wj_cd <= 0.0 and not player.is_on_floor()))
 	txt += "\n"
 
 	txt += _header("◆ UPGRADES (GameManager)")
 	if game_manager:
-		txt += _row("Double jump", _bool(game_manager.get("double_jump_purchased")))
-		txt += _row("Wall jump",   _bool(game_manager.get("wall_jump_purchased")))
-		txt += _row("Dash",        _bool(game_manager.get("dash_purchased")))
-		txt += _row("Speed",       _bool(game_manager.get("speed_upgrade_purchased")))
-		txt += _row("Health+",     _bool(game_manager.get("health_upgrade_purchased")))
-		txt += _row("Damage+",     _bool(game_manager.get("damage_upgrade_purchased")))
+		txt += _row("Double jump", _bool(game_manager.get("double_jump_purchased") as bool))
+		txt += _row("Wall jump",   _bool(game_manager.get("wall_jump_purchased") as bool))
+		txt += _row("Dash",        _bool(game_manager.get("dash_purchased") as bool))
+		txt += _row("Speed",       _bool(game_manager.get("speed_upgrade_purchased") as bool))
+		txt += _row("Health+",     _bool(game_manager.get("health_upgrade_purchased") as bool))
+		txt += _row("Damage+",     _bool(game_manager.get("damage_upgrade_purchased") as bool))
 	else:
 		txt += C_DANGER + "  GameManager not found\n" + C_RESET
 	txt += "\n"
 
 	txt += _header("◆ DAMAGE STATE")
-	var health  := game_manager.get_player_health() if game_manager else 0
-	var max_hp  := game_manager.get_player_max_health() if game_manager else 3
-	var is_inv  := _get(player, "is_invulnerable", false)
-	var inv_t   := _get(player, "invulnerability_timer", 0.0)
-	var inv_d   := _get(player, "invulnerability_duration", 1.5)
-	var hp_col  := C_GOOD if health >= max_hp else (C_WARN if health > 1 else C_DANGER)
+	var health: int  = game_manager.get_player_health() if game_manager else 0
+	var max_hp: int  = game_manager.get_player_max_health() if game_manager else 3
+	var is_inv: bool = _prop(player, "is_invulnerable", false)
+	var inv_t: float = _prop(player, "invulnerability_timer", 0.0)
+	var inv_d: float = _prop(player, "invulnerability_duration", 1.5)
+	var hp_col       := C_GOOD if health >= max_hp else (C_WARN if health > 1 else C_DANGER)
 	txt += _row("Health",  hp_col + _heart_bar(health, max_hp) + " %d/%d" % [health, max_hp] + C_RESET)
-	txt += _row("Dead",    _bool(_get(player, "is_dead", false), true))
+	txt += _row("Dead",    _bool(_prop(player, "is_dead", false) as bool, true))
 	txt += _row("Invuln",  _bool(is_inv))
 	if is_inv:
 		txt += _row("Inv timer", C_WARN + "%.2f / %.2f s" % [inv_t, inv_d] + C_RESET)
 		txt += _mini_bar_row("Inv bar", inv_t / inv_d if inv_d > 0 else 0.0)
-	txt += _row("Flashing", _bool(_get(player, "should_flash", false)))
+	txt += _row("Flashing", _bool(_prop(player, "should_flash", false) as bool))
 	txt += "\n"
 
 	txt += _header("◆ ECONOMY")
@@ -335,11 +335,11 @@ func _update_right_column() -> void:
 
 	txt += _header("◆ PAINT SYSTEM")
 	if paint_manager:
-		var pa   := _get(paint_manager, "current_paint_amount", 0)
-		var pmax := _get(paint_manager, "max_paint_amount", 100)
-		var pname := paint_manager.get_current_paint_name() if paint_manager.has_method("get_current_paint_name") else "?"
-		var ppct := float(pa) / float(pmax) if pmax > 0 else 0.0
-		var pc   := C_GOOD if ppct > 0.5 else (C_WARN if ppct > 0.2 else C_DANGER)
+		var pa: int      = _prop(paint_manager, "current_paint_amount", 0)
+		var pmax: int    = _prop(paint_manager, "max_paint_amount", 100)
+		var pname: String = paint_manager.get_current_paint_name() if paint_manager.has_method("get_current_paint_name") else "?"
+		var ppct: float  = float(pa) / float(pmax) if pmax > 0 else 0.0
+		var pc           := C_GOOD if ppct > 0.5 else (C_WARN if ppct > 0.2 else C_DANGER)
 		txt += _row("Type",  C_VAL + pname + C_RESET)
 		txt += _row("Meter", pc + "%d / %d" % [pa, pmax] + C_RESET)
 		txt += _mini_bar_row("Bar", ppct)
@@ -349,10 +349,10 @@ func _update_right_column() -> void:
 
 	txt += _header("◆ CHECKPOINT")
 	if checkpoint_manager:
-		var has_cp := checkpoint_manager.has_active_checkpoint()
+		var has_cp: bool = checkpoint_manager.has_active_checkpoint()
 		txt += _row("Active", _bool(has_cp))
 		if has_cp:
-			var cp := checkpoint_manager.get_checkpoint_position()
+			var cp: Vector3 = checkpoint_manager.get_checkpoint_position()
 			txt += _row("Pos", C_DIM + "(%.1f, %.1f, %.1f)" % [cp.x, cp.y, cp.z] + C_RESET)
 	else:
 		txt += C_DIM + "  CheckpointManager not found\n" + C_RESET
@@ -362,7 +362,11 @@ func _update_right_column() -> void:
 # ═════════════════════════════════════════════════════════════
 #  FORMATTING HELPERS
 # ═════════════════════════════════════════════════════════════
-func _get(obj: Object, prop: String, fallback: Variant) -> Variant:
+
+# NOTE: Renamed from _get() to _prop() to avoid conflicting with
+# the built-in Object._get(StringName) method, which caused a
+# signature mismatch error and prevented the script from compiling.
+func _prop(obj: Object, prop: String, fallback: Variant) -> Variant:
 	if obj and obj.has_method("get"):
 		var v = obj.get(prop)
 		if v != null:
@@ -373,7 +377,7 @@ func _header(title: String) -> String:
 	return C_HEADER + "[b]" + title + "[/b]" + C_RESET + "\n"
 
 func _row(key: String, value: String) -> String:
-	var pad  := max(0, 14 - key.length())
+	var pad  : int = max(0, 14 - key.length())
 	var dots := C_DIM + ".".repeat(pad) + C_RESET
 	return C_KEY + "  " + key + C_RESET + dots + " " + value + "\n"
 
