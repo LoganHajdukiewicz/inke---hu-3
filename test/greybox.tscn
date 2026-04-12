@@ -52,6 +52,41 @@ floor_size = Vector3(10, 10, 10)
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -20, 0, -20)
 floor_size = Vector3(10, 10, 10)
 
+[node name="Floor5" parent="Floors" unique_id=1439592709 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 0)
+floor_type = 6
+floor_size = Vector3(20, 0.5, 20)
+
+[node name="Floor6" parent="Floors" unique_id=990027574 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 25)
+floor_type = 5
+floor_size = Vector3(20, 0.5, 20)
+
+[node name="Floor7" parent="Floors" unique_id=820436495 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 50)
+floor_type = 1
+floor_size = Vector3(20, 0.5, 20)
+spring_force = 10.0
+
+[node name="Floor8" parent="Floors" unique_id=266005635 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 75)
+floor_type = 7
+floor_size = Vector3(20, 0.5, 20)
+spring_force = 10.0
+
+[node name="Floor9" parent="Floors" unique_id=1161334002 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 100)
+floor_type = 3
+floor_size = Vector3(20, 0.5, 20)
+spring_force = 10.0
+
+[node name="Floor10" parent="Floors" unique_id=1550937776 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 125)
+floor_type = 4
+floor_size = Vector3(20, 0.5, 20)
+spring_force = 10.0
+movement_axis = Vector3(0, 0, 25)
+
 [node name="Floor3" parent="Floors" unique_id=1705075183 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(-1, 2.9900345e-08, -8.215053e-08, 0, 0.93969256, 0.3420201, 8.742278e-08, 0.3420201, -0.93969256, 20, -3, -20)
 floor_size = Vector3(10, 10, 10)
