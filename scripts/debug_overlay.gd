@@ -2,7 +2,7 @@ extends CanvasLayer
 class_name DebugOverlay
 
 # ──────────────────────────────────────────────────────────────
-#  GREYBOX DEBUG OVERLAY  (v4 – air control · friction · jump distances)
+#  GREYBOX DEBUG OVERLAY  (v5 – air control · friction · jump distances · anomaly log)
 #  Toggle with: ` (backtick — "display" action)
 #  Scroll:      Mouse wheel  OR  D-pad Up/Down while overlay open
 # ──────────────────────────────────────────────────────────────
@@ -20,7 +20,7 @@ var state_machine: Node      = null
 # ── UI Layout constants ───────────────────────────────────────
 const PANEL_W    : int = 1180
 const PANEL_H    : int = 1060
-const CONTENT_H  : int = 5200  # Expanded for new sections
+const CONTENT_H  : int = 6000  # Expanded for anomaly log
 const COL_W      : int = 370
 const MARGIN_TOP : int = 28
 const FONT_SIZE  : int = 12
@@ -47,16 +47,19 @@ var last_jump_height: float = 0.0
 var last_jump_apex_speed: float = 0.0
 var last_jump_horizontal_distance: float = 0.0
 var last_jump_airtime: float = 0.0
+var last_jump_frames_in_air: int = 0  # NEW
 var jump_airtime_counter: float = 0.0
+var jump_frames_counter: int = 0      # NEW
 var was_on_floor_jump: bool = true
 var tracking_jump: bool = false
+var _spawned_this_frame: bool = true  # BUG FIX: suppress first-frame jump count
 
 # ── NEW: Jump distance records ────────────────────────────────
-var session_max_jump_height_off_ground: float = 0.0   # peak Y above spawn/ground, not above launch
+var session_max_jump_height_off_ground: float = 0.0
 var session_max_horizontal_jump_dist: float = 0.0
 var session_max_airtime: float = 0.0
 var last_landing_pos: Vector3 = Vector3.ZERO
-var ground_y_at_launch: float = 0.0  # floor Y when jump started (for "height off ground")
+var ground_y_at_launch: float = 0.0
 
 # ── Speed history ─────────────────────────────────────────────
 const GRAPH_SAMPLES: int = 80
@@ -64,10 +67,11 @@ var speed_history        : Array[float] = []
 var vert_history         : Array[float] = []
 var gravity_mult_history : Array[float] = []
 var accel_history        : Array[float] = []
+var air_control_history  : Array[float] = []
+var friction_history     : Array[float] = []
 
-# ── NEW: Air control & friction history ───────────────────────
-var air_control_history  : Array[float] = []  # effective horizontal air control factor
-var friction_history     : Array[float] = []  # effective ground friction/decel per frame
+# ── State history (bumped to 10) ──────────────────────────────
+const STATE_HISTORY_MAX: int = 10
 
 # ── Previous frame velocity ───────────────────────────────────
 var _prev_velocity: Vector3 = Vector3.ZERO
@@ -88,7 +92,7 @@ var session_gears_collected : int   = 0
 var _prev_gear_count        : int   = 0
 var _prev_health            : int   = 3
 
-# ── NEW: Game-feel session stats ──────────────────────────────
+# ── Game-feel session stats ───────────────────────────────────
 var session_peak_h_accel    : float = 0.0
 var session_peak_h_decel    : float = 0.0
 var session_spin_count      : int   = 0
@@ -118,21 +122,34 @@ var grapple_was_active   : bool  = false
 var last_dash_distance   : float = 0.0
 var was_on_floor         : bool  = true
 
-# ── NEW: Air control tracking ─────────────────────────────────
-var air_time_total       : float = 0.0  # total seconds airborne this session
-var ground_time_total    : float = 0.0  # total seconds on ground this session
-var current_air_control  : float = 0.0  # computed each frame from state
-var current_air_resist   : float = 0.0  # computed each frame from state
+# ── Air control tracking ──────────────────────────────────────
+var air_time_total       : float = 0.0
+var ground_time_total    : float = 0.0
+var current_air_control  : float = 0.0
+var current_air_resist   : float = 0.0
 
-# ── NEW: Friction & decel tracking ───────────────────────────
-var current_ground_friction   : float = 0.0  # effective decel or friction label
-var current_friction_label    : String = "—"  # e.g. "Normal", "Ice", "Sliding"
+# ── Friction & decel tracking ─────────────────────────────────
+var current_ground_friction   : float = 0.0
+var current_friction_label    : String = "—"
 var frames_in_air             : int   = 0
 var frames_on_ground          : int   = 0
 
 # ── HU-3 tracking ─────────────────────────────────────────────
 var hu3_distance_history: Array[float] = []
 const HU3_GRAPH_SAMPLES : int = 40
+
+# ── ANOMALY LOG ───────────────────────────────────────────────
+const ANOMALY_LOG_MAX    : int   = 20
+const ANOMALY_SPEED_SPIKE: float = 80.0   # u/s horizontal spike threshold
+const ANOMALY_ACCEL_SPIKE: float = 400.0  # u/s² acceleration spike threshold
+const ANOMALY_FALL_SPIKE : float = 40.0   # downward velocity spike
+const ANOMALY_DAMAGE_NOTE: bool  = true   # always log damage taken
+var anomaly_log : Array = []  # Array of {time, label, value}
+
+# ── Sprung tracking (sampled separately to catch brief windows) ──
+var _sprung_latch: bool = false   # BUG FIX: latch so display catches it
+var _sprung_latch_timer: float = 0.0
+const SPRUNG_LATCH_DURATION: float = 0.4  # show "sprung" for at least this long
 
 # ── Internal ──────────────────────────────────────────────────
 var _tick: float = 0.0
@@ -164,6 +181,8 @@ func _ready() -> void:
 		friction_history.append(0.0)
 	for i in HU3_GRAPH_SAMPLES:
 		hu3_distance_history.append(0.0)
+	# Suppress the first-frame jump-count trigger
+	_spawned_this_frame = true
 
 # ─── Build UI ─────────────────────────────────────────────────
 func _build_ui() -> void:
@@ -183,7 +202,7 @@ func _build_ui() -> void:
 	bg_panel.add_child(accent)
 
 	var title := Label.new()
-	title.text = "  ◈ INKE & HU-3 DEBUG  v4  [` toggle | wheel / D-pad ↑↓ scroll]"
+	title.text = "  ◈ INKE & HU-3 DEBUG  v5  [` toggle | wheel / D-pad ↑↓ scroll]"
 	title.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
 	title.add_theme_font_size_override("font_size", 12)
 	title.position = Vector2(4, 6)
@@ -243,6 +262,9 @@ func _find_references() -> void:
 		player = players[0] as CharacterBody3D
 		if player and player.has_node("StateMachine"):
 			state_machine = player.get_node("StateMachine")
+		# Initialise health tracker from actual value to avoid false damage on load
+		if game_manager:
+			_prev_health = game_manager.get_player_health()
 	if not hu3 and game_manager and game_manager.has_method("get_hu3_companion"):
 		var h = game_manager.get_hu3_companion()
 		if h and is_instance_valid(h): hu3 = h
@@ -280,10 +302,16 @@ func _max_scroll() -> float:
 # ═════════════════════════════════════════════════════════════
 func _process(delta: float) -> void:
 	_tick += delta
+
+	# Clear spawn suppression after one frame
+	if _spawned_this_frame:
+		_spawned_this_frame = false
+
 	if not player or not is_instance_valid(player):
 		if visible_overlay: _find_references()
 		return
 
+	_track_sprung(delta)       # BUG FIX: latch sprung before other tracking
 	_track_jump(delta)
 	_track_histories(delta)
 	_track_state_duration(delta)
@@ -291,8 +319,9 @@ func _process(delta: float) -> void:
 	_track_events()
 	_track_hu3()
 	_track_economy()
-	_track_air_ground_time(delta)       # NEW
-	_track_air_control_and_friction()   # NEW
+	_track_air_ground_time(delta)
+	_track_air_control_and_friction()
+	_track_anomalies()         # NEW
 
 	if not visible_overlay:
 		_prev_velocity = player.velocity
@@ -314,8 +343,26 @@ func _process(delta: float) -> void:
 # ═════════════════════════════════════════════════════════════
 #  TRACKING
 # ═════════════════════════════════════════════════════════════
+
+# BUG FIX: Latch the sprung flag so the display catches it even in brief windows
+func _track_sprung(delta: float) -> void:
+	var is_sprung: bool = _prop(player, "is_being_sprung", false)
+	if is_sprung:
+		_sprung_latch = true
+		_sprung_latch_timer = SPRUNG_LATCH_DURATION
+	elif _sprung_latch:
+		_sprung_latch_timer -= delta
+		if _sprung_latch_timer <= 0.0:
+			_sprung_latch = false
+
 func _track_jump(delta: float) -> void:
 	var on_floor := player.is_on_floor()
+
+	# BUG FIX: Skip first frame to avoid counting spawn-landing as a jump
+	if _spawned_this_frame:
+		was_on_floor = on_floor
+		return
+
 	if was_on_floor and not on_floor:
 		launch_y = player.global_position.y
 		launch_pos = player.global_position
@@ -323,31 +370,30 @@ func _track_jump(delta: float) -> void:
 		peak_y = launch_y
 		tracking_jump = true
 		jump_airtime_counter = 0.0
+		jump_frames_counter = 0       # NEW
 		last_jump_apex_speed = 0.0
 		session_jump_count += 1
 	if tracking_jump and not on_floor:
 		jump_airtime_counter += delta
+		jump_frames_counter += 1      # NEW
 		if player.global_position.y > peak_y:
 			peak_y = player.global_position.y
 			last_jump_apex_speed = Vector2(player.velocity.x, player.velocity.z).length()
 	if not was_on_floor and on_floor and tracking_jump:
 		last_jump_height = peak_y - launch_y
 		last_jump_airtime = jump_airtime_counter
+		last_jump_frames_in_air = jump_frames_counter   # NEW
 		var lp := player.global_position
 		last_jump_horizontal_distance = Vector2(lp.x - launch_pos.x, lp.z - launch_pos.z).length()
 		last_landing_pos = lp
 
-		# "Height off ground" = peak Y above the ground level at launch
 		var height_off_ground := peak_y - ground_y_at_launch
 		if height_off_ground > session_max_jump_height_off_ground:
 			session_max_jump_height_off_ground = height_off_ground
-
 		if last_jump_horizontal_distance > session_max_horizontal_jump_dist:
 			session_max_horizontal_jump_dist = last_jump_horizontal_distance
-
 		if last_jump_airtime > session_max_airtime:
 			session_max_airtime = last_jump_airtime
-
 		if last_jump_height > session_peak_jump_height:
 			session_peak_jump_height = last_jump_height
 		tracking_jump = false
@@ -366,8 +412,6 @@ func _track_histories(delta: float) -> void:
 		if cs and cs.get("gravity_multiplier") != null:
 			gm = cs.get("gravity_multiplier") as float
 	gravity_mult_history.append(gm)
-
-	# Air control & friction history
 	air_control_history.append(current_air_control)
 	friction_history.append(current_ground_friction)
 
@@ -386,7 +430,7 @@ func _track_state_duration(delta: float) -> void:
 	if nm != last_state_name:
 		if last_state_name != "":
 			state_history.push_front({"name": last_state_name, "dur": state_duration})
-			if state_history.size() > 6: state_history.pop_back()
+			if state_history.size() > STATE_HISTORY_MAX: state_history.pop_back()
 		previous_state_name = last_state_name
 		previous_state_dur  = state_duration
 		last_state_name     = nm
@@ -403,7 +447,6 @@ func _track_session_peaks() -> void:
 	if h > session_peak_speed: session_peak_speed = h
 	if player.velocity.y < -session_peak_fall_speed: session_peak_fall_speed = -player.velocity.y
 
-	# Acceleration peaks
 	var dt_phys := 1.0 / maxf(float(Engine.physics_ticks_per_second), 1.0)
 	var cur_h := h
 	var h_accel := (cur_h - _prev_h_speed) / dt_phys
@@ -446,14 +489,13 @@ func _track_events() -> void:
 
 	if game_manager:
 		var cur_hp : int = game_manager.get_player_health()
-		if cur_hp < _prev_health: session_damage_taken += (_prev_health - cur_hp)
+		if cur_hp < _prev_health:
+			var dmg_amt := _prev_health - cur_hp
+			session_damage_taken += dmg_amt
+			# Log damage as anomaly
+			_push_anomaly("DAMAGE TAKEN", float(dmg_amt), true)
 		if cur_hp > _prev_health: session_heals += (cur_hp - _prev_health)
 		_prev_health = cur_hp
-
-	# Track coyote jumps: jump was pressed while coyote timer > 0 and not on floor
-	# Approximated: if we entered JumpingState from FallingState
-	if is_dj and not dbl_jump_was_active:
-		pass  # already tracked
 
 func _track_hu3() -> void:
 	if not hu3 or not is_instance_valid(hu3):
@@ -467,7 +509,7 @@ func _track_hu3() -> void:
 
 func _track_economy() -> void:
 	if not game_manager: return
-	var	cur : int = game_manager.get_gear_count()
+	var cur : int = game_manager.get_gear_count()
 	if cur > _prev_gear_count: session_gears_collected += (cur - _prev_gear_count)
 	_prev_gear_count = cur
 
@@ -482,10 +524,6 @@ func _track_air_ground_time(delta: float) -> void:
 		frames_on_ground = 0
 
 func _track_air_control_and_friction() -> void:
-	"""
-	Read the effective air control factor and friction label from the current state.
-	These values come from the actual constants in each state script.
-	"""
 	var csn := _current_state_name()
 	current_air_control = 0.0
 	current_air_resist  = 0.0
@@ -499,17 +537,14 @@ func _track_air_control_and_friction() -> void:
 			current_air_control = 0.20 if dm else 0.50
 			current_air_resist  = 0.003 if dm else 0.005
 			current_friction_label = "Air"
-
 		"FallingState":
 			current_air_control = 0.25
 			current_air_resist  = 0.010
 			current_friction_label = "Air"
-
 		"DoubleJumpState":
 			current_air_control = 0.08
 			current_air_resist  = 0.002
 			current_friction_label = "Air (dbl)"
-
 		"WallJumpingState":
 			var cs = state_machine.current_state if state_machine else null
 			var wt: float = _prop(cs, "wall_jump_timer", 0.0) if cs else 0.0
@@ -524,38 +559,59 @@ func _track_air_control_and_friction() -> void:
 				current_air_control = 0.3
 			current_air_resist = 0.0
 			current_friction_label = "Air (wj)"
-
 		"DodgeDashState":
 			current_air_control = 0.0
 			current_air_resist  = 0.0
 			current_friction_label = "Dash"
-
 		"GrappleHookState":
 			current_air_control = 0.0
 			current_air_resist  = 0.0
 			current_friction_label = "Grapple"
-
 		"IdleState":
 			var is_ice: bool = _prop(player, "is_on_ice", false)
 			current_ground_friction = 100.0 * (0.01 if is_ice else 1.0)
 			current_friction_label  = "Ice (100×0.01)" if is_ice else "Normal (100/s)"
-
 		"WalkingState", "RunningState":
 			var is_ice: bool = _prop(player, "is_on_ice", false)
-			# Ice uses lerp factor, normal is direct velocity set (effectively infinite accel)
 			if is_ice:
-				current_ground_friction = 0.5  # direction-similarity accel factor on ice
+				current_ground_friction = 0.5
 				current_friction_label  = "Ice (lerp 0.5)"
 			else:
-				current_ground_friction = 1.0  # direct set = no friction needed
+				current_ground_friction = 1.0
 				current_friction_label  = "Direct set"
-
 		"SlidingState":
-			current_ground_friction = 0.98  # per-frame multiplier
+			current_ground_friction = 0.98
 			current_friction_label  = "Slide (×0.98/f)"
-
 		_:
 			current_friction_label = "—"
+
+# ── NEW: Anomaly tracking ─────────────────────────────────────
+func _track_anomalies() -> void:
+	var h_speed := Vector2(player.velocity.x, player.velocity.z).length()
+	var dt_phys := 1.0 / maxf(float(Engine.physics_ticks_per_second), 1.0)
+	var h_accel := (h_speed - _prev_h_speed) / dt_phys
+
+	if h_speed > ANOMALY_SPEED_SPIKE:
+		_push_anomaly("H-SPEED SPIKE", h_speed)
+	if h_accel > ANOMALY_ACCEL_SPIKE:
+		_push_anomaly("H-ACCEL SPIKE", h_accel)
+	if -h_accel > ANOMALY_ACCEL_SPIKE:
+		_push_anomaly("H-DECEL SPIKE", -h_accel)
+	if player.velocity.y < -ANOMALY_FALL_SPIKE:
+		_push_anomaly("FALL SPIKE", -player.velocity.y)
+
+func _push_anomaly(label: String, value: float, always: bool = false) -> void:
+	# Deduplicate: don't re-log the same anomaly more than once per second
+	if not always and anomaly_log.size() > 0:
+		var last = anomaly_log[0]
+		if last["label"] == label and (_tick - last["time"]) < 1.0:
+			# Update value if worse
+			if value > last["value"]:
+				anomaly_log[0]["value"] = value
+			return
+	anomaly_log.push_front({"time": _tick, "label": label, "value": value})
+	if anomaly_log.size() > ANOMALY_LOG_MAX:
+		anomaly_log.pop_back()
 
 func _current_state_name() -> String:
 	if not state_machine: return ""
@@ -605,7 +661,10 @@ func _update_left(delta: float) -> void:
 	txt += _row("On wall",      _bool(player.is_on_wall()))
 	txt += _row("On ceiling",   _bool(player.is_on_ceiling()))
 	txt += _row("On ice",       _bool(_prop(player, "is_on_ice", false) as bool))
-	txt += _row("Sprung",       _bool(_prop(player, "is_being_sprung", false) as bool))
+	# BUG FIX: Use latched sprung flag so brief bounce windows are visible
+	txt += _row("Sprung",       _bool(_sprung_latch))
+	if _sprung_latch and _sprung_latch_timer > 0.0:
+		txt += _row("  ↳ latch t",  C_WARN + "%.3f s" % _sprung_latch_timer + C_RESET)
 	txt += _row("Ignore jump",  _bool(_prop(player, "ignore_next_jump", false) as bool))
 	txt += _row("Controls off", _bool(_prop(player, "controls_disabled", false) as bool, true))
 	var frames_air_col := C_GOOD if frames_in_air == 0 else (C_WARN if frames_in_air < 30 else C_ACCENT)
@@ -654,7 +713,6 @@ func _update_left(delta: float) -> void:
 		txt += _row("Input X",     C_DIM + "%.3f" % input_dir.x + C_RESET)
 		txt += _row("Input Y",     C_DIM + "%.3f" % input_dir.y + C_RESET)
 
-	# Input vs velocity alignment
 	if input_dir.length() > 0.05 and h_spd > 0.5:
 		var cam_fwd2 := _get_camera_forward()
 		if cam_fwd2 != Vector3.ZERO:
@@ -681,7 +739,7 @@ func _update_left(delta: float) -> void:
 	txt += _row("Peak H-decel", C_WARN + "%.2f u/s²" % session_peak_h_decel + C_RESET)
 	txt += "\n"
 
-	# ── NEW: AIR CONTROL SECTION ──────────────────────────────
+	# ── AIR CONTROL & FRICTION ────────────────────────────────
 	txt += _header("◆ AIR CONTROL & FRICTION")
 	var is_airborne := not player.is_on_floor()
 	if is_airborne:
@@ -690,18 +748,24 @@ func _update_left(delta: float) -> void:
 		txt += _row("Air ctrl",     ac_col + "%.4f" % current_air_control + C_RESET)
 		txt += _mini_bar_row("Ctrl %", current_air_control)
 		txt += _row("Air resist",   C_DIM + "%.4f /frame" % current_air_resist + C_RESET)
-		# Effective speed lost per second to air resistance
 		var resist_loss_s := current_air_resist * float(Engine.physics_ticks_per_second) * cur_h
 		txt += _row("Resist loss",  C_DIM + "%.4f u/s²" % resist_loss_s + C_RESET)
-		# How much horizontal speed player can actually add with full input
 		var max_air_spd := maxf(cur_h, 6.0)
 		var potential_delta := (max_air_spd - cur_h) * current_air_control
 		txt += _row("Max Δspd",     C_DIM + "%.4f u/s" % potential_delta + C_RESET)
-		# Input effectiveness: how much of the max delta is being used
 		if input_dir.length() > 0.05:
 			txt += _row("Input eff.",   C_GOOD + "%.1f%%" % (input_dir.length() * 100.0) + C_RESET)
 		else:
 			txt += _row("Input eff.",   C_DIM + "0.0%" + C_RESET)
+		# NEW: Air control comparison table
+		txt += C_DIM + "  ── ctrl reference ──\n" + C_RESET
+		txt += C_DIM + "    Falling   0.25  resist 0.010\n" + C_RESET
+		txt += C_DIM + "    Jump      0.50  resist 0.005\n" + C_RESET
+		txt += C_DIM + "    DashJump  0.20  resist 0.003\n" + C_RESET
+		txt += C_DIM + "    DblJump   0.08  resist 0.002\n" + C_RESET
+		txt += C_DIM + "    WJ-Lock   0.00  resist 0.000\n" + C_RESET
+		txt += C_DIM + "    WJ-Free   0.30  resist 0.000\n" + C_RESET
+		txt += C_DIM + "    Dash      0.00  resist 0.000\n" + C_RESET
 		txt += _row("Coyote left",  _coyote_display() + C_RESET)
 	else:
 		# Ground friction
@@ -709,6 +773,9 @@ func _update_left(delta: float) -> void:
 		var fric_col = C_GOOD if current_ground_friction > 0.5 else (C_WARN if current_ground_friction > 0.1 else C_DANGER)
 		if current_friction_label.begins_with("Ice"):
 			txt += _row("Ice ctrl",     fric_col + "0.01 (lerp)" + C_RESET)
+			# NEW: how many seconds until player effectively stops on ice?
+			var ice_stop_t := log(0.01) / log(1.0 - 0.01 * 10.0 * frame_dt) * frame_dt if cur_h > 0.1 else 0.0
+			txt += _row("Ice stop ~",   C_DIM + "very long (low decel)" + C_RESET)
 		elif current_friction_label == "Slide (×0.98/f)":
 			txt += _row("Slide mult",   C_WARN + "0.98 / frame" + C_RESET)
 			var spd_at_1s := cur_h * pow(0.98, 60.0)
@@ -720,6 +787,11 @@ func _update_left(delta: float) -> void:
 				txt += _row("Stop in",    C_DIM + "%.4f s" % stop_time + C_RESET)
 		else:
 			txt += _row("Friction",     fric_col + "%.4f" % current_ground_friction + C_RESET)
+		# NEW: Ground friction reference table
+		txt += C_DIM + "  ── friction reference ──\n" + C_RESET
+		txt += C_DIM + "    Normal  100 u/s² decel\n" + C_RESET
+		txt += C_DIM + "    Ice     lerp 0.01 factor\n" + C_RESET
+		txt += C_DIM + "    Slide   ×0.98 / frame\n" + C_RESET
 		txt += _row("Coyote left",  _coyote_display() + C_RESET)
 	txt += "\n"
 
@@ -751,7 +823,7 @@ func _coyote_display() -> String:
 	return c + "%.4f s (%.0f%%)" % [ct, pct * 100.0]
 
 # ═════════════════════════════════════════════════════════════
-#  MIDDLE COLUMN — State machine · Air Control · Internals · Abilities · Jump stats
+#  MIDDLE COLUMN — State machine · Air/Ground time · Internals · Abilities · Jump stats
 # ═════════════════════════════════════════════════════════════
 func _update_mid() -> void:
 	var txt := ""
@@ -767,17 +839,16 @@ func _update_mid() -> void:
 	txt += _row("Previous",     C_DIM + previous_state_name + C_RESET)
 	txt += _row("Prev dur",     C_DIM + "%.4f s" % previous_state_dur + C_RESET)
 	if state_history.size() > 0:
-		txt += C_DIM + "  History:\n" + C_RESET
-		for i in min(state_history.size(), 5):
+		txt += C_DIM + "  History (last %d):\n" % STATE_HISTORY_MAX + C_RESET
+		for i in min(state_history.size(), STATE_HISTORY_MAX):
 			var e = state_history[i]
 			txt += C_DIM + "    [%d] %s  %.2fs\n" % [i + 1, e["name"], e["dur"]] + C_RESET
 	txt += "\n"
 
-	# ── NEW: AIR TIME & GROUND TIME RATIO ─────────────────────
+	# ── AIR / GROUND TIME ─────────────────────────────────────
 	txt += _header("◆ AIR / GROUND TIME")
 	var total_time := maxf(air_time_total + ground_time_total, 0.0001)
 	var air_pct    := air_time_total / total_time
-	var ground_pct := ground_time_total / total_time
 	txt += _row("Air time",     C_ACCENT + "%.1f s" % air_time_total + C_RESET)
 	txt += _row("Ground time",  C_DIM + "%.1f s" % ground_time_total + C_RESET)
 	txt += _row("Air %",        C_ACCENT + "%.1f%%" % (air_pct * 100.0) + C_RESET)
@@ -798,7 +869,6 @@ func _update_mid() -> void:
 				txt += _row("Ice mode",     _bool(_prop(player, "is_on_ice", false) as bool))
 				if _prop(player, "is_on_ice", false):
 					txt += _row("Ice decel",  C_WARN + "100 × 0.01 = 1.0 u/s²" + C_RESET)
-					txt += _row("Stop in",    C_DIM + "%.4f s" % (h / 1.0) + C_RESET)
 				txt += _row("Decelerating", _bool(h > 0.01))
 
 			"WalkingState":
@@ -809,12 +879,7 @@ func _update_mid() -> void:
 				txt += _row("Ice mode",     _bool(_prop(player, "is_on_ice", false) as bool))
 				if _prop(player, "is_on_ice", false):
 					txt += _row("Ice lerp",   C_WARN + "accel×0.5–1.0" + C_RESET)
-					txt += _row("Dir change", C_WARN + "×0.5 control" + C_RESET)
 				txt += _row("Rot speed",    C_DIM + "10.0 rad/s" + C_RESET)
-				# Time to reach target speed estimate
-				var delta_spd := 10.0 - h
-				if delta_spd > 0.01:
-					txt += _row("~Time to tgt", C_DIM + "instant (direct)" + C_RESET)
 
 			"RunningState":
 				var h := Vector2(player.velocity.x, player.velocity.z).length()
@@ -822,8 +887,6 @@ func _update_mid() -> void:
 				txt += _row("H-speed",      C_VAL + "%.4f u/s" % h + C_RESET)
 				txt += _row("Delta to tgt", C_DIM + "%.4f" % (20.0 - h) + C_RESET)
 				txt += _row("Ice mode",     _bool(_prop(player, "is_on_ice", false) as bool))
-				if _prop(player, "is_on_ice", false):
-					txt += _row("Ice lerp",   C_WARN + "accel×0.5–1.0" + C_RESET)
 				txt += _row("Rot speed",    C_DIM + "12.0 rad/s" + C_RESET)
 
 			"JumpingState":
@@ -845,7 +908,6 @@ func _update_mid() -> void:
 				txt += _row("Long jump",    _bool(lj))
 				txt += _row("Dash jump",    _bool(dm))
 				txt += _row("H decel",      C_DIM + "%.3f on entry" % hd + C_RESET)
-				# Air control summary
 				var ac := 0.20 if dm else 0.50
 				var ar := 0.003 if dm else 0.005
 				txt += _row("Air ctrl",     (C_WARN if dm else C_GOOD) + "%.2f" % ac + C_RESET)
@@ -853,7 +915,6 @@ func _update_mid() -> void:
 				var h_now := Vector2(player.velocity.x, player.velocity.z).length()
 				var resist_loss := ar * float(Engine.physics_ticks_per_second) * h_now
 				txt += _row("Resist loss",  C_DIM + "%.3f u/s²" % resist_loss + C_RESET)
-				txt += _row("Max air spd",  C_DIM + "%.3f u/s" % maxf(h_now, 6.0) + C_RESET)
 				txt += _mini_bar_row("Time", clampf(jt / 0.5, 0.0, 1.0))
 
 			"FallingState":
@@ -894,7 +955,6 @@ func _update_mid() -> void:
 				txt += _row("Descent mult", C_VAL + "%.3fx" % dm + C_RESET)
 				txt += _row("Air ctrl",     C_DANGER + "0.08 (very low)" + C_RESET)
 				txt += _row("Air resist",   C_DIM + "0.002/frame" + C_RESET)
-				txt += _row("Max air spd",  C_DIM + "3.0 u/s (conservative)" + C_RESET)
 
 			"DodgeDashState":
 				var dt: float  = _prop(cs, "dash_timer", 0.0)
@@ -913,19 +973,11 @@ func _update_mid() -> void:
 				txt += _mini_bar_row("Progress", dt / dd if dd > 0 else 0.0)
 				txt += _row("Base speed",   C_VAL + "%.2f u/s" % ds + C_RESET)
 				txt += _row("Cur speed",    C_WARN + "%.3f u/s" % cur_ds + C_RESET)
-				txt += _row("H-speed now",  C_VAL + "%.4f u/s" % Vector2(player.velocity.x, player.velocity.z).length() + C_RESET)
 				txt += _row("Dist",         C_DIM + "%.3f / %.1f u" % [traveled, md] + C_RESET)
 				txt += _mini_bar_row("Distance", traveled / md if md > 0 else 0.0)
-				txt += _row("Decel factor", C_DIM + "%.4f" % decel_f + C_RESET)
 				txt += _row("Cooldown",     (C_WARN if cd > 0 else C_GOOD) + "%.4f s" % cd + C_RESET)
 				txt += _row("Air dash",     _bool(air))
 				txt += _row("Air ctrl",     C_DANGER + "0.0 (none)" + C_RESET)
-				txt += _row("Exit momentum",C_DIM + "×0.6 on normal exit" + C_RESET)
-				txt += _row("iFrame dur",   C_DIM + "0.4 s" + C_RESET)
-				var ddir: Variant = cs.get("dash_direction")
-				if ddir is Vector3:
-					var dd3 := ddir as Vector3
-					txt += _row("Dash dir",   C_DIM + "(%.2f,%.2f,%.2f)" % [dd3.x, dd3.y, dd3.z] + C_RESET)
 
 			"WallJumpingState":
 				var wt: float  = _prop(cs, "wall_jump_timer", 0.0)
@@ -951,14 +1003,10 @@ func _update_mid() -> void:
 				txt += _row("Timer",        C_VAL + "%.4f s" % wt + C_RESET)
 				txt += _row("Phase",        C_WARN + "[b]" + phase + "[/b]" + C_RESET)
 				txt += _mini_bar_row("Lock", clampf(wt / ml if ml > 0 else 0.0, 0.0, 1.0))
-				txt += _row("Control",      C_DIM + "%.4f" % ctrl + C_RESET)
 				txt += _row("Air ctrl",     (C_DANGER if ctrl_val < 0.05 else (C_WARN if ctrl_val < 0.2 else C_GOOD)) + "%.4f" % ctrl_val + C_RESET)
 				txt += _mini_bar_row("Ctrl", ctrl_val)
 				txt += _row("Jump vel",     C_VAL + "%.3f u/s" % wjv + C_RESET)
 				txt += _row("Horiz force",  C_VAL + "%.3f u/s" % hf + C_RESET)
-				txt += _row("Upward boost", C_DIM + "%.3f u/s" % ub + C_RESET)
-				txt += _row("vel.Y now",    _vert_col(player.velocity.y) + "%.4f" % player.velocity.y + C_RESET)
-				txt += _row("H-speed now",  C_VAL + "%.4f u/s" % Vector2(player.velocity.x, player.velocity.z).length() + C_RESET)
 				if wdir is Vector3:
 					var wd := wdir as Vector3
 					txt += _row("Wall normal", C_DIM + "(%.2f,%.2f,%.2f)" % [wd.x, wd.y, wd.z] + C_RESET)
@@ -972,9 +1020,6 @@ func _update_mid() -> void:
 				txt += _row("Min spd",      C_DIM + "%.4f u/s" % ms + C_RESET)
 				txt += _row("Wall friction",C_DIM + "%.4f" % sf + C_RESET)
 				txt += _row("vel.Y now",    _vert_col(player.velocity.y) + "%.4f" % player.velocity.y + C_RESET)
-				txt += _row("H-speed",      C_VAL + "%.4f u/s" % Vector2(player.velocity.x, player.velocity.z).length() + C_RESET)
-				txt += _row("Air ctrl",     C_DIM + "perpendicular only" + C_RESET)
-				txt += _row("Grav mult",    C_DIM + "0.30×" + C_RESET)
 				if wn is Vector3:
 					var wn3 := wn as Vector3
 					txt += _row("Wall normal", C_DIM + "(%.2f,%.2f,%.2f)" % [wn3.x, wn3.y, wn3.z] + C_RESET)
@@ -987,92 +1032,48 @@ func _update_mid() -> void:
 				txt += _row("Lerp speed",   C_DIM + "%.2f" % ls + C_RESET)
 				txt += _row("Jump vel",     C_DIM + "%.3f u/s" % jv + C_RESET)
 				txt += _row("H-speed now",  C_GOOD + "%.4f u/s" % Vector2(player.velocity.x, player.velocity.z).length() + C_RESET)
-				txt += _row("vel.Y now",    C_DIM + "%.4f" % player.velocity.y + C_RESET)
-				txt += _row("Timer done",   _bool(_prop(cs, "grind_timer_complete", true) as bool))
 				txt += _row("Gravity",      C_ACCENT + "0.0 (disabled)" + C_RESET)
 
 			"GrappleHookState":
 				var mode: Variant = cs.get("grapple_mode")
 				var gp: Variant   = cs.get("grapple_point")
 				var rl: float     = _prop(cs, "rope_length", 0.0)
-				var gs: float     = _prop(cs, "grapple_speed", 30.0)
-				var gpf: float    = _prop(cs, "grapple_pull_force", 25.0)
-				var rb: float     = _prop(cs, "release_boost", 15.0)
-				var scstr: float  = _prop(cs, "swing_control_strength", 8.0)
-				var is_grp: bool  = _prop(cs, "is_grappling", false)
 				txt += _row("Mode",         C_WARN + str(mode) + C_RESET)
-				txt += _row("Is grappling", _bool(is_grp))
 				txt += _row("Rope length",  C_VAL + "%.4f u" % rl + C_RESET)
-				txt += _row("Speed",        C_DIM + "%.2f u/s" % gs + C_RESET)
-				txt += _row("Pull force",   C_DIM + "%.2f" % gpf + C_RESET)
-				txt += _row("Swing ctrl",   C_DIM + "%.2f" % scstr + C_RESET)
-				txt += _row("Rel. boost",   C_DIM + "%.2f u/s" % rb + C_RESET)
-				txt += _row("Grav mult",    C_DIM + "0.30× (pull) / full (swing)" + C_RESET)
 				if gp is Vector3:
 					var dist: float = player.global_position.distance_to(gp as Vector3)
 					txt += _row("To target",  C_VAL + "%.4f u" % dist + C_RESET)
 					txt += _mini_bar_row("Dist", clampf(1.0 - dist / 30.0, 0.0, 1.0))
-				txt += _row("H-speed",      C_VAL + "%.4f u/s" % Vector2(player.velocity.x, player.velocity.z).length() + C_RESET)
-				txt += _row("vel.Y",        _vert_col(player.velocity.y) + "%.4f" % player.velocity.y + C_RESET)
 
 			"SlidingState":
 				var sv: Variant = cs.get("slide_velocity")
-				var sd: Variant = cs.get("slide_direction")
 				var cur_spd := (sv as Vector3).length() if sv is Vector3 else 0.0
 				txt += _row("Slide speed",  C_VAL + "%.4f u/s" % cur_spd + C_RESET)
-				txt += _row("H-speed",      C_VAL + "%.4f u/s" % Vector2(player.velocity.x, player.velocity.z).length() + C_RESET)
 				txt += _row("Friction",     C_DIM + "×0.98 / frame" + C_RESET)
-				# Speed in 1s with 0.98/frame friction at 60fps
 				var spd_at_1s := cur_spd * pow(0.98, 60.0)
-				var spd_at_2s := cur_spd * pow(0.98, 120.0)
 				txt += _row("Spd @1s",      C_DIM + "%.4f u/s" % spd_at_1s + C_RESET)
-				txt += _row("Spd @2s",      C_DIM + "%.4f u/s" % spd_at_2s + C_RESET)
-				txt += _row("Min spd",      C_DIM + "0.50 u/s (stop)" + C_RESET)
 				if cur_spd > 0.5:
-					# Approximate frames until stop (solve cur_spd * 0.98^n = 0.5)
 					var frames_left := log(0.5 / maxf(cur_spd, 0.001)) / log(0.98)
 					txt += _row("Stop in",    C_DIM + "%.0f frames" % frames_left + C_RESET)
-				if sd is Vector3:
-					var sd3 := sd as Vector3
-					txt += _row("Slide dir",  C_DIM + "(%.2f,%.2f,%.2f)" % [sd3.x, sd3.y, sd3.z] + C_RESET)
 
 			"SpinAttackState":
 				var st: float = _prop(cs, "spin_timer", 0.0)
 				var sd: float = _prop(cs, "spin_duration", 0.2)
-				var hs: float = _prop(cs, "hover_strength", 25.0)
 				var pr: float = _prop(cs, "pushback_radius", 3.0)
-				var pf: float = _prop(cs, "pushback_force", 25.0)
 				var dmg: int  = _prop(cs, "damage", 2)
 				txt += _row("Timer",        C_VAL + "%.4f / %.3f s" % [st, sd] + C_RESET)
 				txt += _mini_bar_row("Progress", st / sd if sd > 0 else 0.0)
-				txt += _row("Hover str",    C_DIM + "%.2f" % hs + C_RESET)
 				txt += _row("Radius",       C_DIM + "%.2f u" % pr + C_RESET)
-				txt += _row("Push force",   C_DIM + "%.2f" % pf + C_RESET)
 				txt += _row("Damage",       C_VAL + str(dmg) + C_RESET)
-				txt += _row("Air ctrl",     C_ACCENT + "air: 25.0/s (high!)" + C_RESET)
-				txt += _row("Grav mult",    C_DIM + "0.50× in air" + C_RESET)
-				txt += _row("H-mom exit",   C_DIM + "×0.80" + C_RESET)
-				txt += _row("On floor",     _bool(player.is_on_floor()))
-				txt += _row("vel.Y now",    _vert_col(player.velocity.y) + "%.4f" % player.velocity.y + C_RESET)
 
 			"LedgeHangingState":
 				var climbing: bool = _prop(cs, "is_climbing", false)
 				var lp: Variant    = cs.get("ledge_position")
-				var ln: Variant    = cs.get("ledge_normal")
-				var ss: float      = _prop(cs, "shimmy_speed", 3.0)
-				var cu: float      = _prop(cs, "climb_up_duration", 0.5)
 				txt += _row("Climbing",     _bool(climbing))
-				txt += _row("Shimmy speed", C_DIM + "%.3f u/s" % ss + C_RESET)
-				txt += _row("Climb dur",    C_DIM + "%.3f s" % cu + C_RESET)
 				txt += _row("Gravity",      C_ACCENT + "0.0 (suspended)" + C_RESET)
-				txt += _row("Velocity",     C_ACCENT + "ZERO (locked)" + C_RESET)
 				if lp is Vector3:
 					var lp3 := lp as Vector3
-					txt += _row("Ledge pos",  C_DIM + "(%.2f,%.2f,%.2f)" % [lp3.x, lp3.y, lp3.z] + C_RESET)
 					txt += _row("Dist",       C_VAL + "%.4f u" % player.global_position.distance_to(lp3) + C_RESET)
-				if ln is Vector3:
-					var ln3 := ln as Vector3
-					txt += _row("Wall normal", C_DIM + "(%.2f,%.2f,%.2f)" % [ln3.x, ln3.y, ln3.z] + C_RESET)
 
 			_:
 				txt += C_DIM + "  (no detailed data for this state)\n" + C_RESET
@@ -1110,42 +1111,36 @@ func _update_mid() -> void:
 	if ct > 0.0:
 		txt += _mini_bar_row("Coyote", ct / cd_dur)
 	txt += _row("Long jump",    (C_GOOD + "READY  %.3fs" % lj_t if can_lj else C_DIM + "—") + C_RESET)
-	if can_lj:
-		txt += _mini_bar_row("LJ window", lj_t / lj_w if lj_w > 0 else 0.0)
-	txt += _row("Dash momentum",(C_WARN + "%.4f u/s" % sdm_len if sdm_len > 0.01 else C_DIM + "none") + C_RESET)
-	if sdm_raw is Vector3:
-		var sdm3 := sdm_raw as Vector3
-		if sdm3.length() > 0.01:
-			txt += _row("  direction", C_DIM + "(%.2f,%.2f,%.2f)" % [sdm3.x, sdm3.y, sdm3.z] + C_RESET)
 	txt += "\n"
 
-	txt += _header("◆ JUMP STATS")
+	# ── JUMP STATS ────────────────────────────────────────────
+	txt += _header("◆ JUMP STATS  (last completed jump)")
+	txt += _row("Height",       C_VAL + "%.4f u" % last_jump_height + C_RESET)
+	txt += _row("H-dist",       C_VAL + "%.4f u" % last_jump_horizontal_distance + C_RESET)
+	txt += _row("Air time",     C_VAL + "%.4f s" % last_jump_airtime + C_RESET)
+	# NEW: frames in air
+	txt += _row("Frames in air",C_ACCENT + str(last_jump_frames_in_air) + " frames" + C_RESET)
+	txt += _row("Apex H-spd",   C_VAL + "%.4f u/s" % last_jump_apex_speed + C_RESET)
 	if tracking_jump:
-		var cur_h    := maxf(0.0, player.global_position.y - launch_y)
-		var cur_h_off := maxf(0.0, player.global_position.y - ground_y_at_launch)
-		var cur_dist := Vector2(player.global_position.x - launch_pos.x, player.global_position.z - launch_pos.z).length()
-		txt += _row("Height NOW",     C_WARN + "%.4f u" % cur_h + C_RESET)
-		txt += _row("Off ground NOW", C_ACCENT + "%.4f u" % cur_h_off + C_RESET)
-		txt += _row("Horiz dist",     C_WARN + "%.4f u" % cur_dist + C_RESET)
-		txt += _row("Air time",       C_WARN + "%.4f s" % jump_airtime_counter + C_RESET)
-		txt += _row("Apex H-spd",     C_VAL  + "%.4f u/s" % last_jump_apex_speed + C_RESET)
-		txt += _row("Launch Y",       C_DIM  + "%.4f" % launch_y + C_RESET)
-		txt += _row("Peak Y",         C_DIM  + "%.4f" % peak_y + C_RESET)
-		txt += _row("Rise so far",    C_DIM  + "%.4f u" % (peak_y - launch_y) + C_RESET)
-	else:
-		txt += _row("Last height",    C_VAL + "%.4f u" % last_jump_height + C_RESET)
-		txt += _row("Last off-gnd",   C_ACCENT + "%.4f u" % last_jump_height + C_RESET)  # same as height when started on ground
-		txt += _row("Last h-dist",    C_VAL + "%.4f u" % last_jump_horizontal_distance + C_RESET)
-		txt += _row("Last air t",     C_VAL + "%.4f s" % last_jump_airtime + C_RESET)
-		txt += _row("Apex H-spd",     C_VAL + "%.4f u/s" % last_jump_apex_speed + C_RESET)
-		txt += _row("Last dash dst",  C_DIM + "%.4f u" % last_dash_distance + C_RESET)
-		if last_landing_pos != Vector3.ZERO:
-			txt += _row("Land pos",   C_DIM + "(%.1f,%.1f,%.1f)" % [last_landing_pos.x, last_landing_pos.y, last_landing_pos.z] + C_RESET)
+		# Live tracking while in the air
+		txt += C_WARN + "  [LIVE]\n" + C_RESET
+		var cur_h2    := maxf(0.0, player.global_position.y - launch_y)
+		var cur_dist2 := Vector2(player.global_position.x - launch_pos.x, player.global_position.z - launch_pos.z).length()
+		txt += _row("  Height NOW",  C_WARN + "%.4f u" % cur_h2 + C_RESET)
+		txt += _row("  H-dist NOW",  C_WARN + "%.4f u" % cur_dist2 + C_RESET)
+		txt += _row("  Air t NOW",   C_WARN + "%.4f s" % jump_airtime_counter + C_RESET)
+		txt += _row("  Frames NOW",  C_WARN + str(jump_frames_counter) + C_RESET)
+	txt += "\n"
+	txt += _header("◆ JUMP RECORDS (Session)")
+	txt += _row("Max height",   C_GOOD + "%.4f u" % session_peak_jump_height + C_RESET)
+	txt += _row("Max off-gnd",  C_ACCENT + "%.4f u" % session_max_jump_height_off_ground + C_RESET)
+	txt += _row("Max h-dist",   C_GOOD + "%.4f u" % session_max_horizontal_jump_dist + C_RESET)
+	txt += _row("Max airtime",  C_GOOD + "%.4f s" % session_max_airtime + C_RESET)
 
 	label_mid.text = txt
 
 # ═════════════════════════════════════════════════════════════
-#  RIGHT COLUMN — Player state · Upgrades · HU-3 · Paint · Economy · Checkpoint · Session
+#  RIGHT COLUMN — Player state · Upgrades · HU-3 · Paint · Economy · Checkpoint · Session · Anomalies
 # ═════════════════════════════════════════════════════════════
 func _update_right() -> void:
 	var txt := ""
@@ -1159,11 +1154,19 @@ func _update_right() -> void:
 	var is_inv : bool  = _prop(player, "is_invulnerable", false)
 	var inv_t  : float = _prop(player, "invulnerability_timer", 0.0)
 	var inv_d  : float = _prop(player, "invulnerability_duration", 1.5)
+	# BUG FIX: is_dead was previously _bool(is_dead, true) which inverted the display.
+	# invert=true means "true is bad" and shows green for false and red for true — which
+	# is what we want — BUT the display logic was: positive = (value != invert).
+	# When is_dead=false, invert=true: positive = false != true = true → "✓ YES" in GREEN.
+	# When is_dead=true,  invert=true: positive = true  != true = false → "✗ NO"  in DIM.
+	# That means "NO" when dead=true. Fixed below by not using the invert shortcut.
 	var is_dead: bool  = _prop(player, "is_dead", false)
 	var flashing: bool = _prop(player, "should_flash", false)
 	var hp_col := C_GOOD if health >= max_hp else (C_WARN if health > 1 else C_DANGER)
 	txt += _row("Health",       hp_col + _heart_bar(health, max_hp) + "  %d/%d" % [health, max_hp] + C_RESET)
-	txt += _row("Dead",         _bool(is_dead, true))
+	# BUG FIX: explicit dead display — true=danger, false=good
+	var dead_display := (C_DANGER + "✓ YES  ← DEAD" if is_dead else C_GOOD + "✗ NO") + C_RESET
+	txt += _row("Dead",         dead_display)
 	txt += _row("Invulnerable", _bool(is_inv))
 	if is_inv:
 		txt += _row("Inv timer",  C_WARN + "%.4f / %.2f s" % [inv_t, inv_d] + C_RESET)
@@ -1194,61 +1197,22 @@ func _update_right() -> void:
 		var h3_spd  := h3_vel.length()
 		var h3_dist := player.global_position.distance_to(h3_pos)
 		var h3_spd_col := C_GOOD if h3_spd < 20 else (C_WARN if h3_spd < 40 else C_DANGER)
-		# FIX: green when close, red when far (was inverted before)
 		var dist_col   := C_GOOD if h3_dist < 4 else (C_WARN if h3_dist < 10 else C_DANGER)
 		txt += _row("Found",        C_GOOD + "YES" + C_RESET)
 		txt += _row("Distance",     dist_col + "%.4f u" % h3_dist + C_RESET)
-		# FIX: distance bar fills green when close, transitions to red as HU-3 gets far
 		txt += _hu3_dist_bar(h3_dist, 15.0)
-		txt += _row("Pos X",        C_DIM + "%.4f" % h3_pos.x + C_RESET)
-		txt += _row("Pos Y",        C_DIM + "%.4f" % h3_pos.y + C_RESET)
-		txt += _row("Pos Z",        C_DIM + "%.4f" % h3_pos.z + C_RESET)
-		txt += _row("Height diff",  _vert_col((h3_pos.y - player.global_position.y) / 5.0) + "%.4f u" % (h3_pos.y - player.global_position.y) + C_RESET)
 		txt += _row("Speed",        h3_spd_col + "%.4f u/s" % h3_spd + C_RESET)
-		txt += _row("vel.X",        C_DIM + "%.4f" % h3_vel.x + C_RESET)
-		txt += _row("vel.Y",        C_DIM + "%.4f" % h3_vel.y + C_RESET)
-		txt += _row("vel.Z",        C_DIM + "%.4f" % h3_vel.z + C_RESET)
-		# Internal HU-3 state
 		var collecting : bool  = _prop(hu3, "is_collecting_gear", false)
-		var col_timer  : float = _prop(hu3, "collection_timer", 0.0)
-		var col_timeout: float = _prop(hu3, "collection_timeout", 5.0)
+		txt += _row("Collecting",   _bool(collecting))
 		var hover_t    : float = _prop(hu3, "hover_time", 0.0)
 		var hover_amp  : float = _prop(hu3, "hover_amplitude", 0.2)
 		var hover_freq : float = _prop(hu3, "hover_frequency", 1.5)
-		var follow_spd : float = _prop(hu3, "base_follow_speed", 20.0)
-		var max_f_spd  : float = _prop(hu3, "follow_max_speed", 35.0)
-		var catchup_th : float = _prop(hu3, "catchup_threshold", 5.0)
-		var catchup_bst: float = _prop(hu3, "catchup_speed_boost", 5.0)
-		var side_off   : float = _prop(hu3, "side_offset", 1.5)
-		var fwd_off    : float = _prop(hu3, "forward_offset", 1.0)
-		var hover_h    : float = _prop(hu3, "hover_height", 1.5)
-		var gear_dst   : float = _prop(hu3, "gear_collection_distance", 8.0)
-		var gear_spd   : float = _prop(hu3, "gear_collection_speed", 15.0)
-		var sfv_raw    : Variant = _prop(hu3, "smooth_follow_velocity", null)
-		var sfv_spd    := (sfv_raw as Vector3).length() if sfv_raw is Vector3 else 0.0
-		var follow_accel: float = _prop(hu3, "follow_acceleration", 25.0)
-		var follow_damp : float = _prop(hu3, "follow_damping", 0.92)
-		txt += _row("Collecting",   _bool(collecting))
-		if collecting:
-			txt += _row("Col timer",  C_WARN + "%.3f / %.1fs" % [col_timer, col_timeout] + C_RESET)
-			txt += _mini_bar_row("Col timeout", col_timer / col_timeout if col_timeout > 0 else 0.0)
 		var hover_wave := sin(hover_t * hover_freq) * hover_amp
-		txt += _row("Hover time",   C_DIM + "%.3f s" % hover_t + C_RESET)
 		txt += _row("Hover offset", C_DIM + "%.4f u" % hover_wave + C_RESET)
-		txt += _row("Hover amp",    C_DIM + "%.3f u" % hover_amp + C_RESET)
-		txt += _row("Hover freq",   C_DIM + "%.2f Hz" % hover_freq + C_RESET)
-		txt += _row("Hover height", C_DIM + "%.2f u" % hover_h + C_RESET)
-		txt += _row("Side offset",  C_DIM + "%.2f u" % side_off + C_RESET)
-		txt += _row("Fwd offset",   C_DIM + "%.2f u" % fwd_off + C_RESET)
-		txt += _row("Follow spd",   C_DIM + "%.2f / %.2f" % [follow_spd, max_f_spd] + C_RESET)
-		txt += _row("Follow accel", C_DIM + "%.2f" % follow_accel + C_RESET)
-		txt += _row("Follow damp",  C_DIM + "%.3f" % follow_damp + C_RESET)
-		txt += _row("Smooth vel",   C_DIM + "%.4f u/s" % sfv_spd + C_RESET)
-		txt += _row("Catchup thr",  C_DIM + "%.2f u" % catchup_th + C_RESET)
-		txt += _row("Catchup bst",  C_DIM + "%.2fx" % catchup_bst + C_RESET)
+		var follow_spd : float = _prop(hu3, "base_follow_speed", 20.0)
+		var catchup_th : float = _prop(hu3, "catchup_threshold", 5.0)
+		txt += _row("Follow spd",   C_DIM + "%.2f u/s" % follow_spd + C_RESET)
 		txt += _row("Catchup mode", _bool(h3_dist > catchup_th))
-		txt += _row("Gear sense",   C_DIM + "%.2f u" % gear_dst + C_RESET)
-		txt += _row("Gear spd",     C_DIM + "%.2f u/s" % gear_spd + C_RESET)
 		var is_grinding := last_state_name == "RailGrindingState"
 		txt += _row("Speed mult",   (C_WARN + "2.0x  (grind!)" if is_grinding else C_DIM + "1.0x") + C_RESET)
 	else:
@@ -1269,8 +1233,6 @@ func _update_right() -> void:
 		txt += _mini_bar_row("Paint", paint_pct)
 		txt += _row("Ability cost", C_DIM + str(costs.get(cur_paint, "?")) + " paint" + C_RESET)
 		txt += _row("Can use",      _bool(paint_amt >= costs.get(cur_paint, 999)))
-		var sw_cd : float = _prop(paint_manager, "switch_cooldown", 0.0)
-		txt += _row("Switch CD",    (C_DIM + "%.3f s" % sw_cd if sw_cd > 0 else C_GOOD + "ready") + C_RESET)
 	else:
 		txt += C_DIM + "  PaintManager not found\n" + C_RESET
 	txt += "\n"
@@ -1296,18 +1258,6 @@ func _update_right() -> void:
 		txt += C_DIM + "  Not found\n" + C_RESET
 	txt += "\n"
 
-	# ── NEW: JUMP RECORDS ─────────────────────────────────────
-	txt += _header("◆ JUMP RECORDS (Session)")
-	txt += _row("Max height",   C_GOOD + "%.4f u" % session_peak_jump_height + C_RESET)
-	txt += _row("Max off-gnd",  C_ACCENT + "%.4f u" % session_max_jump_height_off_ground + C_RESET)
-	txt += _row("Max h-dist",   C_GOOD + "%.4f u" % session_max_horizontal_jump_dist + C_RESET)
-	txt += _row("Max airtime",  C_GOOD + "%.4f s" % session_max_airtime + C_RESET)
-	txt += _row("Peak H-speed", C_WARN + "%.4f u/s" % session_peak_speed + C_RESET)
-	txt += _row("Peak fall",    C_WARN + "%.4f u/s" % session_peak_fall_speed + C_RESET)
-	txt += _row("Peak H-accel", C_WARN + "%.2f u/s²" % session_peak_h_accel + C_RESET)
-	txt += _row("Peak H-decel", C_WARN + "%.2f u/s²" % session_peak_h_decel + C_RESET)
-	txt += "\n"
-
 	txt += _header("◆ SESSION STATS")
 	txt += _row("Jumps",        C_VAL + str(session_jump_count) + C_RESET)
 	txt += _row("Double jumps", C_VAL + str(session_dbl_jump_count) + C_RESET)
@@ -1320,10 +1270,30 @@ func _update_right() -> void:
 	txt += _row("Dmg taken",    (C_WARN if session_damage_taken > 0 else C_DIM) + str(session_damage_taken) + " HP" + C_RESET)
 	txt += _row("Heals",        C_GOOD + str(session_heals) + " HP" + C_RESET)
 	txt += _row("Gears found",  C_VAL + str(session_gears_collected) + C_RESET)
-	txt += _row("Last dash dst",C_DIM + "%.4f u" % last_dash_distance + C_RESET)
-	# Air/ground ratio
+	txt += _row("Peak H-speed", C_WARN + "%.4f u/s" % session_peak_speed + C_RESET)
+	txt += _row("Peak fall",    C_WARN + "%.4f u/s" % session_peak_fall_speed + C_RESET)
+	txt += _row("Peak H-accel", C_WARN + "%.2f u/s²" % session_peak_h_accel + C_RESET)
+	txt += _row("Peak H-decel", C_WARN + "%.2f u/s²" % session_peak_h_decel + C_RESET)
 	var total_t := maxf(air_time_total + ground_time_total, 0.001)
 	txt += _row("Air time tot", C_DIM + "%.1f s (%.0f%%)" % [air_time_total, (air_time_total / total_t) * 100.0] + C_RESET)
+	txt += "\n"
+
+	# ── NEW: ANOMALY LOG ──────────────────────────────────────
+	txt += _header("◆ ANOMALY LOG  (last %d)" % ANOMALY_LOG_MAX)
+	if anomaly_log.is_empty():
+		txt += C_GOOD + "  No anomalies recorded.\n" + C_RESET
+	else:
+		for entry in anomaly_log:
+			var t     : float  = entry["time"]
+			var lbl   : String = entry["label"]
+			var val   : float  = entry["value"]
+			var age   : float  = _tick - t
+			# Colour by recency: < 2s = bright, < 10s = mid, older = dim
+			var entry_col := C_DANGER if age < 2.0 else (C_WARN if age < 10.0 else C_DIM)
+			# Special colour for damage events
+			if lbl.begins_with("DAMAGE"):
+				entry_col = C_DANGER if age < 5.0 else C_DIM
+			txt += entry_col + "  [%5.1fs] %-20s  %.2f\n" % [t, lbl, val] + C_RESET
 
 	label_right.text = txt
 
@@ -1394,53 +1364,13 @@ func _mini_bar_row(label: String, pct: float) -> String:
 	var bar := C_DIM + "[" + C_RESET + col + "█".repeat(filled) + C_RESET + C_DIM + "░".repeat(W - filled) + "]" + C_RESET
 	return _row(label, bar)
 
-# ── NEW: HU-3 specific distance bar (green=close, red=far) ───
 func _hu3_dist_bar(dist: float, max_dist: float) -> String:
 	var pct := clampf(dist / max_dist, 0.0, 1.0)
 	const W := 18
 	var filled := int(pct * W)
-	# Inverted: more filled = farther = more red
 	var col := C_GOOD if pct < 0.3 else (C_WARN if pct < 0.65 else C_DANGER)
 	var bar := C_DIM + "[" + C_RESET + col + "█".repeat(filled) + C_RESET + C_DIM + "░".repeat(W - filled) + "]" + C_RESET
 	return _row("Dist bar", bar)
-
-# ── NEW: Responsiveness score based on current state ─────────
-func _responsiveness_score(csn: String) -> float:
-	match csn:
-		"IdleState":     return 95.0
-		"WalkingState":  return 90.0
-		"RunningState":  return 85.0
-		"JumpingState":
-			if state_machine and state_machine.get("current_state") != null:
-				var dm: bool = _prop(state_machine.current_state, "used_dash_momentum", false)
-				return 40.0 if dm else 55.0
-			return 55.0
-		"FallingState":  return 50.0
-		"DoubleJumpState": return 20.0
-		"DodgeDashState": return 5.0
-		"WallJumpingState":
-			var wt: float = 0.0
-			var ml: float = 0.35
-			var tl: float = 0.5
-			if state_machine and state_machine.get("current_state") != null:
-				wt = _prop(state_machine.current_state, "wall_jump_timer", 0.0)
-				ml = _prop(state_machine.current_state, "momentum_lock_duration", 0.35)
-				tl = _prop(state_machine.current_state, "total_lock_time", 0.5)
-			if wt < ml:   return 0.0
-			elif wt < tl: return 15.0
-			else:         return 65.0
-		"WallSlidingState": return 60.0
-		"RailGrindingState": return 30.0
-		"GrappleHookState":  return 25.0
-		"SlidingState":      return 35.0
-		"SpinAttackState":
-			return 70.0 if player.is_on_floor() else 80.0
-		"LedgeHangingState":
-			if state_machine and state_machine.get("current_state") != null:
-				var climbing: bool = _prop(state_machine.current_state, "is_climbing", false)
-				return 5.0 if climbing else 55.0
-			return 55.0
-		_: return 50.0
 
 func _speed_char(pct: float) -> String:
 	if pct > 0.85: return C_DANGER + "█" + C_RESET
@@ -1485,20 +1415,4 @@ func _ascii_graph_bipolar(history: Array, max_val: float, half_h: int) -> String
 		elif r_idx == half_h:    lbl = " " + C_DIM    + "0" + C_RESET
 		elif r_idx == total - 1: lbl = " " + C_DANGER + "-%.0fu/s" % max_val + C_RESET
 		out += "  " + rows[r_idx] + lbl + "\n"
-	return out
-
-# ── NEW: HU-3 distance graph (green when low = close, red when high = far) ──
-func _ascii_graph_hu3(history: Array, max_dist: float, height: int) -> String:
-	var rows: Array[String] = []
-	for _r in height: rows.append("")
-	for i in history.size():
-		var v      := clampf(history[i], 0.0, max_dist)
-		var pct    := v / max_dist
-		var filled := int(pct * height)
-		# Color: green when close (low pct), yellow mid, red when far (high pct)
-		var col := C_GOOD if pct < 0.3 else (C_WARN if pct < 0.65 else C_DANGER)
-		for r in height:
-			rows[r] += (col + "█" + C_RESET) if (height - 1 - r) < filled else C_DIM + "·" + C_RESET
-	var out := ""
-	for r in rows: out += "  " + r + "\n"
 	return out

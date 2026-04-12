@@ -29,6 +29,16 @@ point_count = 2
 
 [node name="Greybox" type="Node3D" unique_id=365878568]
 
+[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_84upl")]
+debug_double_jump = true
+debug_dash = true
+debug_speed_upgrade = true
+debug_health_upgrade = true
+debug_damage_upgrade = true
+
+[node name="DebugOverlay" type="CanvasLayer" parent="." unique_id=100000001]
+script = ExtResource("3_sdd4f")
+
 [node name="Environment" type="Node" parent="." unique_id=1755478435]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Environment" unique_id=1020193557]
@@ -92,19 +102,11 @@ movement_axis = Vector3(0, 0, 25)
 transform = Transform3D(-1, 2.9900345e-08, -8.215053e-08, 0, 0.93969256, 0.3420201, 8.742278e-08, 0.3420201, -0.93969256, 20, -3, -20)
 floor_size = Vector3(10, 10, 10)
 
-[node name="Rail" parent="Floors" unique_id=250153288 instance=ExtResource("2_k7grp")]
+[node name="NonFloorEnvirons" type="Node" parent="." unique_id=144411831]
+
+[node name="GrapplePoint" parent="NonFloorEnvirons" unique_id=297201783 instance=ExtResource("5_ba0e1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
+
+[node name="Rail" parent="NonFloorEnvirons" unique_id=250153288 instance=ExtResource("2_k7grp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 0.3056668, -0.23347282)
 curve = SubResource("Curve3D_ba0e1")
-
-[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_84upl")]
-debug_double_jump = true
-debug_dash = true
-debug_speed_upgrade = true
-debug_health_upgrade = true
-debug_damage_upgrade = true
-
-[node name="DebugOverlay" type="CanvasLayer" parent="." unique_id=100000001]
-script = ExtResource("3_sdd4f")
-
-[node name="GrapplePoint" parent="." unique_id=297201783 instance=ExtResource("5_ba0e1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 10, -20)
