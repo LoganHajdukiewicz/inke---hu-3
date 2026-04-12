@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_v8rb7"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_84upl"]
+[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="2_k7grp"]
 [ext_resource type="Script" uid="uid://dyc6h37gq8v3p" path="res://scripts/debug_overlay.gd" id="3_sdd4f"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
@@ -16,6 +17,14 @@ background_mode = 2
 sky = SubResource("Sky_sdd4f")
 tonemap_mode = 2
 glow_enabled = true
+
+[sub_resource type="Curve3D" id="Curve3D_ba0e1"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
+"tilts": PackedFloat32Array(0, 0)
+}
+point_count = 2
 
 [node name="Greybox" type="Node3D" unique_id=365878568]
 
@@ -32,8 +41,8 @@ directional_shadow_max_distance = 1.0
 [node name="Floors" type="Node" parent="." unique_id=2035457491]
 
 [node name="Floor" parent="Floors" unique_id=965862108 instance=ExtResource("1_v8rb7")]
-texture_scale = Vector2(15, 15)
-floor_size = Vector3(100, 0.5, 100)
+texture_scale = Vector2(150, 150)
+floor_size = Vector3(1000, 0.5, 1000)
 
 [node name="Floor2" parent="Floors" unique_id=645159791 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, -2.5, -20)
@@ -46,6 +55,10 @@ floor_size = Vector3(10, 10, 10)
 [node name="Floor3" parent="Floors" unique_id=1705075183 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(-1, 2.9900345e-08, -8.215053e-08, 0, 0.93969256, 0.3420201, 8.742278e-08, 0.3420201, -0.93969256, 20, -3, -20)
 floor_size = Vector3(10, 10, 10)
+
+[node name="Rail" parent="Floors" unique_id=250153288 instance=ExtResource("2_k7grp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 0.3056668, -0.23347282)
+curve = SubResource("Curve3D_ba0e1")
 
 [node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_84upl")]
 debug_double_jump = true
