@@ -1308,39 +1308,6 @@ func _update_right() -> void:
 	txt += _row("Peak H-decel", C_WARN + "%.2f u/s²" % session_peak_h_decel + C_RESET)
 	txt += "\n"
 
-	# ── NEW: GAME FEEL / MOVEMENT FEEL BREAKDOWN ──────────────
-	txt += _header("◆ GAME FEEL  (current state)")
-	var csn := _current_state_name()
-	# Responsiveness rating
-	var resp_score := _responsiveness_score(csn)
-	var resp_col   := C_GOOD if resp_score > 70.0 else (C_WARN if resp_score > 35.0 else C_DANGER)
-	txt += _row("Responsivnss", resp_col + "%.0f / 100" % resp_score + C_RESET)
-	txt += _mini_bar_row("Resp", resp_score / 100.0)
-	# Speed feel
-	var h_now := Vector2(player.velocity.x, player.velocity.z).length()
-	var speed_feel_pct := clampf(h_now / 60.0, 0.0, 1.0)
-	var sf_col := C_GOOD if speed_feel_pct > 0.5 else (C_DIM if speed_feel_pct < 0.1 else C_VAL)
-	txt += _row("Speed feel",   sf_col + "%.0f%%" % (speed_feel_pct * 100.0) + C_RESET)
-	txt += _mini_bar_row("Speed", speed_feel_pct)
-	# Gravity feel (higher = heavier feel)
-	var grav_feel := 0.0
-	if state_machine and state_machine.get("current_state") != null:
-		var csobj = state_machine.current_state
-		if csobj and csobj.get("gravity_multiplier") != null:
-			grav_feel = clampf((_prop(csobj, "gravity_multiplier", 1.0) as float) / 4.0, 0.0, 1.0)
-	txt += _row("Gravity feel", C_DIM + "%.0f%% of max" % (grav_feel * 100.0) + C_RESET)
-	txt += _mini_bar_row("Gravity", grav_feel)
-	# Air tightness
-	var tightness := current_air_control if not player.is_on_floor() else 1.0
-	var tight_col  := C_GOOD if tightness > 0.3 else (C_WARN if tightness > 0.05 else C_DANGER)
-	txt += _row("Air tightness",tight_col + "%.0f%%" % (tightness * 100.0) + C_RESET)
-	txt += _mini_bar_row("Tight", tightness)
-	# Momentum retention (how much speed survives a state transition)
-	var cs_prev_speed_ratio := state_enter_speed / maxf(state_peak_speed, 0.0001)
-	var momentum_pct := clampf(cs_prev_speed_ratio, 0.0, 1.0)
-	txt += _row("Momentum ret.", C_DIM + "%.0f%% (entry/peak)" % (momentum_pct * 100.0) + C_RESET)
-	txt += "\n"
-
 	txt += _header("◆ SESSION STATS")
 	txt += _row("Jumps",        C_VAL + str(session_jump_count) + C_RESET)
 	txt += _row("Double jumps", C_VAL + str(session_dbl_jump_count) + C_RESET)
