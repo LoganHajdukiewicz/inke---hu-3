@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://jf1ig0nnkeur"]
+
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_v8rb7"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_84upl"]
+
+[node name="Greybox" type="Node3D" unique_id=365878568]
+
+[node name="Floor" parent="." unique_id=965862108 instance=ExtResource("1_v8rb7")]
+
+[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_84upl")]
+debug_double_jump = true
+debug_wall_jump = true
+debug_dash = true
+debug_speed_upgrade = true
+debug_health_upgrade = true
+debug_damage_upgrade = true

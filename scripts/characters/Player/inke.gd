@@ -46,6 +46,70 @@ var should_flash: bool = false
 var is_on_ice: bool = false
 var ice_friction_multiplier: float = 0.01  # How much control you have on ice (0.0 = no control, 1.0 = full control)
 
+# ── Debug Upgrades ─────────────────────────────────────────────────────────────
+# Toggle these in Inke's Inspector to grant/revoke upgrades without a merchant.
+# Changes take effect immediately during play.
+
+@export_group("Debug Upgrades")
+
+@export var debug_double_jump: bool = false:
+	set(value):
+		debug_double_jump = value
+		_apply_debug_upgrade("double_jump_purchased", value)
+
+@export var debug_wall_jump: bool = false:
+	set(value):
+		debug_wall_jump = value
+		_apply_debug_upgrade("wall_jump_purchased", value)
+
+@export var debug_dash: bool = false:
+	set(value):
+		debug_dash = value
+		_apply_debug_upgrade("dash_purchased", value)
+
+@export var debug_speed_upgrade: bool = false:
+	set(value):
+		debug_speed_upgrade = value
+		_apply_debug_upgrade("speed_upgrade_purchased", value)
+
+@export var debug_health_upgrade: bool = false:
+	set(value):
+		debug_health_upgrade = value
+		_apply_debug_upgrade("health_upgrade_purchased", value)
+
+@export var debug_damage_upgrade: bool = false:
+	set(value):
+		debug_damage_upgrade = value
+		_apply_debug_upgrade("damage_upgrade_purchased", value)
+
+@export var debug_grant_all: bool = false:
+	set(value):
+		debug_grant_all = value
+		if value:
+			debug_double_jump   = true
+			debug_wall_jump     = true
+			debug_dash          = true
+			debug_speed_upgrade = true
+			debug_health_upgrade = true
+			debug_damage_upgrade = true
+		else:
+			debug_double_jump   = false
+			debug_wall_jump     = false
+			debug_dash          = false
+			debug_speed_upgrade = false
+			debug_health_upgrade = false
+			debug_damage_upgrade = false
+
+func _apply_debug_upgrade(property: String, value: bool) -> void:
+	"""Write directly to GameManager's purchased boolean."""
+	if not is_inside_tree():
+		return  # _ready() will apply all values once we're in the tree
+	var gm = get_node_or_null("/root/GameManager")
+	if gm:
+		gm.set(property, value)
+
+# ── End Debug Upgrades ─────────────────────────────────────────────────────────
+
 # Component references (now managed by separate managers)
 var jump_shadow_manager: JumpShadowManager
 var gear_collection_manager: GearCollectionManager
@@ -98,11 +162,23 @@ func _ready():
 	else:
 		print("Player: PaintManager not found!")
 	
+	# Apply any debug upgrades that were set in the inspector before _ready ran
+	_apply_all_debug_upgrades()
+	
 	# Initialize modular components
 	initialize_components()
 	
 	# Setup damage detection area
 	setup_damage_area()
+
+func _apply_all_debug_upgrades() -> void:
+	"""Re-apply all debug toggles after GameManager is available."""
+	_apply_debug_upgrade("double_jump_purchased",  debug_double_jump)
+	_apply_debug_upgrade("wall_jump_purchased",     debug_wall_jump)
+	_apply_debug_upgrade("dash_purchased",          debug_dash)
+	_apply_debug_upgrade("speed_upgrade_purchased", debug_speed_upgrade)
+	_apply_debug_upgrade("health_upgrade_purchased",debug_health_upgrade)
+	_apply_debug_upgrade("damage_upgrade_purchased",debug_damage_upgrade)
 
 func _on_dialogue_ended():
 	"""Called when dialogue ends - ignore the next jump input"""
