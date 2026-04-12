@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_84upl"]
 [ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="2_k7grp"]
 [ext_resource type="Script" uid="uid://dyc6h37gq8v3p" path="res://scripts/debug_overlay.gd" id="3_sdd4f"]
+[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="5_ba0e1"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -104,3 +105,6 @@ debug_damage_upgrade = true
 
 [node name="DebugOverlay" type="CanvasLayer" parent="." unique_id=100000001]
 script = ExtResource("3_sdd4f")
+
+[node name="GrapplePoint" parent="." unique_id=297201783 instance=ExtResource("5_ba0e1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 10, -20)
