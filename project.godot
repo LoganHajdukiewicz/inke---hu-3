@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Inke & HU-3"
-run/main_scene="uid://jjyrde5gow0w"
+run/main_scene="uid://jf1ig0nnkeur"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
