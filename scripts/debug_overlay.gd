@@ -70,8 +70,8 @@ var accel_history        : Array[float] = []
 var air_control_history  : Array[float] = []
 var friction_history     : Array[float] = []
 
-# ── State history (bumped to 10) ──────────────────────────────
-const STATE_HISTORY_MAX: int = 10
+# ── State history ─────────────────────────────────────────────
+const STATE_HISTORY_MAX: int = 25
 
 # ── Previous frame velocity ───────────────────────────────────
 var _prev_velocity: Vector3 = Vector3.ZERO
