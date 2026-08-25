@@ -1,8 +1,43 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="16" fill="#1a1a2e"/>
-  <circle cx="46" cy="58" r="26" fill="#00ccff"/>
-  <circle cx="86" cy="74" r="20" fill="#ff3355"/>
-  <circle cx="46" cy="58" r="10" fill="#0f0f1e"/>
-  <circle cx="86" cy="74" r="8" fill="#0f0f1e"/>
-  <path d="M 30 100 Q 64 116 98 100" stroke="#00ff88" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <defs>
+    <radialGradient id="head" cx="0.38" cy="0.32" r="0.9">
+      <stop offset="0%" stop-color="#8a8a8a"/>
+      <stop offset="55%" stop-color="#5c5c5c"/>
+      <stop offset="100%" stop-color="#3a3a3a"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#41ff00" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#41ff00" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="128" height="128" rx="18" fill="#12121e"/>
+
+  <!-- antenna ears -->
+  <rect x="8" y="52" width="14" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="106" y="52" width="14" height="24" rx="4" fill="#4a4a4a"/>
+  <rect x="11" y="58" width="8" height="12" rx="2" fill="#2b2b2b"/>
+  <rect x="109" y="58" width="8" height="12" rx="2" fill="#2b2b2b"/>
+
+  <!-- head -->
+  <circle cx="64" cy="64" r="46" fill="url(#head)"/>
+  <circle cx="64" cy="64" r="46" fill="none" stroke="#2b2b2b" stroke-width="3"/>
+
+  <!-- specular highlight -->
+  <ellipse cx="47" cy="42" rx="16" ry="10" fill="#ffffff" opacity="0.18" transform="rotate(-25 47 42)"/>
+
+  <!-- health indicator light -->
+  <circle cx="64" cy="34" r="12" fill="url(#glow)"/>
+  <circle cx="64" cy="34" r="6.5" fill="#41ff00"/>
+  <circle cx="62" cy="32" r="2" fill="#c8ffb0"/>
+
+  <!-- mouth visor -->
+  <path d="M 36 70 Q 64 78 92 70 L 92 82 Q 64 92 36 82 Z" fill="#0a0a0a"/>
+  <!-- smile line inside visor -->
+  <path d="M 46 77 Q 64 84 82 77" stroke="#41ff00" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+  <!-- panel seams -->
+  <path d="M 26 56 Q 34 52 40 54" stroke="#2f2f2f" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M 88 54 Q 96 52 102 56" stroke="#2f2f2f" stroke-width="2" fill="none" opacity="0.7"/>
 </svg>

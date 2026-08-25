@@ -408,7 +408,14 @@ func open_shop():
 	# Disable player controls to prevent movement behind menu
 	current_player.controls_disabled = true
 	current_player.velocity = Vector3.ZERO
-
+	
+	# FIX (merchant exit jump): the Space press that opened the shop can also
+	# fire a jump in the player's state machine on the same frame, leaving the
+	# player frozen mid-JumpingState while the shop is open. Force the state
+	# machine back to Idle so nothing resumes when we unpause.
+	var sm = current_player.get_node_or_null("StateMachine")
+	if sm and sm.has_method("change_state"):
+		sm.change_state("IdleState")
 	
 	shop_open = true
 	current_upgrade_index = 0
@@ -440,12 +447,25 @@ func close_shop():
 	# Set the flag again to block the close button from causing a jump
 	set_player_ignore_jump(true)
 	
-	# Re-enable player controls
+	# FIX (merchant exit jump): the button that closes the shop (Esc/C/B) can
+	# double as a gameplay action (dash!) on the very frame we unpause. Keep the
+	# player's controls disabled for a short grace window so no stray input
+	# leaks into the state machine, then re-enable.
 	if current_player and is_instance_valid(current_player):
-		current_player.controls_disabled = false
+		current_player.velocity = Vector3.ZERO
+		_reenable_controls_after_grace(current_player)
 	
 	# FIXED: Longer cooldown to prevent immediate re-opening or accidental jumps
 	input_cooldown = 0.5
+
+func _reenable_controls_after_grace(p: CharacterBody3D):
+	"""Re-enable player controls a few frames after the shop closes so the
+	close-button press can't trigger jump/dash on the unpause frame."""
+	await get_tree().create_timer(0.15, true, false, true).timeout
+	if is_instance_valid(p):
+		# Don't re-enable if something else (dialogue, another shop) took over
+		if not shop_open:
+			p.controls_disabled = false
 	
 
 # ==========================================

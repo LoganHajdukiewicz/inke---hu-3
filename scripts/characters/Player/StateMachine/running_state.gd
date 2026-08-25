@@ -1,8 +1,7 @@
 extends State
 class_name RunningState
 
-const SPEED : float = 20.0
-const ROTATION_SPEED : float = 12.0
+# Speed/turn rate are tuned on Inke's Inspector (Ground Movement group)
 
 
 func enter():
@@ -10,7 +9,7 @@ func enter():
 
 
 func get_speed():
-	return SPEED
+	return player.run_speed
 
 func physics_update(delta: float):
 	# for Merchant UI 
@@ -55,15 +54,15 @@ func physics_update(delta: float):
 	
 	# On ice: momentum-based sliding (shared model on the player)
 	if player.is_on_ice:
-		player.apply_ice_movement(delta, direction, SPEED)
+		player.apply_ice_movement(delta, direction, player.run_speed)
 	else:
 		# Normal movement
 		# Rotate player to face movement direction
 		if direction.length() > 0.1:
 			var target_rotation = atan2(-direction.x, -direction.z)
-			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, player.run_rotation_speed * delta)
 		
-		player.velocity.x = direction.x * SPEED
-		player.velocity.z = direction.z * SPEED
+		player.velocity.x = direction.x * player.run_speed
+		player.velocity.z = direction.z * player.run_speed
 	
 	player.move_and_slide()

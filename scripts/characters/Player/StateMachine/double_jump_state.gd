@@ -39,7 +39,12 @@ func physics_update(delta: float):
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 
 	if Input.is_action_just_pressed("yoyo"):
-		change_to("GrapplingState")
+		change_to("GrappleHookState")
+		return
+	
+	# Ground slam
+	if Input.is_action_just_pressed("crouch"):
+		change_to("GroundSlamState")
 		return
 		
 	if Input.is_action_just_pressed("dash"):

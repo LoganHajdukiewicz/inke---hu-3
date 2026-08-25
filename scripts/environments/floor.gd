@@ -28,6 +28,9 @@ enum SpinDirection {
 }
 
 @export var floor_type: FloorType = FloorType.NORMAL : set = _set_floor_type
+## Extra behaviors layered on top of floor_type. Example: a MOVING floor with
+## FROZEN in this list is a moving ice floor. Duplicates of floor_type are ignored.
+@export var extra_floor_types: Array[FloorType] = []
 
 @export_category("Texture Settings")
 @export var use_default_texture: bool = true : set = _set_use_default_texture
@@ -110,8 +113,10 @@ var floor_velocity: Vector3 = Vector3.ZERO
 var previous_floor_position: Vector3 = Vector3.ZERO
 var floor_angular_velocity: float = 0.0
 
-# The active per-type behavior handler
+# The active per-type behavior handlers. type_handler is the primary
+# (from floor_type); type_handlers includes it plus any extra_floor_types.
 var type_handler: FloorTypeHandler = null
+var type_handlers: Array[FloorTypeHandler] = []
 
 # Editor preview variables
 var editor_material: StandardMaterial3D
@@ -367,27 +372,52 @@ func setup_cylinder_geometry():
 		spring_collision.position.y = cylinder_height * 0.25
 
 func setup_floor_type():
-	"""Create the behavior handler for the configured floor type"""
-	match floor_type:
-		FloorType.NORMAL:
-			type_handler = NormalFloor.new(self)
-		FloorType.SPRING:
-			type_handler = SpringFloor.new(self)
-		FloorType.FALLING:
-			type_handler = FallingFloor.new(self)
-		FloorType.SPINNING:
-			type_handler = SpinningFloor.new(self)
-		FloorType.MOVING:
-			type_handler = MovingFloor.new(self)
-		FloorType.FROZEN:
-			type_handler = FrozenFloor.new(self)
-		FloorType.DAMAGE:
-			type_handler = DamageFloor.new(self)
-		FloorType.SLIDING:
-			type_handler = SlidingFloor.new(self)
+	"""Create behavior handlers for the configured floor type(s).
+	Floors can combine types: floor_type is the primary, extra_floor_types
+	layer additional behaviors (e.g. MOVING + FROZEN = moving ice floor)."""
+	type_handlers.clear()
 	
-	if type_handler:
-		type_handler.setup()
+	var all_types: Array[FloorType] = [floor_type]
+	for extra in extra_floor_types:
+		if not all_types.has(extra):
+			all_types.append(extra)
+	
+	for t in all_types:
+		var handler := _create_handler(t)
+		if handler:
+			type_handlers.append(handler)
+	
+	type_handler = type_handlers[0] if type_handlers.size() > 0 else null
+	
+	for handler in type_handlers:
+		handler.setup()
+
+func _create_handler(t: FloorType) -> FloorTypeHandler:
+	match t:
+		FloorType.NORMAL:
+			return NormalFloor.new(self)
+		FloorType.SPRING:
+			return SpringFloor.new(self)
+		FloorType.FALLING:
+			return FallingFloor.new(self)
+		FloorType.SPINNING:
+			return SpinningFloor.new(self)
+		FloorType.MOVING:
+			return MovingFloor.new(self)
+		FloorType.FROZEN:
+			return FrozenFloor.new(self)
+		FloorType.DAMAGE:
+			return DamageFloor.new(self)
+		FloorType.SLIDING:
+			return SlidingFloor.new(self)
+	return null
+
+func has_floor_type(t: FloorType) -> bool:
+	"""True if this floor behaves as the given type (primary OR extra).
+	Use this instead of comparing floor_type directly."""
+	if floor_type == t:
+		return true
+	return extra_floor_types.has(t)
 
 func _process(delta):
 	if Engine.is_editor_hint():
@@ -395,8 +425,8 @@ func _process(delta):
 	
 	calculate_floor_velocity(delta)
 	
-	if type_handler:
-		type_handler.process(delta)
+	for handler in type_handlers:
+		handler.process(delta)
 
 func calculate_floor_velocity(delta: float):
 	"""Track the floor's velocity for momentum transfer"""
@@ -406,7 +436,7 @@ func calculate_floor_velocity(delta: float):
 	floor_velocity = (global_position - previous_floor_position) / delta
 	previous_floor_position = global_position
 	
-	if floor_type == FloorType.SPINNING:
+	if has_floor_type(FloorType.SPINNING):
 		var rotation_speed = spin_speed * (PI / 180.0)
 		floor_angular_velocity = rotation_speed if spin_direction == SpinDirection.RIGHT else -rotation_speed
 
@@ -419,12 +449,12 @@ func _on_spring_area_body_entered(body):
 	if body.is_in_group("Player"):
 		if not players_on_floor.has(body):
 			players_on_floor.append(body)
-			if type_handler:
-				type_handler.on_player_entered(body)
+			for handler in type_handlers:
+				handler.on_player_entered(body)
 
 func _on_spring_area_body_exited(body):
 	"""When a player exits the floor's detection area"""
 	if body.is_in_group("Player"):
-		if type_handler:
-			type_handler.on_player_exited(body)
+		for handler in type_handlers:
+			handler.on_player_exited(body)
 		players_on_floor.erase(body)

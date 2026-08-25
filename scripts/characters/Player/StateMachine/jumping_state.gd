@@ -107,6 +107,11 @@ func physics_update(delta: float):
 		change_to("GrappleHookState")
 		return
 
+	# Ground slam
+	if Input.is_action_just_pressed("crouch"):
+		change_to("GroundSlamState")
+		return
+
 	# Snappy jump arc: heavy gravity from launch gives a quick, weighty feel.
 	# (Was a Jak & Daxter style multi-phase curve, but peak_time was 0 so it
 	# always resolved to the heavy phase — simplified to match actual behavior.)

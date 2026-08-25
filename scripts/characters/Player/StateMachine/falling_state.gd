@@ -30,12 +30,17 @@ func physics_update(delta: float):
 		change_to("GrappleHookState")
 		return
 	
+	# Ground slam
+	if Input.is_action_just_pressed("crouch"):
+		change_to("GroundSlamState")
+		return
+	
 	# Falling - gets heavier over time
 	var gravity_multiplier = get_fall_gravity_multiplier()
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 	
 	# ADDED: Safety cap on falling velocity to prevent extreme speeds
-	var max_fall_speed = -30.0  # Terminal velocity
+	var max_fall_speed = -player.terminal_velocity  # Tuned on Inke's Inspector
 	if player.velocity.y < max_fall_speed:
 		player.velocity.y = max_fall_speed
 	
@@ -99,7 +104,7 @@ func handle_falling_movement(delta: float):
 		var target_velocity = direction * target_speed
 		
 		# Moderate air control - better than jumps but still limited
-		var air_control_factor = 0.25  # More control than jumping, but still limited
+		var air_control_factor = player.falling_air_control  # Tuned on Inke's Inspector
 		player.velocity.x = lerp(player.velocity.x, target_velocity.x, air_control_factor)
 		player.velocity.z = lerp(player.velocity.z, target_velocity.z, air_control_factor)
 		

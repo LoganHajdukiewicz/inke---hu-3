@@ -217,9 +217,8 @@ func _get_sliding_floor():
 	var result = space_state.intersect_ray(query)
 	if result:
 		var collider = result.collider
-		if collider and collider.get("floor_type") != null:
-			if collider.floor_type == Floor.FloorType.SLIDING:
-				return collider
+		if collider is Floor and collider.has_floor_type(Floor.FloorType.SLIDING):
+			return collider
 	return null
 
 func _is_on_frozen_floor() -> bool:
@@ -235,8 +234,8 @@ func _is_on_frozen_floor() -> bool:
 	var result = space_state.intersect_ray(query)
 	if result:
 		var collider = result.collider
-		if collider and collider.get("floor_type") != null:
-			return collider.floor_type == Floor.FloorType.FROZEN
+		if collider is Floor:
+			return collider.has_floor_type(Floor.FloorType.FROZEN)
 	return false
 
 func get_speed() -> float:

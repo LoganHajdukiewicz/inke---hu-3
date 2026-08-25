@@ -8,15 +8,17 @@ class_name SpeedEffectsManager
 @export var fade_speed: float = 3.0  # How quickly lines fade in/out
 
 @export_category("Motion Lines Appearance")
-@export var line_color: Color = Color(1.0, 1.0, 1.0, 0.8)  # White with transparency
-@export var line_count_min: int = 12  # Minimum number of radial lines
-@export var line_count_max: int = 20  # Maximum number of radial lines
-@export var line_thickness_primary: float = 0.005  # Thickness of main lines
-@export var line_thickness_secondary: float = 0.03  # Thickness of underlayer lines
-@export var line_length_min: float = 0.3  # Minimum distance from center where lines start
-@export var line_length_max: float = 0.9  # Maximum distance from center where lines end
-@export var line_individual_length_variation: float = 0.5  # How much each line can vary in length (0.0 = no variation, 1.0 = max variation)
-@export var line_sharpness: float = 0.95  # How sharp/crisp the lines are (higher = sharper)
+@export var line_color: Color = Color(1.0, 1.0, 1.0, 0.85)  # White with transparency
+@export var line_count_min: int = 26  # Minimum number of radial streaks
+@export var line_count_max: int = 38  # Maximum number of radial streaks
+@export var line_flicker_speed: float = 14.0  # How fast streaks redraw (hand-drawn feel)
+@export var line_inner_radius: float = 0.42   # Streaks never intrude past this (keeps center clear)
+@export var line_individual_length_variation: float = 0.5  # Per-streak length variation
+
+@export_category("Vignette Blur")
+@export var vignette_blur_strength: float = 2.2   # Mipmap LOD at max speed (higher = blurrier edges)
+@export var vignette_start: float = 0.45          # Distance from center where blur begins
+@export var vignette_darken: float = 0.25         # Slight edge darkening at max intensity
 
 # Internal state
 var shader_material: ShaderMaterial
@@ -99,76 +101,108 @@ func get_motion_lines_shader() -> String:
 	return """
 shader_type canvas_item;
 
+// ---------------------------------------------------------------------------
+// Anime speed lines + vignette blur
+//  - Streaks are TAPERED: thick at the screen edge, needle-thin toward the
+//    center, like ink brush strokes in a manga panel.
+//  - Each streak flickers/redraws a few times a second (stepped time) so the
+//    effect looks hand-drawn on 2s/3s rather than a static overlay.
+//  - The screen edges get a radial mipmap blur + slight darkening so the
+//    center of the screen stays crisp while the periphery smears with speed.
+// ---------------------------------------------------------------------------
+
 uniform float intensity : hint_range(0.0, 1.0) = 0.0;
 uniform vec2 center = vec2(0.5, 0.5);
-uniform vec4 line_color : source_color = vec4(1.0, 1.0, 1.0, 0.8);
-uniform int line_count = 16;
-uniform float line_thickness_primary = 0.005;
-uniform float line_thickness_secondary = 0.03;
-uniform float line_length_min = 0.3;
-uniform float line_length_max = 0.9;
-uniform float line_length_variation = 0.3;
-uniform float line_sharpness = 0.95;
-uniform float animation_speed = 1.0;
+uniform vec4 line_color : source_color = vec4(1.0, 1.0, 1.0, 0.85);
+uniform int line_count = 32;
+uniform float flicker_speed = 14.0;
+uniform float inner_radius = 0.42;
+uniform float length_variation = 0.5;
+uniform float blur_strength = 2.2;
+uniform float vignette_start = 0.45;
+uniform float vignette_darken = 0.25;
 
-// Simple hash function for pseudo-random values per line
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+
 float hash(float n) {
 	return fract(sin(n) * 43758.5453123);
 }
 
+float hash2(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
 void fragment() {
+	// Aspect-corrected radial coordinates so streaks are even all around
 	vec2 uv = UV - center;
-	
-	// Calculate distance and angle from center
+	uv.x *= SCREEN_PIXEL_SIZE.y / SCREEN_PIXEL_SIZE.x;
 	float dist = length(uv);
 	float angle = atan(uv.y, uv.x);
+	float angle01 = (angle + 3.14159265359) / 6.28318530718;
 	
-	// Normalize angle to 0-TAU range
-	float angle_normalized = mod(angle + 3.14159265359, 6.28318530718);
+	// -------- vignette blur: radial ZOOM blur (works on every renderer) -----
+	// Samples march toward screen center, smearing the periphery outward -
+	// exactly the tunnel-vision zoom smear anime uses for extreme speed.
+	float vig = smoothstep(vignette_start, 0.95, dist) * intensity;
+	vec2 to_center = center - UV;
+	float smear = vig * blur_strength * 0.035;
+	vec4 screen = vec4(0.0);
+	const int SAMPLES = 9;
+	for (int i = 0; i < SAMPLES; i++) {
+		float t = float(i) / float(SAMPLES - 1);
+		screen += texture(screen_texture, SCREEN_UV + to_center * smear * t);
+	}
+	screen /= float(SAMPLES);
+	// slight edge darkening sells the tunnel-vision feel
+	screen.rgb *= 1.0 - vig * vignette_darken;
 	
-	// Calculate which line segment we're in
-	float line_angle = 6.28318530718 / float(line_count);
-	float line_index = floor(angle_normalized / line_angle);
-	float line_position = mod(angle_normalized, line_angle) / line_angle;
+	// -------- anime streaks --------
+	// Stepped time = hand-drawn flicker (streaks redraw, not slide)
+	float frame = floor(TIME * flicker_speed);
 	
-	// Generate per-line random values using hash
-	float line_random = hash(line_index);
+	float streaks = 0.0;
+	// Two overlapping layers with different seeds for a rich, sketchy look
+	for (int layer = 0; layer < 2; layer++) {
+		float fl = float(layer);
+		float count = float(line_count) * (1.0 - fl * 0.35);
+		float seed = frame * 13.7 + fl * 91.3;
+		
+		float cell = angle01 * count;
+		float idx = floor(cell);
+		float fpos = fract(cell);            // 0..1 across this streak's wedge
+		float rnd = hash2(vec2(idx, seed));
+		
+		// Most wedges have a streak each 'frame' (dense, energetic)
+		if (rnd > 0.25) {
+			// Random inward reach per streak
+			float reach = inner_radius + rnd * length_variation * 0.3;
+			
+			// TAPER: thick at edge (dist ~ 1) -> needle at its inner tip
+			float taper = smoothstep(reach, 0.9, dist);
+			float half_w = mix(0.002, 0.34, taper * taper);
+			
+			// Streak center jitters inside its wedge per frame
+			float mid = 0.3 + 0.4 * hash2(vec2(idx, seed + 7.0));
+			float d = abs(fpos - mid);
+			float line_mask = smoothstep(half_w, half_w * 0.3, d);
+			
+			// Fade the needle tip out smoothly
+			float tip_fade = smoothstep(reach - 0.03, reach + 0.15, dist);
+			
+			streaks = max(streaks, line_mask * tip_fade * (0.7 + 0.3 * rnd));
+		}
+	}
 	
-	// Calculate random length for this specific line
-	float length_range = line_length_max - line_length_min;
-	float random_length_offset = line_random * line_length_variation * length_range;
-	float this_line_max = line_length_max - random_length_offset;
+	// Streaks only exist toward the edges; center always stays readable
+	float edge_zone = smoothstep(inner_radius, inner_radius + 0.25, dist);
+	float streak_alpha = streaks * edge_zone * intensity * line_color.a;
 	
-	// Create dual-thickness lines
-	// Primary (thin) line
-	float primary_line = smoothstep(0.5 - line_thickness_primary, 0.5, line_position) * 
-						 smoothstep(0.5 + line_thickness_primary, 0.5, line_position);
-	primary_line = pow(primary_line, 1.0 / line_sharpness);
+	// Composite: blurred screen with ink streaks on top
+	vec3 final_rgb = mix(screen.rgb, line_color.rgb, streak_alpha);
 	
-	// Secondary (thick underlayer) line
-	float secondary_line = smoothstep(0.5 - line_thickness_secondary, 0.5, line_position) * 
-						   smoothstep(0.5 + line_thickness_secondary, 0.5, line_position);
-	secondary_line = pow(secondary_line, 1.0 / (line_sharpness * 0.8)); // Slightly softer
-	
-	// Combine lines - secondary is darker/more transparent base
-	float combined_line = max(secondary_line * 0.4, primary_line);
-	
-	// Apply randomized radial mask for this line
-	float radial_mask = smoothstep(line_length_min, line_length_min + 0.05, dist) * 
-						 smoothstep(this_line_max, this_line_max - 0.1, dist);
-	
-	// Add subtle animation - lines pulse outward with some randomness
-	float pulse_offset = line_random * 3.14159; // Random phase offset per line
-	float pulse = sin(TIME * animation_speed - dist * 3.0 + pulse_offset) * 0.5 + 0.5;
-	radial_mask *= (0.8 + pulse * 0.2);
-	
-	// Add slight edge vignette for clean look
-	float edge_fade = smoothstep(1.0, 0.85, dist);
-	
-	// Combine everything
-	float alpha = combined_line * radial_mask * edge_fade * intensity;
-	
-	COLOR = vec4(line_color.rgb, alpha * line_color.a);
+	// Only take over pixels where we actually change something
+	float total_alpha = max(streak_alpha, min(vig * 2.0, 1.0));
+	COLOR = vec4(final_rgb, total_alpha);
 }
 """
 
@@ -178,13 +212,12 @@ func setup_shader_parameters():
 	shader_material.set_shader_parameter("center", Vector2(0.5, 0.5))
 	shader_material.set_shader_parameter("line_color", line_color)
 	shader_material.set_shader_parameter("line_count", actual_line_count)
-	shader_material.set_shader_parameter("line_thickness_primary", line_thickness_primary)
-	shader_material.set_shader_parameter("line_thickness_secondary", line_thickness_secondary)
-	shader_material.set_shader_parameter("line_length_min", line_length_min)
-	shader_material.set_shader_parameter("line_length_max", line_length_max)
-	shader_material.set_shader_parameter("line_length_variation", line_individual_length_variation)
-	shader_material.set_shader_parameter("line_sharpness", line_sharpness)
-	shader_material.set_shader_parameter("animation_speed", 1.0)
+	shader_material.set_shader_parameter("flicker_speed", line_flicker_speed)
+	shader_material.set_shader_parameter("inner_radius", line_inner_radius)
+	shader_material.set_shader_parameter("length_variation", line_individual_length_variation)
+	shader_material.set_shader_parameter("blur_strength", vignette_blur_strength)
+	shader_material.set_shader_parameter("vignette_start", vignette_start)
+	shader_material.set_shader_parameter("vignette_darken", vignette_darken)
 
 func _process(delta: float):
 	if not enabled or not shader_material or not player:
@@ -220,13 +253,13 @@ func _process(delta: float):
 	# Update shader intensity
 	shader_material.set_shader_parameter("intensity", current_intensity)
 	
-	# Speed up animation as player goes faster (or use default speed for grinding)
-	var animation_speed = 1.0
+	# Flicker faster as the player goes faster (or a fixed fast rate on rails)
+	var flicker = line_flicker_speed
 	if is_rail_grinding:
-		animation_speed = 2.5  # Nice fast animation for grinding
+		flicker = line_flicker_speed * 1.5
 	else:
-		animation_speed = 1.0 + (speed / max_speed) * 2.0
-	shader_material.set_shader_parameter("animation_speed", animation_speed)
+		flicker = line_flicker_speed * (0.7 + (speed / max_speed) * 0.8)
+	shader_material.set_shader_parameter("flicker_speed", flicker)
 
 # Public API for runtime adjustments
 func set_enabled(is_enabled: bool):
@@ -242,9 +275,9 @@ func set_speed_threshold(threshold: float):
 	"""Change the speed threshold at runtime"""
 	speed_threshold = threshold
 
-func set_max_speed(max_speed: float):
+func set_max_speed(new_max_speed: float):
 	"""Change the max speed at runtime"""
-	max_speed = max_speed
+	max_speed = new_max_speed
 
 func rerandomize_lines():
 	"""Re-randomize the number and appearance of lines"""

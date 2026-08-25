@@ -1,7 +1,7 @@
 extends State
 class_name IdleState
 
-const DECELERATION : float = 100.0
+# Deceleration is tuned on Inke's Inspector (idle_deceleration)
 
 # Store the last movement direction to preserve facing when stopping
 var last_facing_direction: float = 0.0
@@ -44,7 +44,7 @@ func physics_update(delta: float):
 	if player.is_on_ice:
 		player.apply_ice_movement(delta, Vector3.ZERO, 0.0)
 	else:
-		player.velocity.x = move_toward(player.velocity.x, 0, DECELERATION * delta)
-		player.velocity.z = move_toward(player.velocity.z, 0, DECELERATION * delta)
+		player.velocity.x = move_toward(player.velocity.x, 0, player.idle_deceleration * delta)
+		player.velocity.z = move_toward(player.velocity.z, 0, player.idle_deceleration * delta)
 	
 	player.move_and_slide()

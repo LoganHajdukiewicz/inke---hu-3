@@ -1,10 +1,41 @@
 extends CharacterBody3D
 
+# ══════════════════════════════════════════════════════════════════════════
+# MOVEMENT TUNING — every core movement number, editable on Inke's Inspector.
+# States read these values from the player, so changes apply live.
+# (State-specific extras like dash distance or wall-jump timing live as
+# exports on the corresponding StateMachine child node.)
+# ══════════════════════════════════════════════════════════════════════════
+
+@export_group("Ground Movement")
+@export var walk_speed: float = 10.0          # WalkingState speed
+@export var walk_rotation_speed: float = 10.0 # How fast Inke turns while walking
+@export var run_speed: float = 20.0           # RunningState speed
+@export var run_rotation_speed: float = 12.0  # How fast Inke turns while running
+@export var idle_deceleration: float = 100.0  # How quickly Inke stops when idle
+
+@export_group("Jumping & Air")
+@export var jump_velocity: float = 5.0        # Base upward velocity (double jump etc.)
+@export var coyote_time_duration: float = 0.15  # Grace period to jump after leaving a ledge
+@export var terminal_velocity: float = 30.0   # Max fall speed
+@export var falling_air_control: float = 0.25  # 0 = no air control while falling, 1 = full
+@export var long_jump_window: float = 0.3     # Time window after dash to trigger long jump
+
+@export_group("Ice Movement")
+@export var ice_acceleration: float = 14.0      # units/sec^2 gained while holding a direction
+@export var ice_deceleration: float = 3.0       # units/sec^2 lost while no input (glide!)
+@export var ice_turn_rate: float = 1.8          # how quickly velocity direction bends toward input
+@export var ice_max_speed_multiplier: float = 1.15  # can slightly exceed run speed when sliding
+@export var ice_friction_multiplier: float = 0.01   # legacy control multiplier on ice
+
+@export_group("Damage & Death")
+@export var invulnerability_duration: float = 1.5
+@export var death_y_threshold: float = -50.0   # Fall death threshold
+
 # Player state variables
 var running: bool = false
 var gravity: float = 9.8
 var gravity_default: float = 9.8
-var jump_velocity: float = 5.0
 var is_being_sprung: bool = false
 var ignore_next_jump: bool = false
 var controls_disabled: bool = false
@@ -19,14 +50,12 @@ var can_air_dash: bool = false
 
 # Long jump variables (NEW)
 var can_long_jump: bool = false
-var long_jump_window: float = 0.3  # Time window after dash to trigger long jump
 var long_jump_timer: float = 0.0
 
 # Dash jump momentum storage (NEW)
 var stored_dash_momentum: Vector3 = Vector3.ZERO
 
 # Coyote time variables
-var coyote_time_duration: float = 0.15  
 var coyote_time_counter: float = 0.0
 var was_on_floor: bool = false
 
@@ -36,24 +65,12 @@ var wall_jump_cooldown_time: float = 0.0
 
 # Damage and death variables
 var is_invulnerable: bool = false
-var invulnerability_duration: float = 1.5
 var invulnerability_timer: float = 0.0
 var is_dead: bool = false
-var death_y_threshold: float = -50.0  # Fall death threshold
 var should_flash: bool = false 
 
 # NEW: Ice floor detection
 var is_on_ice: bool = false
-var ice_friction_multiplier: float = 0.01  # How much control you have on ice (0.0 = no control, 1.0 = full control)
-
-# Ice momentum model (classic 3D platformer feel):
-# - input ACCELERATES you slowly instead of setting velocity directly
-# - releasing input keeps you sliding, decaying very slowly
-# - turning is a skid: your old momentum carries while the new direction blends in
-var ice_acceleration: float = 14.0      # units/sec^2 gained while holding a direction
-var ice_deceleration: float = 3.0       # units/sec^2 lost while no input (glide!)
-var ice_turn_rate: float = 1.8          # how quickly velocity direction bends toward input (radians/sec-ish)
-var ice_max_speed_multiplier: float = 1.15  # can slightly exceed run speed when sliding
 
 # ── Debug Upgrades ─────────────────────────────────────────────────────────────
 # Toggle these in Inke's Inspector to grant/revoke upgrades without a merchant.
@@ -310,7 +327,12 @@ func update_ice_detection():
 		var collision = get_slide_collision(i)
 		var collider = collision.get_collider()
 		
-		if collider and collider.has_method("get"):
+		if collider is Floor:
+			# Multi-type aware: a MOVING floor with FROZEN as an extra type is ice too
+			if collider.has_floor_type(Floor.FloorType.FROZEN):
+				is_on_ice = true
+				return
+		elif collider and collider.has_method("get"):
 			var floor_type = collider.get("floor_type")
 			if floor_type != null and floor_type == 6:  # FloorType.FROZEN
 				is_on_ice = true

@@ -39,6 +39,12 @@ var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
 var f1_held_time: float = 0.0
 const F1_QUIT_DURATION: float = 1.0  # Hold for 1 second to quit
 
+# Ink Wisp tracking (scout-fly style collectable, per level)
+var wisps_total: int = 0
+var wisps_collected: int = 0
+var _wisp_scene_id: int = 0  # instance id of the scene the wisps belong to
+var cred_scene = preload("res://scenes/items/Collectibles/cred.tscn")
+
 # Signals
 signal gear_collected(total_gears: int)
 signal cred_collected(amount: int, total_cred: int)
@@ -46,6 +52,8 @@ signal upgrade_purchased(upgrade_type: String)
 signal health_changed(new_health: int, max_health: int)
 signal player_spawned(player: CharacterBody3D)
 signal hu3_spawned(hu3: CharacterBody3D)
+signal wisp_collected_signal(collected: int, total: int)
+signal all_wisps_collected()
 
 func _ready():
 	find_player()
@@ -174,6 +182,55 @@ func add_CRED(reward: int):
 	
 func get_CRED_count() -> int:
 	return CRED
+
+# === INK WISP TRACKING (per level) ===
+
+func register_wisp(_wisp: Node) -> void:
+	"""Called by each InkWisp in _ready(). Counts reset automatically when
+	wisps register from a new scene (level change / reload)."""
+	var scene = get_tree().current_scene
+	var scene_id = scene.get_instance_id() if scene else 0
+	if scene_id != _wisp_scene_id:
+		_wisp_scene_id = scene_id
+		wisps_total = 0
+		wisps_collected = 0
+	wisps_total += 1
+
+func collect_wisp(_wisp: Node) -> void:
+	wisps_collected += 1
+	wisp_collected_signal.emit(wisps_collected, wisps_total)
+	
+	if wisps_collected >= wisps_total and wisps_total > 0:
+		all_wisps_collected.emit()
+		_spawn_wisp_reward_cred()
+
+func get_wisp_progress() -> Dictionary:
+	return {"collected": wisps_collected, "total": wisps_total}
+
+func reset_wisp_tracking() -> void:
+	"""Call on level change so wisp counts start fresh."""
+	wisps_total = 0
+	wisps_collected = 0
+
+func _spawn_wisp_reward_cred() -> void:
+	"""All wisps collected: a CRED appears 10 feet (~3 m) in front of the player."""
+	if not player or not is_instance_valid(player) or not player.is_inside_tree():
+		return
+	if not cred_scene:
+		return
+	
+	var cred = cred_scene.instantiate()
+	player.get_parent().add_child(cred)
+	
+	# 10 feet ~= 3.05 meters, in front of where Inke is facing
+	var forward = -player.global_transform.basis.z.normalized()
+	var spawn_pos = player.global_position + forward * 3.05 + Vector3(0, 1.0, 0)
+	cred.global_position = spawn_pos
+	
+	# Small arrival flourish
+	cred.scale = Vector3(0.05, 0.05, 0.05)
+	var tween = cred.create_tween()
+	tween.tween_property(cred, "scale", Vector3.ONE, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 # === UPGRADE SYSTEM ===
 

@@ -17,6 +17,7 @@
 [ext_resource type="Script" uid="uid://2s58wfqgfi06" path="res://scripts/characters/Player/StateMachine/ledge_hanging_state.gd" id="14_2xw1s"]
 [ext_resource type="Script" uid="uid://brpdq62nf3md4" path="res://scripts/characters/Player/StateMachine/wall_sliding_state.gd" id="15_8tjjk"]
 [ext_resource type="Script" uid="uid://dq1ph3yvky7hl" path="res://scripts/characters/Player/StateMachine/spin_attack_state.gd" id="16_1168t"]
+[ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/ground_slam_state.gd" id="17_gslam"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -96,6 +97,9 @@ script = ExtResource("14_2xw1s")
 
 [node name="WallSlidingState" type="Node" parent="StateMachine" unique_id=1307219831]
 script = ExtResource("15_8tjjk")
+
+[node name="GroundSlamState" type="Node" parent="StateMachine" unique_id=532446008]
+script = ExtResource("17_gslam")
 
 [node name="SpinAttackState" type="Node" parent="StateMachine" unique_id=532446007]
 script = ExtResource("16_1168t")

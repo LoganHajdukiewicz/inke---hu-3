@@ -1,14 +1,13 @@
 extends State
 class_name WalkingState
 
-const SPEED : float = 10.0
-const ROTATION_SPEED : float = 10.0  
+# Speed/turn rate are tuned on Inke's Inspector (Ground Movement group)
 
 func enter():
 	pass
 
 func get_speed():
-	return SPEED
+	return player.walk_speed
 	
 
 func physics_update(delta: float):
@@ -56,15 +55,15 @@ func physics_update(delta: float):
 	
 	# On ice: momentum-based sliding (shared model on the player)
 	if player.is_on_ice:
-		player.apply_ice_movement(delta, direction, SPEED)
+		player.apply_ice_movement(delta, direction, player.walk_speed)
 	else:
 		# Normal movement
 		# Rotate player to face movement direction
 		if direction.length() > 0.1:
 			var target_rotation = atan2(-direction.x, -direction.z)
-			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, player.walk_rotation_speed * delta)
 		
-		player.velocity.x = direction.x * SPEED
-		player.velocity.z = direction.z * SPEED
+		player.velocity.x = direction.x * player.walk_speed
+		player.velocity.z = direction.z * player.walk_speed
 	
 	player.move_and_slide()
