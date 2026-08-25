@@ -21,17 +21,15 @@ var spawn_position: Vector3 = Vector3.ZERO  # Track where enemy spawned
 @export var drops_gears_on_death: bool = true
 @export var gear_count_min: int = 3
 @export var gear_count_max: int = 8
-@export var gear_explosion_force_min: float = 150.0
-@export var gear_explosion_force_max: float = 400.0
-@export var gear_explosion_upward_min: float = 100.0
-@export var gear_explosion_upward_max: float = 200.0
+@export var gear_scatter_radius: float = 2.0
+@export var gear_scatter_duration: float = 0.35
 
 @export_group("Hit Loot (Paint Droplets)")
 @export var drops_paint_on_hit: bool = true
 @export var paint_droplet_count_min: int = 5
 @export var paint_droplet_count_max: int = 10
-@export var paint_explosion_force_min: float = 100.0
-@export var paint_explosion_force_max: float = 250.0
+@export var paint_scatter_radius: float = 1.2
+@export var paint_scatter_duration: float = 0.3
 @export var paint_droplet_value_min: int = 10  # NEW: Min paint value per droplet
 @export var paint_droplet_value_max: int = 25  # NEW: Max paint value per droplet
 
@@ -214,40 +212,25 @@ func spawn_paint_droplets():
 		var droplet = paint_droplet_scene.instantiate()
 		get_parent().add_child(droplet)
 		
-		# Random spawn offset
-		var offset = Vector3(
-			randf_range(-0.5, 0.5),
-			randf_range(0.2, 0.5),
-			randf_range(-0.5, 0.5)
-		)
-		droplet.global_position = spawn_position + offset
-		
 		# Set random paint value
 		var paint_value = randi_range(paint_droplet_value_min, paint_droplet_value_max)
 		if droplet.has_method("set_paint_value"):
 			droplet.set_paint_value(paint_value)
 		
-		# Apply explosive force
-		if droplet is RigidBody3D:
-			# Create radial explosion pattern
-			var explosion_direction = Vector3(
-				randf_range(-1.0, 1.0),
-				randf_range(0.3, 0.8),
-				randf_range(-1.0, 1.0)
-			).normalized()
-			
-			var explosion_force = randf_range(paint_explosion_force_min, paint_explosion_force_max)
-			var impulse = explosion_direction * explosion_force
-			
-			droplet.apply_impulse(impulse)
-			
-			# Add random spin
-			var torque = Vector3(
-				randf_range(-5, 5),
-				randf_range(-5, 5),
-				randf_range(-5, 5)
-			)
-			droplet.apply_torque_impulse(torque)
+		# Scatter outward with a tween (droplets are Area3D - the old
+		# apply_impulse branch was dead code)
+		var angle = randf() * TAU
+		var radius = randf_range(paint_scatter_radius * 0.3, paint_scatter_radius)
+		var target = spawn_position + Vector3(cos(angle) * radius, randf_range(0.2, 0.6), sin(angle) * radius)
+		
+		droplet.global_position = spawn_position
+		if droplet.has_method("scatter_to"):
+			droplet.scatter_to(target, paint_scatter_duration)
+		else:
+			var tween = droplet.create_tween()
+			tween.set_trans(Tween.TRANS_QUAD)
+			tween.set_ease(Tween.EASE_OUT)
+			tween.tween_property(droplet, "global_position", target, paint_scatter_duration)
 
 func die():
 	"""Enemy dies, spawns gears, and is removed from scene"""
@@ -261,51 +244,30 @@ func die():
 	queue_free()
 
 func spawn_gear_explosion():
-	"""Spawn gears with explosive scatter effect when enemy dies"""
+	"""Spawn gears with a scatter effect when enemy dies.
+	NOTE: gears are Area3D, not RigidBody3D - the old apply_impulse code
+	silently did nothing. We animate the scatter with tweens instead."""
 	if not gear_scene:
 		print("ERROR: Gear scene not found!")
 		return
 	
 	var spawn_position = global_position + Vector3(0, 0.5, 0)
 	var gear_count = randi_range(gear_count_min, gear_count_max)
-	
+	var container = get_parent()
 	
 	for i in range(gear_count):
 		var gear = gear_scene.instantiate()
-		get_parent().add_child(gear)
+		container.add_child(gear)
 		
-		# Random spawn offset
-		var offset = Vector3(
-			randf_range(-1.0, 1.0),
-			randf_range(0.3, 1.0),
-			randf_range(-1.0, 1.0)
-		)
-		gear.global_position = spawn_position + offset
+		var angle = randf() * TAU
+		var radius = randf_range(gear_scatter_radius * 0.3, gear_scatter_radius)
+		var target = spawn_position + Vector3(cos(angle) * radius, randf_range(0.3, 1.0), sin(angle) * radius)
 		
-		# Apply explosive force
-		if gear is RigidBody3D:
-			# Create radial explosion pattern
-			var explosion_direction = Vector3(
-				randf_range(-1.0, 1.0),
-				randf_range(0.5, 1.0),
-				randf_range(-1.0, 1.0)
-			).normalized()
-			
-			var explosion_force = randf_range(gear_explosion_force_min, gear_explosion_force_max)
-			var impulse = explosion_direction * explosion_force
-			
-			# Add extra upward boost
-			impulse.y += randf_range(gear_explosion_upward_min, gear_explosion_upward_max)
-			
-			gear.apply_impulse(impulse)
-			
-			# Add random spin
-			var torque = Vector3(
-				randf_range(-10, 10),
-				randf_range(-10, 10),
-				randf_range(-10, 10)
-			)
-			gear.apply_torque_impulse(torque)
+		gear.global_position = spawn_position
+		if gear.has_method("scatter_to"):
+			gear.scatter_to(target, gear_scatter_duration)
+		else:
+			gear.global_position = target
 
 func flash_color():
 	"""Flash white when hit"""

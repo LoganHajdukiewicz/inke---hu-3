@@ -40,12 +40,11 @@ func physics_update(delta: float):
 			change_to("WalkingState")
 		return
 	
-	# NEW: Slower deceleration on ice
-	var decel = DECELERATION
+	# On ice: keep gliding with the shared momentum model (no input = slow glide)
 	if player.is_on_ice:
-		decel *= player.get_ice_friction_multiplier()  # Much slower decel on ice
-	
-	player.velocity.x = move_toward(player.velocity.x, 0, decel * delta)
-	player.velocity.z = move_toward(player.velocity.z, 0, decel * delta)
+		player.apply_ice_movement(delta, Vector3.ZERO, 0.0)
+	else:
+		player.velocity.x = move_toward(player.velocity.x, 0, DECELERATION * delta)
+		player.velocity.z = move_toward(player.velocity.z, 0, DECELERATION * delta)
 	
 	player.move_and_slide()

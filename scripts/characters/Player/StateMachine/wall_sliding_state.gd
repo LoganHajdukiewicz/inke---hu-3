@@ -5,12 +5,14 @@ class_name WallSlidingState
 @export var slide_speed: float = -2.0  # Slow downward slide
 @export var min_slide_speed: float = -5.0  # Maximum slide speed
 @export var slide_friction: float = 0.95  # How much to slow down vertical velocity
-@export var wall_check_distance: float = 0.8  # How far to check for walls
-@export var input_required: bool = true  # Whether player needs to hold towards wall
+@export var wall_check_distance: float = 1.2  # How far to check for walls (generous so near-misses still count)
+@export var wall_stick_force: float = 4.0  # Gentle pull toward the wall - makes the wall "sticky"
+@export var detach_hold_time: float = 0.25  # Hold away from wall this long to deliberately detach
 
 # Internal state
 var wall_normal: Vector3 = Vector3.ZERO
 var is_sliding: bool = false
+var away_hold_timer: float = 0.0  # How long the stick has been held away from the wall
 
 func enter():
 	
@@ -22,6 +24,7 @@ func enter():
 		return
 	
 	is_sliding = true
+	away_hold_timer = 0.0
 	
 	# Reduce velocity for slide
 	player.velocity.y = max(player.velocity.y * slide_friction, slide_speed)
@@ -31,23 +34,40 @@ func enter():
 	player.rotation.y = target_rotation
 
 func physics_update(delta: float):
-	# Check if still against wall
-	if not is_against_wall():
+	# Refresh the wall normal each frame (walls can curve / we can drift)
+	var detected_normal = detect_wall()
+	if detected_normal != Vector3.ZERO:
+		wall_normal = detected_normal
+	else:
+		# No wall found at all - nothing to slide on
 		change_to("FallingState")
 		return
 	
-	# Check if player is moving away from wall
-	if input_required:
-		var input_dir = Input.get_vector("left", "right", "forward", "back")
-		if input_dir.length() > 0.1:
-			var camera_basis = player.get_node("CameraController").transform.basis
-			var input_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-			
-			# If moving away from wall, stop sliding
-			var dot_product = input_direction.dot(-wall_normal)
-			if dot_product < 0.3:  # Not holding towards wall
+	# STICKY WALL: pressing away from the wall does NOT instantly detach.
+	# You stay stuck unless you hold firmly away for detach_hold_time,
+	# jump off, or the wall ends. This prevents accidental drop-offs when
+	# adjusting the stick mid-slide.
+	var input_dir = Input.get_vector("left", "right", "forward", "back")
+	if input_dir.length() > 0.5:
+		var camera_basis = player.get_node("CameraController").transform.basis
+		var input_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+		
+		# Holding firmly AWAY from the wall (in the direction of its normal)
+		if input_direction.dot(wall_normal) > 0.6:
+			away_hold_timer += delta
+			if away_hold_timer >= detach_hold_time:
+				# Deliberate detach: small push off the wall
+				player.velocity += wall_normal * 3.0
 				change_to("FallingState")
 				return
+		else:
+			away_hold_timer = 0.0
+	else:
+		away_hold_timer = 0.0
+	
+	# Gentle pull toward the wall keeps us glued even when the collision
+	# margin would otherwise drift us out of raycast range
+	player.velocity += -wall_normal * wall_stick_force * delta
 	
 	# Apply slide speed
 	player.velocity.y = max(player.velocity.y + player.get_gravity().y * delta * 0.3, min_slide_speed)
@@ -57,10 +77,10 @@ func physics_update(delta: float):
 		player.velocity.y = slide_speed
 	
 	# Minimal horizontal control while sliding
-	var input_dir = Input.get_vector("left", "right", "forward", "back")
-	if input_dir.length() > 0.1:
-		var camera_basis = player.get_node("CameraController").transform.basis
-		var direction: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	var move_input = Input.get_vector("left", "right", "forward", "back")
+	if move_input.length() > 0.1:
+		var move_camera_basis = player.get_node("CameraController").transform.basis
+		var direction: Vector3 = (move_camera_basis * Vector3(move_input.x, 0, move_input.y)).normalized()
 		
 		# Only allow movement along the wall (perpendicular to normal)
 		var right_vector = Vector3.UP.cross(wall_normal).normalized()
@@ -86,16 +106,21 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 func detect_wall() -> Vector3:
-	"""Detect which wall we're against"""
+	"""Detect which wall we're against (8 directions for reliability)"""
 	var player_forward = -player.global_transform.basis.z
+	var player_right = player.global_transform.basis.x
 	var space_state = player.get_world_3d().direct_space_state
 	
-	# Check multiple directions around the player
+	# Check 8 directions around the player so glancing angles still register
 	var check_directions = [
 		player_forward,
 		-player_forward,
-		player.global_transform.basis.x,
-		-player.global_transform.basis.x
+		player_right,
+		-player_right,
+		(player_forward + player_right).normalized(),
+		(player_forward - player_right).normalized(),
+		(-player_forward + player_right).normalized(),
+		(-player_forward - player_right).normalized(),
 	]
 	
 	for direction in check_directions:

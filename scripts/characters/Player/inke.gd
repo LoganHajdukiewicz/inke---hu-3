@@ -46,6 +46,15 @@ var should_flash: bool = false
 var is_on_ice: bool = false
 var ice_friction_multiplier: float = 0.01  # How much control you have on ice (0.0 = no control, 1.0 = full control)
 
+# Ice momentum model (classic 3D platformer feel):
+# - input ACCELERATES you slowly instead of setting velocity directly
+# - releasing input keeps you sliding, decaying very slowly
+# - turning is a skid: your old momentum carries while the new direction blends in
+var ice_acceleration: float = 14.0      # units/sec^2 gained while holding a direction
+var ice_deceleration: float = 3.0       # units/sec^2 lost while no input (glide!)
+var ice_turn_rate: float = 1.8          # how quickly velocity direction bends toward input (radians/sec-ish)
+var ice_max_speed_multiplier: float = 1.15  # can slightly exceed run speed when sliding
+
 # ── Debug Upgrades ─────────────────────────────────────────────────────────────
 # Toggle these in Inke's Inspector to grant/revoke upgrades without a merchant.
 # Changes take effect immediately during play.
@@ -223,6 +232,11 @@ func initialize_components():
 	speed_effects_manager = SpeedEffectsManager.new()
 	speed_effects_manager.name = "SpeedEffectsManager"
 	add_child(speed_effects_manager)
+	
+	# Grapple aiming reticle / target lock-on
+	var grapple_target_manager = GrappleTargetManager.new()
+	grapple_target_manager.name = "GrappleTargetManager"
+	add_child(grapple_target_manager)
 
 func setup_damage_area():
 	"""Setup Area3D for detecting damage sources"""
@@ -305,6 +319,58 @@ func update_ice_detection():
 func get_ice_friction_multiplier() -> float:
 	"""Get the friction multiplier based on whether we're on ice"""
 	return ice_friction_multiplier if is_on_ice else 1.0
+
+func apply_ice_movement(delta: float, input_direction: Vector3, target_speed: float) -> void:
+	"""Classic 3D-platformer ice movement.
+	Call from ground states while is_on_ice. input_direction may be ZERO
+	(no input = keep gliding). Modifies velocity.x/z only."""
+	var vel := Vector2(velocity.x, velocity.z)
+	var speed := vel.length()
+	var max_speed := target_speed * ice_max_speed_multiplier
+	
+	if input_direction.length() > 0.1:
+		var wish := Vector2(input_direction.x, input_direction.z).normalized()
+		
+		if speed < 0.5:
+			# From standstill: just accelerate in the wished direction
+			vel += wish * ice_acceleration * delta
+		else:
+			var current_dir := vel / speed
+			var alignment := current_dir.dot(wish)  # 1 = same way, -1 = braking
+			
+			if alignment < -0.2:
+				# Trying to reverse: brake harder than glide, but still slippery
+				speed = max(speed - ice_acceleration * 0.8 * delta, 0.0)
+				vel = current_dir * speed
+				# A little push the new way so reversing eventually works
+				vel += wish * ice_acceleration * 0.5 * delta
+			else:
+				# Skid-turn: bend current momentum toward the wished direction
+				# without losing speed (this is the "drifty" ice feel)
+				var bend := clampf(ice_turn_rate * delta, 0.0, 1.0)
+				var new_dir := current_dir.slerp(wish, bend).normalized()
+				# Accelerate along the (new) direction while under max speed
+				if speed < max_speed:
+					speed = min(speed + ice_acceleration * delta, max_speed)
+				vel = new_dir * speed
+	else:
+		# No input: glide, losing speed very slowly
+		speed = max(speed - ice_deceleration * delta, 0.0)
+		if speed > 0.01:
+			vel = vel.normalized() * speed
+		else:
+			vel = Vector2.ZERO
+	
+	velocity.x = vel.x
+	velocity.z = vel.y
+	
+	# Face the direction we're actually sliding (not the stick direction) --
+	# feels like the character is surfing their own momentum
+	var horizontal := Vector2(velocity.x, velocity.z)
+	if horizontal.length() > 1.0:
+		var face := Vector3(horizontal.x, 0, horizontal.y).normalized()
+		var target_rotation := atan2(-face.x, -face.z)
+		rotation.y = lerp_angle(rotation.y, target_rotation, 6.0 * delta)
 
 func update_dash_cooldown(delta: float):
 	"""Tick the dodge dash cooldown centrally so it progresses in every state.

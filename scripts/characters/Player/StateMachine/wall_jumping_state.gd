@@ -114,16 +114,21 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 func is_near_wall() -> bool:
-	"""Check if player is near a wall using raycasts"""
+	"""Check if player is near a wall using raycasts.
+	Generous distance + diagonals so being "an inch away" still registers."""
 	var space_state = player.get_world_3d().direct_space_state
-	var check_distance = 0.8
+	var check_distance = 1.2
 	
 	# Get player's forward direction
 	var forward = -player.global_transform.basis.z
 	var right = player.global_transform.basis.x
 	
-	# Check multiple directions
-	var check_directions = [forward, -forward, right, -right]
+	# Check multiple directions including diagonals
+	var check_directions = [
+		forward, -forward, right, -right,
+		(forward + right).normalized(), (forward - right).normalized(),
+		(-forward + right).normalized(), (-forward - right).normalized(),
+	]
 	
 	for direction in check_directions:
 		var ray_start = player.global_position + Vector3(0, 1.0, 0)

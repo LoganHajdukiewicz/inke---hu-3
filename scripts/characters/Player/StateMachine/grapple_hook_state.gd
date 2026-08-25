@@ -6,7 +6,12 @@ class_name GrappleHookState
 @export var max_grapple_distance: float = 30.0
 @export var grapple_pull_force: float = 25.0
 @export var swing_control_strength: float = 8.0
-@export var release_boost: float = 15.0
+@export var release_boost: float = 8.0
+
+# Swing safety limits
+@export var max_swing_speed: float = 28.0      # Hard cap on speed while swinging
+@export var max_release_speed: float = 32.0    # Hard cap on speed the moment you let go
+@export var max_swing_angle_degrees: float = 80.0  # Max pendulum angle from straight-down (prevents full loops)
 
 # Enemy grapple configuration
 @export var enemy_grapple_distance: float = 15.0  # Max distance to grapple enemies
@@ -20,7 +25,6 @@ var grapple_point: Vector3 = Vector3.ZERO
 var is_grappling: bool = false
 var grapple_mode: String = "pull"  # "pull", "swing", or "enemy"
 var rope_length: float = 0.0
-var swing_velocity: Vector3 = Vector3.ZERO
 
 # Enemy grapple state
 var grapple_target_enemy: Node3D = null
@@ -31,26 +35,32 @@ var rope_line: ImmediateMesh = null
 var rope_mesh_instance: MeshInstance3D = null
 
 func enter():
-	
 	# Reset enemy grapple state
 	has_attacked_enemy = false
 	grapple_target_enemy = null
 	
-	# First, try to find an enemy to grapple
-	var nearest_enemy = find_nearest_enemy()
+	# Use the reticle's locked target so what you see is what you get.
+	# Falls back to a local search if the manager isn't present.
+	var target_manager = player.get_node_or_null("GrappleTargetManager")
+	var target: Node3D = null
+	var target_type: String = ""
 	
-	if nearest_enemy:
-		# Enemy grapple mode
-		setup_enemy_grapple(nearest_enemy)
+	if target_manager:
+		target = target_manager.get_target()
+		target_type = target_manager.get_target_type()
 	else:
-		# Regular grapple point mode
-		var grapple_target = find_grapple_point()
-		
-		if not grapple_target:
-			change_to("FallingState")
-			return
-		
-		grapple_point = grapple_target
+		target = find_nearest_enemy()
+		target_type = "enemy" if target else ""
+		if not target and not player.is_on_floor():
+			target = find_grapple_point_node()
+			target_type = "point" if target else ""
+	
+	if target and target_type == "enemy":
+		# Enemy grapple: allowed from ground or air
+		setup_enemy_grapple(target)
+	elif target and target_type == "point" and not player.is_on_floor():
+		# Point grapple: AIR ONLY (no swinging while standing on the ground)
+		grapple_point = target.global_position
 		is_grappling = true
 		rope_length = player.global_position.distance_to(grapple_point)
 		
@@ -58,11 +68,12 @@ func enter():
 		var to_grapple = grapple_point - player.global_position
 		var angle_to_grapple = rad_to_deg(acos(to_grapple.normalized().dot(Vector3.UP)))
 		
-		# If grapple point is above and ahead, swing. Otherwise, pull directly
+		# If grapple point is above, swing. Otherwise, pull directly
 		if angle_to_grapple < 270 and to_grapple.y > 0:
 			grapple_mode = "swing"
-			# Preserve horizontal momentum for swinging
-			swing_velocity = player.velocity
+			# Preserve horizontal momentum for swinging (capped)
+			if player.velocity.length() > max_swing_speed:
+				player.velocity = player.velocity.normalized() * max_swing_speed
 			
 			# Reset double jump and air dash abilities when entering swing mode
 			player.can_double_jump = true
@@ -73,14 +84,19 @@ func enter():
 			grapple_mode = "pull"
 			# Start pulling immediately
 			player.velocity = Vector3.ZERO
-		
+	else:
+		# Nothing valid to grapple
+		if player.is_on_floor():
+			change_to("IdleState")
+		else:
+			change_to("FallingState")
+		return
 	
 	# Create visual rope
 	create_rope_visual()
 
 func setup_enemy_grapple(enemy: Node3D):
 	"""Setup grapple to enemy"""
-	
 	grapple_mode = "enemy"
 	grapple_target_enemy = enemy
 	grapple_point = enemy.global_position
@@ -223,7 +239,12 @@ func handle_pull_grapple(delta: float):
 		release_grapple()
 
 func handle_swing_grapple(delta: float):
-	"""Swing player like a pendulum"""
+	"""Swing player like a pendulum, with speed and angle limits.
+	
+	SPEED LIMIT: velocity is clamped to max_swing_speed every frame, so
+	pumping the swing can't build unbounded energy.
+	ANGLE LIMIT: the pendulum can't rise past max_swing_angle_degrees from
+	straight-down, so you can swing hard but never loop over the top."""
 	var to_grapple = grapple_point - player.global_position
 	var distance = to_grapple.length()
 	
@@ -254,9 +275,34 @@ func handle_swing_grapple(delta: float):
 		var excess = distance - rope_length
 		if excess > 0:
 			player.velocity += current_direction * excess * 10.0
+	
+	# ---- ANGLE LIMIT: no full loops -----------------------------------------
+	# Pendulum angle measured from straight-down under the anchor.
+	var from_anchor = player.global_position - grapple_point  # points anchor -> player
+	var angle_from_down = rad_to_deg(Vector3.DOWN.angle_to(from_anchor.normalized()))
+	var max_angle = max_swing_angle_degrees
+	
+	if angle_from_down >= max_angle:
+		# Kill any velocity that would raise the player further.
+		# "Upward" along the swing arc = component of velocity that increases
+		# the angle = velocity projected on the direction away from DOWN.
+		var down_axis = Vector3.DOWN
+		var swing_plane_up = (from_anchor.normalized() - down_axis * from_anchor.normalized().dot(down_axis))
+		if swing_plane_up.length() > 0.001:
+			swing_plane_up = swing_plane_up.normalized()
+			var rising_speed = player.velocity.dot(swing_plane_up)
+			if rising_speed > 0:
+				player.velocity -= swing_plane_up * rising_speed
+		# Also stop upward vertical motion at the rim
+		if player.velocity.y > 0:
+			player.velocity.y = 0
+	
+	# ---- SPEED LIMIT: no infinite energy -------------------------------------
+	if player.velocity.length() > max_swing_speed:
+		player.velocity = player.velocity.normalized() * max_swing_speed
 
 func find_nearest_enemy() -> Node3D:
-	"""Find the nearest enemy within grapple range"""
+	"""Fallback: find the nearest enemy within grapple range"""
 	var enemies = get_tree().get_nodes_in_group("Enemy")
 	if enemies.is_empty():
 		return null
@@ -288,17 +334,14 @@ func find_nearest_enemy() -> Node3D:
 			best_score = score
 			best_enemy = enemy
 	
-	if best_enemy:
-		pass
-	
 	return best_enemy
 
-func find_grapple_point() -> Vector3:
-	"""Find the nearest grapple point within range"""
+func find_grapple_point_node() -> Node3D:
+	"""Fallback: find the nearest grapple point node within range"""
 	var grapple_points = get_tree().get_nodes_in_group("GrapplePoint")
 	
 	if grapple_points.is_empty():
-		return Vector3.ZERO
+		return null
 	
 	# Get camera forward direction for aiming
 	var camera_forward = player.get_node("CameraController").get_camera_forward()
@@ -327,7 +370,7 @@ func find_grapple_point() -> Vector3:
 			best_score = score
 			best_point = point
 	
-	return best_point.global_position if best_point else Vector3.ZERO
+	return best_point
 
 func update_rope_visual():
 	"""Update the visual rope connecting player to grapple point"""
@@ -346,7 +389,7 @@ func update_rope_visual():
 	rope_line.surface_end()
 
 func release_grapple():
-	"""Release the grapple and apply momentum boost"""
+	"""Release the grapple with a small, hard-capped momentum boost"""
 	
 	# Only apply release boost for non-enemy grapples (enemy grapple already has bounce)
 	if grapple_mode != "enemy":
@@ -354,6 +397,11 @@ func release_grapple():
 		if player.velocity.length() > 0.1:
 			var boost_direction = player.velocity.normalized()
 			player.velocity += boost_direction * release_boost
+		
+		# HARD CAP: releasing the grapple can never launch the player past
+		# max_release_speed - this was the "insane speed" exploit.
+		if player.velocity.length() > max_release_speed:
+			player.velocity = player.velocity.normalized() * max_release_speed
 	
 	exit_grapple()
 
@@ -372,7 +420,6 @@ func exit_grapple():
 		change_to("FallingState")
 
 func exit():
-	
 	# Clean up rope visual
 	if rope_mesh_instance and is_instance_valid(rope_mesh_instance):
 		rope_mesh_instance.queue_free()

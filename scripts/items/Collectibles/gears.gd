@@ -12,6 +12,21 @@ var initial_position: Vector3
 var ground_level: float = 0.0
 var time_passed: float = 0.0
 var collected: bool = false  # Prevent double collection
+var is_scattering: bool = false  # Suppress bobbing while scatter tween runs
+
+func scatter_to(target: Vector3, duration: float) -> void:
+	"""Animate this gear from its current position to target (used by
+	breaking boxes / dying enemies). Cheap tween instead of physics.
+	Suppresses bobbing until the scatter lands, then re-anchors to ground."""
+	is_scattering = true
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "global_position", target, duration)
+	tween.tween_callback(func():
+		is_scattering = false
+		find_ground_level()
+	)
 
 func _ready():
 	# Add to groups
@@ -31,6 +46,10 @@ func find_ground_level():
 	"""Raycast down to find ground and position above it"""
 	# Wait one frame to ensure we're in the tree
 	await get_tree().process_frame
+	
+	# Don't fight the scatter tween; it re-calls us when it finishes
+	if is_scattering or collected or not is_inside_tree():
+		return
 	
 	var space_state = get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(
@@ -58,8 +77,8 @@ func _process(delta):
 	# Rotate the gear around the Y axis
 	rotation_degrees.y += rotation_speed * delta
 	
-	# Bobbing motion (stays above ground)
-	if enable_bobbing:
+	# Bobbing motion (stays above ground) - not while scattering out of a box
+	if enable_bobbing and not is_scattering:
 		time_passed += delta
 		# Bob up and down from the ground level
 		var bob_offset = sin(time_passed * bob_speed) * bob_height

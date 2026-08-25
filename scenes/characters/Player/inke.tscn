@@ -131,11 +131,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.792745, 0)
 
 [node name="Right" type="RayCast3D" parent="WallJumpRays" unique_id=1809721435]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.485969, 0)
-target_position = Vector3(1, 0, 0)
+target_position = Vector3(1.5, 0, 0)
 
 [node name="Left" type="RayCast3D" parent="WallJumpRays" unique_id=639957661]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.524077, 0)
-target_position = Vector3(-1, 0, 0)
+target_position = Vector3(-1.5, 0, 0)
 
 [node name="Front" type="RayCast3D" parent="WallJumpRays" unique_id=1883202903]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.476682, 0)
@@ -144,6 +144,22 @@ target_position = Vector3(0, 0, -1.5)
 [node name="Back" type="RayCast3D" parent="WallJumpRays" unique_id=1500604653]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.564396, 0)
 target_position = Vector3(0, 0, 1.5)
+
+[node name="FrontRight" type="RayCast3D" parent="WallJumpRays" unique_id=1500604654]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+target_position = Vector3(1.06, 0, -1.06)
+
+[node name="FrontLeft" type="RayCast3D" parent="WallJumpRays" unique_id=1500604655]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+target_position = Vector3(-1.06, 0, -1.06)
+
+[node name="BackRight" type="RayCast3D" parent="WallJumpRays" unique_id=1500604656]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+target_position = Vector3(1.06, 0, 1.06)
+
+[node name="BackLeft" type="RayCast3D" parent="WallJumpRays" unique_id=1500604657]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+target_position = Vector3(-1.06, 0, 1.06)
 
 [node name="HU-3Boundary" type="Area3D" parent="." unique_id=957896764]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98123, 0)

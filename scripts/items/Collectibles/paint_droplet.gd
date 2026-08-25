@@ -46,8 +46,24 @@ func _ready():
 	body_entered.connect(_on_body_entered)
 	area_entered.connect(_on_area_entered)
 
+var is_scattering: bool = false  # Suppress bobbing while scatter tween runs
+
+func scatter_to(target: Vector3, duration: float) -> void:
+	"""Animate this droplet outward from a hit enemy (tween-based scatter)."""
+	is_scattering = true
+	var tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "global_position", target, duration)
+	tween.tween_callback(func():
+		is_scattering = false
+		find_ground_level()
+	)
+
 func find_ground_level():
 	"""Raycast down to find ground and position above it"""
+	if is_scattering or collected:
+		return
 	var space_state = get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(
 		global_position,
@@ -114,8 +130,8 @@ func _physics_process(delta: float):
 		fade_out_and_delete()
 		return
 	
-	# Bobbing animation (only when not attracted)
-	if not attracted_to_player and not collected:
+	# Bobbing animation (only when not attracted or scattering)
+	if not attracted_to_player and not collected and not is_scattering:
 		time_passed += delta
 		var bob_offset = sin(time_passed * bob_speed) * bob_height
 		global_position.y = ground_level + bob_offset

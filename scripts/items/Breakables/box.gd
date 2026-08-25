@@ -18,13 +18,9 @@ class_name Box
 @export var bounce_damage: int = 2             # Damage dealt when bounced on
 
 @export_group("Explosion Settings")
-@export var explosion_force_min: float = 200.0  # Minimum horizontal explosion force
-@export var explosion_force_max: float = 500.0  # Maximum horizontal explosion force
-@export var explosion_upward_min: float = 150.0   # Minimum upward boost
-@export var explosion_upward_max: float = 250.0  # Maximum upward boost
 @export var spawn_spread: float = 2.5           # How far apart gears spawn
-@export var add_spin: bool = true                # Add random spinning to gears
-@export var spin_intensity: float = 10.0        # How fast gears spin
+@export var gears_per_frame: int = 6            # Spawn batch size (prevents frame hitches)
+@export var scatter_duration: float = 0.35      # How long the scatter animation takes
 
 # References to child nodes
 @onready var mesh: MeshInstance3D = $MeshInstance3D
@@ -319,45 +315,49 @@ func play_break_animation():
 		tween.tween_property(material, "albedo_color:a", 0.0, 0.3)
 
 func spawn_loot():
-	"""Spawn gears with explosive scatter effect!"""
+	"""Spawn gears with a scatter effect, staggered across frames.
+	
+	PERFORMANCE: spawning all gears in a single frame (instantiate + add_child
+	+ per-gear ground raycast) caused a visible hitch with large gear counts.
+	We now spawn gears_per_frame per frame instead. The scatter is animated
+	with a cheap tween (gears are Area3D, so physics impulses never applied)."""
 	if not is_instance_valid(self):
 		return
-		
-	var spawn_position = global_position + Vector3(0, 0.5, 0)
 	
 	if drops_gears and gear_scene:
 		var gear_count = randi_range(gear_count_min, gear_count_max)
+		# Parent gears to our parent so they survive the box being freed;
+		# capture references now because the box may be freed mid-coroutine.
+		var container = get_parent()
+		var spawn_position = global_position + Vector3(0, 0.5, 0)
+		_spawn_gears_staggered(container, spawn_position, gear_count)
+
+func _spawn_gears_staggered(container: Node, spawn_position: Vector3, gear_count: int) -> void:
+	"""Coroutine: spawn gears in small batches to avoid frame hitches.
+	Runs on the container's tree so it keeps going after the box is freed."""
+	var tree = container.get_tree()
+	var spawned := 0
+	
+	while spawned < gear_count:
+		if not is_instance_valid(container):
+			return
 		
-		for i in range(gear_count):
+		var batch = mini(gears_per_frame, gear_count - spawned)
+		for i in range(batch):
 			var gear = gear_scene.instantiate()
-			get_parent().add_child(gear)
+			container.add_child(gear)
 			
-			# Spawn position with spread
-			var offset = Vector3(
-				randf_range(-spawn_spread, spawn_spread),
-				randf_range(0.3, 1.0),
-				randf_range(-spawn_spread, spawn_spread)
-			)
-			gear.global_position = spawn_position + offset
+			# Final scatter position in a ring around the box
+			var angle = randf() * TAU
+			var radius = randf_range(spawn_spread * 0.3, spawn_spread)
+			var target = spawn_position + Vector3(cos(angle) * radius, randf_range(0.3, 1.0), sin(angle) * radius)
 			
-			# Explosive velocity
-			if gear is RigidBody3D:
-				var explosion_direction = Vector3(
-					randf_range(-1.0, 1.0),
-					randf_range(0.5, 1.0),
-					randf_range(-1.0, 1.0)
-				).normalized()
-				
-				var explosion_force = randf_range(explosion_force_min, explosion_force_max)
-				var impulse = explosion_direction * explosion_force
-				impulse.y += randf_range(explosion_upward_min, explosion_upward_max)
-				
-				gear.apply_impulse(impulse)
-				
-				if add_spin:
-					var torque = Vector3(
-						randf_range(-spin_intensity, spin_intensity),
-						randf_range(-spin_intensity, spin_intensity),
-						randf_range(-spin_intensity, spin_intensity)
-					)
-					gear.apply_torque_impulse(torque)
+			# Start at the box and animate outward for the "explosion" feel
+			gear.global_position = spawn_position
+			if gear.has_method("scatter_to"):
+				gear.scatter_to(target, scatter_duration)
+			else:
+				gear.global_position = target
+		
+		spawned += batch
+		await tree.process_frame
