@@ -202,7 +202,6 @@ func start_collection_cutscene(player_node: CharacterBody3D):
 	is_playing_cutscene = true
 	cutscene_timer = 0.0
 	
-	print("CRED: Starting collection cutscene")
 	
 	cutscene_started.emit(self)
 	

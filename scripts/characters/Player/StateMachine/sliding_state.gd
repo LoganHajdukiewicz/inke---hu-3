@@ -14,7 +14,6 @@ var slide_direction: Vector3 = Vector3.ZERO
 var initial_slide_speed: float = 10.0
 
 func enter():
-	print("Entered Sliding State")
 	
 	# Get the player's current horizontal velocity
 	var current_horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
@@ -28,16 +27,13 @@ func enter():
 		# Use current velocity if player is already moving
 		slide_direction = current_horizontal_velocity.normalized()
 		initial_slide_speed = current_speed
-		print("Using current velocity - Speed: ", current_speed)
 	elif input_dir.length() > 0.1:
 		# Use input direction if player is actively moving
 		var camera_basis = player.get_node("CameraController").transform.basis
 		slide_direction = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 		initial_slide_speed = BASE_SLIDE_SPEED
-		print("Using input direction - Speed: ", initial_slide_speed)
 	else:
 		# Player is not moving - exit sliding immediately
-		print("Not moving, exiting slide immediately")
 		call_deferred("change_to", "IdleState")
 		return
 	
@@ -48,26 +44,13 @@ func enter():
 	player.velocity.x = slide_velocity.x
 	player.velocity.z = slide_velocity.z
 	
-	print("Sliding! Direction: ", slide_direction, " Initial Speed: ", initial_slide_speed, " Slide Velocity: ", slide_velocity)
 
-func update_dash_cooldown(delta: float):
-	"""Update the dash cooldown timer in the dodge dash state"""
-	var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
-	if dodge_dash_state:
-		# Continue updating cooldown even when not in dash state
-		if not dodge_dash_state.can_dash and dodge_dash_state.cooldown_timer > 0:
-			dodge_dash_state.cooldown_timer -= delta
-			if dodge_dash_state.cooldown_timer <= 0:
-				dodge_dash_state.can_dash = true
-				dodge_dash_state.cooldown_timer = 0.0
-				print("Dash cooldown completed in ", get_script().get_global_name())
 
 # SLIDING STATE - ULTIMATE FIX
 # Prevents stopping and deceleration on sliding floors
 
 # REPLACE the entire physics_update() function with this:
 func physics_update(delta: float):
-	update_dash_cooldown(delta)
 	
 	# Allow grapple hook exit
 	if Input.is_action_just_pressed("yoyo"):
@@ -89,7 +72,6 @@ func physics_update(delta: float):
 	
 	# Allow jump exit
 	if Input.is_action_just_pressed("jump") and not player.ignore_next_jump:
-		print("Jump from slide - preserving momentum: ", player.velocity)
 		change_to("JumpingState")
 		return
 	
@@ -102,7 +84,6 @@ func physics_update(delta: float):
 		# We ONLY need to call move_and_slide() here
 		# DO NOT modify velocity - the floor controls it completely!
 		
-		print("On sliding floor - floor controls velocity")
 		
 		# Just move - don't touch velocity!
 		player.move_and_slide()
@@ -215,5 +196,5 @@ func get_speed() -> float:
 	return slide_velocity.length()
 
 func exit():
+	pass
 	# DON'T clear slide velocity - preserve momentum!
-	print("Exited Sliding State - Preserving momentum: ", slide_velocity.length())

@@ -593,7 +593,6 @@ func handle_sliding_floor(_delta: float):
 
 		# Force into sliding state if not already in it
 		if current_state_name != "SlidingState":
-			print("Forcing player into sliding state")
 			state_machine.change_state("SlidingState")
 
 func setup_sliding_floor():
@@ -683,7 +682,6 @@ func apply_damage_to_player(player: CharacterBody3D):
 	# Apply damage with knockback
 	if player.has_method("take_damage"):
 		player.take_damage(damage_amount, knockback_velocity)
-		print("Damage floor dealt ", damage_amount, " damage to player with knockback: ", knockback_velocity)
 
 func start_moving():
 	"""Start the moving floor sequence"""
@@ -698,7 +696,6 @@ func start_moving():
 	else:
 		_create_single_movement()
 	
-	print("Moving floor started! Moving from ", start_position, " to ", end_position)
 
 func _start_movement_loop():
 	"""Start the repeating movement loop with delays"""
@@ -790,7 +787,6 @@ func stop_moving():
 	if movement_tween:
 		movement_tween.kill()
 	is_moving = false
-	print("Moving floor stopped")
 
 func handle_spinning(delta):
 	"""Handle the spinning floor rotation"""
@@ -854,7 +850,6 @@ func transfer_linear_momentum(player: CharacterBody3D):
 	
 	player.velocity += momentum_to_add
 	
-	print("Transferred linear momentum: ", momentum_to_add, " to player")
 	
 func transfer_rotational_momentum(player: CharacterBody3D):
 	"""Transfer rotational momentum from spinning floors"""
@@ -882,7 +877,6 @@ func transfer_rotational_momentum(player: CharacterBody3D):
 	
 	player.velocity += momentum_to_add
 	
-	print("Transferred rotational momentum: ", momentum_to_add, " to player")
 
 func _on_spring_area_body_entered(body):
 	"""When a player enters the spring area"""
@@ -944,7 +938,6 @@ func apply_spring_effect(player: CharacterBody3D):
 	if use_directional_bounce:
 		# Get the floor's "up" direction (the way it's facing)
 		bounce_direction = global_transform.basis.y.normalized()
-		print("Directional bounce - Floor up: ", bounce_direction)
 	else:
 		# Standard upward bounce
 		bounce_direction = Vector3.UP
@@ -987,7 +980,6 @@ func _apply_directional_spring_velocity(player: CharacterBody3D, direction: Vect
 		var bounce_velocity = direction * spring_force
 		player.velocity = bounce_velocity
 		
-		print("Applied directional spring: ", bounce_velocity)
 		
 		# Transition to jumping state
 		if player.has_method("get") and player.get("state_machine"):
@@ -1008,7 +1000,6 @@ func start_falling():
 		return
 	
 	is_falling = true
-	print("Floor starting to fall!")
 	
 	create_warning_shake()
 	
@@ -1049,7 +1040,6 @@ func _on_fall_complete():
 
 func respawn_floor():
 	"""Respawn the floor at its original position"""
-	print("Floor respawning!")
 	
 	global_position = original_position
 	

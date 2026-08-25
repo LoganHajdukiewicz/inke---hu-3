@@ -13,13 +13,11 @@ var wall_normal: Vector3 = Vector3.ZERO
 var is_sliding: bool = false
 
 func enter():
-	print("Entered Wall Sliding State")
 	
 	# Find the wall we're sliding on
 	wall_normal = detect_wall()
 	
 	if wall_normal == Vector3.ZERO:
-		print("No wall found, exiting wall slide")
 		change_to("FallingState")
 		return
 	
@@ -35,7 +33,6 @@ func enter():
 func physics_update(delta: float):
 	# Check if still against wall
 	if not is_against_wall():
-		print("Lost wall contact")
 		change_to("FallingState")
 		return
 	
@@ -120,6 +117,5 @@ func is_against_wall() -> bool:
 	return detect_wall() != Vector3.ZERO
 
 func exit():
-	print("Exited Wall Sliding State")
 	is_sliding = false
 	wall_normal = Vector3.ZERO

@@ -32,11 +32,9 @@ func update_scene_name() -> void:
 	var root = get_tree().current_scene
 	if root:
 		current_scene_name = root.name
-		print("DialogueManager: Current scene is ", current_scene_name)
 
 func register_ui(ui: CanvasLayer) -> void:
 	dialogue_ui = ui
-	print("DialogueManager: UI registered")
 
 func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null, should_pause: bool = true) -> void:
 	# Update scene name in case we changed scenes
@@ -69,7 +67,6 @@ func load_dialogue(dialogue_name: String) -> Array:
 	else:
 		file_path += dialogue_name + ".json"
 	
-	print("DialogueManager: Attempting to load: ", file_path)
 	
 	if not FileAccess.file_exists(file_path):
 		print("DialogueManager: Dialogue file not found: ", file_path)
@@ -93,7 +90,6 @@ func load_dialogue(dialogue_name: String) -> Array:
 	var data = json.get_data()
 	
 	if data.has("dialogue") and data["dialogue"] is Array:
-		print("DialogueManager: Successfully loaded ", data["dialogue"].size(), " dialogue lines")
 		return data["dialogue"]
 	
 	return []
@@ -128,6 +124,11 @@ func end_dialogue() -> void:
 	
 	current_dialogue.clear()
 	current_index = 0
+	
+	# Briefly swallow all input so the button press that closed the dialogue
+	# doesn't leak into gameplay (e.g. making the player jump)
+	input_block_timer = input_block_duration
+	
 	dialogue_ended.emit()
 
 func is_dialogue_active() -> bool:

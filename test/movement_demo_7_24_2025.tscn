@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="7_lnigw"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="9_bd3gf"]
 [ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="10_vfcgb"]
+[ext_resource type="PackedScene" uid="uid://dyx5autvv3t1e" path="res://scenes/environments/dialogue_trigger.tscn" id="11_dtrig"]
+[ext_resource type="PackedScene" uid="uid://cu7ok4tvrfhg5" path="res://scenes/UI/dialogue_ui.tscn" id="12_dlgui"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
@@ -140,7 +142,9 @@ spin_direction = 1
 
 [node name="WSAD" parent="Tutorial/Floors/Floor" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
-dialogic_timeline = "WSAD-Sign"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor/WSAD" instance=ExtResource("11_dtrig")]
+dialogue_file = "WSAD-Sign"
 
 [node name="Floor2" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.3503)
@@ -148,7 +152,9 @@ spin_direction = 1
 
 [node name="Moving Platform Ahead" parent="Tutorial/Floors/Floor2" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
-dialogic_timeline = "Moving-Platform"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor2/Moving Platform Ahead" instance=ExtResource("11_dtrig")]
+dialogue_file = "Moving-Platform"
 
 [node name="Floor3" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.6763)
@@ -164,7 +170,9 @@ spin_direction = 1
 
 [node name="Spring Platform" parent="Tutorial/Floors/Floor4" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, 0.0179829, -1.38248)
-dialogic_timeline = "Spring-Platform"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor4/Spring Platform" instance=ExtResource("11_dtrig")]
+dialogue_file = "Spring-Platform"
 
 [node name="Floor5" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -66.7538)
@@ -178,7 +186,9 @@ spin_direction = 1
 
 [node name="LOL XD" parent="Tutorial/Floors/Floor6" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "LOL-XD"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor6/LOL XD" instance=ExtResource("11_dtrig")]
+dialogue_file = "LOL-XD"
 
 [node name="Floor7" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -91.7888)
@@ -186,7 +196,9 @@ spin_direction = 1
 
 [node name="Falling Platform Ahead" parent="Tutorial/Floors/Floor7" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Falling-Platform-Ahead"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor7/Falling Platform Ahead" instance=ExtResource("11_dtrig")]
+dialogue_file = "Falling-Platform-Ahead"
 
 [node name="Floor8" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -103.809)
@@ -196,7 +208,9 @@ spin_direction = 1
 
 [node name="Storytime" parent="Tutorial/Floors/Floor8" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Storytime"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor8/Storytime" instance=ExtResource("11_dtrig")]
+dialogue_file = "Storytime"
 
 [node name="Floor9" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -115.935)
@@ -204,7 +218,9 @@ spin_direction = 1
 
 [node name="Sorry" parent="Tutorial/Floors/Floor9" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Sorry"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor9/Sorry" instance=ExtResource("11_dtrig")]
+dialogue_file = "Sorry"
 
 [node name="Floor10" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -128.132)
@@ -213,7 +229,9 @@ spin_direction = 1
 
 [node name="Fun Shapes" parent="Tutorial/Floors/Floor10" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Fun Shapes"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor10/Fun Shapes" instance=ExtResource("11_dtrig")]
+dialogue_file = "Fun Shapes"
 
 [node name="Floor11" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -140.557)
@@ -255,7 +273,9 @@ spin_direction = 1
 
 [node name="Acrobat" parent="Tutorial/Floors/Floor17" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Acrobat"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor17/Acrobat" instance=ExtResource("11_dtrig")]
+dialogue_file = "Acrobat"
 
 [node name="Floor18" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -224.865)
@@ -263,7 +283,9 @@ spin_direction = 1
 
 [node name="RailGrind" parent="Tutorial/Floors/Floor18" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Rail-Grind"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor18/RailGrind" instance=ExtResource("11_dtrig")]
+dialogue_file = "Rail-Grind"
 
 [node name="Floor19" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -363.245)
@@ -272,7 +294,9 @@ spin_direction = 1
 
 [node name="Congrats" parent="Tutorial/Floors/Floor19" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Congrats"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor19/Congrats" instance=ExtResource("11_dtrig")]
+dialogue_file = "Congrats"
 
 [node name="Floor20" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -378.734)
@@ -280,7 +304,9 @@ spin_direction = 1
 
 [node name="HU-3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "HU-3-Intro"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor20/HU-3Intro" instance=ExtResource("11_dtrig")]
+dialogue_file = "HU-3-Intro"
 
 [node name="Floor21" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -402.151)
@@ -289,7 +315,9 @@ spin_direction = 1
 
 [node name="Gears" parent="Tutorial/Floors/Floor21" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, 11.0899)
-dialogic_timeline = "Gears"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor21/Gears" instance=ExtResource("11_dtrig")]
+dialogue_file = "Gears"
 
 [node name="Gears2" type="Node3D" parent="Tutorial/Floors/Floor21"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.429099, 0)
@@ -609,7 +637,9 @@ spin_direction = 1
 
 [node name="Merchant-Intro" parent="Tutorial/Floors/Floor22" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Merchant-Intro"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor22/Merchant-Intro" instance=ExtResource("11_dtrig")]
+dialogue_file = "Merchant-Intro"
 
 [node name="Merchant" parent="Tutorial/Floors/Floor22" instance=ExtResource("7_lnigw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
@@ -621,13 +651,13 @@ spin_direction = 1
 
 [node name="Merchant-Intro-Cont" parent="Tutorial/Floors/Floor23" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
-dialogic_timeline = "Merchant-Intro-Cont"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor23/Merchant-Intro-Cont" instance=ExtResource("11_dtrig")]
+dialogue_file = "Merchant-Intro-Cont"
 
 [node name="Merchant" parent="Tutorial/Floors/Floor23" instance=ExtResource("7_lnigw")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.10259, 1.04232, -3.55222)
-powerup_type = 1
-powerup_name = "Wall Jump"
-powerup_description = "Allows you to wall jump"
+available_upgrades = Array[int]([1])
 
 [node name="Floor24" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -488.292)
@@ -641,7 +671,9 @@ spin_direction = 1
 
 [node name="CRED" parent="Tutorial/Floors/Floor24/Floor25" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -3.52432, -0.016468, -19.7253)
-dialogic_timeline = "CRED"
+
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor24/Floor25/CRED" instance=ExtResource("11_dtrig")]
+dialogue_file = "CRED"
 
 [node name="Floor27" parent="Tutorial/Floors/Floor24" instance=ExtResource("1_122qs")]
 transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 1.88514, 14.7637, -4.15894)
@@ -882,7 +914,9 @@ movement_axis = Vector3(0, 0, -20)
 
 [node name="You did it" parent="ObstacleCourse/Floors/Floor49" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.99175, -0.174267, 0.71167)
-dialogic_timeline = "You did it"
+
+[node name="DialogueTrigger" parent="ObstacleCourse/Floors/Floor49/You did it" instance=ExtResource("11_dtrig")]
+dialogue_file = "You did it"
 
 [node name="Rails" type="Node" parent="ObstacleCourse"]
 
@@ -920,3 +954,5 @@ curve = SubResource("Curve3D_5lhnb")
 
 [node name="CRED" parent="ObstacleCourse" instance=ExtResource("10_vfcgb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.22695, 36.1792, -1385.15)
+
+[node name="DialogueUI" parent="." instance=ExtResource("12_dlgui")]

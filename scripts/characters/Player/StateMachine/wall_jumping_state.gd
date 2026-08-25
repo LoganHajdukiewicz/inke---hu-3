@@ -18,7 +18,6 @@ var wall_direction: Vector3 = Vector3.ZERO
 var wall_jump_timer: float = 0.0
 
 func enter():
-	print("Entered Wall Jump State")
 	
 	# Cancel momentum going into the wall first
 	if wall_direction.length() > 0:
@@ -58,7 +57,6 @@ func physics_update(delta: float):
 	# NEW: Check for wall sliding transition after initial jump phase
 	if wall_jump_timer > wall_slide_check_time and player.velocity.y < wall_slide_velocity_threshold:
 		if is_near_wall():
-			print("Transitioning to wall slide")
 			change_to("WallSlidingState")
 			return
 	

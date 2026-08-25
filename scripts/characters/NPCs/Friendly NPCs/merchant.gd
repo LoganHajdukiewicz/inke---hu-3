@@ -99,7 +99,6 @@ func setup_upgrade_data():
 			}
 			upgrade_data.append(data)
 	
-	print("Merchant loaded ", upgrade_data.size(), " upgrades")
 
 func get_upgrade_key(powerup_type: PowerupType) -> String:
 	"""Convert PowerupType enum to string key for GameManager"""
@@ -395,14 +394,11 @@ func handle_shop_input():
 
 func open_shop():
 	if not current_player or upgrade_data.is_empty():
-		print("Cannot open shop - no player or no upgrades")
 		return
 	
 	if shop_open:
-		print("Shop already open!")
 		return
 	
-	print("Opening shop...")
 	
 	# TEACHING MOMENT: This is the KEY fix - we now use a helper function
 	# that works exactly like the dialogue trigger
@@ -429,13 +425,11 @@ func open_shop():
 	# FIXED: Longer initial cooldown to prevent any inputs from bleeding through
 	input_cooldown = 0.5
 	
-	print(merchant_name + "'s shop opened - Game paused: ", get_tree().paused)
 
 func close_shop():
 	if not shop_open:
 		return
 	
-	print("Closing shop...")
 	shop_open = false
 	shop_panel.visible = false
 	
@@ -453,7 +447,6 @@ func close_shop():
 	# FIXED: Longer cooldown to prevent immediate re-opening or accidental jumps
 	input_cooldown = 0.5
 	
-	print(merchant_name + "'s shop closed - Game paused: ", get_tree().paused)
 
 # ==========================================
 # IGNORE JUMP HELPER FUNCTIONS
@@ -477,7 +470,6 @@ func set_player_ignore_jump(should_ignore: bool):
 	
 	if current_player.has_method("set"):
 		current_player.set("ignore_next_jump", should_ignore)
-		print("Set ignore_next_jump = ", should_ignore)
 		
 		if should_ignore:
 			# Schedule automatic cleanup (just like dialogue trigger)
@@ -505,7 +497,6 @@ func clear_ignore_jump_after_delay():
 	# Only clear if player is still valid
 	if is_instance_valid(current_player) and current_player.has_method("set"):
 		current_player.set("ignore_next_jump", false)
-		print("Cleared ignore_next_jump = false (after delay)")
 
 # ==========================================
 # SELECTION AND PURCHASE
@@ -587,12 +578,10 @@ func attempt_purchase():
 	
 	# Check if already purchased
 	if GameManager.is_upgrade_purchased(selected_upgrade.key):
-		print("Upgrade already purchased!")
 		return
 	
 	# Attempt purchase through GameManager
 	if GameManager.purchase_upgrade(selected_upgrade.key):
-		print(selected_upgrade.name + " purchased successfully!")
 		
 		# Show purchase success feedback
 		status_label.text = "✓ Purchase Successful!"
@@ -601,7 +590,6 @@ func attempt_purchase():
 		# Update UI
 		update_selection()
 	else:
-		print("Not enough gears to purchase " + selected_upgrade.name)
 		
 		# Show error feedback
 		status_label.text = "✗ Not Enough Gears!"
@@ -616,7 +604,6 @@ func _on_area_3d_body_entered(body):
 		player_in_range = true
 		current_player = body
 		interaction_label.visible = true
-		print("Player entered merchant range")
 
 func _on_area_3d_body_exited(body):
 	if body.is_in_group("Player"):
@@ -624,7 +611,6 @@ func _on_area_3d_body_exited(body):
 		
 		# If shop is open when player leaves, close it AND clean up flag
 		if shop_open:
-			print("Player left while shop open - force closing with cleanup")
 			close_shop()
 		else:
 			# Even if shop wasn't open, ensure flag is clean
@@ -633,4 +619,3 @@ func _on_area_3d_body_exited(body):
 		current_player = null
 		interaction_label.visible = false
 		
-		print("Player left merchant range")

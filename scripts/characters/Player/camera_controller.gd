@@ -152,15 +152,13 @@ func enable_lock_on():
 	if nearest_enemy:
 		lock_on_active = true
 		locked_target = nearest_enemy
-		print("Locked onto: ", locked_target.name)
 	else:
-		print("No enemies in range to lock onto")
+		pass
 
 func disable_lock_on():
 	"""Disable lock-on mode"""
 	lock_on_active = false
 	locked_target = null
-	print("Lock-on disabled")
 
 func _find_nearest_enemy() -> Node3D:
 	"""Find the nearest enemy within lock-on range"""
@@ -196,7 +194,6 @@ func _check_lock_on_switch():
 	if new_target and new_target != locked_target:
 		locked_target = new_target
 		lock_on_switch_timer = LOCK_ON_SWITCH_COOLDOWN
-		print("Switched lock-on to: ", locked_target.name)
 
 func _find_target_in_direction(direction: Vector3) -> Node3D:
 	"""Find the best target in the given direction"""

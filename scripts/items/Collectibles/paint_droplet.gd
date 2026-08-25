@@ -188,7 +188,6 @@ func collect():
 	var paint_manager = get_node_or_null("/root/PaintManager")
 	if paint_manager and paint_manager.has_method("add_paint"):
 		paint_manager.add_paint(paint_value)
-		print("Paint droplet collected! +", paint_value, " paint")
 	else:
 		print("WARNING: PaintManager not found or doesn't have add_paint method!")
 	

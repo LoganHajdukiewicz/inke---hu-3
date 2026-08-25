@@ -28,7 +28,6 @@ func setup_rail_detection():
 	if not rail_grind_area.area_exited.is_connected(_on_rail_area_exited):
 		rail_grind_area.area_exited.connect(_on_rail_area_exited)
 	
-	print("Rail detection setup complete with RailGrindArea")
 
 func _physics_process(_delta):
 	check_for_rail_grinding()

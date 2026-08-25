@@ -179,7 +179,6 @@ func setup_paint_ui():
 	paint_fill_rect.size = Vector2(meter_width, meter_height)
 	paint_meter_container.add_child(paint_fill_rect)
 
-	print("Paint UI created successfully!")
 
 # ---------------------------------------------------------------------------
 # Display update methods (unchanged)

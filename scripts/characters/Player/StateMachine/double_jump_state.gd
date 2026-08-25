@@ -13,7 +13,6 @@ var jump_elapsed_time : float = 0.0
 var scale_tween : Tween
 
 func enter():
-	print("Entered Double Jump State")
 	
 	player.velocity.y = jump_velocity
 	jump_elapsed_time = 0.0

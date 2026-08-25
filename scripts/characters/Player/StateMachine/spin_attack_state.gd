@@ -20,7 +20,6 @@ var spin_hitbox: Area3D
 var spin_tween: Tween
 
 func enter():
-	print("Entered Spin Attack State")
 	
 	# Reset state
 	spin_timer = 0.0
@@ -75,7 +74,6 @@ func setup_spin_hitbox():
 	collision_shape.position = Vector3(0, 1.0, 0)  # Center on player body
 	spin_hitbox.add_child(collision_shape)
 	
-	print("Spin hitbox created with radius: ", pushback_radius)
 
 func start_spin_animation():
 	"""Create spinning visual effect"""
@@ -174,7 +172,6 @@ func hit_enemy(enemy: Node):
 	if not enemy or not is_instance_valid(enemy):
 		return
 	
-	print("Spin attack hit: ", enemy.name)
 	
 	# Calculate pushback direction (radial from player)
 	var pushback_direction = (enemy.global_position - player.global_position).normalized()
@@ -193,7 +190,6 @@ func hit_enemy(enemy: Node):
 
 func exit_spin():
 	"""Exit the spin attack"""
-	print("Spin attack complete")
 	
 	# FIXED: Kill tweens here too
 	if spin_tween and is_instance_valid(spin_tween):
@@ -218,7 +214,6 @@ func exit_spin():
 		change_to("FallingState")
 
 func exit():
-	print("Exited Spin Attack State")
 	
 	# Clean up
 	is_spinning = false

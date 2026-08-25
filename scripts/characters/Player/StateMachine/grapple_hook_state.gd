@@ -31,7 +31,6 @@ var rope_line: ImmediateMesh = null
 var rope_mesh_instance: MeshInstance3D = null
 
 func enter():
-	print("Entered Grappling State")
 	
 	# Reset enemy grapple state
 	has_attacked_enemy = false
@@ -48,7 +47,6 @@ func enter():
 		var grapple_target = find_grapple_point()
 		
 		if not grapple_target:
-			print("No grapple point or enemy found!")
 			change_to("FallingState")
 			return
 		
@@ -71,21 +69,17 @@ func enter():
 			player.has_double_jumped = false
 			player.can_air_dash = true
 			player.has_air_dashed = false
-			print("Swing mode - abilities reset!")
 		else:
 			grapple_mode = "pull"
 			# Start pulling immediately
 			player.velocity = Vector3.ZERO
 		
-		print("Grappling to point: ", grapple_point, " Mode: ", grapple_mode)
 	
 	# Create visual rope
 	create_rope_visual()
 
 func setup_enemy_grapple(enemy: Node3D):
 	"""Setup grapple to enemy"""
-	print("=== ENEMY GRAPPLE INITIATED ===")
-	print("Target enemy: ", enemy.name)
 	
 	grapple_mode = "enemy"
 	grapple_target_enemy = enemy
@@ -96,7 +90,6 @@ func setup_enemy_grapple(enemy: Node3D):
 	# Make player invulnerable during enemy grapple (no flash)
 	if player.has_method("set_invulnerable_without_flash"):
 		player.set_invulnerable_without_flash(2.0)  # Long duration to cover whole grapple
-		print("Player invulnerable during enemy grapple")
 	
 	# Reset double jump and air dash abilities
 	player.can_double_jump = true
@@ -149,7 +142,6 @@ func handle_enemy_grapple(delta: float):
 	"""Pull player toward enemy and attack on contact"""
 	# Check if enemy is still valid
 	if not grapple_target_enemy or not is_instance_valid(grapple_target_enemy):
-		print("Enemy grapple target lost")
 		release_grapple()
 		return
 	
@@ -176,7 +168,6 @@ func attack_grappled_enemy():
 	if not grapple_target_enemy or not is_instance_valid(grapple_target_enemy):
 		return
 	
-	print("=== GRAPPLE ATTACK! ===")
 	has_attacked_enemy = true
 	
 	# Calculate knockback direction (away from player)
@@ -190,7 +181,6 @@ func attack_grappled_enemy():
 	# Deal damage to enemy
 	if grapple_target_enemy.has_method("take_damage"):
 		grapple_target_enemy.take_damage(enemy_attack_damage, knockback_velocity)
-		print("Dealt ", enemy_attack_damage, " damage to ", grapple_target_enemy.name)
 	
 	# Bounce player away from enemy
 	var bounce_direction = -knockback_direction
@@ -299,7 +289,7 @@ func find_nearest_enemy() -> Node3D:
 			best_enemy = enemy
 	
 	if best_enemy:
-		print("Found enemy to grapple: ", best_enemy.name, " at distance: ", player.global_position.distance_to(best_enemy.global_position))
+		pass
 	
 	return best_enemy
 
@@ -357,7 +347,6 @@ func update_rope_visual():
 
 func release_grapple():
 	"""Release the grapple and apply momentum boost"""
-	print("Releasing grapple!")
 	
 	# Only apply release boost for non-enemy grapples (enemy grapple already has bounce)
 	if grapple_mode != "enemy":
@@ -383,7 +372,6 @@ func exit_grapple():
 		change_to("FallingState")
 
 func exit():
-	print("Exited Grappling State")
 	
 	# Clean up rope visual
 	if rope_mesh_instance and is_instance_valid(rope_mesh_instance):

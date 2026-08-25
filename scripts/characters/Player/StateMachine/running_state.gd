@@ -6,30 +6,17 @@ const ROTATION_SPEED : float = 12.0
 
 
 func enter():
-	print("Entered Running State")
+	pass
 
 
 func get_speed():
 	return SPEED
 
-func update_dash_cooldown(delta: float):
+func physics_update(delta: float):
 	# for Merchant UI 
 	if player.controls_disabled:
 		return
-		
-	"""Update the dash cooldown timer in the dodge dash state"""
-	var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
-	if dodge_dash_state:
-		# Continue updating cooldown even when not in dash state
-		if not dodge_dash_state.can_dash and dodge_dash_state.cooldown_timer > 0:
-			dodge_dash_state.cooldown_timer -= delta
-			if dodge_dash_state.cooldown_timer <= 0:
-				dodge_dash_state.can_dash = true
-				dodge_dash_state.cooldown_timer = 0.0
-				print("Dash cooldown completed in ", get_script().get_global_name())
 
-func physics_update(delta: float):
-	update_dash_cooldown(delta)
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():

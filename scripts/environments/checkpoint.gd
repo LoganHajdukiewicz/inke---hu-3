@@ -33,4 +33,3 @@ func activate_checkpoint(_player):
 	
 	# Set this as the active checkpoint
 	CheckpointManager.set_checkpoint(respawn_position, respawn_rotation)
-	print("Checkpoint '", checkpoint_id, "' activated!")

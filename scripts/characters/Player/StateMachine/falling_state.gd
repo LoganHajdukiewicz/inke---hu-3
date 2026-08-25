@@ -5,7 +5,6 @@ var fall_time : float = 0.0
 var initial_fall_velocity : float
 
 func enter():
-	print("Entered Falling State")
 	fall_time = 0.0
 	initial_fall_velocity = player.velocity.y
 	
@@ -17,22 +16,9 @@ func enter():
 		var capped = horizontal_velocity.normalized() * max_horizontal_speed
 		player.velocity.x = capped.x
 		player.velocity.z = capped.y
-		print("Capped horizontal velocity on entering falling state: ", horizontal_velocity.length(), " -> ", max_horizontal_speed)
 
-func update_dash_cooldown(delta: float):
-	"""Update the dash cooldown timer in the dodge dash state"""
-	var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
-	if dodge_dash_state:
-		# Continue updating cooldown even when not in dash state
-		if not dodge_dash_state.can_dash and dodge_dash_state.cooldown_timer > 0:
-			dodge_dash_state.cooldown_timer -= delta
-			if dodge_dash_state.cooldown_timer <= 0:
-				dodge_dash_state.can_dash = true
-				dodge_dash_state.cooldown_timer = 0.0
-				print("Dash cooldown completed in ", get_script().get_global_name())
 
 func physics_update(delta: float):
-	update_dash_cooldown(delta)
 	fall_time += delta
 	
 	if Input.is_action_just_pressed("dash"):
@@ -52,7 +38,6 @@ func physics_update(delta: float):
 	var max_fall_speed = -30.0  # Terminal velocity
 	if player.velocity.y < max_fall_speed:
 		player.velocity.y = max_fall_speed
-		print("Capped falling velocity at terminal velocity")
 	
 	# Check for wall jump input first (highest priority)
 	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():

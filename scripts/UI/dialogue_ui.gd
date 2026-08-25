@@ -43,7 +43,6 @@ func _ready() -> void:
 	tween.tween_property(continue_indicator, "modulate:a", 0.3, 0.5)
 	tween.tween_property(continue_indicator, "modulate:a", 1.0, 0.5)
 	
-	print("DialogueUI: Ready and registered")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -71,7 +70,6 @@ func hide_dialogue() -> void:
 	dialogue_container.visible = false
 	if wall_dialogue_container:
 		wall_dialogue_container.visible = false
-	print("DialogueUI: Hiding dialogue")
 	
 	# Set flag to wait for button release ONLY for proximity box triggers (not wall triggers)
 	if not is_wall_trigger:
@@ -110,19 +108,16 @@ func show_dialogue(should_pause: bool = true) -> void:
 			wall_dialogue_container.visible = true
 			dialogue_container.visible = false
 		wall_timer = 0.0
-		print("DialogueUI: Showing wall trigger dialogue")
 	else:
 		# Show regular dialogue UI
 		dialogue_container.visible = true
 		if wall_dialogue_container:
 			wall_dialogue_container.visible = false
-		print("DialogueUI: Showing regular dialogue")
 		# Pause game if requested
 		get_tree().paused = true
 
 
 func _on_dialogue_line_changed(speaker: String, text: String, portrait: String) -> void:
-	print("DialogueUI: Displaying line - Speaker: ", speaker, " Text: ", text)
 	
 	current_text = text
 	

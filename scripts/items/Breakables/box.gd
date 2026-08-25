@@ -48,7 +48,6 @@ func _ready():
 	# Add to Breakables group
 	if not is_in_group("Breakables"):
 		add_to_group("Breakables")
-		print("Box ", name, " added to Breakables group")
 	
 	# Connect damage detection area
 	if damage_area:
@@ -110,60 +109,38 @@ func setup_bounce_detection():
 	# Connect to body_entered signal
 	bounce_area.body_entered.connect(_on_bounce_area_body_entered)
 	
-	print("Box ", name, " - Bounce detection Area3D created!")
-	print("  Detection position: ", bounce_collision.position)
-	print("  Detection size: ", bounce_shape.size)
 
 func _on_bounce_area_body_entered(body: Node3D):
 	"""
 	Called when something enters the bounce detection Area3D.
 	This is much more reliable than RigidBody collision detection!
 	"""
-	print("=== BOX COLLISION DETECTED ===")
-	print("Body: ", body.name if body else "NULL")
-	print("Is in Player group: ", body.is_in_group("Player") if body else false)
-	print("Is broken: ", is_broken)
-	print("Just bounced: ", just_bounced)
 	
 	if is_broken or just_bounced:
-		print("REJECTED: Box is broken or just bounced")
 		return
 	
 	# Check if it's the player
 	if not body.is_in_group("Player"):
-		print("REJECTED: Not in Player group")
 		return
 	
 	var player = body as CharacterBody3D
 	if not player:
-		print("REJECTED: Cannot cast to CharacterBody3D")
 		return
 	
-	print("Player velocity.y: ", player.velocity.y)
-	print("Player Y position: ", player.global_position.y)
-	print("Box Y position: ", global_position.y)
-	print("Position difference: ", player.global_position.y - global_position.y)
 	
 	# CRITICAL: Only bounce if player is falling downward
 	# This prevents bouncing when the player hits the side of the box
 	if player.velocity.y >= -1.0:
-		print("REJECTED: Player not falling fast enough (", player.velocity.y, ")")
 		return
 	
-	print("=== PLAYER STOMPED ON BOX! ===")
-	print("Player velocity before bounce: ", player.velocity)
-	print("Break on bounce: ", break_on_bounce)
-	print("Bounce damage: ", bounce_damage)
 	
 	# Apply bounce to player
 	apply_bounce_to_player(player)
 	
 	# Box reaction - DEFERRED to avoid physics errors
 	if break_on_bounce:
-		print("Calling take_damage with amount: ", bounce_damage)
 		call_deferred("take_damage", bounce_damage)
 	else:
-		print("Not breaking - just squashing")
 		call_deferred("squash_and_stretch")
 
 func apply_bounce_to_player(player: CharacterBody3D):
@@ -178,7 +155,6 @@ func apply_bounce_to_player(player: CharacterBody3D):
 	player.velocity.x *= 0.9
 	player.velocity.z *= 0.9
 	
-	print("Bounce applied! New velocity: ", player.velocity)
 	
 	# Visual feedback
 	call_deferred("squash_and_stretch")
@@ -240,27 +216,20 @@ func _on_damage_area_entered(area: Area3D):
 
 func take_damage(amount: int):
 	"""Apply damage to the crate"""
-	print("=== TAKE_DAMAGE CALLED ===")
-	print("Amount: ", amount)
-	print("Current health: ", current_health)
-	print("Is broken: ", is_broken)
 	
 	if is_broken:
-		print("REJECTED: Already broken")
 		return
 	
 	current_health -= amount
-	print("Crate took ", amount, " damage. Health: ", current_health, "/", max_health)
 	
 	# Visual feedback
 	flash_white()
 	shake_crate()
 	
 	if current_health <= 0:
-		print("Health <= 0, calling break_crate()")
 		break_crate()
 	else:
-		print("Health still above 0, not breaking yet")
+		pass
 
 func flash_white():
 	"""Flash the crate white briefly"""
@@ -293,39 +262,30 @@ func shake_crate():
 
 func break_crate():
 	"""Destroy the crate and spawn loot"""
-	print("=== BREAK_CRATE CALLED ===")
-	print("Is broken: ", is_broken)
 	
 	if is_broken:
-		print("REJECTED: Already broken")
 		return
 	
 	is_broken = true
-	print("Crate breaking!")
 	
 	# Spawn particles
 	if particles:
-		print("Emitting particles")
 		particles.emitting = true
 	else:
-		print("No particles node found")
+		pass
 	
 	# Spawn loot
-	print("Spawning loot...")
 	spawn_loot()
 	
 	# Visual destruction
-	print("Playing break animation...")
 	play_break_animation()
 	
 	# Clean up
-	print("Waiting 0.5s before queue_free...")
 	await get_tree().create_timer(0.5).timeout
 	if is_instance_valid(self):
-		print("Calling queue_free()")
 		queue_free()
 	else:
-		print("Instance no longer valid")
+		pass
 
 func play_break_animation():
 	"""

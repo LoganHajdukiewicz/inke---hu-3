@@ -73,7 +73,6 @@ func check_for_ledge_grab():
 	var ledge_data = detect_ledge()
 	
 	if ledge_data.has_ledge:
-		print("=== LEDGE DETECTED! Transitioning to hang state ===")
 		# Set cooldown to prevent immediate re-grabs
 		ledge_grab_cooldown = cooldown_duration
 		
@@ -84,7 +83,6 @@ func check_for_ledge_grab():
 			state_machine.change_state("LedgeHangingState")
 		else:
 			print("ERROR: LedgeHangingState not found in state machine!")
-			print("Available states: ", state_machine.states.keys())
 
 func is_allowed_ledge_object(collider: Object) -> bool:
 	"""
@@ -107,7 +105,7 @@ func is_allowed_ledge_object(collider: Object) -> bool:
 	
 	if scene_path == "":
 		if enable_debug_draw:
-			print("  Object has no scene_file_path: ", collider.name)
+			pass
 		return false
 	
 	# Extract filename from path (e.g., "res://scenes/wall.tscn" -> "wall.tscn")
@@ -117,10 +115,7 @@ func is_allowed_ledge_object(collider: Object) -> bool:
 	var scene_name = filename.get_basename()
 	
 	if enable_debug_draw:
-		print("  Checking object: ", collider.name)
-		print("  Scene path: ", scene_path)
-		print("  Scene name: ", scene_name)
-		print("  Is allowed: ", scene_name in allowed_ledge_scenes)
+		pass
 	
 	# Check if this scene name is in our allowed list
 	return scene_name in allowed_ledge_scenes
@@ -139,10 +134,7 @@ func detect_ledge() -> Dictionary:
 	var forward = -player.global_transform.basis.z.normalized()
 	
 	if enable_debug_draw:
-		print("\n=== LEDGE DETECTION CHECK ===")
-		print("Player position: ", player.global_position)
-		print("Player forward: ", forward)
-		print("Player velocity.y: ", player.velocity.y)
+		pass
 	
 	# Step 1: Check for wall in front at chest height
 	var wall_check_start = player.global_position + Vector3(0, 0.5, 0)
@@ -155,7 +147,6 @@ func detect_ledge() -> Dictionary:
 	var wall_result = space_state.intersect_ray(wall_query)
 	
 	if enable_debug_draw:
-		print("Wall check: ", "HIT" if wall_result else "MISS")
 		draw_debug_line(wall_check_start, wall_check_end, Color.RED if not wall_result else Color.GREEN)
 	
 	if not wall_result:
@@ -165,16 +156,14 @@ func detect_ledge() -> Dictionary:
 	var wall_collider = wall_result.collider
 	if not is_allowed_ledge_object(wall_collider):
 		if enable_debug_draw:
-			print("  REJECTED: Wall is not an allowed ledge object")
+			pass
 		return result
 	
 	var wall_point = wall_result.position
 	var wall_normal = wall_result.normal
 	
 	if enable_debug_draw:
-		print("  Wall point: ", wall_point)
-		print("  Wall normal: ", wall_normal)
-		print("  Wall is ALLOWED for ledge grab!")
+		pass
 	
 	# Step 2: Check for ledge top - cast DOWN from above the wall
 	var ledge_check_start = wall_point + Vector3(0, ledge_check_height, 0) + wall_normal * -0.2
@@ -187,7 +176,6 @@ func detect_ledge() -> Dictionary:
 	var ledge_result = space_state.intersect_ray(ledge_query)
 	
 	if enable_debug_draw:
-		print("Ledge top check: ", "HIT" if ledge_result else "MISS")
 		draw_debug_line(ledge_check_start, ledge_check_end, Color.BLUE if not ledge_result else Color.YELLOW)
 	
 	if not ledge_result:
@@ -197,22 +185,19 @@ func detect_ledge() -> Dictionary:
 	var ledge_collider = ledge_result.collider
 	if not is_allowed_ledge_object(ledge_collider):
 		if enable_debug_draw:
-			print("  REJECTED: Ledge top is not an allowed ledge object")
+			pass
 		return result
 	
 	var ledge_point = ledge_result.position
 	var ledge_normal = ledge_result.normal
 	
 	if enable_debug_draw:
-		print("  Ledge point: ", ledge_point)
-		print("  Ledge normal: ", ledge_normal)
-		print("  Ledge normal dot UP: ", ledge_normal.dot(Vector3.UP))
-		print("  Ledge is ALLOWED for ledge grab!")
+		pass
 	
 	# Verify ledge normal points upward (is a floor/platform)
 	if ledge_normal.dot(Vector3.UP) < 0.7:
 		if enable_debug_draw:
-			print("  REJECTED: Ledge normal not pointing up enough")
+			pass
 		return result
 	
 	# Step 3: Check if there's enough space above the ledge for player to climb
@@ -226,28 +211,27 @@ func detect_ledge() -> Dictionary:
 	var space_result = space_state.intersect_ray(space_query)
 	
 	if enable_debug_draw:
-		print("Space check: ", "BLOCKED" if space_result else "CLEAR")
 		draw_debug_line(space_check_start, space_check_end, Color.RED if space_result else Color.CYAN)
 	
 	if space_result:
 		if enable_debug_draw:
-			print("  REJECTED: Not enough space to climb up")
+			pass
 		return result
 	
 	# Step 4: Verify the ledge is at appropriate height
 	var height_difference = ledge_point.y - player.global_position.y
 	
 	if enable_debug_draw:
-		print("Height difference: ", height_difference, " (min: ", min_ledge_height, ", max: ", max_ledge_height, ")")
+		pass
 	
 	if height_difference < min_ledge_height or height_difference > max_ledge_height:
 		if enable_debug_draw:
-			print("  REJECTED: Height out of range")
+			pass
 		return result
 	
 	# All checks passed - valid ledge found!
 	if enable_debug_draw:
-		print("✓ VALID LEDGE FOUND!")
+		pass
 	
 	result.has_ledge = true
 	result.ledge_position = ledge_point

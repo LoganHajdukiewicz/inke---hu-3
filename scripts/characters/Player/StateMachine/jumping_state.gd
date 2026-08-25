@@ -3,50 +3,38 @@ class_name JumpingState
 
 @export var jump_velocity : float = 15.0
 @export var long_jump_multiplier: float = 1.3  # Multiplier for long jump horizontal speed
+@export var dash_jump_boost: float = 1.2  # Multiplier applied to horizontal speed when jumping out of a dash
 var gravity_multiplier : float = 1.0
 var jump_time : float = 1.0
-var peak_time : float = 0.0  
-var horizontal_movement_decel = 0.8  # CHANGED from 0.8 to 0.5 - less momentum preservation
+var horizontal_movement_decel = 0.8  # Momentum preserved on jump takeoff
 var is_long_jump: bool = false  # NEW: Track if this is a long jump
 var used_dash_momentum: bool = false  # NEW: Track if we used stored dash momentum
 
 func enter():
-	print("Entered Jumping State")
 	
 	# NEW: Check if this is a long jump
 	is_long_jump = false
 	used_dash_momentum = false
 	
-	if player.has_method("is_long_jump_available") and player.is_long_jump_available():
+	if player.is_long_jump_available():
 		is_long_jump = true
-		print("=== LONG JUMP ACTIVATED! ===")
 		# Consume the long jump
-		if player.has_method("enable_long_jump"):
-			player.can_long_jump = false
-			player.long_jump_timer = 0.0
+		player.can_long_jump = false
+		player.long_jump_timer = 0.0
 	
 	# Don't override velocity if being launched by a spring
 	if not player.is_being_sprung:
 		player.velocity.y = jump_velocity
 		jump_time = 0.0
 		
-		# NEW: Check for stored dash momentum
-		var stored_momentum = Vector3.ZERO
-		if player.has_method("get") and player.get("stored_dash_momentum") != null:
-			stored_momentum = player.get("stored_dash_momentum")
-			print("=== DASH JUMP DETECTED ===")
-			print("Stored dash momentum: ", stored_momentum.length())
+		# Check for stored dash momentum
+		var stored_momentum: Vector3 = player.stored_dash_momentum
 		
 		# Normal momentum reduction first
-		print("=== NORMAL JUMP ===")
-		print("Before decel: ", player.velocity)
-		
 		player.velocity.x *= horizontal_movement_decel
 		player.velocity.z *= horizontal_movement_decel
 		
-		print("After decel: ", player.velocity)
-		
-		# If we have stored dash momentum, apply a 1.2x boost
+		# If we have stored dash momentum, apply the dash jump boost
 		if stored_momentum.length() > 0:
 			# Calculate the direction from the stored momentum
 			var dash_direction = stored_momentum.normalized()
@@ -54,8 +42,8 @@ func enter():
 			# Get the current horizontal speed (after deceleration)
 			var current_horizontal = Vector2(player.velocity.x, player.velocity.z).length()
 			
-			# Apply a 1.4x boost to the current speed in the dash direction
-			var boosted_speed = current_horizontal * 0.5
+			# Boost the current speed in the dash direction
+			var boosted_speed = current_horizontal * dash_jump_boost
 			
 			# Apply the boosted speed in the dash direction
 			player.velocity.x = dash_direction.x * boosted_speed
@@ -63,19 +51,14 @@ func enter():
 			used_dash_momentum = true
 			
 			# Clear the stored momentum
-			if player.has_method("set"):
-				player.set("stored_dash_momentum", Vector3.ZERO)
-			
-			print("Applied dash jump 1.4x boost: ", Vector2(player.velocity.x, player.velocity.z).length())
+			player.stored_dash_momentum = Vector3.ZERO
 		
 		# NEW: Apply long jump boost if active (can stack with dash boost)
 		if is_long_jump:
-			print("Applying long jump multiplier: ", long_jump_multiplier)
 			player.velocity.x *= long_jump_multiplier
 			player.velocity.z *= long_jump_multiplier
 			create_long_jump_effect()
 		
-		print("Final velocity after all boosts: ", player.velocity)
 		
 		# SAFETY: Cap maximum horizontal velocity on jump entry
 		var horizontal_speed = Vector2(player.velocity.x, player.velocity.z).length()
@@ -88,11 +71,9 @@ func enter():
 			max_jump_horizontal = 55.0  # Cap for long jumps
 		
 		if horizontal_speed > max_jump_horizontal:
-			print("!!! Jump velocity cap triggered: ", horizontal_speed, " -> ", max_jump_horizontal)
 			var normalized = Vector2(player.velocity.x, player.velocity.z).normalized()
 			player.velocity.x = normalized.x * max_jump_horizontal
 			player.velocity.z = normalized.y * max_jump_horizontal
-			print("After cap: ", player.velocity)
 	else:
 		# Spring is controlling the jump, just reset timer
 		jump_time = 0.0
@@ -112,27 +93,13 @@ func create_long_jump_effect():
 	
 	# You could also add particle effects here if you have a particle system
 
-func update_dash_cooldown(delta: float):
-	"""Update the dash cooldown timer in the dodge dash state"""
-	var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
-	if dodge_dash_state:
-		# Continue updating cooldown even when not in dash state
-		if not dodge_dash_state.can_dash and dodge_dash_state.cooldown_timer > 0:
-			dodge_dash_state.cooldown_timer -= delta
-			if dodge_dash_state.cooldown_timer <= 0:
-				dodge_dash_state.can_dash = true
-				dodge_dash_state.cooldown_timer = 0.0
-				print("Dash cooldown completed in ", get_script().get_global_name())
 
 func physics_update(delta: float):
-	update_dash_cooldown(delta)
 	jump_time += delta
 
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():
-			print("=== TRANSITIONING TO AIR DASH ===")
-			print("Jump state velocity before transition: ", player.velocity)
 			change_to("DodgeDashState")
 			return
 
@@ -140,14 +107,10 @@ func physics_update(delta: float):
 		change_to("GrappleHookState")
 		return
 
-	# Jak and Daxter gravity curve - quick up, brief pause, quick down
-	if jump_time < peak_time:
-		gravity_multiplier = 0.15
-	elif jump_time < peak_time + 0.0001:
-		gravity_multiplier = 0.1
-	else:
-		gravity_multiplier = 3
-	
+	# Snappy jump arc: heavy gravity from launch gives a quick, weighty feel.
+	# (Was a Jak & Daxter style multi-phase curve, but peak_time was 0 so it
+	# always resolved to the heavy phase — simplified to match actual behavior.)
+	gravity_multiplier = 3.0
 	player.velocity += player.get_gravity() * delta * gravity_multiplier
 	
 	# Don't allow jump input if being sprung (spring floor handles this)
@@ -221,10 +184,6 @@ func physics_update(delta: float):
 	player.move_and_slide()
 
 func exit():
-	print("=== JUMP EXIT ===")
-	print("Final velocity: ", player.velocity)
-	print("Was long jump: ", is_long_jump)
-	print("Used dash momentum: ", used_dash_momentum)
 	
 	# Reset flags
 	is_long_jump = false

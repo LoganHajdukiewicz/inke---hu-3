@@ -40,7 +40,6 @@ func _ready():
 func randomize_line_count():
 	"""Randomize the number of speed lines within the specified range"""
 	actual_line_count = randi_range(line_count_min, line_count_max)
-	print("Speed lines randomized to: ", actual_line_count, " lines")
 
 func setup_effect():
 	"""Setup the motion lines effect"""
@@ -55,7 +54,6 @@ func setup_effect():
 	
 	# Don't create anything if disabled
 	if not enabled:
-		print("Motion lines disabled")
 		return
 	
 	# Create canvas layer
@@ -84,7 +82,6 @@ func setup_effect():
 	
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child(canvas_layer)
-		print("Anime-style motion lines created with ", actual_line_count, " lines!")
 	else:
 		print("Could not add motion lines - no current scene found")
 
@@ -254,7 +251,6 @@ func rerandomize_lines():
 	randomize_line_count()
 	if shader_material:
 		shader_material.set_shader_parameter("line_count", actual_line_count)
-		print("Speed lines re-randomized to: ", actual_line_count, " lines")
 
 func set_line_color(color: Color):
 	"""Change the line color at runtime"""

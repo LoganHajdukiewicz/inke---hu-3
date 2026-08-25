@@ -57,11 +57,9 @@ var initial_color: Color
 
 func _ready():
 	add_to_group("Enemy")
-	print("Enemy added to 'Enemy' group")
 	
 	# Store spawn position for roaming constraint
 	spawn_position = global_position
-	print("Enemy spawn position: ", spawn_position)
 	
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
@@ -76,11 +74,9 @@ func _ready():
 		# Connect body_entered signal
 		if not hit_box.body_entered.is_connected(_on_hit_box_body_entered):
 			hit_box.body_entered.connect(_on_hit_box_body_entered)
-			print("Enemy HitBox body_entered signal connected!")
 		
 		if not hit_box.area_entered.is_connected(_on_hit_box_area_entered):
 			hit_box.area_entered.connect(_on_hit_box_area_entered)
-			print("Enemy HitBox area_entered signal connected!")
 	else:
 		print("ERROR: HitBox not found on enemy!")
 	
@@ -106,11 +102,9 @@ func _on_hit_box_body_entered(body: Node) -> void:
 	
 	# CRITICAL: Check if being stomped - if so, don't damage player OR trigger invulnerability
 	if being_stomped:
-		print("HitBox collision BLOCKED - Being stomped!")
 		return
 	
 	if not can_chase:
-		print("HitBox collision BLOCKED - Can't chase")
 		return
 	
 	# Check if player is above enemy and falling (head stomp scenario)
@@ -123,16 +117,12 @@ func _on_hit_box_body_entered(body: Node) -> void:
 		player_velocity_y = body.velocity.y
 	var is_falling = player_velocity_y < 0
 	
-	print("HitBox collision - Player Y: ", player_y, " Enemy head Y: ", enemy_head_y, 
-		  " Above head: ", is_above_head, " Falling: ", is_falling)
 	
 	# If player is doing a head stomp, don't damage them here
 	if is_above_head and is_falling:
-		print("HEAD STOMP - Not damaging player, not triggering invulnerability")
 		return
 	
 	# Normal damage scenario
-	print("NORMAL COLLISION - Damaging player")
 	can_chase = false
 	damage_player(body)
 	state_machine.change_state("aiidlestate")
@@ -174,26 +164,15 @@ func _physics_process(delta: float) -> void:
 	if state_machine:
 		state_machine.update(delta)
 	
-	# Debug knockback
-	if current_state_name == "AIKnockbackState":
-		print("Enemy in knockback - velocity: ", velocity, " on_floor: ", is_on_floor())
-	
 	move_and_slide()
 
 func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	"""Reduce health and apply knockback"""
-	print("=== TAKE_DAMAGE CALLED ===")
-	print("Damage amount: ", amount)
-	print("Knockback velocity: ", knockback_velocity)
-	print("Knockback Y component: ", knockback_velocity.y)
 	
 	# Ignore damage if still in cooldown
 	if damage_cooldown > 0:
-		print("✗ DAMAGE BLOCKED - Still in cooldown!")
 		return
 	
-	print("✓ DAMAGE ACCEPTED!")
-	print("Health: ", current_health, " -> ", current_health - amount)
 	
 	current_health -= amount
 	damage_cooldown = damage_cooldown_time
@@ -209,16 +188,13 @@ func take_damage(amount: int, knockback_velocity: Vector3 = Vector3.ZERO):
 	if state_machine:
 		var knockback_state = state_machine.states.get("aiknockbackstate") as AIKnockbackState
 		if knockback_state:
-			print("Setting knockback on state: ", knockback_velocity)
 			knockback_state.set_knockback(knockback_velocity)
 		else:
 			print("ERROR: Could not get knockback state!")
 		
-		print("Changing to knockback state...")
 		state_machine.change_state("aiknockbackstate")
 		
 		# Double-check the velocity was applied
-		print("Enemy velocity after state change: ", velocity)
 	
 	# Check for death
 	if current_health <= 0:
@@ -233,7 +209,6 @@ func spawn_paint_droplets():
 	var spawn_position = global_position + Vector3(0, 0.5, 0)
 	var droplet_count = randi_range(paint_droplet_count_min, paint_droplet_count_max)
 	
-	print("Spawning ", droplet_count, " paint droplets from enemy hit")
 	
 	for i in range(droplet_count):
 		var droplet = paint_droplet_scene.instantiate()
@@ -276,7 +251,6 @@ func spawn_paint_droplets():
 
 func die():
 	"""Enemy dies, spawns gears, and is removed from scene"""
-	print("=== ENEMY DIED ===")
 	
 	# Spawn gear explosion
 	if drops_gears_on_death:
@@ -295,7 +269,6 @@ func spawn_gear_explosion():
 	var spawn_position = global_position + Vector3(0, 0.5, 0)
 	var gear_count = randi_range(gear_count_min, gear_count_max)
 	
-	print("Spawning ", gear_count, " gears from enemy death")
 	
 	for i in range(gear_count):
 		var gear = gear_scene.instantiate()
@@ -354,11 +327,8 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 	var is_falling_or_jumping = player_velocity_y <= 0
 	var is_above_enemy = body.global_position.y > global_position.y
 	
-	print("HeadHurtbox hit - Player Y vel: ", player_velocity_y, " Above: ", is_above_enemy, 
-		  " Falling: ", is_falling_or_jumping)
 	
 	if is_above_enemy and is_falling_or_jumping:
-		print("=== HEAD STOMP DAMAGE ===")
 		
 		# CRITICAL: Set flag to prevent HitBox from damaging player
 		being_stomped = true
@@ -382,7 +352,6 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 		if is_instance_valid(self):
 			being_stomped = false
 			can_chase = true
-			print("Enemy can chase again")
 # ============================================
 # BASE STATE CLASS
 # ============================================
@@ -410,7 +379,6 @@ class AIIdleState extends EnemyState:
 	var current_direction: Vector3 = Vector3.ZERO
 	
 	func enter():
-		print("Enemy entering AI IDLE state")
 		wander_timer = 0.0
 		pick_wander_direction()
 	
@@ -424,6 +392,14 @@ class AIIdleState extends EnemyState:
 			if distance_to_player < enemy.detection_range:
 				enemy.state_machine.change_state("aichasestate")
 				return
+		
+		# Keep the enemy within max_roam_distance of its spawn point
+		var from_spawn = enemy.global_position - enemy.spawn_position
+		from_spawn.y = 0
+		if from_spawn.length() > enemy.max_roam_distance:
+			# Head back toward spawn
+			current_direction = -from_spawn.normalized()
+			wander_timer = 0.0
 		
 		enemy.velocity.x = current_direction.x * enemy.wander_speed
 		enemy.velocity.z = current_direction.z * enemy.wander_speed
@@ -443,7 +419,6 @@ class AIChaseState extends EnemyState:
 	var max_chase_time: float = 4.0
 	
 	func enter():
-		print("Enemy entering AI CHASE state")
 		chase_timeout = 0.0
 	
 	func update(delta: float):
@@ -485,12 +460,8 @@ class AIKnockbackState extends EnemyState:
 		"""Set the knockback velocity from external source"""
 		knockback_velocity = new_knockback
 		initial_upward_velocity = new_knockback.y
-		print("Knockback set to: ", knockback_velocity)
-		print("Initial upward velocity: ", initial_upward_velocity)
 	
 	func enter():
-		print("Enemy entering AI KNOCKBACK state")
-		print("Initial knockback velocity: ", knockback_velocity)
 		knockback_timer = 0.0
 		
 		# If no knockback was set externally, use default
@@ -498,11 +469,9 @@ class AIKnockbackState extends EnemyState:
 			knockback_velocity = enemy.global_transform.basis.z * -8.0
 			knockback_velocity.y = 3.0
 			initial_upward_velocity = 3.0
-			print("Using default knockback: ", knockback_velocity)
 		
 		# Apply initial knockback immediately
 		enemy.velocity = knockback_velocity
-		print("Applied velocity to enemy: ", enemy.velocity)
 	
 	func update(delta: float):
 		knockback_timer += delta
@@ -515,22 +484,14 @@ class AIKnockbackState extends EnemyState:
 		enemy.velocity.x *= horizontal_decay
 		enemy.velocity.z *= horizontal_decay
 		
-		# Only print every 10 frames to reduce spam
-		if int(knockback_timer * 60) % 10 == 0:
-			print("Knockback timer: ", snappedf(knockback_timer, 0.01), 
-				  " Y velocity: ", snappedf(enemy.velocity.y, 0.1),
-				  " On floor: ", enemy.is_on_floor())
-		
 		# CRITICAL FIX: Only check for landing AFTER min_air_time has passed
 		# This gives the enemy time to actually leave the ground
 		if knockback_timer >= min_air_time:
 			if enemy.is_on_floor() and enemy.velocity.y <= 0:
-				print("Knockback complete - landed on ground")
 				enemy.state_machine.change_state("aiidlestate")
 		
 		# Safety timeout
 		if knockback_timer >= knockback_duration * 2.0:
-			print("Knockback timeout - forcing end")
 			enemy.state_machine.change_state("aiidlestate")
 	
 	func exit():

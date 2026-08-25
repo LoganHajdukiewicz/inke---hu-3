@@ -5,8 +5,10 @@ var gear_count: int = 0
 var CRED: int = 0
 
 # Health Stats
-var player_health: int = 3
-var player_max_health: int = 3
+const BASE_MAX_HEALTH: int = 3
+const UPGRADED_MAX_HEALTH: int = 4
+var player_health: int = BASE_MAX_HEALTH
+var player_max_health: int = BASE_MAX_HEALTH
 
 # Upgrade System
 @export_group("Upgrades Purchased")
@@ -87,34 +89,17 @@ func initialize_player():
 		call_deferred("spawn_hu3_companion")
 
 func apply_purchased_upgrades():
-	"""Apply all purchased upgrades to the player"""
-	if not player:
-		return
-	
-	if double_jump_purchased and player.has_method("unlock_double_jump"):
-		player.unlock_double_jump()
-		print("GameManager: Applied double jump upgrade to player")
-	
-	if wall_jump_purchased and player.has_method("unlock_wall_jump"):
-		player.unlock_wall_jump()
-		print("GameManager: Applied wall jump upgrade to player")
-	
-	if dash_purchased and player.has_method("unlock_dash"):
-		player.unlock_dash()
-		print("GameManager: Applied dash upgrade to player")
-	
-	if speed_upgrade_purchased and player.has_method("unlock_speed_upgrade"):
-		player.unlock_speed_upgrade()
-		print("GameManager: Applied speed upgrade to player")
-	
-	if health_upgrade_purchased and player.has_method("unlock_health_upgrade"):
-		player.unlock_health_upgrade()
-		# Also increase max health
-		player_max_health = 4
-		player_health = player_max_health
-	
-	if damage_upgrade_purchased and player.has_method("unlock_damage_upgrade"):
-		player.unlock_damage_upgrade()
+	"""Apply purchased upgrades that affect GameManager-owned state.
+	Movement upgrades (double jump, wall jump, dash, speed) are queried live by
+	the player states via can_double_jump()/can_wall_jump()/etc., so they need
+	no push-style application here."""
+	# Health upgrade increases max health; only clamp health (don't refill) so
+	# re-running this on scene load doesn't grant a free heal.
+	var new_max = UPGRADED_MAX_HEALTH if health_upgrade_purchased else BASE_MAX_HEALTH
+	if player_max_health != new_max:
+		player_max_health = new_max
+		player_health = clamp(player_health, 0, player_max_health)
+		health_changed.emit(player_health, player_max_health)
 
 # === HU-3 COMPANION MANAGEMENT ===
 
@@ -126,12 +111,10 @@ func spawn_hu3_companion():
 		return
 	
 	if not player.is_inside_tree():
-		print("GameManager: Cannot spawn HU-3 - player not in scene tree yet, deferring...")
 		call_deferred("spawn_hu3_companion")
 		return
 	
 	if hu3_companion and is_instance_valid(hu3_companion):
-		print("GameManager: HU-3 already exists, skipping spawn")
 		return
 	
 	if hu3_scene:
@@ -147,18 +130,17 @@ func spawn_hu3_companion():
 			hu3_companion = null
 			return
 		
+		# Add to scene FIRST, then position (global_position requires being inside the tree)
+		player.get_parent().add_child(hu3_companion)
+		
 		# Position HU-3 to the right and above player
 		hu3_companion.global_position = player.global_position + Vector3(1.5, 1.5, 1.0)
-		
-		# Add to scene
-		player.get_parent().add_child(hu3_companion)
 		
 		# Set up HU-3's reference to player
 		if hu3_companion.has_method("set_player_reference"):
 			hu3_companion.set_player_reference(player)
 		
 		hu3_spawned.emit(hu3_companion)
-		print("GameManager: HU-3 spawned successfully")
 	else:
 		print("GameManager: Could not load HU-3 scene!")
 
@@ -209,35 +191,24 @@ func purchase_upgrade(upgrade_type: String) -> bool:
 	if not spend_gears(cost):
 		return false
 	
-	# Set the upgrade as purchased
+	# Set the upgrade as purchased.
+	# Movement/damage upgrades are queried live via can_double_jump()/etc.
 	match upgrade_type.to_lower():
 		"double_jump":
 			double_jump_purchased = true
-			if player and player.has_method("unlock_double_jump"):
-				player.unlock_double_jump()
 		"wall_jump":
 			wall_jump_purchased = true
-			if player and player.has_method("unlock_wall_jump"):
-				player.unlock_wall_jump()
 		"dash":
 			dash_purchased = true
-			if player and player.has_method("unlock_dash"):
-				player.unlock_dash()
 		"speed_upgrade":
 			speed_upgrade_purchased = true
-			if player and player.has_method("unlock_speed_upgrade"):
-				player.unlock_speed_upgrade()
 		"health_upgrade":
 			health_upgrade_purchased = true
-			player_max_health = 4  # Upgrade max health
-			# Set health to max when upgrading (also triggers signal)
+			player_max_health = UPGRADED_MAX_HEALTH
+			# Reward the purchase with a full heal (also triggers signal)
 			set_player_health(player_max_health)
-			if player and player.has_method("unlock_health_upgrade"):
-				player.unlock_health_upgrade()
 		"damage_upgrade":
 			damage_upgrade_purchased = true
-			if player and player.has_method("unlock_damage_upgrade"):
-				player.unlock_damage_upgrade()
 	
 	upgrade_purchased.emit(upgrade_type)
 	return true
@@ -327,12 +298,10 @@ func set_player_health(new_health: int):
 func damage_player(amount: int):
 	"""Deal damage to player"""
 	set_player_health(player_health - amount)
-	print("Player took ", amount, " damage. Health: ", player_health, "/", player_max_health)
 
 func heal_player(amount: int):
 	"""Heal the player"""
 	set_player_health(player_health + amount)
-	print("Player healed ", amount, " health. Health: ", player_health, "/", player_max_health)
 
 func get_player_health() -> int:
 	return player_health
@@ -413,8 +382,8 @@ func reset_game_state():
 	"""Reset all game state to defaults"""
 	gear_count = 0
 	CRED = 0
-	player_health = 3
-	player_max_health = 3
+	player_health = BASE_MAX_HEALTH
+	player_max_health = BASE_MAX_HEALTH
 	double_jump_purchased = false
 	wall_jump_purchased = false
 	dash_purchased = false

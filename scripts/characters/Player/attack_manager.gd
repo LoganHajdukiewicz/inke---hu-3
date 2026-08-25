@@ -25,11 +25,9 @@ var player: CharacterBody3D
 var state_machine: StateMachine
 
 func _ready():
-	print("AttackManager: Initializing...")
 	player = get_parent() as CharacterBody3D
 	state_machine = player.get_node("StateMachine") if player.has_node("StateMachine") else null
 	setup_attack_hitbox()
-	print("AttackManager: Ready! Light attack: attack button, Spin attack: heavy_attack button or Shift+attack")
 
 func setup_attack_hitbox():
 	"""Creates an Area3D hitbox in front of the player for detecting enemies."""
@@ -54,9 +52,6 @@ func setup_attack_hitbox():
 	collision_shape.position = Vector3(0, 0, 0)
 	attack_hitbox.add_child(collision_shape)
 	
-	print("Attack hitbox setup complete!")
-	print("  collision_layer: ", attack_hitbox.collision_layer)
-	print("  collision_mask: ", attack_hitbox.collision_mask)
 
 func _physics_process(delta: float):
 	# Update attack cooldown timer
@@ -72,13 +67,10 @@ func check_attack_input():
 	"""Checks if the player pressed attack buttons and initiates attack."""
 	# Debug: Check input state
 	if Input.is_action_just_pressed("attack"):
-		print("Attack button pressed!")
-		print("Shift held: ", Input.is_key_pressed(KEY_SHIFT))
-		print("Can attack: ", can_attack)
-		print("Is dead: ", player.is_dead if player else "no player")
+		pass
 	
 	if Input.is_action_just_pressed("heavy_attack"):
-		print("Spin attack button pressed!")
+		pass
 	
 	if not can_attack or player.is_dead:
 		return
@@ -89,11 +81,9 @@ func check_attack_input():
 	
 	if spin_pressed:
 		perform_spin_attack()
-		print("=== SPIN ATTACK TRIGGERED ===")
 	# Light attack - only if shift is NOT held
 	elif Input.is_action_just_pressed("attack") and not Input.is_key_pressed(KEY_SHIFT):
 		perform_attack(false)  # false = light attack
-		print("=== LIGHT ATTACK TRIGGERED ===")
 
 func perform_spin_attack():
 	"""Transition to spin attack state instead of performing attack here"""
@@ -104,7 +94,6 @@ func perform_spin_attack():
 	var spin_state = state_machine.states.get("spinattackstate")
 	if not spin_state:
 		print("ERROR: SpinAttackState not found in state machine!")
-		print("Available states: ", state_machine.states.keys())
 		return
 	
 	# Start cooldown
@@ -113,11 +102,9 @@ func perform_spin_attack():
 	
 	# Transition to spin attack state
 	state_machine.change_state("SpinAttackState")
-	print("Transitioned to SpinAttackState")
 
 func perform_attack(is_heavy: bool):
 	"""Executes the attack with specified parameters."""
-	print("=== PERFORMING ", "HEAVY" if is_heavy else "LIGHT", " ATTACK ===")
 	
 	# Get attack parameters based on type
 	var damage = light_attack_damage
@@ -127,7 +114,6 @@ func perform_attack(is_heavy: bool):
 	var knockback_horizontal = light_knockback_force
 	var knockback_vertical = light_knockback_upward
 	
-	print("Attack params - Damage: ", damage, " Knockback H: ", knockback_horizontal, " V: ", knockback_vertical)
 	
 	# Start cooldown
 	can_attack = false
@@ -153,15 +139,13 @@ func perform_attack(is_heavy: bool):
 	var hit_bodies = attack_hitbox.get_overlapping_bodies()
 	var hit_areas = attack_hitbox.get_overlapping_areas()
 	
-	print("Hit bodies: ", hit_bodies.size(), " Hit areas: ", hit_areas.size())
 	
 	# DEBUG: Print what we hit
 	for body in hit_bodies:
-		print("  Body: ", body.name, " Groups: ", body.get_groups(), " Is Enemy: ", body.is_in_group("Enemy"), " Is Breakable: ", body.is_in_group("Breakables"))
+		pass
 	for area in hit_areas:
-		print("  Area: ", area.name, " Groups: ", area.get_groups())
 		if area.get_parent():
-			print("    Parent: ", area.get_parent().name, " Groups: ", area.get_parent().get_groups())
+			pass
 	
 	# Track which entities we've already damaged
 	var damaged_entities: Array = []
@@ -170,24 +154,20 @@ func perform_attack(is_heavy: bool):
 	for body in hit_bodies:
 		# Check for breakable objects (like boxes)
 		if body.is_in_group("Breakables") and body not in damaged_entities:
-			print("  -> Hitting breakable body: ", body.name)
 			if body.has_method("take_damage"):
 				body.take_damage(damage)
 				damaged_entities.append(body)
 		
 		# Check for enemies
 		elif body.is_in_group("Enemy") and body not in damaged_entities:
-			print("  -> Hitting enemy body!")
 			hit_enemy(body, damage, knockback_horizontal, knockback_vertical)
 			damaged_entities.append(body)
 	
 	# Process area hits
 	for area in hit_areas:
-		print("Checking area: ", area.name)
 		
 		# Check if the area itself is breakable
 		if area.is_in_group("Breakables") and area not in damaged_entities:
-			print("  -> Hitting breakable area: ", area.name)
 			if area.has_method("take_damage"):
 				area.take_damage(damage)
 				damaged_entities.append(area)
@@ -195,22 +175,18 @@ func perform_attack(is_heavy: bool):
 		# Check if the area's parent is breakable or an enemy
 		if area.get_parent():
 			var parent = area.get_parent()
-			print("  Parent: ", parent.name, " Groups: ", parent.get_groups())
 			
 			# Check for breakable parent (like a box with a DamageDetection area)
 			if parent.is_in_group("Breakables") and parent not in damaged_entities:
-				print("  -> Hitting breakable via area parent: ", parent.name)
 				if parent.has_method("take_damage"):
 					parent.take_damage(damage)
 					damaged_entities.append(parent)
 			
 			# Check for enemy parent
 			elif parent.is_in_group("Enemy") and parent not in damaged_entities:
-				print("  -> Hitting enemy via area parent!")
 				hit_enemy(parent, damage, knockback_horizontal, knockback_vertical)
 				damaged_entities.append(parent)
 	
-	print("Total entities damaged: ", damaged_entities.size())
 	
 	# Disable hitbox after attack
 	attack_hitbox.monitoring = false
@@ -234,19 +210,12 @@ func update_hitbox_position(attack_range: float):
 	# Set the hitbox position
 	attack_hitbox.position = offset
 	
-	print("Hitbox positioned at: ", attack_hitbox.position)
-	print("Hitbox global position: ", attack_hitbox.global_position)
-	print("Player global position: ", player.global_position)
 
 func hit_enemy(enemy: Node, damage: int, knockback_horizontal: float, knockback_vertical: float):
 	"""Deals damage and applies knockback to an enemy."""
 	if not enemy or not is_instance_valid(enemy):
 		return
 	
-	print("=== HIT ENEMY ===")
-	print("Enemy: ", enemy.name)
-	print("Damage: ", damage)
-	print("Knockback H: ", knockback_horizontal, " V: ", knockback_vertical)
 	
 	# Calculate knockback direction (from player to enemy)
 	var knockback_direction = (enemy.global_position - player.global_position).normalized()
@@ -256,12 +225,10 @@ func hit_enemy(enemy: Node, damage: int, knockback_horizontal: float, knockback_
 	var knockback_velocity = knockback_direction * knockback_horizontal
 	knockback_velocity.y = knockback_vertical  # Add upward force
 	
-	print("Final knockback velocity: ", knockback_velocity)
 	
 	# Apply damage with knockback
 	if enemy.has_method("take_damage"):
 		enemy.take_damage(damage, knockback_velocity)
-		print("✓ Damage and knockback applied!")
 	else:
 		print("✗ Enemy doesn't have take_damage method!")
 

@@ -15,7 +15,6 @@ var grind_exit_speed: float = 15.0 # Controls the horizontal movement of jumping
 var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 
 func enter():
-	print("Entered Rail Grinding State")
 	
 	# Restore double jump and air dash abilities when starting rail grinding
 	player.can_double_jump = true

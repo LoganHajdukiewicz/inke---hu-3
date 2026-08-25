@@ -266,6 +266,7 @@ func _physics_process(delta: float) -> void:
 	update_coyote_time(delta)
 	update_invulnerability(delta)
 	update_long_jump_timer(delta)
+	update_dash_cooldown(delta)
 	update_ice_detection()  # NEW: Check for ice floor using get_last_slide_collision
 	check_fall_death()
 	
@@ -299,12 +300,23 @@ func update_ice_detection():
 			var floor_type = collider.get("floor_type")
 			if floor_type != null and floor_type == 6:  # FloorType.FROZEN
 				is_on_ice = true
-				print("ON ICE! Friction multiplier: ", ice_friction_multiplier)
 				return
 
 func get_ice_friction_multiplier() -> float:
 	"""Get the friction multiplier based on whether we're on ice"""
 	return ice_friction_multiplier if is_on_ice else 1.0
+
+func update_dash_cooldown(delta: float):
+	"""Tick the dodge dash cooldown centrally so it progresses in every state.
+	Previously this was copy-pasted into individual states, so the cooldown
+	only advanced while in states that happened to have the copy."""
+	var dodge_dash_state = state_machine.states.get("dodgedashstate")
+	if dodge_dash_state and state_machine.current_state != dodge_dash_state:
+		if not dodge_dash_state.can_dash and dodge_dash_state.cooldown_timer > 0:
+			dodge_dash_state.cooldown_timer -= delta
+			if dodge_dash_state.cooldown_timer <= 0:
+				dodge_dash_state.can_dash = true
+				dodge_dash_state.cooldown_timer = 0.0
 
 func update_long_jump_timer(delta: float):
 	"""Update the long jump window timer"""
@@ -319,7 +331,6 @@ func enable_long_jump():
 	"""Enable long jump window after a dash"""
 	can_long_jump = true
 	long_jump_timer = long_jump_window
-	print("Long jump enabled for ", long_jump_window, " seconds")
 
 func is_long_jump_available() -> bool:
 	"""Check if player can perform a long jump"""
@@ -389,7 +400,6 @@ func perform_double_jump():
 		velocity.y = jump_velocity
 		has_double_jumped = true
 		can_double_jump = false
-		print("Double jump performed!")
 		return true
 	return false
 
@@ -454,7 +464,6 @@ func die():
 	
 	is_dead = true
 	visible = true  # Make sure player is visible during death animation
-	print("Player died!")
 	
 	# Disable controls
 	set_physics_process(false)
@@ -497,7 +506,6 @@ func respawn():
 		if game_manager:
 			game_manager.set_player_health(game_manager.get_player_max_health())
 		
-		print("Respawning at checkpoint: ", global_position)
 		
 		# Re-enable controls
 		set_physics_process(true)
@@ -506,7 +514,6 @@ func respawn():
 		set_invulnerable_without_flash(2.0)
 	else:
 		# No checkpoint - reload the level
-		print("No checkpoint found - reloading level")
 		reload_level()
 
 func reload_level():
@@ -520,7 +527,6 @@ func reload_level():
 
 func _on_health_changed(new_health: int, max_health: int):
 	"""Called when health changes from GameManager"""
-	print("Health changed: ", new_health, "/", max_health)
 	
 	# You can add UI updates here or visual feedback
 
@@ -538,8 +544,9 @@ func _on_damage_body_entered(body: Node3D):
 			knockback_dir.y = 0  # Keep horizontal
 			take_damage(enemy.damage_to_player, knockback_dir)
 	
-	# Check for hazards
-	if body.is_in_group("Hazard") or body.is_in_group("KillPlane"):
+	# Check for hazards ("Hazards" is the global group defined in project settings;
+	# "Hazard"/"KillPlane" kept for backwards compatibility)
+	if body.is_in_group("Hazards") or body.is_in_group("Hazard") or body.is_in_group("KillPlane"):
 		die()
 
 func _on_damage_area_entered(area: Area3D):
@@ -547,8 +554,8 @@ func _on_damage_area_entered(area: Area3D):
 	if is_dead or is_invulnerable:
 		return
 	
-	# Check for hazard areas
-	if area.is_in_group("Hazard") or area.is_in_group("KillPlane"):
+	# Check for hazard areas ("Hazards" is the global group defined in project settings)
+	if area.is_in_group("Hazards") or area.is_in_group("Hazard") or area.is_in_group("KillPlane"):
 		die()
 	
 	# Check for damage zones
@@ -562,7 +569,6 @@ func _on_damage_area_entered(area: Area3D):
 
 func set_health(new_health: int):
 	"""Set player health (called by GameManager)"""
-	print("Player: Health set to ", new_health)
 
 func heal(amount: int):
 	"""Player heals"""
@@ -590,7 +596,6 @@ func get_CRED_count() -> int:
 
 func _on_paint_changed(new_paint, previous_paint):
 	"""Called when player switches paint type"""
-	print("Paint changed from ", previous_paint, " to ", new_paint)
 	# You can add additional logic here, such as:
 	# - Update UI
 	# - Change visual effects
@@ -598,5 +603,4 @@ func _on_paint_changed(new_paint, previous_paint):
 
 func _on_paint_used(paint_type):
 	"""Called when player uses their current paint"""
-	print("Player used paint type: ", paint_type)
 	# Additional logic can be added here if needed

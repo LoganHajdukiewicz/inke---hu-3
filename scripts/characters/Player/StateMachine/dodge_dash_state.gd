@@ -17,7 +17,6 @@ var dash_start_position: Vector3 = Vector3.ZERO
 var is_air_dash: bool = false
 
 func enter():
-	print("Entered Dodge Dash State")
 	
 	# CRITICAL: If we're entering but cooldown isn't ready, exit immediately
 	if not can_dash:
@@ -32,7 +31,6 @@ func enter():
 	# If this is an air dash, consume the air dash ability
 	if is_air_dash:
 		player.has_air_dashed = true
-		print("Air dash used - has_air_dashed set to true")
 	
 	# Store starting position for distance limit
 	dash_start_position = player.global_position
@@ -96,20 +94,17 @@ func physics_update(delta: float):
 		cooldown_timer -= delta
 		if cooldown_timer <= 0:
 			can_dash = true
-			print("Dash cooldown complete - can dash again")
 	
 	dash_timer += delta
 	
 	# Check if dash duration has completed FIRST (priority check)
 	if dash_timer >= dash_duration:
-		print("Dash duration complete")
 		exit_dash()
 		return
 	
 	# Check if we've exceeded max dash distance (secondary check)
 	var distance_traveled = player.global_position.distance_to(dash_start_position)
 	if distance_traveled >= max_dash_distance:
-		print("Max dash distance reached: ", distance_traveled)
 		exit_dash()
 		return
 	
@@ -136,11 +131,7 @@ func physics_update(delta: float):
 	# Allow canceling into jump - preserve full dash momentum for dash jump!
 	if Input.is_action_just_pressed("jump") and player.is_on_floor():
 		# Store the current dash velocity before exiting
-		var dash_momentum = Vector3(player.velocity.x, 0, player.velocity.z)
-		if player.has_method("set"):
-			player.set("stored_dash_momentum", dash_momentum)
-		print("=== DASH JUMP INITIATED ===")
-		print("Stored dash momentum: ", dash_momentum.length())
+		player.stored_dash_momentum = Vector3(player.velocity.x, 0, player.velocity.z)
 		exit_dash_for_jump()
 		change_to("JumpingState")
 		return
@@ -155,18 +146,15 @@ func exit_dash_for_jump():
 	# Handle cooldown
 	if cooldown_timer <= 0:
 		can_dash = true
-		print("Cooldown already complete - dash enabled")
 	elif is_air_dash and player.is_on_floor():
 		can_dash = true
 		cooldown_timer = 0.0
-		print("Air dash landed - dash enabled immediately")
 	else:
-		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
+		pass
 	
 	# Enable long jump window
 	if player.has_method("enable_long_jump"):
 		player.enable_long_jump()
-		print("Long jump window enabled for dash jump!")
 
 func exit_dash():
 	"""Normal exit that reduces momentum"""
@@ -180,26 +168,22 @@ func exit_dash():
 	# 2. We landed from an air dash
 	if cooldown_timer <= 0:
 		can_dash = true
-		print("Cooldown already complete - dash enabled")
 	elif is_air_dash and player.is_on_floor():
 		can_dash = true
 		cooldown_timer = 0.0
 		# Note: has_air_dashed is reset in inke.gd when landing
-		print("Air dash landed - dash enabled immediately")
 	else:
+		pass
 		# Cooldown still running - it will enable dash when timer reaches 0
-		print("Cooldown still running - dash will enable in ", cooldown_timer, " seconds")
 
 	# NEW: Enable long jump window if we're on the ground
 	# Store the current dash velocity for potential long jump
 	var stored_dash_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
 	
-	if player.is_on_floor() and player.has_method("enable_long_jump"):
+	if player.is_on_floor():
 		player.enable_long_jump()
 		# Store dash momentum for long jump
-		if player.has_method("set"):
-			player.set("stored_dash_momentum", stored_dash_velocity)
-		print("Long jump window enabled after dash! Stored momentum: ", stored_dash_velocity.length())
+		player.stored_dash_momentum = stored_dash_velocity
 
 	# Reduce momentum for normal exit
 	var momentum_factor = 0.6
@@ -219,12 +203,9 @@ func exit_dash():
 	else:
 		change_to("FallingState")
 	
-	print("Can dash after exit: ", can_dash)
 
 
 func exit():
-	print("=== DASH STATE EXIT ===")
-	print("Final can_dash value: ", can_dash)
 	
 	# Reset scale
 	player.scale = Vector3.ONE
@@ -239,5 +220,4 @@ func can_perform_dash() -> bool:
 	
 	# If in air, check both cooldown AND if we haven't used air dash yet
 	var result = can_dash and not player.has_air_dashed
-	print("can_perform_dash() - In air: can_dash=", can_dash, " has_air_dashed=", player.has_air_dashed, " result=", result)
 	return result

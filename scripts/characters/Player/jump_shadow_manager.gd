@@ -25,12 +25,10 @@ func _ready():
 
 func setup_jump_shadow():
 	"""Set up the decal-based jump shadow system"""
-	print("Setting up decal-based jump shadow...")
 	
 	await get_tree().process_frame
 	
 	if not is_inside_tree():
-		print("Player not in tree yet, deferring shadow setup")
 		call_deferred("setup_jump_shadow")
 		return
 	
@@ -58,7 +56,6 @@ func setup_jump_shadow():
 	# Add decal to scene
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child(jump_shadow_decal)
-		print("Decal-based jump shadow setup complete!")
 	else:
 		print("Could not add shadow to scene - no current scene found")
 

@@ -45,12 +45,10 @@ func find_ground_level():
 		ground_level = result.position.y + ground_offset
 		global_position.y = ground_level
 		initial_position = global_position
-		print("Gear positioned at ground level: ", ground_level)
 	else:
 		# No ground found, use current position
 		ground_level = global_position.y
 		initial_position = global_position
-		print("Gear: No ground found, using current position: ", ground_level)
 
 func _process(delta):
 	# Don't update if already collected
@@ -83,7 +81,6 @@ func collect_gear():
 	var game_manager = get_node("/root/GameManager")
 	if game_manager:
 		game_manager.add_gear(1)
-		print("Gear collected! Added to total count.")
 	else:
 		print("Warning: GameManager not found!")
 	

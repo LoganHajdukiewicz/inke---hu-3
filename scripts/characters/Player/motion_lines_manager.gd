@@ -101,7 +101,6 @@ void fragment() {
 	
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child(canvas_layer)
-		print("Motion lines overlay created!")
 	else:
 		print("Could not add motion lines - no current scene found")
 

@@ -1,7 +1,7 @@
 extends Node
 
 @export var static_logo_duration: float = 3.0  # Duration to hold static logos (seconds)
-@export var main_menu_scene: String = "res://scenes/ui/main_menu.tscn"  # Path to main menu scene
+@export_file("*.tscn") var main_menu_scene: String = "res://scenes/UI/main_menu.tscn"  # Path to main menu scene
 
 var logos_node: Node
 var current_logo_index: int = 0

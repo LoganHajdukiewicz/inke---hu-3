@@ -146,13 +146,11 @@ func setup_collision_shape() -> void:
 		var box_shape = BoxShape3D.new()
 		box_shape.size = box_size
 		collision_shape.shape = box_shape
-		print("DialogueTrigger: Created proximity box with size ", box_size)
 	else:  # WALL_TRIGGER
 		# Create world boundary (infinite plane)
 		var plane_shape = WorldBoundaryShape3D.new()
 		plane_shape.plane = Plane(0, 0, 1, 0)  # Facing forward (Z-axis)
 		collision_shape.shape = plane_shape
-		print("DialogueTrigger: Created wall trigger")
 
 func update_debug_visualization() -> void:
 	# Remove existing debug mesh if it exists
@@ -201,7 +199,6 @@ func update_debug_visualization() -> void:
 		material.cull_mode = BaseMaterial3D.CULL_DISABLED  # Show both sides
 		debug_mesh.material_override = material
 	
-	print("DialogueTrigger: Debug visualization ", "enabled" if show_debug_visualization else "disabled")
 
 func _on_body_entered(body: Node3D) -> void:
 	if Engine.is_editor_hint():
@@ -287,7 +284,6 @@ func start_dialogue() -> void:
 	if interaction_prompt:
 		interaction_prompt.visible = false
 	
-	print("DialogueTrigger: Starting dialogue: ", dialogue_file)
 	
 	# Set pause state based on trigger type and setting
 	var should_pause = (trigger_type == TriggerType.PROXIMITY_BOX) and pause_game

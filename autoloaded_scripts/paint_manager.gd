@@ -62,9 +62,9 @@ signal paint_used(paint_type: PaintType)
 var is_initialized: bool = false
 
 func _ready():
+	pass
 	# PaintManager is autoloaded, so it doesn't have a parent
 	# Wait for player to register itself
-	print("PaintManager ready - waiting for player registration")
 
 func register_player(player_node: CharacterBody3D):
 	"""Called by player to register itself with PaintManager"""
@@ -77,8 +77,6 @@ func register_player(player_node: CharacterBody3D):
 	else:
 		setup_paint_ui()
 
-	print("Paint Manager initialized - Current paint: ", paint_names[current_paint])
-	print("Starting paint amount: ", current_paint_amount, "/", max_paint_amount)
 
 # ==========================================
 # PAINT METER FUNCTIONS
@@ -89,7 +87,6 @@ func add_paint(amount: int):
 	var old_amount = current_paint_amount
 	current_paint_amount = min(current_paint_amount + amount, max_paint_amount)
 	
-	print("Paint collected! +", amount, " (", old_amount, " -> ", current_paint_amount, ")")
 	
 	paint_collected.emit(amount)
 	paint_amount_changed.emit(current_paint_amount, max_paint_amount)
@@ -103,10 +100,8 @@ func consume_paint(amount: int) -> bool:
 		if current_paint_amount == 0:
 			paint_depleted.emit()
 		
-		print("Paint consumed: -", amount, " (", current_paint_amount, "/", max_paint_amount, " remaining)")
 		return true
 	else:
-		print("Not enough paint! Need ", amount, ", have ", current_paint_amount)
 		insufficient_paint.emit(amount, current_paint_amount)
 		return false
 
@@ -151,7 +146,6 @@ func setup_paint_ui():
 	# Add to scene tree (persists across scene changes since we manage visibility)
 	if get_tree() and get_tree().current_scene:
 		get_tree().current_scene.add_child.call_deferred(paint_ui)
-		print("Paint UI created successfully!")
 	else:
 		print("PaintManager: Could not add paint UI - no current scene found")
 
@@ -166,7 +160,6 @@ func _process(delta: float):
 	
 	# Check if player is still valid - if not, reset
 	if not is_instance_valid(player):
-		print("PaintManager: Player no longer valid, resetting...")
 		cleanup()
 		return
 	
@@ -225,7 +218,6 @@ func switch_paint(new_paint: PaintType):
 	
 	# Print feedback
 	var cost = paint_ability_costs.get(current_paint, 0)
-	print("Paint switched: ", paint_names[previous_paint], " → ", paint_names[current_paint], " (Cost: ", cost, " paint)")
 
 func check_paint_use_input():
 	"""Check for spray button press to use current paint"""
@@ -238,10 +230,8 @@ func use_current_paint():
 	
 	# Check if we have enough paint
 	if not has_enough_paint_for_ability(current_paint):
-		print("Not enough paint! Need ", cost, ", have ", current_paint_amount)
 		return
 	
-	print("Using ", paint_names[current_paint], " (Cost: ", cost, " paint)")
 	
 	# Consume the paint BEFORE executing the ability
 	if not consume_paint(cost):
@@ -268,12 +258,10 @@ func use_current_paint():
 func execute_save_paint():
 	"""Save paint functionality - saves checkpoint"""
 	if not player or not is_instance_valid(player):
-		print("Save Paint: No valid player reference")
 		return
 	
 	# Check if player is on the floor
 	if not player.is_on_floor():
-		print("Save Paint: Must be on the ground to create checkpoint!")
 		# Refund the paint since we couldn't use it
 		add_paint(paint_ability_costs[PaintType.SAVE])
 		return
@@ -281,7 +269,6 @@ func execute_save_paint():
 	# Check if player has zero velocity (not moving)
 	var horizontal_velocity = Vector2(player.velocity.x, player.velocity.z)
 	if horizontal_velocity.length() > 0.5:  # Small threshold for "standing still"
-		print("Save Paint: Must be standing still to create checkpoint!")
 		# Refund the paint since we couldn't use it
 		add_paint(paint_ability_costs[PaintType.SAVE])
 		return
@@ -293,7 +280,6 @@ func execute_save_paint():
 		var checkpoint_rot = player.rotation
 		
 		checkpoint_manager.set_checkpoint(checkpoint_pos, checkpoint_rot)
-		print("Save Paint: Checkpoint created at ", checkpoint_pos)
 		
 		# Create visual feedback for checkpoint creation
 		create_checkpoint_effect()
@@ -353,7 +339,6 @@ func create_checkpoint_effect():
 func execute_heal_paint():
 	"""Heal paint functionality - restores health"""
 	if not player or not is_instance_valid(player):
-		print("Heal Paint: No valid player reference")
 		return
 	
 	# Check if player can be healed (not at max health)
@@ -363,7 +348,6 @@ func execute_heal_paint():
 		var max_health = game_manager.get_player_max_health()
 		
 		if current_health >= max_health:
-			print("Heal Paint: Already at max health!")
 			# Refund the paint since we couldn't use it
 			add_paint(paint_ability_costs[PaintType.HEAL])
 			return
@@ -371,7 +355,6 @@ func execute_heal_paint():
 	# Heal the player
 	if player.has_method("heal"):
 		player.heal(1)
-		print("Heal Paint: Healed player for 1 HP")
 		
 		# Create healing visual effect
 		create_heal_effect()
@@ -429,12 +412,10 @@ func create_heal_effect():
 
 func execute_fly_paint():
 	"""Fly paint functionality - temporary flight/glide"""
-	print("Fly Paint: Activating flight...")
 	# TODO: Implement flight logic
 
 func execute_combat_paint():
 	"""Combat paint functionality - offensive spray"""
-	print("Combat Paint: Attacking...")
 	# TODO: Implement combat spray logic
 
 # ==========================================
@@ -478,4 +459,3 @@ func cleanup():
 
 	player = null
 	is_initialized = false
-	print("PaintManager: Player unregistered - UI hidden")
