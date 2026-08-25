@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://caq08uctqe7x5"]
+
+[ext_resource type="Script" uid="uid://8impy4prm1cw" path="res://scripts/UI/textbox.gd" id="1_v60m8"]
+
+[node name="Textbox" type="Node"]
+script = ExtResource("1_v60m8")
