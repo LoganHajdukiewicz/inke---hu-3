@@ -80,10 +80,9 @@ floor_size = Vector3(20, 0.5, 20)
 spring_force = 10.0
 
 [node name="Floor8" parent="Floors" unique_id=266005635 instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 75)
+transform = Transform3D(0.9396926, 0.11697776, 0.32139376, 0, 0.93969256, -0.3420201, -0.34202012, 0.32139376, 0.8830221, -30, -1.5499973, 75)
 floor_type = 7
 floor_size = Vector3(20, 0.5, 20)
-spring_force = 10.0
 
 [node name="Floor9" parent="Floors" unique_id=1161334002 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -30, 0.2, 100)

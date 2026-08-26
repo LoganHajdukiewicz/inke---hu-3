@@ -85,8 +85,7 @@ func register_player(player_node: CharacterBody3D):
 func add_paint(amount: int):
 	"""Add paint to the meter from collecting droplets"""
 	var old_amount = current_paint_amount
-	current_paint_amount = min(current_paint_amount + amount, max_paint_amount)
-	
+	current_paint_amount = min(old_amount + amount, max_paint_amount)
 	
 	paint_collected.emit(amount)
 	paint_amount_changed.emit(current_paint_amount, max_paint_amount)
@@ -216,8 +215,8 @@ func switch_paint(new_paint: PaintType):
 	# Emit signal
 	paint_changed.emit(current_paint, previous_paint)
 	
-	# Print feedback
-	var cost = paint_ability_costs.get(current_paint, 0)
+	## Print feedback
+	#var cost = paint_ability_costs.get(current_paint, 0)
 
 func check_paint_use_input():
 	"""Check for spray button press to use current paint"""
