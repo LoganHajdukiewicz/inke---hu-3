@@ -2,7 +2,8 @@ extends Node
 
 # Game Resources
 var gear_count: int = 0
-var CRED: int = 0
+# Renamed from CRED: shadowed the global CRED collectible class (cred.gd)
+var cred_count: int = 0
 
 # Health Stats
 const BASE_MAX_HEALTH: int = 3
@@ -177,11 +178,11 @@ func get_gear_count() -> int:
 
 func add_CRED(reward: int):
 	"""Add XP/CRED to Inke"""
-	CRED += reward
-	cred_collected.emit(reward, CRED)
+	cred_count += reward
+	cred_collected.emit(reward, cred_count)
 	
 func get_CRED_count() -> int:
-	return CRED
+	return cred_count
 
 # === INK WISP TRACKING (per level) ===
 
@@ -401,7 +402,7 @@ func save_game_state() -> Dictionary:
 	"""Save the current game state to a dictionary"""
 	return {
 		"gear_count": gear_count,
-		"CRED": CRED,
+		"CRED": cred_count,
 		"player_health": player_health,
 		"player_max_health": player_max_health,
 		"double_jump_purchased": double_jump_purchased,
@@ -415,7 +416,7 @@ func save_game_state() -> Dictionary:
 func load_game_state(state: Dictionary):
 	"""Load game state from a dictionary"""
 	gear_count = state.get("gear_count", 0)
-	CRED = state.get("CRED", 0)
+	cred_count = state.get("CRED", 0)
 	player_health = state.get("player_health", 3)
 	player_max_health = state.get("player_max_health", 3)
 	double_jump_purchased = state.get("double_jump_purchased", false)
@@ -438,7 +439,7 @@ func load_game_state(state: Dictionary):
 func reset_game_state():
 	"""Reset all game state to defaults"""
 	gear_count = 0
-	CRED = 0
+	cred_count = 0
 	player_health = BASE_MAX_HEALTH
 	player_max_health = BASE_MAX_HEALTH
 	double_jump_purchased = false
@@ -452,7 +453,7 @@ func get_game_stats() -> Dictionary:
 	"""Get current game statistics"""
 	return {
 		"total_gears": gear_count,
-		"total_cred": CRED,
+		"total_cred": cred_count,
 		"player_health_percent": get_player_health_percentage(),
 		"upgrades_purchased": get_purchased_upgrades().size(),
 		"total_upgrades": 6

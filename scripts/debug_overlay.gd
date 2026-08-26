@@ -774,7 +774,6 @@ func _update_left(delta: float) -> void:
 		if current_friction_label.begins_with("Ice"):
 			txt += _row("Ice ctrl",     fric_col + "0.01 (lerp)" + C_RESET)
 			# NEW: how many seconds until player effectively stops on ice?
-			var ice_stop_t := log(0.01) / log(1.0 - 0.01 * 10.0 * frame_dt) * frame_dt if cur_h > 0.1 else 0.0
 			txt += _row("Ice stop ~",   C_DIM + "very long (low decel)" + C_RESET)
 		elif current_friction_label == "Slide (×0.98/f)":
 			txt += _row("Slide mult",   C_WARN + "0.98 / frame" + C_RESET)
@@ -986,7 +985,6 @@ func _update_mid() -> void:
 				var tl: float  = _prop(cs, "total_lock_time", 0.5)
 				var wjv: float = _prop(cs, "wall_jump_velocity", 5.0)
 				var hf: float  = _prop(cs, "wall_jump_horizontal_force", 12.0)
-				var ub: float  = _prop(cs, "wall_jump_upward_boost", 2.0)
 				var wdir: Variant = cs.get("wall_direction")
 				var phase := "LOCK"
 				var ctrl  := 0.0
@@ -1088,9 +1086,6 @@ func _update_mid() -> void:
 	var used_ad: bool  = _prop(player, "has_air_dashed",    false)
 	var can_lj : bool  = _prop(player, "can_long_jump",     false)
 	var lj_t   : float = _prop(player, "long_jump_timer",   0.0)
-	var lj_w   : float = _prop(player, "long_jump_window",  0.3)
-	var sdm_raw: Variant = _prop(player, "stored_dash_momentum", null)
-	var sdm_len: float = (sdm_raw as Vector3).length() if sdm_raw is Vector3 else 0.0
 	var wj_cd  : float = _prop(player, "wall_jump_cooldown", 0.0)
 	var ct     : float = _prop(player, "coyote_time_counter", 0.0)
 	var cd_dur : float = _prop(player, "coyote_time_duration", 0.15)

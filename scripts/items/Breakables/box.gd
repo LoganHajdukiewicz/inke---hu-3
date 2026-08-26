@@ -41,6 +41,12 @@ func _ready():
 	current_health = max_health
 	game_manager = get_node("/root/GameManager")
 	
+	# GRAVITY FIX: sleeping RigidBodies do NOT wake up when the body they're
+	# resting on is queue_free()d - so a box stacked on a broken box would
+	# float. Keep boxes light sleepers and wake the neighborhood on break.
+	contact_monitor = true
+	max_contacts_reported = 4
+	
 	# Add to Breakables group
 	if not is_in_group("Breakables"):
 		add_to_group("Breakables")
@@ -264,6 +270,10 @@ func break_crate():
 	
 	is_broken = true
 	
+	# GRAVITY FIX: wake every physics body resting on/near this box so
+	# stacked boxes actually fall when their support disappears.
+	_wake_nearby_bodies()
+	
 	# Spawn particles
 	if particles:
 		particles.emitting = true
@@ -282,6 +292,19 @@ func break_crate():
 		queue_free()
 	else:
 		pass
+
+func _wake_nearby_bodies():
+	"""Wake sleeping RigidBodies near this box. Godot does not wake sleeping
+	bodies when the body under them is freed, so without this a box stacked
+	on a broken box hangs in the air."""
+	var wake_radius: float = 3.0
+	for body in get_tree().get_nodes_in_group("Breakables"):
+		if body == self or not (body is RigidBody3D) or not is_instance_valid(body):
+			continue
+		if body.global_position.distance_to(global_position) <= wake_radius:
+			body.set_deferred("sleeping", false)
+			# A tiny nudge guarantees the physics engine re-evaluates support
+			body.call_deferred("apply_central_impulse", Vector3(0, -0.01, 0))
 
 func play_break_animation():
 	"""

@@ -111,7 +111,7 @@ func perform_spin_attack():
 	# Transition to spin attack state
 	state_machine.change_state("SpinAttackState")
 
-func perform_attack(is_heavy: bool):
+func perform_attack(_is_heavy: bool):
 	"""Executes the attack with specified parameters."""
 	
 	# Get attack parameters based on type

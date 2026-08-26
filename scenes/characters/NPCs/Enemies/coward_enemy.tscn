@@ -1,0 +1,51 @@
+[gd_scene load_steps=7 format=3 uid="uid://cowardenemy01"]
+
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/coward_enemy.gd" id="1_coward"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_coward"]
+albedo_color = Color(0.95, 0.75, 0.15, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_coward"]
+material = SubResource("StandardMaterial3D_coward")
+radius = 0.4
+height = 1.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_coward"]
+radius = 0.4
+height = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_coward"]
+size = Vector3(0.9, 0.5, 0.9)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_coward"]
+radius = 0.5
+
+[node name="CowardEnemy" type="CharacterBody3D" groups=["Enemy"]]
+script = ExtResource("1_coward")
+max_health = 1
+current_health = 1
+gear_count_min = 8
+gear_count_max = 12
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CapsuleMesh_coward")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("CapsuleShape3D_coward")
+
+[node name="HeadHurtbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("BoxShape3D_coward")
+
+[node name="HitBox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+shape = SubResource("SphereShape3D_coward")
+
+[connection signal="body_entered" from="HeadHurtbox" to="." method="_on_head_hurtbox_body_entered"]
+[connection signal="body_entered" from="HitBox" to="." method="_on_hit_box_body_entered"]

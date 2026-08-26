@@ -29,6 +29,14 @@ var gear_collection_distance: float = 8.0
 var gear_collection_speed: float = 15.0
 var collected_gears: Array[Node] = []
 
+# === NAVIGATION / ANTI-STUCK (HU-3 is a FLYING robot - act like one) ===
+var avoid_probe_distance: float = 2.2      # How far ahead to look for obstacles
+var avoid_lift_speed: float = 8.0          # Climb rate when something is in the way
+var stuck_time: float = 0.0                # How long we've been blocked while trying to move
+var stuck_teleport_after: float = 1.5      # Blocked this long -> teleport to the player
+var teleport_distance: float = 22.0        # Too far behind -> teleport to the player
+var los_blocked_time: float = 0.0          # How long line-of-sight to player has been blocked
+
 # Internal state
 var hover_time: float = 0.0
 var is_collecting_gear: bool = false
@@ -102,8 +110,109 @@ func _physics_process(delta: float):
 	else:
 		follow_player_smooth(delta)
 	
+	# NAVIGATION LAYER: steer around/over obstacles, and bail out of any
+	# situation the steering can't fix (teleport catch-up)
+	_apply_obstacle_avoidance(delta)
+	
 	# Apply movement
 	move_and_slide()
+	
+	_update_stuck_recovery(delta)
+
+func _apply_obstacle_avoidance(_delta: float):
+	"""HU-3 flies - when the path ahead is blocked, climb over it and slide
+	along the wall instead of face-planting into it."""
+	if velocity.length() < 0.5:
+		return
+	
+	var space_state = get_world_3d().direct_space_state
+	var move_dir = velocity.normalized()
+	var probe_len = maxf(avoid_probe_distance, velocity.length() * 0.25)
+	
+	# Main whisker: straight along our velocity
+	var query = PhysicsRayQueryParameters3D.create(global_position, global_position + move_dir * probe_len)
+	query.collision_mask = 1
+	query.exclude = [self]
+	if player:
+		query.exclude.append(player)
+	var hit = space_state.intersect_ray(query)
+	if not hit:
+		return
+	
+	# Something's in the way. Is there clear air above it? (flying robot!)
+	var over_from = global_position + Vector3(0, 1.6, 0)
+	var over_query = PhysicsRayQueryParameters3D.create(over_from, over_from + move_dir * probe_len)
+	over_query.collision_mask = 1
+	over_query.exclude = query.exclude
+	var over_hit = space_state.intersect_ray(over_query)
+	
+	if not over_hit:
+		# Climb over the obstacle while keeping some forward motion
+		velocity.y = maxf(velocity.y, avoid_lift_speed)
+	else:
+		# Can't go over: deflect sideways along the wall (slide, don't push)
+		var wall_normal: Vector3 = hit.normal
+		var into_wall = velocity.dot(-wall_normal)
+		if into_wall > 0:
+			velocity += wall_normal * into_wall  # Remove the into-wall component
+			# Pick the sideways direction that leads toward the target
+			var side = wall_normal.cross(Vector3.UP).normalized()
+			var to_target = smooth_follow_position - global_position
+			if to_target.dot(side) < 0:
+				side = -side
+			velocity += side * minf(into_wall, 6.0)
+
+func _update_stuck_recovery(delta: float):
+	"""Last-resort recovery: if steering couldn't unstick us, or we've fallen
+	absurdly far behind, TELEPORT next to the player. A companion robot that's
+	stuck behind a fence is worse than one that briefly blinks forward."""
+	if not player or not is_instance_valid(player):
+		return
+	
+	var dist_to_player = global_position.distance_to(player.global_position)
+	
+	# Stuck = trying to move but going nowhere
+	var wants_to_move = velocity.length() > 2.0
+	var actually_moving = get_real_velocity().length() > 0.8
+	if wants_to_move and not actually_moving:
+		stuck_time += delta
+	else:
+		stuck_time = maxf(stuck_time - delta * 2.0, 0.0)
+	
+	# Line of sight to the player
+	var space_state = get_world_3d().direct_space_state
+	var los_query = PhysicsRayQueryParameters3D.create(global_position, player.global_position + Vector3(0, 1.0, 0))
+	los_query.collision_mask = 1
+	los_query.exclude = [self, player]
+	if space_state.intersect_ray(los_query):
+		los_blocked_time += delta
+	else:
+		los_blocked_time = 0.0
+	
+	var should_teleport = dist_to_player > teleport_distance \
+		or stuck_time > stuck_teleport_after \
+		or (los_blocked_time > 3.0 and dist_to_player > 8.0)
+	
+	if should_teleport:
+		_teleport_to_player()
+
+func _teleport_to_player():
+	"""Blink to the player's side (with a little pop so it reads as intended)."""
+	if not player or not is_instance_valid(player):
+		return
+	var yaw = player.rotation.y
+	var behind = Vector3(sin(yaw), 0, cos(yaw))  # Player's back direction
+	global_position = player.global_position + behind * 1.5 + Vector3(0, hover_height + 0.5, 0)
+	smooth_follow_position = global_position
+	smooth_follow_velocity = Vector3.ZERO
+	velocity = Vector3.ZERO
+	stuck_time = 0.0
+	los_blocked_time = 0.0
+	reset_collection_state()
+	# Blink feedback
+	scale = Vector3(0.3, 0.3, 0.3)
+	var tween = create_tween()
+	tween.tween_property(self, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func follow_player_smooth(delta: float):
 	"""

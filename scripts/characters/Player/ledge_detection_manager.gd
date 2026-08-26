@@ -10,6 +10,15 @@ class_name LedgeDetectionManager
 @export var enable_debug_draw: bool = false  # Draw debug lines showing raycasts (disabled by default)
 @export var velocity_check_threshold: float = -5.0  # Only check when falling at this speed or faster
 
+## GRAB FORGIVENESS - one knob to make ledge grabbing easier or stricter.
+## 1.0 = original behavior. Higher = more forgiving: scales the reach
+## distance and the height window, and adds angled side rays so slightly
+## off-center approaches still catch the ledge. 1.5-2.0 feels generous.
+@export_range(0.5, 3.0, 0.05) var grab_forgiveness: float = 1.6
+## Extra side rays cast at +/- this angle (degrees) when the straight-ahead
+## ray misses. 0 disables side rays.
+@export var side_ray_angle_degrees: float = 20.0
+
 # NEW: Allowed scene names for ledge grabbing
 @export var allowed_ledge_scenes: Array[String] = ["wall", "floor"]  # Scenes that can be grabbed
 
@@ -133,21 +142,31 @@ func detect_ledge() -> Dictionary:
 	# Get player's forward direction
 	var forward = -player.global_transform.basis.z.normalized()
 	
-	if enable_debug_draw:
-		pass
+	# Forgiveness scales how far we reach for a wall
+	var reach: float = ledge_check_distance * grab_forgiveness
 	
-	# Step 1: Check for wall in front at chest height
+	# Step 1: Check for wall in front at chest height.
+	# FORGIVENESS: try the straight-ahead ray first, then angled side rays,
+	# so approaching a ledge slightly off-center still grabs.
 	var wall_check_start = player.global_position + Vector3(0, 0.5, 0)
-	var wall_check_end = wall_check_start + forward * ledge_check_distance
+	var wall_result = null
+	var ray_angles: Array[float] = [0.0]
+	if side_ray_angle_degrees > 0.0 and grab_forgiveness > 0.99:
+		var a := deg_to_rad(side_ray_angle_degrees)
+		ray_angles.append(a)
+		ray_angles.append(-a)
 	
-	var wall_query = PhysicsRayQueryParameters3D.create(wall_check_start, wall_check_end)
-	wall_query.collision_mask = 1
-	wall_query.exclude = [player]
-	
-	var wall_result = space_state.intersect_ray(wall_query)
-	
-	if enable_debug_draw:
-		draw_debug_line(wall_check_start, wall_check_end, Color.RED if not wall_result else Color.GREEN)
+	for angle in ray_angles:
+		var dir = forward.rotated(Vector3.UP, angle)
+		var wall_check_end = wall_check_start + dir * reach
+		var wall_query = PhysicsRayQueryParameters3D.create(wall_check_start, wall_check_end)
+		wall_query.collision_mask = 1
+		wall_query.exclude = [player]
+		wall_result = space_state.intersect_ray(wall_query)
+		if enable_debug_draw:
+			draw_debug_line(wall_check_start, wall_check_end, Color.RED if not wall_result else Color.GREEN)
+		if wall_result:
+			break
 	
 	if not wall_result:
 		return result
@@ -218,13 +237,13 @@ func detect_ledge() -> Dictionary:
 			pass
 		return result
 	
-	# Step 4: Verify the ledge is at appropriate height
+	# Step 4: Verify the ledge is at appropriate height.
+	# FORGIVENESS: widen the accepted height window on both ends.
 	var height_difference = ledge_point.y - player.global_position.y
+	var min_h: float = min_ledge_height / grab_forgiveness
+	var max_h: float = max_ledge_height * grab_forgiveness
 	
-	if enable_debug_draw:
-		pass
-	
-	if height_difference < min_ledge_height or height_difference > max_ledge_height:
+	if height_difference < min_h or height_difference > max_h:
 		if enable_debug_draw:
 			pass
 		return result

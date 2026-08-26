@@ -1,0 +1,47 @@
+[gd_scene load_steps=7 format=3 uid="uid://shieldenemy01"]
+
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/shield_enemy.gd" id="1_shield"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_shield"]
+albedo_color = Color(0.55, 0.3, 0.65, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_shield"]
+material = SubResource("StandardMaterial3D_shield")
+height = 1.2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_shield"]
+height = 1.1782227
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_shield"]
+size = Vector3(1.0300293, 0.56103516, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_shield"]
+radius = 0.55
+
+[node name="ShieldEnemy" type="CharacterBody3D" groups=["Enemy"]]
+script = ExtResource("1_shield")
+max_health = 4
+current_health = 4
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5802858, 0)
+mesh = SubResource("CapsuleMesh_shield")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6003761, 0)
+shape = SubResource("CapsuleShape3D_shield")
+
+[node name="HeadHurtbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0018310547, 0.97240484, 0)
+shape = SubResource("BoxShape3D_shield")
+
+[node name="HitBox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009094238, 0.4578725, -0.014052689)
+shape = SubResource("SphereShape3D_shield")
+
+[connection signal="body_entered" from="HeadHurtbox" to="." method="_on_head_hurtbox_body_entered"]
+[connection signal="body_entered" from="HitBox" to="." method="_on_hit_box_body_entered"]

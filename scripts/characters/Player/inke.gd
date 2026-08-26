@@ -810,7 +810,7 @@ func reload_level():
 	# Reload the current scene
 	get_tree().reload_current_scene()
 
-func _on_health_changed(new_health: int, max_health: int):
+func _on_health_changed(_new_health: int, _max_health: int):
 	"""Called when health changes from GameManager"""
 	
 	# You can add UI updates here or visual feedback
@@ -852,7 +852,7 @@ func _on_damage_area_entered(area: Area3D):
 
 # === HEALTH METHODS ===
 
-func set_health(new_health: int):
+func set_health(_new_health: int):
 	"""Set player health (called by GameManager)"""
 
 func heal(amount: int):
@@ -879,13 +879,13 @@ func get_CRED_count() -> int:
 	"""Get CRED count from GameManager"""
 	return game_manager.get_CRED_count() if game_manager else 0
 
-func _on_paint_changed(new_paint, previous_paint):
+func _on_paint_changed(_new_paint, _previous_paint):
 	"""Called when player switches paint type"""
 	# You can add additional logic here, such as:
 	# - Update UI
 	# - Change visual effects
 	# - Enable/disable certain abilities
 
-func _on_paint_used(paint_type):
+func _on_paint_used(_paint_type):
 	"""Called when player uses their current paint"""
 	# Additional logic can be added here if needed

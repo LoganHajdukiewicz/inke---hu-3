@@ -1,0 +1,42 @@
+[gd_scene load_steps=6 format=3 uid="uid://explbarrel001"]
+
+[ext_resource type="Script" path="res://scripts/items/Breakables/explosive_barrel.gd" id="1_barrel"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_barrel"]
+height = 1.1
+radius = 0.42
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_barrel"]
+albedo_color = Color(0.75, 0.18, 0.12, 1)
+roughness = 0.6
+metallic = 0.2
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_barrel"]
+material = SubResource("StandardMaterial3D_barrel")
+top_radius = 0.4
+bottom_radius = 0.42
+height = 1.1
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_damage"]
+height = 1.2
+radius = 0.5
+
+[node name="ExplosiveBarrel" type="RigidBody3D" groups=["Breakables", "Explosive"]]
+script = ExtResource("1_barrel")
+drops_gears = false
+max_health = 1
+current_health = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+shape = SubResource("CylinderShape3D_barrel")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+mesh = SubResource("CylinderMesh_barrel")
+
+[node name="DamageDetection" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DamageDetection"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+shape = SubResource("CylinderShape3D_damage")

@@ -14,6 +14,10 @@ var jump_velocity: float = 10.0 # Controls the upwards movement of jumping off a
 var grind_exit_speed: float = 15.0 # Controls the horizontal movement of jumping off a rail
 var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 
+## Max body tilt (radians) while grinding. Purely visual: steep rails used
+## to pitch the model into the rail ("shishkabab"). ~35 degrees feels right.
+@export var max_visual_pitch: float = 0.6
+
 func enter():
 	
 	# Restore double jump and air dash abilities when starting rail grinding
@@ -31,14 +35,30 @@ func physics_update(delta: float):
 		# Smoothly move player to rail position
 		player.position = lerp(player.position, rail_grind_node.global_position, delta * lerp_speed)
 		
-		# Rotate player to align with rail direction
-		var target_rotation = rail_grind_node.global_transform.basis.orthonormalized()
-		
-		# If moving backward, flip the rotation 180 degrees
+		# Rotate player to align with rail direction.
+		# PITCH CLAMP: on steep rail sections the follower's basis pitches
+		# hard, which used to rotate the player's body INTO the rail
+		# ("shishkabab" glitch). We rebuild the target rotation from the rail
+		# direction with the pitch limited, keeping the body mostly upright.
+		var rail_forward: Vector3 = -rail_grind_node.global_transform.basis.z.normalized()
 		if not rail_grind_node.forward:
-			target_rotation = target_rotation.rotated(Vector3.UP, PI)
+			rail_forward = -rail_forward
 		
-		# Smoothly rotate the player to match the rail direction
+		var flat := Vector3(rail_forward.x, 0, rail_forward.z)
+		var target_rotation: Basis
+		if flat.length() > 0.05:
+			flat = flat.normalized()
+			# Actual slope pitch of the rail, clamped to +/- max_visual_pitch
+			var pitch := asin(clampf(rail_forward.y, -1.0, 1.0))
+			pitch = clampf(pitch, -max_visual_pitch, max_visual_pitch)
+			var yaw := atan2(-flat.x, -flat.z)
+			target_rotation = Basis.from_euler(Vector3(pitch, yaw, 0.0))
+		else:
+			# Near-vertical rail segment: keep the body fully upright,
+			# preserve current yaw
+			target_rotation = Basis.from_euler(Vector3(0.0, player.rotation.y, 0.0))
+		
+		# Smoothly rotate the player to match the (clamped) rail direction
 		player.transform.basis = player.transform.basis.slerp(target_rotation, delta * lerp_speed).orthonormalized()
 		
 		# Set velocity based on rail movement direction
@@ -159,6 +179,12 @@ func enable_rail_detection():
 		player.rail_grind_area.monitorable = true
 
 func exit():
+	# Straighten the body: only yaw survives leaving the rail, so no leftover
+	# pitch/roll from the grind pose leaks into other states
+	if player:
+		var exit_yaw = player.rotation.y
+		player.rotation = Vector3(0.0, exit_yaw, 0.0)
+	
 	if rail_grind_node:
 		rail_grind_node.chosen = false
 		rail_grind_node.detach = false
