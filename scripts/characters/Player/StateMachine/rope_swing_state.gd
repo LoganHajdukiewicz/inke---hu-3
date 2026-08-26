@@ -2,14 +2,11 @@ extends State
 class_name RopeSwingState
 
 ## Hanging from a SwingRope:
-##  - left/right/forward/back input pumps the swing (pendulum physics,
-##    same feel as the grapple swing)
-##  - forward/back while holding "run"... no: climbing is on separate axis -
-##    UP/DOWN on the stick climbs the rope when barely swinging, and the
-##    dedicated climb also works mid-swing with camera-relative up/down:
-##    push toward the camera's up (forward) = climb, back = descend.
-##  - jump: launch off in facing direction with swing momentum
-##  - crouch: let go and just fall
+##  - ALL stick / WASD input pumps the swing (pendulum physics, same feel
+##    as the grapple swing). W/S swing you forward-back, A/D side to side.
+##  - heavy_attack (Triangle / X key) = climb UP the rope
+##  - crouch (L2 / Z key) = climb DOWN - slide past the end to let go
+##  - jump (Cross / Space) = launch off in facing direction with momentum
 
 @export var swing_control_strength: float = 9.0
 @export var max_swing_speed: float = 22.0
@@ -59,29 +56,28 @@ func physics_update(delta: float):
 	if Input.is_action_just_pressed("jump"):
 		_launch_off()
 		return
-	if Input.is_action_just_pressed("crouch"):
-		_let_go(Vector3.ZERO)
-		return
 	
 	# --- CLIMB UP / DOWN THE ROPE ---
-	# forward = climb up, back = slide down
-	var input_dir = Input.get_vector("left", "right", "forward", "back")
-	if abs(input_dir.y) > 0.4:
-		var climb_delta = input_dir.y * climb_speed * delta  # forward is negative y
-		hold_distance = clampf(hold_distance + climb_delta, rope.min_grab_distance, rope.rope_length)
-	
-	# Climbed off the bottom end? Let go.
-	if hold_distance >= rope.rope_length - 0.01 and input_dir.y > 0.6:
-		_let_go(Vector3.ZERO)
-		return
+	# heavy_attack (Triangle / X key) climbs up, crouch (L2 / Z key) climbs down
+	if Input.is_action_pressed("heavy_attack"):
+		hold_distance = clampf(hold_distance - climb_speed * delta, rope.min_grab_distance, rope.rope_length)
+	if Input.is_action_pressed("crouch"):
+		hold_distance = hold_distance + climb_speed * delta
+		# Slid off the bottom end of the rope? Let go.
+		if hold_distance >= rope.rope_length + 0.15:
+			_let_go(Vector3.ZERO)
+			return
+		hold_distance = minf(hold_distance, rope.rope_length + 0.2)
 	
 	# --- PENDULUM PHYSICS (same model as grapple swing) ---
 	player.velocity += player.get_gravity() * delta
 	
-	# Pump the swing with left/right (sideways relative to camera)
-	if abs(input_dir.x) > 0.15:
+	# Pump the swing with the FULL stick / WASD: W/S = forward-back swing,
+	# A/D = sideways swing (all camera-relative, projected onto the swing plane)
+	var input_dir = Input.get_vector("left", "right", "forward", "back")
+	if input_dir.length() > 0.15:
 		var camera_basis = player.get_node("CameraController").transform.basis
-		var wish: Vector3 = (camera_basis * Vector3(input_dir.x, 0, 0)).normalized()
+		var wish: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 		var to_anchor = (anchor - player.global_position).normalized()
 		var perpendicular = wish - to_anchor * wish.dot(to_anchor)
 		player.velocity += perpendicular * swing_control_strength * delta

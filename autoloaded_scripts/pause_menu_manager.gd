@@ -38,6 +38,10 @@ func _input(event: InputEvent):
 		get_viewport().set_input_as_handled()
 
 func _is_other_ui_active() -> bool:
+	# No player in the scene = nothing to pause. Blocks the pause menu on
+	# the startup logos, main menu, and any other player-less screen.
+	if get_tree().get_nodes_in_group("Player").is_empty():
+		return true
 	# Dialogue open?
 	var dm = get_node_or_null("/root/DialogueManager")
 	if dm and dm.has_method("is_dialogue_active") and dm.is_dialogue_active():

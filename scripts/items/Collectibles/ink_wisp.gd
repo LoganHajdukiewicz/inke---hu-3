@@ -25,7 +25,7 @@ func _ready():
 	# Don't push the player around
 	collision_layer = 0
 	collision_mask = 1
-	monitorable = false
+	set_deferred("monitorable", false)  # Deferred: avoids flushing-queries errors
 	monitoring = true
 	
 	start_position = global_position

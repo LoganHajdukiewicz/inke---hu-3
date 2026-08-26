@@ -113,6 +113,9 @@ func physics_update(delta: float):
 	player.velocity.x = dash_direction.x * dash_speed * decel_factor
 	player.velocity.z = dash_direction.z * dash_speed * decel_factor
 	
+	# Anti slide-climb: jump-dashing off a SLIDING floor can't carry you uphill
+	player.apply_slide_uphill_block()
+	
 	# FIXED: Apply gravity differently based on air/ground dash
 	if is_air_dash:
 		# Light gravity for air dash - accumulate from the fixed -2.0 we set

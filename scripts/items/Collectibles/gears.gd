@@ -13,6 +13,35 @@ var ground_level: float = 0.0
 var time_passed: float = 0.0
 var collected: bool = false  # Prevent double collection
 var is_scattering: bool = false  # Suppress bobbing while scatter tween runs
+var pickup_locked: bool = false  # Can't be collected (by player OR HU-3) while true
+
+func lock_pickup(duration: float) -> void:
+	"""Make the gear uncollectable for a moment (used when it explodes out of
+	a slam patch / box so the player actually SEES the loot fly)."""
+	pickup_locked = true
+	var timer = get_tree().create_timer(duration)
+	timer.timeout.connect(func():
+		if is_instance_valid(self):
+			pickup_locked = false
+	)
+
+func scatter_arc(target: Vector3, duration: float, arc_height: float = 2.0) -> void:
+	"""Explode outward in a big visible ARC: fly up and out, then fall to the
+	target. Much more readable than the flat scatter."""
+	is_scattering = true
+	var start = global_position
+	var peak = (start + target) * 0.5 + Vector3(0, arc_height, 0)
+	var tween = create_tween()
+	# Up-and-out half (ease out = decelerating rise)
+	tween.tween_property(self, "global_position", peak, duration * 0.5)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Falling half (ease in = accelerating fall)
+	tween.tween_property(self, "global_position", target, duration * 0.5)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_callback(func():
+		is_scattering = false
+		find_ground_level()
+	)
 
 func scatter_to(target: Vector3, duration: float) -> void:
 	"""Animate this gear from its current position to target (used by
@@ -86,12 +115,12 @@ func _process(delta):
 
 func _on_body_entered(body):
 	# Check if the player collected this gear
-	if body.is_in_group("Player") and not collected:
+	if body.is_in_group("Player") and not collected and not pickup_locked:
 		collect_gear()
 
 func collect_gear():
 	"""Called when any entity collects the gear"""
-	if collected:
+	if collected or pickup_locked:
 		return
 		
 	collected = true

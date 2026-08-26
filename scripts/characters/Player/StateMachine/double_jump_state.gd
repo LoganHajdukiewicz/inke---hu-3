@@ -66,6 +66,9 @@ func physics_update(delta: float):
 
 	# Very limited air control for double jump - focus on vertical movement
 	handle_minimal_air_movement(delta)
+	
+	# Anti slide-climb: double jumping off a slide can't drift uphill either
+	player.apply_slide_uphill_block()
 
 	# Quick transition to falling
 	if player.velocity.y <= 0:

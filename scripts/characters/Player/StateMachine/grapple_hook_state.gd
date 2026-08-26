@@ -155,6 +155,11 @@ func physics_update(delta: float):
 	update_rope_visual()
 	
 	player.move_and_slide()
+	
+	# Touched the ground while swinging? The rope goes slack - detach.
+	if grapple_mode == "swing" and is_grappling and player.is_on_floor():
+		release_grapple()
+		return
 
 func handle_enemy_grapple(delta: float):
 	"""Pull player toward enemy and attack on contact"""

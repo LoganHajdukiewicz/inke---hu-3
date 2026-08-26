@@ -126,11 +126,22 @@ func follow_player_smooth(delta: float):
 	# Step 1: Start with player's world position
 	var target_pos = player.global_position
 	
-	# Step 2: Calculate offsets using player's CURRENT world orientation
-	# Get player's facing direction in world space
-	var player_basis = player.global_transform.basis.orthonormalized()
-	var player_right = player_basis.x
-	var player_forward = -player_basis.z
+	# Step 2: Calculate offsets using player's CURRENT world orientation.
+	# YAW ONLY: ignore the player's roll/pitch (shimmy wobble, climb lean,
+	# swing tilt...) - otherwise HU-3 jitters when the player's body tilts.
+	var yaw: float = player.rotation.y
+	var player_right = Vector3(cos(yaw), 0, -sin(yaw))
+	var player_forward = Vector3(-sin(yaw), 0, -cos(yaw))
+	
+	# While hanging/climbing the player is glued to a wall and repositioned
+	# directly every frame - park HU-3 OFF the wall (behind the player's back)
+	# instead of chasing the twitchy side offset into the geometry.
+	if _is_player_wall_attached():
+		target_pos = player.global_position - player_forward * 1.6
+		target_pos.y += hover_height
+		target_pos.y += sin(hover_time * hover_frequency) * hover_amplitude
+		_steer_toward(target_pos, delta)
+		return
 	
 	# Apply horizontal offsets (right and forward)
 	target_pos += player_right * side_offset
@@ -203,6 +214,53 @@ func follow_player_smooth(delta: float):
 			var target_basis = Basis.looking_at(look_direction, Vector3.UP)
 			global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
 
+func _is_player_wall_attached() -> bool:
+	"""True while the player is glued to geometry (ledge hang / wall climb):
+	these states reposition the player directly, so HU-3 uses a calmer
+	follow anchor to avoid jitter and wall clipping."""
+	if not player or not player.has_node("StateMachine"):
+		return false
+	var state_machine = player.get_node("StateMachine")
+	if not state_machine or not state_machine.current_state:
+		return false
+	var state_name = state_machine.current_state.get_script().get_global_name()
+	return state_name in ["LedgeHangingState", "WallClimbingState", "WallSlidingState"]
+
+func _steer_toward(target_pos: Vector3, delta: float) -> void:
+	"""Shared smooth-follow steering toward a target point (same accel/damping
+	model as the main follow path)."""
+	var to_target = target_pos - smooth_follow_position
+	var distance = to_target.length()
+	var desired_velocity = Vector3.ZERO
+	if distance > 0.1:
+		var direction = to_target.normalized()
+		var speed_factor = min(distance / follow_distance, 1.0)
+		var target_speed = base_follow_speed
+		if distance > catchup_threshold:
+			target_speed = base_follow_speed * catchup_speed_boost
+		desired_velocity = direction * target_speed * speed_factor
+		if desired_velocity.length() > follow_max_speed:
+			desired_velocity = desired_velocity.normalized() * follow_max_speed
+	
+	var velocity_diff = desired_velocity - smooth_follow_velocity
+	smooth_follow_velocity += velocity_diff * follow_acceleration * delta
+	smooth_follow_velocity *= follow_damping
+	smooth_follow_position += smooth_follow_velocity * delta
+	
+	var to_smooth_pos = smooth_follow_position - global_position
+	var distance_to_smooth = to_smooth_pos.length()
+	if distance_to_smooth > 0.1:
+		velocity = to_smooth_pos.normalized() * min(distance_to_smooth / delta, follow_max_speed)
+	else:
+		velocity = smooth_follow_velocity
+	
+	# Face the player while they climb/hang (HU-3 watches, doesn't spin)
+	var to_player = player.global_position - global_position
+	to_player.y = 0
+	if to_player.length() > 0.5:
+		var target_basis = Basis.looking_at(to_player.normalized(), Vector3.UP)
+		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
+
 func is_player_rail_grinding() -> bool:
 	"""Check if the player is currently rail grinding"""
 	if not player or not player.has_node("StateMachine"):
@@ -225,6 +283,11 @@ func find_nearest_gear():
 			continue
 		
 		if gear.has_method("get") and gear.get("collected"):
+			continue
+		
+		# Loot that just exploded out of a patch/box is locked - let the player
+		# SEE it before HU-3 vacuums it up
+		if gear.get("pickup_locked"):
 			continue
 			
 		var distance = global_position.distance_to(gear.global_position)
@@ -268,7 +331,7 @@ func collect_gear(gear: Node):
 		reset_collection_state()
 		return
 	
-	if gear.has_method("get") and gear.get("collected"):
+	if gear.has_method("get") and (gear.get("collected") or gear.get("pickup_locked")):
 		reset_collection_state()
 		return
 	

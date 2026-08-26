@@ -89,16 +89,21 @@ func physics_update(delta: float):
 		shimmy_direction = 0.0
 
 func shimmy_along_ledge(direction: float, delta: float):
-	"""Slide sideways along the ledge, staying attached to the lip."""
+	"""Slide sideways along the ledge, staying attached to the lip.
+	Can also wrap around corners (both outer and inner) at ledge ends."""
 	shimmy_direction = direction
 	
-	# Sideways axis along the wall face ("right" when facing the wall)
+	# Sideways axis along the wall face. Facing the wall, the camera is behind
+	# the player, so screen-right IS this axis - positive input moves along it.
 	var side_axis = Vector3.UP.cross(ledge_normal).normalized()
-	var step = side_axis * -direction * shimmy_speed * delta
+	var step = side_axis * direction * shimmy_speed * delta
 	var candidate_lip = ledge_position + step
 	
 	# Is there still a ledge (wall + top surface) at the candidate position?
 	var probe = _probe_ledge_at(candidate_lip)
+	if probe.is_empty():
+		# End of this face - can we wrap around a corner?
+		probe = _probe_corner(side_axis * direction)
 	if probe.is_empty():
 		shimmy_direction = 0.0
 		return
@@ -151,6 +156,68 @@ func _probe_ledge_at(lip_point: Vector3) -> Dictionary:
 	lip.z = wall_face.z
 	
 	return {"lip": lip, "normal": new_normal}
+
+func _probe_corner(travel_dir: Vector3) -> Dictionary:
+	"""At the end of a ledge face, look for a corner to wrap around.
+	INNER corner: another wall directly ahead in the travel direction.
+	OUTER corner: the wall turns away - a face around the outside of the edge.
+	Returns { lip, normal } for the new face, or {}."""
+	var space_state = player.get_world_3d().direct_space_state
+	travel_dir = travel_dir.normalized()
+	
+	# --- INNER corner: cast along the travel direction from the hang spot ---
+	var chest = ledge_position + ledge_normal * hang_offset
+	chest.y = ledge_position.y - 0.35
+	var inner_query = PhysicsRayQueryParameters3D.create(chest, chest + travel_dir * 1.1)
+	inner_query.collision_mask = 1
+	inner_query.exclude = [player]
+	var inner_hit = space_state.intersect_ray(inner_query)
+	if inner_hit:
+		var n = Vector3(inner_hit.normal.x, 0, inner_hit.normal.z)
+		if n.length() > 0.5:
+			n = n.normalized()
+			# The new face must roughly oppose our travel (an inner corner)
+			if n.dot(travel_dir) < -0.5:
+				var lip = _lip_from_wall_point(inner_hit.position, n)
+				if not lip.is_empty():
+					return lip
+	
+	# --- OUTER corner: probe the face just around the outside of the edge ---
+	# Start beyond the edge and off the old face, cast BACK toward where the
+	# wrapped face would be (its normal points along our travel direction).
+	var outer_from = ledge_position + travel_dir * (hang_offset + 0.35) - ledge_normal * 0.3
+	outer_from.y = ledge_position.y - 0.35
+	var outer_query = PhysicsRayQueryParameters3D.create(outer_from, outer_from - travel_dir * (hang_offset + 0.8))
+	outer_query.collision_mask = 1
+	outer_query.exclude = [player]
+	var outer_hit = space_state.intersect_ray(outer_query)
+	if outer_hit:
+		var n = Vector3(outer_hit.normal.x, 0, outer_hit.normal.z)
+		if n.length() > 0.5:
+			n = n.normalized()
+			# The wrapped face's normal points roughly along the travel direction
+			if n.dot(travel_dir) > 0.5:
+				var lip = _lip_from_wall_point(outer_hit.position, n)
+				if not lip.is_empty():
+					return lip
+	
+	return {}
+
+func _lip_from_wall_point(wall_point: Vector3, wall_normal: Vector3) -> Dictionary:
+	"""Given a point on a wall face, find the walkable lip above it."""
+	var space_state = player.get_world_3d().direct_space_state
+	var top_from = wall_point - wall_normal * 0.25
+	top_from.y = ledge_position.y + 0.6
+	var top_query = PhysicsRayQueryParameters3D.create(top_from, top_from + Vector3(0, -1.2, 0))
+	top_query.collision_mask = 1
+	top_query.exclude = [player]
+	var top_hit = space_state.intersect_ray(top_query)
+	if not top_hit or top_hit.normal.dot(Vector3.UP) < 0.7:
+		return {}
+	var lip = top_hit.position
+	lip.x = wall_point.x
+	lip.z = wall_point.z
+	return {"lip": lip, "normal": wall_normal}
 
 func climb_up_ledge():
 	"""Two-stage pull up: rise until the body clears the lip, then move

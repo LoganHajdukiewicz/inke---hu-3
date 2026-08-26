@@ -47,7 +47,7 @@ func _ready():
 	# CRITICAL: Set collision properties to NOT affect player
 	collision_layer = 0  # Don't exist on any physics layer
 	collision_mask = 1   # Only detect player on layer 1
-	monitorable = false  # Other things can't detect us
+	set_deferred("monitorable", false)  # Other things can't detect us (deferred: avoids flushing-queries errors)
 	monitoring = true    # We can detect others
 	
 	# Get GameManager reference

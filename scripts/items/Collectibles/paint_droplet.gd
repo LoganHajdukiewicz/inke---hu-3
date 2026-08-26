@@ -33,7 +33,10 @@ func _ready():
 	# CRITICAL: Set collision properties to NOT affect player
 	collision_layer = 0  # Don't exist on any physics layer
 	collision_mask = 1   # Only detect player on layer 1
-	monitorable = false  # Other things can't detect us
+	# Deferred: changing monitorable mid-physics-flush (e.g. when spawned from
+	# an enemy death or slam patch during a collision callback) throws
+	# "can't change this state while flushing queries" errors.
+	set_deferred("monitorable", false)  # Other things can't detect us
 	monitoring = true    # We can detect others
 	
 	# Find ground level

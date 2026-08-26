@@ -51,9 +51,30 @@ func process(_delta: float) -> void:
 			continue
 		
 		# Only capture when actually standing on THIS slide (the detection area
-		# is a bit bigger than the floor, so double-check with the floor cast)
+		# is a bit bigger than the floor, so double-check what's underfoot).
+		# Without this, a player who crossed the seam onto an adjacent floor
+		# kept being yanked back into SlidingState and froze at the seam.
 		if not player.is_on_floor():
+			continue
+		if not _is_standing_on_slide(player):
 			continue
 		
 		if current_state_name != "SlidingState":
 			state_machine.change_state("SlidingState")
+
+
+func _is_standing_on_slide(player) -> bool:
+	"""Ray-check that the surface directly under the player is actually a
+	SLIDING floor (not just inside our oversized detection area)."""
+	var space_state = player.get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(
+		player.global_position + Vector3(0, 0.1, 0),
+		player.global_position + Vector3(0, -1.2, 0)
+	)
+	query.collision_mask = 1
+	query.exclude = [player]
+	var result = space_state.intersect_ray(query)
+	if result:
+		var collider = result.collider
+		return collider is Floor and collider.has_floor_type(Floor.FloorType.SLIDING)
+	return false

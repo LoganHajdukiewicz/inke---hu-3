@@ -414,9 +414,13 @@ func trip_off_beam():
 
 func update_slide_uphill_block(delta: float):
 	if slide_uphill_block_timer > 0.0:
-		slide_uphill_block_timer -= delta
-		if slide_uphill_block_timer <= 0.0:
-			slide_uphill_block = Vector3.ZERO
+		# While AIRBORNE the block does not expire - otherwise double jumps /
+		# jump dashes could outlast the timer and still climb the slide.
+		# It ticks down (and clears) only once the player is back on a floor.
+		if is_on_floor():
+			slide_uphill_block_timer -= delta * 4.0  # Clears quickly after landing
+			if slide_uphill_block_timer <= 0.0:
+				slide_uphill_block = Vector3.ZERO
 
 func apply_slide_uphill_block():
 	"""Strip any uphill velocity component while the slide-jump block is active.

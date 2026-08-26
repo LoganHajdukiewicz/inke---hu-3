@@ -22,8 +22,10 @@ const DEFAULT_STEERING: float = 6.0
 var slide_velocity: Vector3 = Vector3.ZERO
 var slide_direction: Vector3 = Vector3.ZERO
 var initial_slide_speed: float = 10.0
+var was_on_sliding_floor: bool = false
 
 func enter():
+	was_on_sliding_floor = false
 	# Get the player's current horizontal velocity
 	var current_horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
 	var current_speed = current_horizontal_velocity.length()
@@ -47,6 +49,17 @@ func enter():
 		initial_slide_speed = 0.0
 	
 	slide_velocity = slide_direction * initial_slide_speed
+	
+	# On a SLIDING floor, strip any uphill component IMMEDIATELY - previously
+	# the seeded velocity could point uphill for one frame (the turnaround
+	# exploit frame) before the per-frame strip kicked in.
+	if player.is_on_slide_floor and player.slide_floor_downhill != Vector3.ZERO:
+		var uphill = -player.slide_floor_downhill
+		var uphill_amount = slide_velocity.dot(uphill)
+		if uphill_amount > 0.0:
+			slide_velocity -= uphill * uphill_amount
+			slide_direction = slide_velocity.normalized() if slide_velocity.length() > 0.1 else Vector3.ZERO
+	
 	player.velocity.x = slide_velocity.x
 	player.velocity.z = slide_velocity.z
 
@@ -81,8 +94,20 @@ func physics_update(delta: float):
 	# ---- Mario 64 style downhill slide on SLIDING floors -------------------
 	var sliding_floor = _get_sliding_floor()
 	if sliding_floor != null:
+		was_on_sliding_floor = true
 		_apply_downhill_slide(delta, sliding_floor)
 		player.move_and_slide()
+		return
+	
+	# ---- EJECT: the slide ended (crossed onto a normal floor) --------------
+	# Leave the state immediately, KEEPING the slide momentum, so the player
+	# runs out of the slide instead of freezing at the seam between floors.
+	if was_on_sliding_floor and not _is_on_frozen_floor():
+		var exit_speed = Vector2(player.velocity.x, player.velocity.z).length()
+		if exit_speed > MIN_SLIDE_SPEED:
+			change_to("RunningState")
+		else:
+			change_to("IdleState")
 		return
 	
 	# ---- Legacy momentum slide (frozen floors etc.) -------------------------
@@ -208,8 +233,19 @@ func _apply_downhill_slide(delta: float, floor_node) -> void:
 		player.velocity.y = 0
 	player.velocity.y -= 20.0 * delta
 	
-	# Face the slide direction
-	if vel.length() > 1.0:
+	# Face the slide direction - and NEVER face uphill. The facing target is
+	# clamped to at most ~85 degrees off downhill, so the player can angle
+	# left/right across the slope but can't visually turn around against it.
+	if vel.length() > 1.0 and not is_flat:
+		var face := vel.normalized()
+		var downhill_face := Vector3(downhill.x, 0, downhill.z).normalized()
+		var target_rotation := atan2(-face.x, -face.z)
+		var downhill_rotation := atan2(-downhill_face.x, -downhill_face.z)
+		var off_downhill := angle_difference(downhill_rotation, target_rotation)
+		var max_off := deg_to_rad(85.0)
+		target_rotation = downhill_rotation + clampf(off_downhill, -max_off, max_off)
+		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+	elif vel.length() > 1.0:
 		var face := vel.normalized()
 		var target_rotation := atan2(-face.x, -face.z)
 		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)

@@ -75,6 +75,14 @@ func check_attack_input():
 	if not can_attack or player.is_dead:
 		return
 	
+	# No attacking while hands are busy: on a rope Triangle/X is CLIMB UP,
+	# and hanging/climbing states reposition the player directly - a spin
+	# attack there breaks the attachment.
+	if state_machine and state_machine.current_state:
+		var state_name = state_machine.current_state.get_script().get_global_name()
+		if state_name in ["RopeSwingState", "LedgeHangingState", "WallClimbingState", "BalanceBeamState"]:
+			return
+	
 	# Spin attack (higher priority) - Check both heavy_attack action and shift+attack
 	var spin_pressed = Input.is_action_just_pressed("heavy_attack") or \
 						(Input.is_action_just_pressed("attack") and Input.is_key_pressed(KEY_SHIFT))
