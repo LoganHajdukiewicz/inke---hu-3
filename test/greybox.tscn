@@ -22,10 +22,10 @@ glow_enabled = true
 [sub_resource type="Curve3D" id="Curve3D_ba0e1"]
 resource_local_to_scene = true
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
-"tilts": PackedFloat32Array(0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 108.91814, 27.058033, -0.07700789, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
+"tilts": PackedFloat32Array(0, 0, 0)
 }
-point_count = 2
+point_count = 3
 
 [node name="Greybox" type="Node3D" unique_id=365878568]
 
@@ -108,5 +108,5 @@ floor_size = Vector3(10, 10, 10)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
 
 [node name="Rail" parent="NonFloorEnvirons" unique_id=250153288 instance=ExtResource("2_k7grp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 0.3056668, -0.23347282)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 2.6968927, -0.23347282)
 curve = SubResource("Curve3D_ba0e1")
