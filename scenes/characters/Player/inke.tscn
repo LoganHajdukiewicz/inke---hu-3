@@ -18,6 +18,9 @@
 [ext_resource type="Script" uid="uid://brpdq62nf3md4" path="res://scripts/characters/Player/StateMachine/wall_sliding_state.gd" id="15_8tjjk"]
 [ext_resource type="Script" uid="uid://dq1ph3yvky7hl" path="res://scripts/characters/Player/StateMachine/spin_attack_state.gd" id="16_1168t"]
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/ground_slam_state.gd" id="17_gslam"]
+[ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/wall_climbing_state.gd" id="18_wclimb"]
+[ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/rope_swing_state.gd" id="19_rope"]
+[ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/balance_beam_state.gd" id="20_beam"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -100,6 +103,15 @@ script = ExtResource("15_8tjjk")
 
 [node name="GroundSlamState" type="Node" parent="StateMachine" unique_id=532446008]
 script = ExtResource("17_gslam")
+
+[node name="WallClimbingState" type="Node" parent="StateMachine" unique_id=532446009]
+script = ExtResource("18_wclimb")
+
+[node name="RopeSwingState" type="Node" parent="StateMachine" unique_id=532446010]
+script = ExtResource("19_rope")
+
+[node name="BalanceBeamState" type="Node" parent="StateMachine" unique_id=532446011]
+script = ExtResource("20_beam")
 
 [node name="SpinAttackState" type="Node" parent="StateMachine" unique_id=532446007]
 script = ExtResource("16_1168t")

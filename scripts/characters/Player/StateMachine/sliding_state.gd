@@ -69,8 +69,12 @@ func physics_update(delta: float):
 		change_to("FallingState")
 		return
 	
-	# Allow jump exit
+	# Allow jump exit. Jumping off a SLIDING floor arms the anti-climb block:
+	# for a short window, air control cannot add uphill velocity, so spamming
+	# jump can no longer walk you up a slide slope.
 	if Input.is_action_just_pressed("jump") and not player.ignore_next_jump:
+		if _get_sliding_floor() != null:
+			player.arm_slide_uphill_block()
 		change_to("JumpingState")
 		return
 	
@@ -187,6 +191,14 @@ func _apply_downhill_slide(delta: float, floor_node) -> void:
 		# Clamp to the slide's max speed
 		if vel.length() > max_speed:
 			vel = vel.normalized() * max_speed
+		
+		# ANTI-EXPLOIT: strip ANY uphill velocity component every single frame.
+		# Previously the turnaround left one frame where stale velocity could
+		# point uphill, letting frame-perfect inputs inch up the slope.
+		var downhill_flat2 := Vector3(downhill.x, 0, downhill.z).normalized()
+		var uphill_amount := vel.dot(-downhill_flat2)
+		if uphill_amount > 0.0:
+			vel -= -downhill_flat2 * uphill_amount
 	
 	player.velocity.x = vel.x
 	player.velocity.z = vel.z

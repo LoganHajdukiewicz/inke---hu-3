@@ -1,0 +1,78 @@
+[gd_scene load_steps=13 format=3 uid="uid://newmechdemo01"]
+
+[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_floor"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_inke"]
+[ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="3_climb"]
+[ext_resource type="PackedScene" uid="uid://slampatch0001" path="res://scenes/environments/slam_patch.tscn" id="4_patch"]
+[ext_resource type="PackedScene" uid="uid://swingrope0001" path="res://scenes/items/rope.tscn" id="5_rope"]
+[ext_resource type="PackedScene" uid="uid://balbeam000001" path="res://scenes/environments/balance_beam.tscn" id="6_beam"]
+[ext_resource type="PackedScene" uid="uid://lasrenemy0001" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="7_laser"]
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="8_enemy"]
+[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="9_grap"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_demo"]
+sky_horizon_color = Color(0.66, 0.67, 0.69, 1)
+ground_horizon_color = Color(0.66, 0.67, 0.69, 1)
+
+[sub_resource type="Sky" id="Sky_demo"]
+sky_material = SubResource("ProceduralSkyMaterial_demo")
+
+[sub_resource type="Environment" id="Environment_demo"]
+background_mode = 2
+sky = SubResource("Sky_demo")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="NewMechanicsDemo" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_demo")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.7, -0.5, 0.5, 0, 0.7, 0.7, -0.7, -0.5, 0.5, 0, 20, 0)
+shadow_enabled = true
+
+[node name="Inke" parent="." instance=ExtResource("2_inke")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+debug_double_jump = true
+debug_dash = true
+
+[node name="Ground" parent="." instance=ExtResource("1_floor")]
+transform = Transform3D(6, 0, 0, 0, 1, 0, 0, 0, 6, 0, -0.5, 0)
+
+[node name="ClimbWall" parent="." instance=ExtResource("3_climb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -12)
+
+[node name="ClimbTopPlatform" parent="." instance=ExtResource("1_floor")]
+transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 0.8, 0, 5.7, -16)
+
+[node name="SlamPatch" parent="." instance=ExtResource("4_patch")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
+
+[node name="Rope" parent="." instance=ExtResource("5_rope")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 9, 0)
+
+[node name="Rope2" parent="." instance=ExtResource("5_rope")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 9, 0)
+
+[node name="BalanceBeam" parent="." instance=ExtResource("6_beam")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2, -8)
+beam_length = 12.0
+
+[node name="BeamStartPlatform" parent="." instance=ExtResource("1_floor")]
+transform = Transform3D(0.3, 0, 0, 0, 1, 0, 0, 0, 0.3, 14, 1.5, -1)
+
+[node name="BeamEndPlatform" parent="." instance=ExtResource("1_floor")]
+transform = Transform3D(0.3, 0, 0, 0, 1, 0, 0, 0, 0.3, 14, 1.5, -15)
+
+[node name="LaserEnemy" parent="." instance=ExtResource("7_laser")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.5, 10)
+
+[node name="MeleeEnemy" parent="." instance=ExtResource("8_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, 10)
+
+[node name="MeleeEnemy2" parent="." instance=ExtResource("8_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0.5, 12)
+
+[node name="GrapplePoint" parent="." instance=ExtResource("9_grap")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 14)

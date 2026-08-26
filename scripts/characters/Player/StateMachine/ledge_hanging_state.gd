@@ -1,276 +1,199 @@
 extends State
 class_name LedgeHangingState
 
-# Ledge hang configuration
-@export var shimmy_speed: float = 3.0
-@export var climb_up_duration: float = 0.5
-@export var hang_offset: float = 0.8  # Distance from wall when hanging
-@export var ledge_grab_height: float = 1.2  # How high above player center to check for ledge
+## Proper ledge hang:
+##  - Grabbing smoothly pulls you into a HANG below the lip (no teleport to top)
+##  - Left/right shimmies along the edge (with end-of-ledge checks)
+##  - Jump or forward = pull yourself up (two-stage animated climb)
+##  - Crouch or back = drop off
+## The player's ORIGIN is at their feet, so hanging means origin sits
+## ~hang_depth below the ledge surface.
 
-# Internal state
-var ledge_position: Vector3 = Vector3.ZERO
-var ledge_normal: Vector3 = Vector3.ZERO
+@export var shimmy_speed: float = 2.5
+@export var climb_up_duration: float = 0.45
+@export var hang_depth: float = 1.35      # Feet this far below the ledge lip while hanging
+@export var hang_offset: float = 0.45     # Body this far off the wall face
+@export var grab_settle_time: float = 0.12  # Smooth pull-in instead of a snap
+@export var input_grace: float = 0.15     # Ignore climb/drop inputs right after grabbing
+
+var ledge_position: Vector3 = Vector3.ZERO  # Point on TOP of the ledge at the lip
+var ledge_normal: Vector3 = Vector3.ZERO    # Wall normal (points away from the wall)
 var is_climbing: bool = false
+var is_settling: bool = false
+var grace_timer: float = 0.0
 var shimmy_direction: float = 0.0
 
-# Raycast references
-var ledge_detection_ray: RayCast3D
-var wall_check_ray: RayCast3D
-var ledge_top_ray: RayCast3D
+func setup_ledge_hang(ledge_pos: Vector3, wall_normal: Vector3):
+	ledge_position = ledge_pos
+	ledge_normal = Vector3(wall_normal.x, 0, wall_normal.z).normalized()
 
 func enter():
-	
-	# CRITICAL: Stop all movement immediately
+	is_climbing = false
+	grace_timer = input_grace
 	player.velocity = Vector3.ZERO
-	player.set_velocity(Vector3.ZERO)
+	player.set("gravity", 0.0)
 	
-	# Disable gravity while hanging
-	if player.has_method("set"):
-		player.set("gravity", 0.0)
-	
-	# Position player at the ledge - do this AFTER stopping velocity
-	position_at_ledge()
-	
-	# Visual feedback - slight squash
-	var tween = create_tween()
-	tween.tween_property(player, "scale", Vector3(0.9, 1.1, 0.9), 0.1)
-	tween.tween_property(player, "scale", Vector3.ONE, 0.1)
-	
-
-func position_at_ledge():
-	"""Position the player at the correct hanging position"""
 	if ledge_position == Vector3.ZERO or ledge_normal == Vector3.ZERO:
-		print("Invalid ledge data, exiting ledge hang")
-		exit_ledge_hang()
+		change_to("FallingState")
 		return
 	
-	# Get the CollisionShape3D node to access the capsule height
-	var collision_shape = player.get_node("CollisionShape3D")
-	var capsule_height = 1.5  # Default height from your scene file
+	# Face the wall
+	player.rotation.y = atan2(ledge_normal.x, ledge_normal.z)
 	
-	if collision_shape and collision_shape.shape is CapsuleShape3D:
-		capsule_height = collision_shape.shape.height
+	# Smoothly pull into the hang position (no snap/teleport)
+	is_settling = true
+	var hang_pos = _hang_position_for(ledge_position)
+	var tween = create_tween()
+	tween.tween_property(player, "global_position", hang_pos, grab_settle_time).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_callback(func(): is_settling = false)
 	
-	# CRITICAL FIX: Position player BELOW the ledge, hanging from hands
-	# Calculate where the player's hands would be (top of capsule)
-	var hand_height = capsule_height * 0.4  # Hands are near top of body
-	
-	# Position player so their "hands" are at the ledge level, body hanging below
-	var hang_pos = ledge_position
-	hang_pos.y = ledge_position.y - hand_height  # Body hangs down from ledge
-	
-	# Pull player slightly away from the wall
-	hang_pos -= ledge_normal * hang_offset
-	
-	player.global_position = hang_pos
-	
-	# Rotate player to face the wall
-	var target_rotation = atan2(ledge_normal.x, ledge_normal.z)
-	player.rotation.y = target_rotation
-	
+	# Grab feedback - little stretch as the arms catch
+	var fx = create_tween()
+	fx.tween_property(player, "scale", Vector3(0.9, 1.12, 0.9), 0.1)
+	fx.tween_property(player, "scale", Vector3.ONE, 0.12)
+
+func _hang_position_for(lip_point: Vector3) -> Vector3:
+	"""Where the player's origin (feet) goes for a hang at this lip point."""
+	var pos = lip_point
+	pos.y = lip_point.y - hang_depth
+	pos += ledge_normal * hang_offset
+	return pos
 
 func physics_update(delta: float):
-	# Debug: Print state info every few frames
-	if Engine.get_physics_frames() % 30 == 0:
-		pass
-	
-	if is_climbing:
+	if is_climbing or is_settling:
 		return
 	
-	# CRITICAL: Force velocity to zero every frame while hanging
 	player.velocity = Vector3.ZERO
 	
-	# Check if still near ledge
-	if not is_valid_ledge_position():
-		exit_ledge_hang()
+	if grace_timer > 0.0:
+		grace_timer -= delta
 		return
 	
-	# Handle input
-	handle_ledge_input(delta)
+	# --- INPUTS ---
+	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
-	# Keep player locked in position - don't call move_and_slide unless shimmying
-	# This prevents any physics from pushing the player around
-
-func handle_ledge_input(delta: float):
-	"""Handle player input while hanging on ledge"""
-	# Check for climb up
-	if Input.is_action_just_pressed("jump"):
+	# Pull up: jump or push toward the wall (stick forward)
+	if Input.is_action_just_pressed("jump") or input_dir.y < -0.6:
 		climb_up_ledge()
 		return
 	
-	# Check for drop down
-	if Input.is_action_just_pressed("crouch") or Input.is_action_pressed("back"):
+	# Drop: crouch or pull away from the wall (stick back)
+	if Input.is_action_just_pressed("crouch") or input_dir.y > 0.6:
 		drop_from_ledge()
 		return
 	
-	# Handle shimmying left/right
-	var input_dir = Input.get_vector("left", "right", "forward", "back")
-	
-	if abs(input_dir.x) > 0.1:
+	# Shimmy left/right along the lip
+	if abs(input_dir.x) > 0.15:
 		shimmy_along_ledge(input_dir.x, delta)
 	else:
 		shimmy_direction = 0.0
 
 func shimmy_along_ledge(direction: float, delta: float):
-	"""Move the player along the ledge horizontally"""
-	# Calculate shimmy direction (perpendicular to wall normal)
-	var right_vector = Vector3.UP.cross(ledge_normal).normalized()
-	var shimmy_velocity = right_vector * direction * shimmy_speed
-	
-	# Store intended shimmy direction for animation
+	"""Slide sideways along the ledge, staying attached to the lip."""
 	shimmy_direction = direction
 	
-	# Calculate new position
-	var new_position = player.global_position + shimmy_velocity * delta
+	# Sideways axis along the wall face ("right" when facing the wall)
+	var side_axis = Vector3.UP.cross(ledge_normal).normalized()
+	var step = side_axis * -direction * shimmy_speed * delta
+	var candidate_lip = ledge_position + step
 	
-	# Check if new position is still valid (still has ledge to grab)
-	if can_shimmy_to_position(new_position):
-		# Directly set position for shimmying (more reliable than velocity)
-		player.global_position = new_position
-		
-		# Update ledge position as we shimmy
-		update_ledge_position()
-	else:
-		# Hit an obstacle or end of ledge
+	# Is there still a ledge (wall + top surface) at the candidate position?
+	var probe = _probe_ledge_at(candidate_lip)
+	if probe.is_empty():
 		shimmy_direction = 0.0
-	
-	# Keep velocity at zero
-	player.velocity = Vector3.ZERO
-
-func can_shimmy_to_position(new_pos: Vector3) -> bool:
-	"""Check if player can shimmy to the new position"""
-	# Check if there's still a wall at the new position
-	var wall_check_start = new_pos + Vector3(0, 0.5, 0)
-	var wall_check_end = wall_check_start + ledge_normal * -1.5
-	
-	var space_state = player.get_world_3d().direct_space_state
-	var wall_query = PhysicsRayQueryParameters3D.create(wall_check_start, wall_check_end)
-	wall_query.collision_mask = 1
-	wall_query.exclude = [player]
-	
-	var wall_result = space_state.intersect_ray(wall_query)
-	if not wall_result:
-		return false
-	
-	# Check if there's still a ledge at the new position
-	var ledge_check_start = new_pos + Vector3(0, ledge_grab_height, 0) + ledge_normal * -0.3
-	var ledge_check_end = ledge_check_start + Vector3(0, 0.5, 0)
-	
-	var ledge_query = PhysicsRayQueryParameters3D.create(ledge_check_start, ledge_check_end)
-	ledge_query.collision_mask = 1
-	ledge_query.exclude = [player]
-	
-	var ledge_result = space_state.intersect_ray(ledge_query)
-	return ledge_result.size() > 0
-
-func update_ledge_position():
-	"""Update the ledge position as player shimmies"""
-	var check_start = player.global_position + Vector3(0, ledge_grab_height, 0) + ledge_normal * -0.3
-	var check_end = check_start + Vector3(0, 0.5, 0)
-	
-	var space_state = player.get_world_3d().direct_space_state
-	var query = PhysicsRayQueryParameters3D.create(check_start, check_end)
-	query.collision_mask = 1
-	query.exclude = [player]
-	
-	var result = space_state.intersect_ray(query)
-	if result:
-		ledge_position = result.position
-
-func climb_up_ledge():
-	"""Climb up onto the ledge"""
-	if is_climbing:
 		return
 	
-	is_climbing = true
+	# Follow the actual geometry (handles slight curves/steps in the lip)
+	ledge_position = probe.lip
+	ledge_normal = probe.normal
+	player.global_position = _hang_position_for(ledge_position)
+	player.rotation.y = lerp_angle(player.rotation.y, atan2(ledge_normal.x, ledge_normal.z), 10.0 * delta)
 	
-	# Calculate target position on top of ledge
-	# Player should end up standing ON the ledge surface
-	var climb_target = ledge_position
-	climb_target.y = ledge_position.y + 0.1  # Just slightly above the ledge surface
-	
-	# Move player forward from the wall so they're standing on the platform
-	climb_target -= ledge_normal * 0.8  # Push away from wall
-	
-	
-	# Create climb animation
-	var tween = create_tween()
-	tween.set_parallel(false)
-	
-	# First, move up and forward
-	tween.tween_property(player, "global_position", climb_target, climb_up_duration)
-	tween.set_trans(Tween.TRANS_QUAD)
-	tween.set_ease(Tween.EASE_OUT)
-	
-	# Add some scale animation for polish
-	var scale_tween = create_tween()
-	scale_tween.set_parallel(true)
-	scale_tween.tween_property(player, "scale", Vector3(1.1, 0.9, 1.1), climb_up_duration * 0.3)
-	scale_tween.tween_property(player, "scale", Vector3.ONE, climb_up_duration * 0.7).set_delay(climb_up_duration * 0.3)
-	
-	# Wait for climb to complete
-	await tween.finished
-	
-	
-	# Transition to idle/walking state
-	change_to("IdleState")
+	# Shimmy wobble - alternate lean
+	var lean = sin(Time.get_ticks_msec() * 0.02) * 0.04
+	player.rotation.z = lean
 
-func drop_from_ledge():
-	"""Drop down from the ledge"""
-	
-	# Apply small backward velocity
-	player.velocity = ledge_normal * 3.0
-	player.velocity.y = -2.0
-	
-	# Transition to falling state
-	change_to("FallingState")
-
-func is_valid_ledge_position() -> bool:
-	"""Check if player is still in a valid position to hang"""
-	# Check if there's still a wall in front
-	var wall_check_start = player.global_position + Vector3(0, 0.5, 0)
-	var wall_check_end = wall_check_start + ledge_normal * -1.5
-	
+func _probe_ledge_at(lip_point: Vector3) -> Dictionary:
+	"""Check for a grabbable lip near lip_point.
+	Returns { lip: Vector3, normal: Vector3 } or {}."""
 	var space_state = player.get_world_3d().direct_space_state
-	var wall_query = PhysicsRayQueryParameters3D.create(wall_check_start, wall_check_end)
+	
+	# 1) Wall must exist just below the lip, in front of the hang position
+	var wall_from = lip_point + ledge_normal * (hang_offset + 0.4)
+	wall_from.y = lip_point.y - 0.35
+	var wall_to = wall_from - ledge_normal * (hang_offset + 0.9)
+	var wall_query = PhysicsRayQueryParameters3D.create(wall_from, wall_to)
 	wall_query.collision_mask = 1
 	wall_query.exclude = [player]
+	var wall_hit = space_state.intersect_ray(wall_query)
+	if not wall_hit:
+		return {}
+	var new_normal = Vector3(wall_hit.normal.x, 0, wall_hit.normal.z)
+	if new_normal.length() < 0.5:
+		return {}
+	new_normal = new_normal.normalized()
 	
-	var wall_result = space_state.intersect_ray(wall_query)
-	if not wall_result:
-		return false
+	# 2) Top surface must exist just behind the lip
+	var top_from = wall_hit.position - new_normal * 0.25
+	top_from.y = lip_point.y + 0.6
+	var top_to = top_from + Vector3(0, -1.2, 0)
+	var top_query = PhysicsRayQueryParameters3D.create(top_from, top_to)
+	top_query.collision_mask = 1
+	top_query.exclude = [player]
+	var top_hit = space_state.intersect_ray(top_query)
+	if not top_hit or top_hit.normal.dot(Vector3.UP) < 0.7:
+		return {}
 	
-	# Check if there's still a ledge above
-	var ledge_check_start = player.global_position + Vector3(0, ledge_grab_height, 0) + ledge_normal * -0.3
-	var ledge_check_end = ledge_check_start + Vector3(0, 0.5, 0)
+	var lip = top_hit.position
+	# Keep the lip point exactly at the wall face
+	var wall_face = wall_hit.position
+	lip.x = wall_face.x
+	lip.z = wall_face.z
 	
-	var ledge_query = PhysicsRayQueryParameters3D.create(ledge_check_start, ledge_check_end)
-	ledge_query.collision_mask = 1
-	ledge_query.exclude = [player]
-	
-	var ledge_result = space_state.intersect_ray(ledge_query)
-	return ledge_result.size() > 0
+	return {"lip": lip, "normal": new_normal}
 
-func exit_ledge_hang():
-	"""Exit ledge hanging state"""
-	# Restore normal scale
-	player.scale = Vector3.ONE
+func climb_up_ledge():
+	"""Two-stage pull up: rise until the body clears the lip, then move
+	forward onto the surface."""
+	if is_climbing:
+		return
+	is_climbing = true
 	
-	# Transition to falling
+	var up_target = player.global_position
+	up_target.y = ledge_position.y + 0.05
+	
+	var forward_target = up_target - ledge_normal * (hang_offset + 0.55)
+	
+	var tween = create_tween()
+	# Stage 1: pull the body straight up
+	tween.tween_property(player, "global_position", up_target, climb_up_duration * 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+	# Stage 2: move forward over the lip
+	tween.tween_property(player, "global_position", forward_target, climb_up_duration * 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	
+	# Effort squash-and-stretch
+	var fx = create_tween()
+	fx.tween_property(player, "scale", Vector3(0.88, 1.15, 0.88), climb_up_duration * 0.5)
+	fx.tween_property(player, "scale", Vector3.ONE, climb_up_duration * 0.5)
+	
+	await tween.finished
+	
+	if is_instance_valid(player):
+		player.velocity = Vector3.ZERO
+		change_to("IdleState")
+
+func drop_from_ledge():
+	"""Let go and fall, drifting slightly away from the wall."""
+	player.velocity = ledge_normal * 2.0
+	player.velocity.y = -1.0
 	change_to("FallingState")
-
-func setup_ledge_hang(ledge_pos: Vector3, wall_normal: Vector3):
-	"""Setup the ledge hang with position and normal data"""
-	ledge_position = ledge_pos
-	ledge_normal = wall_normal
 
 func exit():
 	is_climbing = false
+	is_settling = false
 	player.scale = Vector3.ONE
+	player.rotation.z = 0.0
 	
-	# Restore gravity using player's property
-	if player.has_method("set") and player.has_method("get"):
-		var default_gravity = player.get("gravity_default")
-		if default_gravity != null:
-			player.set("gravity", default_gravity)
-	
+	# Restore gravity
+	var default_gravity = player.get("gravity_default")
+	if default_gravity != null:
+		player.set("gravity", default_gravity)

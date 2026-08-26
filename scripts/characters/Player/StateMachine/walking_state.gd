@@ -36,6 +36,11 @@ func physics_update(delta: float):
 		change_to("JumpingState")
 		return
 
+	# Balance beam: switch to careful beam walking
+	if player.is_on_balance_beam:
+		change_to("BalanceBeamState")
+		return
+	
 	# Check for running
 	if Input.is_action_pressed("run"):
 		change_to("RunningState")

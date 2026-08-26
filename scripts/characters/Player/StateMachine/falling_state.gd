@@ -70,6 +70,9 @@ func physics_update(delta: float):
 	# Very limited air control while falling
 	handle_falling_movement(delta)
 	
+	# Anti slide-climb: no uphill drift while the slide-jump block is armed
+	player.apply_slide_uphill_block()
+	
 	if player.is_on_floor():
 		if Vector2(player.velocity.x, player.velocity.z).length() > 0.5:
 			change_to("WalkingState")

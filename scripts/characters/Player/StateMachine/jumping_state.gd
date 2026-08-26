@@ -181,6 +181,10 @@ func physics_update(delta: float):
 		player.velocity.x *= (1.0 - air_resistance)
 		player.velocity.z *= (1.0 - air_resistance)
 
+	# Anti slide-climb: while the block is armed (jumped off a SLIDING floor),
+	# strip any uphill velocity that air control tried to add.
+	player.apply_slide_uphill_block()
+	
 	# Transition to falling when velocity goes negative
 	if player.velocity.y <= 0:
 		change_to("FallingState")

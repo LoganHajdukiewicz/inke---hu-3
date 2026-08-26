@@ -13,16 +13,25 @@ class_name Enemy
 @export var bounce_feedback: int = 9
 @export var max_roam_distance: float = 10.0  # Maximum distance from spawn point
 
+@export_group("Attack")
+@export var attack_range: float = 2.8           # Start a lunge from this close
+@export var attack_windup: float = 0.35         # Telegraph time before the lunge
+@export var lunge_speed: float = 16.0           # Speed of the lunge itself
+@export var lunge_duration: float = 0.35        # How long the lunge lasts
+@export var attack_recovery: float = 0.6        # Vulnerable pause after a lunge
+@export var attack_cooldown: float = 1.0        # Min time between lunges
+
 @export_group("Smart AI")
-@export var stomp_evade_enabled: bool = true    # Back away when the player is above us
-@export var stomp_danger_height: float = 1.5    # Player this far above = stomp threat
-@export var stomp_danger_radius: float = 4.0    # ...within this horizontal distance
-@export var evade_speed: float = 10.0           # Scatter speed when evading
-@export var strafe_chance: float = 0.4          # Chance to circle instead of beeline
-@export var keep_distance: float = 1.6          # Don't pile into the player's hitbox
+@export var stomp_evade_enabled: bool = true    # Sidestep when the player is dropping on us
+@export var stomp_danger_height: float = 1.2    # Player this far above = stomp threat
+@export var stomp_danger_radius: float = 2.2    # ...within this horizontal distance
+@export var evade_speed: float = 10.0           # Sidestep speed when evading
+@export var separation_radius: float = 1.4      # Personal space between ENEMIES (not the player)
+@export var separation_strength: float = 3.0    # How hard enemies push apart from each other
 var can_chase := true
 var being_stomped := false
-var spawn_position: Vector3 = Vector3.ZERO  # Track where enemy spawned  
+var spawn_position: Vector3 = Vector3.ZERO  # Track where enemy spawned
+var attack_cooldown_timer: float = 0.0      # Ticks down between lunges
 
 # Loot system
 @export_group("Death Loot (Gears)")
@@ -92,15 +101,44 @@ func _ready():
 	state_machine.initialize_states()
 
 func _is_player_stomp_threat() -> bool:
-	"""True when the player is airborne above us within stomp range -
-	standing here means getting flattened."""
+	"""True ONLY when the player is directly above us AND falling - i.e. a
+	stomp is genuinely incoming. Deliberately tight so enemies still press
+	their attack when the player is merely jumping around nearby."""
 	if not player or not is_instance_valid(player) or not player.is_inside_tree():
 		return false
 	var diff = player.global_position - global_position
 	var height = diff.y
 	var horizontal = Vector2(diff.x, diff.z).length()
-	var player_airborne = not player.is_on_floor() if player.has_method("is_on_floor") else false
-	return player_airborne and height > stomp_danger_height and horizontal < stomp_danger_radius
+	var player_airborne = not player.is_on_floor()
+	var player_falling = player.velocity.y < -0.5 if "velocity" in player else false
+	return player_airborne and player_falling and height > stomp_danger_height and horizontal < stomp_danger_radius
+
+func _separation_push() -> Vector3:
+	"""Push-apart vector from other nearby enemies so groups spread out
+	instead of stacking into a single blob. Never pushes away from the player."""
+	var push = Vector3.ZERO
+	for other in get_tree().get_nodes_in_group("Enemy"):
+		if other == self or not (other is CharacterBody3D) or not is_instance_valid(other):
+			continue
+		var away = global_position - other.global_position
+		away.y = 0
+		var d = away.length()
+		if d < separation_radius and d > 0.01:
+			push += away.normalized() * (1.0 - d / separation_radius)
+	return push * separation_strength
+
+func get_attack_state_name() -> String:
+	"""Which state to enter when in attack range. Subclasses (e.g. laser
+	enemies) override this to use their own attack."""
+	return "aiattackstate"
+
+func get_preferred_attack_range() -> float:
+	"""Distance at which this enemy wants to start its attack."""
+	return attack_range
+
+func _register_extra_states(_states: Dictionary) -> void:
+	"""Hook for subclasses to add their own AI states (e.g. laser attack)."""
+	pass
 
 func damage_player(player_body: Node3D):
 	"""Apply damage and knockback to the player"""
@@ -177,6 +215,8 @@ func _physics_process(delta: float) -> void:
 	
 	if damage_cooldown > 0:
 		damage_cooldown -= delta
+	if attack_cooldown_timer > 0:
+		attack_cooldown_timer -= delta
 	
 	if state_machine:
 		state_machine.update(delta)
@@ -401,37 +441,31 @@ class AIIdleState extends EnemyState:
 # ============================================
 
 class AIChaseState extends EnemyState:
+	## Straightforward, aggressive chase. Enemies run AT the player and
+	## commit to an attack when in range. Separation steering (from other
+	## enemies only, never from the player) keeps groups spread out.
 	var chase_timeout: float = 0.0
 	var max_chase_time: float = 4.0
-	var strafe_direction: float = 0.0  # -1 / 0 / +1: circle left, beeline, circle right
-	var strafe_retimer: float = 0.0
 	
 	func enter():
 		chase_timeout = 0.0
-		_pick_approach()
-	
-	func _pick_approach():
-		"""Sometimes circle the player instead of beelining - looks smarter and
-		spreads multiple enemies out instead of forming a single-file conga."""
-		strafe_retimer = randf_range(1.0, 2.2)
-		if randf() < enemy.strafe_chance:
-			strafe_direction = 1.0 if randf() < 0.5 else -1.0
-		else:
-			strafe_direction = 0.0
 	
 	func update(delta: float):
 		if not enemy.player or not enemy.player.is_inside_tree():
 			enemy.state_machine.change_state("aiidlestate")
 			return
 		
-		# STOMP AWARENESS: if the player is hanging above us, do NOT stand
-		# underneath waiting to be flattened - scatter!
+		# Quick sidestep ONLY when a stomp is genuinely incoming
+		# (player directly above AND falling)
 		if enemy.stomp_evade_enabled and enemy._is_player_stomp_threat():
 			enemy.state_machine.change_state("aievadestate")
 			return
 		
-		var distance_to_player = enemy.global_position.distance_to(enemy.player.global_position)
+		var to_player = enemy.player.global_position - enemy.global_position
+		to_player.y = 0
+		var distance_to_player = to_player.length()
 		
+		# Give up if the player got far away
 		if distance_to_player > enemy.detection_range * 1.5:
 			chase_timeout += delta
 			if chase_timeout > max_chase_time:
@@ -440,82 +474,139 @@ class AIChaseState extends EnemyState:
 		else:
 			chase_timeout = 0.0
 		
-		# Re-roll approach style occasionally
-		strafe_retimer -= delta
-		if strafe_retimer <= 0.0:
-			_pick_approach()
+		# IN RANGE -> ATTACK (this is the fix: enemies now commit instead of
+		# circling forever at arm's length)
+		if distance_to_player <= enemy.get_preferred_attack_range() \
+		and enemy.attack_cooldown_timer <= 0.0 and enemy.can_chase:
+			enemy.state_machine.change_state(enemy.get_attack_state_name())
+			return
 		
-		var to_player = enemy.player.global_position - enemy.global_position
-		to_player.y = 0
 		var direction_to_player = to_player.normalized()
 		
-		# Personal space: don't pile into the player's hitbox; hold the ring
-		var move_dir: Vector3
-		if to_player.length() < enemy.keep_distance:
-			move_dir = -direction_to_player  # ease back out
-		elif strafe_direction != 0.0:
-			# Blend approach with a sideways orbit
-			var tangent = direction_to_player.cross(Vector3.UP) * strafe_direction
-			move_dir = (direction_to_player * 0.55 + tangent * 0.45).normalized()
-		else:
-			move_dir = direction_to_player
+		# Chase straight in + spread out from OTHER ENEMIES only
+		var move = direction_to_player * enemy.chase_speed + enemy._separation_push()
+		if move.length() > enemy.chase_speed:
+			move = move.normalized() * enemy.chase_speed
 		
-		enemy.velocity.x = move_dir.x * enemy.chase_speed
-		enemy.velocity.z = move_dir.z * enemy.chase_speed
+		enemy.velocity.x = move.x
+		enemy.velocity.z = move.z
 		
-		# Always FACE the player even while orbiting
 		var target_rotation = atan2(-direction_to_player.x, -direction_to_player.z)
-		enemy.rotation.y = lerp_angle(enemy.rotation.y, target_rotation, delta * 5.0)
+		enemy.rotation.y = lerp_angle(enemy.rotation.y, target_rotation, delta * 6.0)
 
 
 # ============================================
-# AI EVADE STATE - don't stand under the player!
+# AI ATTACK STATE - telegraphed lunge
+# ============================================
+
+class AIAttackState extends EnemyState:
+	## Windup (telegraph, squash down) -> lunge at the player -> recovery.
+	## Contact damage during the lunge is handled by the HitBox as usual.
+	var phase: String = "windup"
+	var timer: float = 0.0
+	var lunge_direction: Vector3 = Vector3.ZERO
+	
+	func enter():
+		phase = "windup"
+		timer = 0.0
+		enemy.velocity.x = 0
+		enemy.velocity.z = 0
+		
+		# Telegraph: crouch down like a spring being loaded
+		if enemy.mesh:
+			var tween = enemy.create_tween()
+			tween.tween_property(enemy.mesh, "scale", Vector3(1.15, 0.75, 1.15), enemy.attack_windup)
+	
+	func update(delta: float):
+		timer += delta
+		
+		match phase:
+			"windup":
+				# Track the player while winding up
+				if enemy.player and enemy.player.is_inside_tree():
+					var to_player = enemy.player.global_position - enemy.global_position
+					to_player.y = 0
+					if to_player.length() > 0.1:
+						lunge_direction = to_player.normalized()
+						var target_rotation = atan2(-lunge_direction.x, -lunge_direction.z)
+						enemy.rotation.y = lerp_angle(enemy.rotation.y, target_rotation, delta * 10.0)
+				enemy.velocity.x = 0
+				enemy.velocity.z = 0
+				
+				if timer >= enemy.attack_windup:
+					phase = "lunge"
+					timer = 0.0
+					# Release the spring!
+					if enemy.mesh:
+						var tween = enemy.create_tween()
+						tween.tween_property(enemy.mesh, "scale", Vector3(0.85, 1.2, 0.85), 0.1)
+						tween.tween_property(enemy.mesh, "scale", Vector3.ONE, 0.15)
+			"lunge":
+				enemy.velocity.x = lunge_direction.x * enemy.lunge_speed
+				enemy.velocity.z = lunge_direction.z * enemy.lunge_speed
+				
+				if timer >= enemy.lunge_duration:
+					phase = "recovery"
+					timer = 0.0
+			"recovery":
+				# Skid to a stop; vulnerable window
+				enemy.velocity.x = lerp(enemy.velocity.x, 0.0, delta * 8.0)
+				enemy.velocity.z = lerp(enemy.velocity.z, 0.0, delta * 8.0)
+				
+				if timer >= enemy.attack_recovery:
+					enemy.attack_cooldown_timer = enemy.attack_cooldown
+					enemy.state_machine.change_state("aichasestate")
+	
+	func exit():
+		if enemy.mesh:
+			enemy.mesh.scale = Vector3.ONE
+
+
+# ============================================
+# AI EVADE STATE - quick sidestep, then back to the fight
 # ============================================
 
 class AIEvadeState extends EnemyState:
+	## A SHORT dodge out from under an incoming stomp - not a retreat.
+	## Sidesteps perpendicular to the player and immediately re-engages.
 	var evade_direction: Vector3 = Vector3.ZERO
-	var recheck_timer: float = 0.0
+	var evade_time: float = 0.0
+	const MAX_EVADE_TIME: float = 0.6
 	
 	func enter():
-		recheck_timer = 0.0
-		_pick_evade_direction()
-	
-	func _pick_evade_direction():
-		"""Run AWAY from under the player, with some randomness so a group
-		scatters in different directions instead of clumping."""
+		evade_time = 0.0
+		# Sidestep sideways (perpendicular to the player), randomized left/right
 		var away = enemy.global_position - enemy.player.global_position
 		away.y = 0
 		if away.length() < 0.1:
 			away = Vector3(randf() - 0.5, 0, randf() - 0.5)
 		away = away.normalized()
-		# Jitter up to +-60 degrees
-		var jitter = randf_range(-PI / 3.0, PI / 3.0)
-		evade_direction = away.rotated(Vector3.UP, jitter)
+		var side = away.cross(Vector3.UP) * (1.0 if randf() < 0.5 else -1.0)
+		evade_direction = (away * 0.5 + side * 0.9).normalized()
 	
 	func update(delta: float):
 		if not enemy.player or not enemy.player.is_inside_tree():
 			enemy.state_machine.change_state("aiidlestate")
 			return
 		
-		recheck_timer += delta
-		if recheck_timer >= 0.35:
-			recheck_timer = 0.0
-			if not enemy._is_player_stomp_threat():
-				# Threat passed - resume normal behavior
-				var dist = enemy.global_position.distance_to(enemy.player.global_position)
-				if dist < enemy.detection_range and enemy.can_chase:
-					enemy.state_machine.change_state("aichasestate")
-				else:
-					enemy.state_machine.change_state("aiidlestate")
+		evade_time += delta
+		
+		# Done dodging (or threat passed): straight back to the chase
+		if evade_time >= MAX_EVADE_TIME or not enemy._is_player_stomp_threat():
+			if evade_time >= 0.25:  # Minimum commitment so it reads as a dodge
+				enemy.state_machine.change_state("aichasestate")
 				return
-			_pick_evade_direction()
 		
 		enemy.velocity.x = evade_direction.x * enemy.evade_speed
 		enemy.velocity.z = evade_direction.z * enemy.evade_speed
 		
-		# Look where we're going (fleeing)
-		var target_rotation = atan2(-evade_direction.x, -evade_direction.z)
-		enemy.rotation.y = lerp_angle(enemy.rotation.y, target_rotation, delta * 6.0)
+		# Keep FACING the player while dodging (it's a sidestep, not a flee)
+		var to_player = enemy.player.global_position - enemy.global_position
+		to_player.y = 0
+		if to_player.length() > 0.1:
+			var face = to_player.normalized()
+			var target_rotation = atan2(-face.x, -face.z)
+			enemy.rotation.y = lerp_angle(enemy.rotation.y, target_rotation, delta * 8.0)
 
 
 # ============================================
@@ -594,6 +685,11 @@ class EnemyStateMachine extends Node:
 		
 		var evade_state = AIEvadeState.new()
 		states["aievadestate"] = evade_state
+		
+		var attack_state = AIAttackState.new()
+		states["aiattackstate"] = attack_state
+		
+		enemy._register_extra_states(states)
 		
 		change_state("aiidlestate")
 	

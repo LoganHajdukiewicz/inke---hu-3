@@ -39,9 +39,29 @@ var shake_time_left: float = 0.0
 var shake_strength: float = 0.0
 var shake_offset: Vector3 = Vector3.ZERO
 
+# Auto-behind mode (balance beams etc.): the camera swings around to sit
+# directly behind the player's facing direction.
+var auto_behind: bool = false
+const AUTO_BEHIND_SPEED: float = 3.5
+
+# Speed FOV kick: widen the FOV as the player speeds up for a sense of
+# velocity. Tunable in the Inspector.
+@export_group("Speed FOV")
+@export var fov_kick_enabled: bool = true
+@export var base_fov: float = 75.0
+@export var max_fov: float = 92.0            # FOV at/above fov_max_speed
+@export var fov_kick_start_speed: float = 12.0
+@export var fov_max_speed: float = 40.0
+@export var fov_lerp_speed: float = 4.0
+
+var camera_3d: Camera3D = null
+
 func _ready():
 	# Cache the camera target node
 	camera_target = $CameraTarget
+	camera_3d = camera_target.get_node_or_null("Camera3D")
+	if camera_3d:
+		base_fov = camera_3d.fov
 	
 	# Pre-calculate radians for pitch limits
 	rad_min_pitch = deg_to_rad(MIN_PITCH)
@@ -83,8 +103,37 @@ func _process(delta: float):
 func handle_camera_input(delta: float):
 	if lock_on_active and is_instance_valid(locked_target):
 		_handle_lock_on_camera(delta)
+	elif auto_behind:
+		_handle_auto_behind_camera(delta)
 	else:
 		_handle_free_camera(delta)
+	
+	_update_fov_kick(delta)
+
+func _handle_auto_behind_camera(delta: float):
+	"""Swing the camera around to sit directly behind the player's facing
+	direction (used on balance beams). Player camera input is overridden but
+	pitch stays where it was."""
+	if not character:
+		_handle_free_camera(delta)
+		return
+	# Behind the player = same yaw as the player's facing
+	var target_yaw = character.rotation.y
+	twist_input = lerp_angle(twist_input, target_yaw, clampf(AUTO_BEHIND_SPEED * delta, 0.0, 1.0))
+	pitch_input = clamp(pitch_input, rad_min_pitch, rad_max_pitch)
+	rotation.y = twist_input
+	camera_target.rotation.x = pitch_input
+
+func _update_fov_kick(delta: float):
+	"""Widen FOV with speed for a sense of velocity."""
+	if not fov_kick_enabled or not camera_3d or not character:
+		return
+	var h_speed = Vector2(character.velocity.x, character.velocity.z).length()
+	var t = clampf((h_speed - fov_kick_start_speed) / maxf(fov_max_speed - fov_kick_start_speed, 0.01), 0.0, 1.0)
+	# Ease so the kick comes on smoothly
+	t = t * t * (3.0 - 2.0 * t)
+	var target_fov = lerpf(base_fov, max_fov, t)
+	camera_3d.fov = lerpf(camera_3d.fov, target_fov, clampf(fov_lerp_speed * delta, 0.0, 1.0))
 
 func _handle_free_camera(delta: float):
 	"""Handle normal free camera movement"""

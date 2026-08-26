@@ -11,7 +11,9 @@ class_name GrappleHookState
 # Swing safety limits
 @export var max_swing_speed: float = 28.0      # Hard cap on speed while swinging
 @export var max_release_speed: float = 32.0    # Hard cap on speed the moment you let go
-@export var max_swing_angle_degrees: float = 80.0  # Max pendulum angle from straight-down (prevents full loops)
+@export var max_swing_angle_degrees: float = 95.0  # Swinging past this auto-launches you (no more hard bounce)
+@export var auto_launch_speed: float = 14.0        # Speed of the automatic release jump
+@export var auto_launch_up_speed: float = 7.0      # Upward boost of the automatic release jump
 
 # Enemy grapple configuration
 @export var enemy_grapple_distance: float = 15.0  # Max distance to grapple enemies
@@ -276,30 +278,52 @@ func handle_swing_grapple(delta: float):
 		if excess > 0:
 			player.velocity += current_direction * excess * 10.0
 	
-	# ---- ANGLE LIMIT: no full loops -----------------------------------------
-	# Pendulum angle measured from straight-down under the anchor.
+	# ---- ANGLE LIMIT: swing past the top of the arc -> AUTO-LAUNCH ----------
+	# Instead of the old hard bounce (velocity kill) at the rim, swinging past
+	# max_swing_angle_degrees now automatically releases the rope and jumps
+	# the player in the direction they're facing. Feels like a trapeze
+	# dismount instead of hitting an invisible wall.
 	var from_anchor = player.global_position - grapple_point  # points anchor -> player
 	var angle_from_down = rad_to_deg(Vector3.DOWN.angle_to(from_anchor.normalized()))
-	var max_angle = max_swing_angle_degrees
 	
-	if angle_from_down >= max_angle:
-		# Kill any velocity that would raise the player further.
-		# "Upward" along the swing arc = component of velocity that increases
-		# the angle = velocity projected on the direction away from DOWN.
-		var down_axis = Vector3.DOWN
-		var swing_plane_up = (from_anchor.normalized() - down_axis * from_anchor.normalized().dot(down_axis))
-		if swing_plane_up.length() > 0.001:
-			swing_plane_up = swing_plane_up.normalized()
-			var rising_speed = player.velocity.dot(swing_plane_up)
-			if rising_speed > 0:
-				player.velocity -= swing_plane_up * rising_speed
-		# Also stop upward vertical motion at the rim
-		if player.velocity.y > 0:
-			player.velocity.y = 0
+	if angle_from_down >= max_swing_angle_degrees:
+		_auto_launch_from_swing()
+		return
 	
 	# ---- SPEED LIMIT: no infinite energy -------------------------------------
 	if player.velocity.length() > max_swing_speed:
 		player.velocity = player.velocity.normalized() * max_swing_speed
+
+func _auto_launch_from_swing():
+	"""Swung past the top of the allowed arc: automatically dismount with a
+	jump in the player's facing direction."""
+	var facing = -player.global_transform.basis.z
+	facing.y = 0
+	if facing.length() < 0.1:
+		# Fallback: launch along horizontal velocity
+		var h = Vector3(player.velocity.x, 0, player.velocity.z)
+		facing = h.normalized() if h.length() > 0.1 else Vector3.FORWARD
+	else:
+		facing = facing.normalized()
+	
+	# Keep some earned swing speed, but launch along facing
+	var carried_speed = maxf(Vector3(player.velocity.x, 0, player.velocity.z).length() * 0.6, auto_launch_speed)
+	carried_speed = minf(carried_speed, max_release_speed)
+	
+	player.velocity = facing * carried_speed
+	player.velocity.y = auto_launch_up_speed
+	
+	# Refresh air options for the dismount
+	player.can_double_jump = true
+	player.has_double_jumped = false
+	
+	# Little launch flourish
+	var tween = create_tween()
+	tween.tween_property(player, "scale", Vector3(0.85, 1.2, 0.85), 0.08)
+	tween.tween_property(player, "scale", Vector3.ONE, 0.15)
+	
+	is_grappling = false
+	change_to("FallingState")
 
 func find_nearest_enemy() -> Node3D:
 	"""Fallback: find the nearest enemy within grapple range"""

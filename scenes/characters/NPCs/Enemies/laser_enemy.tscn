@@ -1,0 +1,63 @@
+[gd_scene load_steps=8 format=3 uid="uid://lasrenemy0001"]
+
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/laser_enemy.gd" id="1_laser"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_laser"]
+albedo_color = Color(0.55, 0.1, 0.75, 1)
+emission_enabled = true
+emission = Color(0.4, 0, 0.6, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_laser"]
+material = SubResource("StandardMaterial3D_laser")
+height = 1.2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eye"]
+albedo_color = Color(1, 0.15, 0.15, 1)
+emission_enabled = true
+emission = Color(1, 0.1, 0.1, 1)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+material = SubResource("StandardMaterial3D_eye")
+radius = 0.14
+height = 0.28
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_laser"]
+height = 1.1782227
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_laser"]
+radius = 0.55
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_laserhead"]
+size = Vector3(1.03, 0.561, 1)
+
+[node name="LaserEnemy" type="CharacterBody3D" groups=["Enemy"]]
+script = ExtResource("1_laser")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5802858, 0)
+mesh = SubResource("CapsuleMesh_laser")
+
+[node name="Eye" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, -0.42)
+mesh = SubResource("SphereMesh_eye")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6003761, 0)
+shape = SubResource("CapsuleShape3D_laser")
+
+[node name="HeadHurtbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadHurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0018310547, 0.97240484, 0)
+shape = SubResource("BoxShape3D_laserhead")
+
+[node name="HitBox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009094238, 0.4578725, -0.014052689)
+shape = SubResource("SphereShape3D_laser")
+
+[connection signal="body_entered" from="HeadHurtbox" to="." method="_on_head_hurtbox_body_entered"]
+[connection signal="body_entered" from="HitBox" to="." method="_on_hit_box_body_entered"]

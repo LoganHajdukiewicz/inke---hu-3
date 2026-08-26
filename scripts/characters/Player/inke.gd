@@ -32,6 +32,17 @@ extends CharacterBody3D
 @export var invulnerability_duration: float = 1.5
 @export var death_y_threshold: float = -50.0   # Fall death threshold
 
+@export_group("Wall Climbing")
+@export var climb_grab_distance: float = 0.9   # How close to a climbable wall to grab it
+@export var climb_regrab_delay: float = 0.35   # Cooldown after leaving a wall before regrabbing
+
+@export_group("Balance Beam")
+@export var beam_speed_multiplier: float = 0.8  # Walk speed on a balance beam (-20%)
+
+@export_group("Landing Feedback")
+@export var land_puff_enabled: bool = true
+@export var land_puff_min_fall_speed: float = 9.0  # Minimum |fall speed| to puff on landing
+
 # Player state variables
 var running: bool = false
 var gravity: float = 9.8
@@ -71,6 +82,26 @@ var should_flash: bool = false
 
 # NEW: Ice floor detection
 var is_on_ice: bool = false
+
+# Balance beam detection
+var is_on_balance_beam: bool = false
+
+# SLIDING floor detection (kept in sync each physics frame)
+var is_on_slide_floor: bool = false
+var slide_floor_downhill: Vector3 = Vector3.ZERO  # Flat downhill direction of the slide
+
+# Wall climb regrab cooldown
+var climb_regrab_timer: float = 0.0
+
+# Slide-jump anti-climb: while this timer runs, air control cannot add
+# velocity in the blocked (uphill) direction. Set when jumping off a
+# SLIDING floor so players can't spam jump to scale slide slopes.
+var slide_uphill_block: Vector3 = Vector3.ZERO
+var slide_uphill_block_timer: float = 0.0
+
+# Landing puff tracking
+var _puff_was_airborne: bool = false
+var _air_min_vy: float = 0.0
 
 # ── Debug Upgrades ─────────────────────────────────────────────────────────────
 # Toggle these in Inke's Inspector to grant/revoke upgrades without a merchant.
@@ -299,6 +330,10 @@ func _physics_process(delta: float) -> void:
 	update_long_jump_timer(delta)
 	update_dash_cooldown(delta)
 	update_ice_detection()  # NEW: Check for ice floor using get_last_slide_collision
+	update_balance_beam_detection()
+	update_slide_uphill_block(delta)
+	update_landing_puff()
+	update_climb_grab(delta, current_state_name)
 	check_fall_death()
 	
 	# Sync wall jump cooldown from detector to player (for state compatibility)
@@ -315,8 +350,9 @@ func _physics_process(delta: float) -> void:
 	$CameraController.follow_character(position, velocity)
 
 func update_ice_detection():
-	"""Check if player is currently on a frozen floor using collision detection"""
+	"""Check what special floor the player is standing on (FROZEN / SLIDING)"""
 	is_on_ice = false
+	is_on_slide_floor = false
 	
 	if not is_on_floor():
 		return
@@ -331,12 +367,169 @@ func update_ice_detection():
 			# Multi-type aware: a MOVING floor with FROZEN as an extra type is ice too
 			if collider.has_floor_type(Floor.FloorType.FROZEN):
 				is_on_ice = true
-				return
+			if collider.has_floor_type(Floor.FloorType.SLIDING):
+				is_on_slide_floor = true
+				# Downhill = gravity projected on the surface, flattened
+				var n = collision.get_normal()
+				var downhill = Vector3.DOWN - n * Vector3.DOWN.dot(n)
+				downhill.y = 0
+				slide_floor_downhill = downhill.normalized() if downhill.length() > 0.01 else Vector3.ZERO
 		elif collider and collider.has_method("get"):
 			var floor_type = collider.get("floor_type")
 			if floor_type != null and floor_type == 6:  # FloorType.FROZEN
 				is_on_ice = true
-				return
+
+func arm_slide_uphill_block(duration: float = 0.9):
+	"""Called when jumping off a SLIDING floor: air control can't push the
+	player uphill for `duration` seconds, so jump-spamming can't climb slides."""
+	if slide_floor_downhill != Vector3.ZERO:
+		slide_uphill_block = -slide_floor_downhill  # Uphill direction
+		slide_uphill_block_timer = duration
+
+func update_balance_beam_detection():
+	"""Check if the player is standing on a balance beam and point the camera
+	behind the player while they are."""
+	is_on_balance_beam = false
+	if is_on_floor():
+		for i in range(get_slide_collision_count()):
+			var collider = get_slide_collision(i).get_collider()
+			if collider and collider.is_in_group("BalanceBeam"):
+				is_on_balance_beam = true
+				break
+	var cam = get_node_or_null("CameraController")
+	if cam and "auto_behind" in cam:
+		cam.auto_behind = is_on_balance_beam
+
+func trip_off_beam():
+	"""Running on a balance beam = you lose your footing and fall off the side."""
+	var side = global_transform.basis.x.normalized()
+	if randf() < 0.5:
+		side = -side
+	velocity = side * 4.0 + (-global_transform.basis.z) * 2.0
+	velocity.y = 2.0
+	# Little stumble wobble
+	var tween = create_tween()
+	tween.tween_property(self, "scale", Vector3(1.15, 0.85, 1.15), 0.08)
+	tween.tween_property(self, "scale", Vector3.ONE, 0.15)
+
+func update_slide_uphill_block(delta: float):
+	if slide_uphill_block_timer > 0.0:
+		slide_uphill_block_timer -= delta
+		if slide_uphill_block_timer <= 0.0:
+			slide_uphill_block = Vector3.ZERO
+
+func apply_slide_uphill_block():
+	"""Strip any uphill velocity component while the slide-jump block is active.
+	Called by air states after their air-control step so jump-spamming can't
+	climb a SLIDING floor."""
+	if slide_uphill_block_timer <= 0.0 or slide_uphill_block == Vector3.ZERO:
+		return
+	var h = Vector3(velocity.x, 0, velocity.z)
+	var uphill_amount = h.dot(slide_uphill_block)
+	if uphill_amount > 0.0:
+		h -= slide_uphill_block * uphill_amount
+		velocity.x = h.x
+		velocity.z = h.z
+
+# === WALL CLIMBING ===
+
+func update_climb_grab(delta: float, current_state_name: String):
+	"""Grab climbable walls when the player pushes toward one."""
+	if climb_regrab_timer > 0.0:
+		climb_regrab_timer -= delta
+		return
+	if controls_disabled or is_dead:
+		return
+	if not current_state_name in ["WalkingState", "RunningState", "JumpingState", "FallingState", "DoubleJumpState", "WallSlidingState"]:
+		return
+	
+	var input_dir = Input.get_vector("left", "right", "forward", "back")
+	if input_dir.length() < 0.2:
+		return
+	
+	var wall = find_climbable_wall()
+	if wall.is_empty():
+		return
+	
+	# Require the input to push INTO the wall
+	var camera_basis = $CameraController.transform.basis
+	var wish: Vector3 = (camera_basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	if wish.dot(-wall.normal) < 0.35:
+		return
+	
+	var climb_state = state_machine.states.get("wallclimbingstate")
+	if climb_state:
+		climb_state.setup(wall.normal, wall.point)
+		state_machine.change_state("WallClimbingState")
+
+func find_climbable_wall() -> Dictionary:
+	"""Raycast forward at two heights for a wall in the ClimbableWall group."""
+	var space_state = get_world_3d().direct_space_state
+	var forward = -global_transform.basis.z.normalized()
+	for height in [0.5, 1.2]:
+		var from = global_position + Vector3(0, height, 0)
+		var to = from + forward * climb_grab_distance
+		var query = PhysicsRayQueryParameters3D.create(from, to)
+		query.collision_mask = 1
+		query.exclude = [self]
+		var result = space_state.intersect_ray(query)
+		if result and result.collider and result.collider.is_in_group("ClimbableWall"):
+			# Only near-vertical surfaces
+			if abs(result.normal.y) < 0.3:
+				return {"point": result.position, "normal": result.normal, "collider": result.collider}
+	return {}
+
+# === LANDING PUFF ===
+
+func update_landing_puff():
+	"""Spawn a dust puff when landing from a decent height."""
+	if not is_on_floor():
+		_puff_was_airborne = true
+		_air_min_vy = min(_air_min_vy, velocity.y)
+	elif _puff_was_airborne:
+		if land_puff_enabled and _air_min_vy < -land_puff_min_fall_speed:
+			spawn_land_puff(clampf(-_air_min_vy / 25.0, 0.5, 1.4))
+		_puff_was_airborne = false
+		_air_min_vy = 0.0
+
+func reset_landing_puff_tracker():
+	"""Used by ground slam so its own puff isn't doubled by the landing detector."""
+	_puff_was_airborne = false
+	_air_min_vy = 0.0
+
+func spawn_land_puff(strength: float = 1.0):
+	"""Little ring of dust balls that scatter outward and fade."""
+	var parent = get_parent()
+	if not parent:
+		return
+	var count = int(round(6 * strength)) + 2
+	for i in range(count):
+		var puff = MeshInstance3D.new()
+		var sphere = SphereMesh.new()
+		var size = randf_range(0.12, 0.24) * strength
+		sphere.radius = size
+		sphere.height = size * 2.0
+		sphere.radial_segments = 8
+		sphere.rings = 4
+		puff.mesh = sphere
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = Color(0.9, 0.88, 0.82, 0.75)
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		puff.material_override = mat
+		parent.add_child(puff)
+		
+		var angle = (TAU / count) * i + randf_range(-0.3, 0.3)
+		var dir = Vector3(cos(angle), 0, sin(angle))
+		puff.global_position = global_position + dir * 0.3 + Vector3(0, 0.12, 0)
+		var target = puff.global_position + dir * randf_range(0.7, 1.3) * strength + Vector3(0, randf_range(0.1, 0.35), 0)
+		
+		var tween = puff.create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(puff, "global_position", target, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(puff, "scale", Vector3(0.1, 0.1, 0.1), 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(mat, "albedo_color:a", 0.0, 0.4)
+		tween.chain().tween_callback(puff.queue_free)
 
 func get_ice_friction_multiplier() -> float:
 	"""Get the friction multiplier based on whether we're on ice"""

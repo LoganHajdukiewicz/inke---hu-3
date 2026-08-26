@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://balbeam000001"]
+
+[ext_resource type="Script" path="res://scripts/environments/balance_beam.gd" id="1_beam"]
+
+[node name="BalanceBeam" type="StaticBody3D" groups=["BalanceBeam"]]
+script = ExtResource("1_beam")

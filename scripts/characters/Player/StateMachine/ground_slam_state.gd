@@ -91,6 +91,18 @@ func _impact():
 				if box.has_method("take_damage"):
 					box.take_damage(99)
 	
+	# Slam patches: pop open buried loot
+	for patch in get_tree().get_nodes_in_group("SlamPatch"):
+		if patch is Node3D and is_instance_valid(patch):
+			var flat_dist = Vector2(patch.global_position.x - player.global_position.x, patch.global_position.z - player.global_position.z).length()
+			if flat_dist <= max(impact_radius * 0.6, 2.0) and patch.has_method("on_ground_slammed"):
+				patch.on_ground_slammed(player)
+	
+	# Big landing puff (and don't double up with the automatic landing puff)
+	if player.has_method("spawn_land_puff"):
+		player.spawn_land_puff(1.4)
+		player.reset_landing_puff_tracker()
+	
 	# Little bounce off the ground
 	player.velocity.y = impact_bounce
 	

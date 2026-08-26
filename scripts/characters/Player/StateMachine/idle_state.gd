@@ -34,7 +34,9 @@ func physics_update(delta: float):
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	
 	if input_dir.length() > 0.1:
-		if Input.is_action_pressed("run"):
+		if player.is_on_balance_beam:
+			change_to("BalanceBeamState")
+		elif Input.is_action_pressed("run"):
 			change_to("RunningState")
 		else:
 			change_to("WalkingState")

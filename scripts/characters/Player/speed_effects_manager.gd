@@ -8,12 +8,17 @@ class_name SpeedEffectsManager
 @export var fade_speed: float = 3.0  # How quickly lines fade in/out
 
 @export_category("Motion Lines Appearance")
-@export var line_color: Color = Color(1.0, 1.0, 1.0, 0.85)  # White with transparency
-@export var line_count_min: int = 26  # Minimum number of radial streaks
-@export var line_count_max: int = 38  # Maximum number of radial streaks
-@export var line_flicker_speed: float = 14.0  # How fast streaks redraw (hand-drawn feel)
-@export var line_inner_radius: float = 0.42   # Streaks never intrude past this (keeps center clear)
+@export var line_color: Color = Color(1.0, 1.0, 1.0, 0.8)  # White with transparency
+@export var line_count_min: int = 34  # Minimum number of radial streaks
+@export var line_count_max: int = 46  # Maximum number of radial streaks
+@export var line_flicker_speed: float = 12.0  # How fast streaks redraw (hand-drawn feel)
+@export var line_inner_radius: float = 0.48   # Streaks never intrude past this (keeps center clear)
 @export var line_individual_length_variation: float = 0.5  # Per-streak length variation
+@export var line_thickness: float = 0.012     # Streak thickness at the screen edge (screen units)
+
+@export_category("Fade")
+@export var fade_in_time: float = 0.35   # Seconds to fade lines in (also when hopping on a rail)
+@export var fade_out_time: float = 0.55  # Seconds to fade lines out
 
 @export_category("Vignette Blur")
 @export var vignette_blur_strength: float = 2.2   # Mipmap LOD at max speed (higher = blurrier edges)
@@ -118,6 +123,7 @@ uniform int line_count = 32;
 uniform float flicker_speed = 14.0;
 uniform float inner_radius = 0.42;
 uniform float length_variation = 0.5;
+uniform float line_thickness = 0.012;
 uniform float blur_strength = 2.2;
 uniform float vignette_start = 0.45;
 uniform float vignette_darken = 0.25;
@@ -156,15 +162,18 @@ void fragment() {
 	// slight edge darkening sells the tunnel-vision feel
 	screen.rgb *= 1.0 - vig * vignette_darken;
 	
-	// -------- anime streaks --------
-	// Stepped time = hand-drawn flicker (streaks redraw, not slide)
+	// -------- anime streaks (ink-stroke style) --------
+	// KEY: stroke thickness is constant in SCREEN units, not angle units, so
+	// streaks have clean parallel edges like brush strokes instead of fat
+	// pie-slice wedges. They taper to a needle point at their inner tip.
+	// Stepped time = hand-drawn flicker (streaks redraw, not slide).
 	float frame = floor(TIME * flicker_speed);
 	
 	float streaks = 0.0;
 	// Two overlapping layers with different seeds for a rich, sketchy look
 	for (int layer = 0; layer < 2; layer++) {
 		float fl = float(layer);
-		float count = float(line_count) * (1.0 - fl * 0.35);
+		float count = float(line_count) * (1.0 - fl * 0.3);
 		float seed = frame * 13.7 + fl * 91.3;
 		
 		float cell = angle01 * count;
@@ -172,29 +181,36 @@ void fragment() {
 		float fpos = fract(cell);            // 0..1 across this streak's wedge
 		float rnd = hash2(vec2(idx, seed));
 		
-		// Most wedges have a streak each 'frame' (dense, energetic)
-		if (rnd > 0.25) {
-			// Random inward reach per streak
-			float reach = inner_radius + rnd * length_variation * 0.3;
-			
-			// TAPER: thick at edge (dist ~ 1) -> needle at its inner tip
-			float taper = smoothstep(reach, 0.9, dist);
-			float half_w = mix(0.002, 0.34, taper * taper);
+		// Not every wedge draws every 'frame' (sparse, lively)
+		if (rnd > 0.35) {
+			// Random inward reach per streak (its needle tip)
+			float reach = inner_radius + rnd * length_variation * 0.35;
 			
 			// Streak center jitters inside its wedge per frame
-			float mid = 0.3 + 0.4 * hash2(vec2(idx, seed + 7.0));
-			float d = abs(fpos - mid);
-			float line_mask = smoothstep(half_w, half_w * 0.3, d);
+			float mid = 0.25 + 0.5 * hash2(vec2(idx, seed + 7.0));
 			
-			// Fade the needle tip out smoothly
-			float tip_fade = smoothstep(reach - 0.03, reach + 0.15, dist);
+			// Angular offset from the streak's centerline, converted to
+			// SCREEN distance (arc length = angle * radius)
+			float wedge_angle = 6.28318530718 / count;
+			float arc_dist = abs(fpos - mid) * wedge_angle * max(dist, 0.001);
 			
-			streaks = max(streaks, line_mask * tip_fade * (0.7 + 0.3 * rnd));
+			// Thickness: full at the screen edge, needle at the tip
+			float tip_t = smoothstep(reach, 1.1, dist);   // 0 at tip -> 1 at edge
+			float per_streak_w = line_thickness * (0.6 + 0.8 * hash2(vec2(idx, seed + 3.0)));
+			float half_w = per_streak_w * (0.08 + 0.92 * tip_t);
+			
+			// Crisp-but-antialiased stroke edges
+			float line_mask = smoothstep(half_w, half_w * 0.55, arc_dist);
+			
+			// Needle tip fades out smoothly right at its reach point
+			float tip_fade = smoothstep(reach - 0.02, reach + 0.1, dist);
+			
+			streaks = max(streaks, line_mask * tip_fade * (0.75 + 0.25 * rnd));
 		}
 	}
 	
 	// Streaks only exist toward the edges; center always stays readable
-	float edge_zone = smoothstep(inner_radius, inner_radius + 0.25, dist);
+	float edge_zone = smoothstep(inner_radius - 0.05, inner_radius + 0.2, dist);
 	float streak_alpha = streaks * edge_zone * intensity * line_color.a;
 	
 	// Composite: blurred screen with ink streaks on top
@@ -215,6 +231,7 @@ func setup_shader_parameters():
 	shader_material.set_shader_parameter("flicker_speed", line_flicker_speed)
 	shader_material.set_shader_parameter("inner_radius", line_inner_radius)
 	shader_material.set_shader_parameter("length_variation", line_individual_length_variation)
+	shader_material.set_shader_parameter("line_thickness", line_thickness)
 	shader_material.set_shader_parameter("blur_strength", vignette_blur_strength)
 	shader_material.set_shader_parameter("vignette_start", vignette_start)
 	shader_material.set_shader_parameter("vignette_darken", vignette_darken)
@@ -237,21 +254,22 @@ func _process(delta: float):
 	# Calculate target intensity based on speed OR rail grinding
 	var target_intensity = 0.0
 	if is_rail_grinding:
-		# ALWAYS show lines at full intensity when rail grinding
+		# Rails want full lines - but they still FADE IN below (feels better
+		# than snapping to 100% the frame you land on the rail)
 		target_intensity = 1.0
 	elif speed > speed_threshold:
 		target_intensity = clamp((speed - speed_threshold) / (max_speed - speed_threshold), 0.0, 1.0)
 	
-	# Smoothly interpolate current intensity
+	# Fade in / fade out at fixed rates (seconds to full), so entering a rail
+	# ramps the lines in over fade_in_time instead of popping
 	if target_intensity > current_intensity:
-		# Fade in quickly
-		current_intensity = lerp(current_intensity, target_intensity, fade_speed * delta * 2.0)
+		current_intensity = move_toward(current_intensity, target_intensity, delta / max(fade_in_time, 0.01))
 	else:
-		# Fade out more slowly for smoother effect
-		current_intensity = lerp(current_intensity, target_intensity, fade_speed * delta)
+		current_intensity = move_toward(current_intensity, target_intensity, delta / max(fade_out_time, 0.01))
 	
-	# Update shader intensity
-	shader_material.set_shader_parameter("intensity", current_intensity)
+	# Ease the intensity curve so the first/last moments of the fade are soft
+	var eased = current_intensity * current_intensity * (3.0 - 2.0 * current_intensity)
+	shader_material.set_shader_parameter("intensity", eased)
 	
 	# Flicker faster as the player goes faster (or a fixed fast rate on rails)
 	var flicker = line_flicker_speed

@@ -35,6 +35,12 @@ func physics_update(delta: float):
 		change_to("JumpingState")
 		return
 	
+	# RUNNING onto a balance beam = immediately lose your footing
+	if player.is_on_balance_beam:
+		player.trip_off_beam()
+		change_to("FallingState")
+		return
+	
 	# Get movement input
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
 	

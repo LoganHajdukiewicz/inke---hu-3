@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1imbwallnew1"]
+
+[ext_resource type="Script" path="res://scripts/environments/climbable_wall.gd" id="1_climb"]
+
+[node name="ClimbableWall" type="StaticBody3D" groups=["ClimbableWall"]]
+script = ExtResource("1_climb")
