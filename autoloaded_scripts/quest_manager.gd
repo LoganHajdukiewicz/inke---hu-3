@@ -30,6 +30,7 @@ var cred_scene: PackedScene = preload("res://scenes/items/Collectibles/cred.tscn
 #                         time_left: float, item_held: bool }
 var active_quests: Array[Dictionary] = []
 var completed_quest_ids: PackedStringArray = []
+var failed_quest_ids: PackedStringArray = []   # failed at least once, not yet completed
 var location_flags: Dictionary = {}   # flag_id -> true
 var carried_items: Dictionary = {}    # item_id -> true (fetch quest items in hand)
 
@@ -98,6 +99,11 @@ func accept_quest(quest: Quest, _giver: Node = null) -> bool:
 	}
 	active_quests.append(entry)
 	
+	# Retaking a previously failed quest
+	var fail_idx = failed_quest_ids.find(quest.quest_id)
+	if fail_idx != -1:
+		failed_quest_ids.remove_at(fail_idx)
+	
 	match quest.quest_type:
 		Quest.QuestType.DEFEAT_ENEMY:
 			if quest.spawn_target_enemy:
@@ -125,6 +131,10 @@ func is_quest_active(quest_id: String) -> bool:
 
 func is_quest_completed(quest_id: String) -> bool:
 	return completed_quest_ids.has(quest_id)
+
+
+func has_quest_failed(quest_id: String) -> bool:
+	return failed_quest_ids.has(quest_id)
 
 
 func get_active_entry(quest_id: String) -> Dictionary:
@@ -220,6 +230,10 @@ func _complete_quest(entry: Dictionary) -> void:
 	if not completed_quest_ids.has(q.quest_id):
 		completed_quest_ids.append(q.quest_id)
 	
+	var fail_idx = failed_quest_ids.find(q.quest_id)
+	if fail_idx != -1:
+		failed_quest_ids.remove_at(fail_idx)
+	
 	quest_completed.emit(q)
 	show_notification("QUEST COMPLETE: " + q.title, Color(0.4, 1.0, 0.5))
 	_spawn_reward_cred(q.cred_reward)
@@ -230,6 +244,8 @@ func _fail_quest(entry: Dictionary) -> void:
 		return
 	active_quests.erase(entry)
 	var q: Quest = entry.quest
+	if not failed_quest_ids.has(q.quest_id):
+		failed_quest_ids.append(q.quest_id)
 	# Failed fetch: the item stays in hand only if they grabbed it; keep it -
 	# retaking the quest picks up where they left off.
 	quest_failed.emit(q)

@@ -59,6 +59,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not dialogue_container.visible or is_wall_trigger:
 		return
 	
+	# Choice lines: X (jump/Cross) accepts, O (dash/Circle) denies
+	if DialogueManager.awaiting_choice:
+		if is_typing and (event.is_action_pressed("ui_accept") or event.is_action_pressed("jump")):
+			finish_typing()
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("jump") or event.is_action_pressed("ui_accept"):
+			DialogueManager.resolve_choice(true)
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("dash") or event.is_action_pressed("ui_cancel"):
+			DialogueManager.resolve_choice(false)
+			get_viewport().set_input_as_handled()
+		return
+	
 	if event.is_action_pressed("ui_accept"):
 		if is_typing:
 			finish_typing()
@@ -184,3 +198,7 @@ func finish_typing() -> void:
 	else:
 		text_label.text = current_text
 		continue_indicator.visible = true
+		# Choice lines show the X/O prompt instead of the continue arrow
+		if DialogueManager.awaiting_choice:
+			continue_indicator.visible = false
+			text_label.text = current_text + "\n\n[X] Accept        [O] Not now"

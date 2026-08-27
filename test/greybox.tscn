@@ -59,7 +59,7 @@ target_id = ""
 has_time_limit = false
 time_limit_seconds = 60.0
 cred_reward = 10
-repeatable = true
+repeatable = false
 target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [sub_resource type="Resource" id="Quest_defeat"]
@@ -73,7 +73,7 @@ target_id = "gb_bully"
 has_time_limit = false
 time_limit_seconds = 60.0
 cred_reward = 15
-repeatable = true
+repeatable = false
 spawn_target_enemy = ExtResource("23_enemy")
 target_enemy_spawn_position = Vector3(25, 1.5, 68)
 
@@ -88,7 +88,7 @@ target_id = "gb_tall_block_summit"
 has_time_limit = false
 time_limit_seconds = 60.0
 cred_reward = 15
-repeatable = true
+repeatable = false
 target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [sub_resource type="Resource" id="Quest_fetch"]
@@ -102,7 +102,7 @@ target_id = "gb_lost_gizmo"
 has_time_limit = true
 time_limit_seconds = 90.0
 cred_reward = 20
-repeatable = true
+repeatable = false
 target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [node name="Greybox" type="Node3D" unique_id=2063258851]
@@ -507,11 +507,48 @@ outline_size = 14
 
 [node name="QuestHub" type="Node3D" parent="."]
 
-[node name="QuestGiver" parent="QuestHub" instance=ExtResource("19_giver")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
+[node name="GizmoGears" parent="QuestHub" instance=ExtResource("19_giver")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 8)
 npc_name = "Gizmo"
-intro_dialogue = Array[String](["Oh! A visitor. Don't get many of those out here in the grey.", "Name's Gizmo. I fix things. Or I would, if my stuff wasn't scattered all over this place.", "Tell you what - help me out and I'll make it worth your CRED."])
-quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears"), SubResource("Quest_defeat"), SubResource("Quest_reach"), SubResource("Quest_fetch")])
+quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears")])
+small_talk = Array[String](["Oh! A visitor. Don't get many of those out here in the grey.", "Name's Gizmo. I fix things. Or I would, if I had any spare parts left."])
+quest_ask = "Say... you look quick. Could you round up some gears for me?"
+reminder = "Those gears won't collect themselves, friend."
+retry_line = "Bah, gears are slippery little things. Dust yourself off - another go?"
+thanks = "My workbench is saved! You're a lifesaver."
+
+[node name="BruiserBetty" parent="QuestHub" instance=ExtResource("19_giver")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
+npc_name = "Betty"
+body_color = Color(0.85, 0.3, 0.25, 1)
+quests = Array[ExtResource("22_quest")]([SubResource("Quest_defeat")])
+small_talk = Array[String](["You hear that stomping last night? That inkling bully is back.", "I'd handle it myself, but my stomping days are behind me."])
+quest_ask = "Would you rough it up on my behalf?"
+reminder = "That bully is still out there strutting around. You'll hear it before you see it."
+retry_line = "It got the better of you, huh? Shake it off, champ. Round two?"
+thanks = "HA! I heard the thud from here. You're my hero."
+
+[node name="PeakPete" parent="QuestHub" instance=ExtResource("19_giver")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.5, 8)
+npc_name = "Pete"
+body_color = Color(0.3, 0.7, 0.4, 1)
+quests = Array[ExtResource("22_quest")]([SubResource("Quest_reach")])
+small_talk = Array[String](["I used to climb, you know. Best view in the grey, up on that tall block.", "These old servos won't make the trip anymore."])
+quest_ask = "Would you climb it for me? Just to know someone still can."
+reminder = "The tall block, west of spawn. The view's worth it, I promise."
+retry_line = "Gravity wins sometimes. Dust yourself off and climb again, friend."
+thanks = "You made it! I can almost see the view through your eyes."
+
+[node name="ForgetfulFern" parent="QuestHub" instance=ExtResource("19_giver")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.5, 8)
+npc_name = "Fern"
+body_color = Color(0.6, 0.4, 0.85, 1)
+quests = Array[ExtResource("22_quest")]([SubResource("Quest_fetch")])
+small_talk = Array[String](["Have you seen my gizmo? Pink, shiny, extremely important?", "I left it SOMEWHERE. On top of something. Something climbable?"])
+quest_ask = "Could you fetch it before something eats it? You're on the clock!"
+reminder = "My gizmo! Top of the climbing wall! Tick tock!"
+retry_line = "Time got away from you? Happens to me constantly. Dust off - try again?"
+thanks = "MY GIZMO! Oh thank you thank you thank you!"
 
 [node name="SummitFlag" parent="QuestHub" instance=ExtResource("20_flag")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5, -20)
@@ -526,10 +563,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 6, 14.5)
 item_id = "gb_lost_gizmo"
 
 [node name="QuestGiverLabel" type="Label3D" parent="QuestHub"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.2, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 4.2, 8)
 pixel_size = 0.012
 billboard = 1
-text = "QUEST GIVER (press E to talk -\ngear hunt, bully fight, summit climb, fetch job)"
+text = "QUEST ROW (press E to talk) - Gizmo: gear hunt |\nBetty: bully fight | Pete: summit climb | Fern: timed fetch"
 font_size = 36
 outline_size = 14
 

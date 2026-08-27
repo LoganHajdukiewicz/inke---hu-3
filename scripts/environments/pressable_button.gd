@@ -250,6 +250,24 @@ func _rebuild() -> void:
 		col.shape = box
 		col.position.z = 0.27
 		add_child(col)
+		
+		# CRITICAL: Area3D attack hitboxes do NOT detect StaticBody3D via
+		# get_overlapping_bodies() - punches would sail right through. This
+		# monitorable child Area3D gets picked up by the attack manager's
+		# get_overlapping_areas() path, which then calls take_damage() on us
+		# (the parent in the Breakables group).
+		var hit_area = Area3D.new()
+		hit_area.collision_layer = 1
+		hit_area.collision_mask = 0
+		hit_area.monitorable = true
+		hit_area.monitoring = false
+		var hit_col = CollisionShape3D.new()
+		var hit_box = BoxShape3D.new()
+		hit_box.size = Vector3(button_radius * 2.6, button_radius * 2.6, 0.9)
+		hit_col.shape = hit_box
+		hit_col.position.z = 0.35
+		hit_area.add_child(hit_col)
+		add_child(hit_area)
 	
 	# Label
 	if label_text != "":

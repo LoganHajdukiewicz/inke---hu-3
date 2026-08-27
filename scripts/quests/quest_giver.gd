@@ -1,42 +1,52 @@
 class_name QuestGiver
 extends CharacterBody3D
 
-## An NPC that offers quests. Walk up, press interact (E / gamepad X):
-##  - no active quest -> quest offer panel (accept with E, decline with Esc)
-##  - FETCH quest active + item in hand -> turn-in (completes the quest)
-##  - quest active -> reminder of what's left
-##  - quest done (non-repeatable) -> thanks
+## An NPC that offers quests through the DialogueManager (the real dialogue
+## box, typewriter text and all). Press E to talk.
 ##
-## Configure the "quests" array in the Inspector: the NPC offers them in
-## order (skipping completed non-repeatable ones).
+## The giver always knows which of FOUR states it's in for its quest:
+##   FIRST_OFFER - never accepted before: small talk first, then the ask.
+##                 X (jump/Cross) accepts, O (dash/Circle) declines.
+##   WAITING     - quest is running: reminds the player what's left.
+##   RETRY       - the quest was failed: "dust yourself off" line, then
+##                 offers it again (X/O choice).
+##   DONE        - quest completed: thankful, conversation over. Does NOT
+##                 re-offer (unless the quest is marked repeatable).
+
+enum GiverState { FIRST_OFFER, WAITING, RETRY, DONE }
 
 @export var npc_name: String = "Quest Giver"
 @export var quests: Array[Quest] = []
 @export var body_color: Color = Color(0.95, 0.75, 0.2)
+## Portrait name (assets/portraits/{name}.png), optional.
+@export var portrait: String = ""
 
 @export_group("Dialogue Lines")
-## Spoken one message at a time before the quest offer - each press of E
-## points to the next message; after the last one the quest offer shows.
-@export_multiline var intro_dialogue: Array[String] = []
-@export_multiline var greeting: String = "Hey! I've got work if you want it."
-@export_multiline var reminder: String = "How's that job coming along?"
-@export_multiline var thanks: String = "That's everything I had. Thanks!"
+## Small talk before the first-time quest ask, one message per entry.
+@export_multiline var small_talk: Array[String] = [
+	"Oh! A visitor. Don't get many of those out here.",
+	"You look like someone who gets things done.",
+]
+## The ask itself (X/O choice is appended automatically).
+@export_multiline var quest_ask: String = "So - think you could help me out?"
+## While the quest runs.
+@export_multiline var reminder: String = "How's that job coming along? Here's what I remember:"
+## After a failure, before re-offering.
+@export_multiline var retry_line: String = "Hey, don't sweat it. Dust yourself off - want another shot?"
+## After completion.
+@export_multiline var thanks: String = "You really came through. Thank you!"
+## If the player declines the offer.
+@export_multiline var decline_response: String = "No worries. I'll be here if you change your mind."
 
 var player_in_range: bool = false
 var current_player: CharacterBody3D = null
-var panel_open: bool = false
-var offered_quest: Quest = null
 var _input_cooldown: float = 0.0
-var _dialogue_queue: Array[String] = []   # intro messages still to show
-var _after_dialogue: Callable = Callable() # what to do when the chat ends
+var _pending_offer: Quest = null
+var _in_conversation: bool = false
 
-# UI
+# UI (interaction prompt only - dialogue itself is the DialogueManager's box)
 var canvas: CanvasLayer
 var prompt_label: Label
-var panel: PanelContainer
-var panel_title: Label
-var panel_body: Label
-var panel_hint: Label
 
 # Visual
 var _mesh_root: Node3D
@@ -48,6 +58,7 @@ func _ready() -> void:
 	add_to_group("QuestGiver")
 	_build_visual()
 	_build_ui()
+	_ensure_dialogue_ui()
 	
 	var area = Area3D.new()
 	area.collision_layer = 0
@@ -66,6 +77,7 @@ func _ready() -> void:
 	if qm:
 		qm.quest_completed.connect(func(_q): _update_marker())
 		qm.quest_accepted.connect(func(_q): _update_marker())
+		qm.quest_failed.connect(func(_q): _update_marker())
 	_update_marker()
 
 
@@ -78,12 +90,10 @@ func _physics_process(delta: float) -> void:
 	velocity.z = 0.0
 	move_and_slide()
 	
-	# Idle bob on the exclamation marker
 	_bob_time += delta
 	if _marker:
 		_marker.position.y = 2.6 + sin(_bob_time * 2.5) * 0.1
 	
-	# Face the player when nearby
 	if player_in_range and current_player and is_instance_valid(current_player):
 		var to_p = current_player.global_position - global_position
 		to_p.y = 0
@@ -96,170 +106,200 @@ func _process(delta: float) -> void:
 	if _input_cooldown > 0.0:
 		_input_cooldown -= delta
 	
-	if not player_in_range:
+	if not player_in_range or _in_conversation:
+		return
+	if DialogueManager.is_dialogue_active():
 		return
 	
-	if panel_open:
-		if _input_cooldown <= 0.0:
-			if Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("ui_accept"):
-				_confirm_panel()
-			elif Input.is_action_just_pressed("ui_cancel") or Input.is_action_just_pressed("dash"):
-				_close_panel()
-	else:
-		if _input_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
-			_interact()
+	if _input_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
+		_interact()
+
+
+func _ensure_dialogue_ui() -> void:
+	"""Levels without a DialogueUI instance (like the greybox) still need the
+	dialogue box - instance it on demand, exactly once."""
+	if DialogueManager.dialogue_ui and is_instance_valid(DialogueManager.dialogue_ui):
+		return
+	var scene_root = get_tree().current_scene
+	if not scene_root:
+		return
+	if scene_root.find_child("DialogueUi", false, false) or scene_root.find_child("DialogueUI", false, false):
+		return
+	var ui_scene = load("res://scenes/UI/dialogue_ui.tscn")
+	if ui_scene:
+		var ui = ui_scene.instantiate()
+		ui.name = "DialogueUI"
+		scene_root.add_child.call_deferred(ui)
 
 
 # =========================================================================
-# INTERACTION FLOW
+# STATE
+# =========================================================================
+
+## The quest this giver currently cares about, and the state it's in.
+func get_state() -> GiverState:
+	var qm = get_node_or_null("/root/QuestManager")
+	if not qm:
+		return GiverState.DONE
+	
+	var q = _current_quest(qm)
+	if q == null:
+		return GiverState.DONE
+	if qm.is_quest_active(q.quest_id):
+		return GiverState.WAITING
+	if qm.has_quest_failed(q.quest_id):
+		return GiverState.RETRY
+	return GiverState.FIRST_OFFER
+
+
+func _current_quest(qm) -> Quest:
+	"""First quest in the list that isn't finished (or is repeatable)."""
+	for q in quests:
+		if q == null or q.quest_id == "":
+			continue
+		if qm.is_quest_active(q.quest_id):
+			return q
+		if qm.has_quest_failed(q.quest_id):
+			return q
+		if not qm.is_quest_completed(q.quest_id) or q.repeatable:
+			return q
+	return null
+
+
+# =========================================================================
+# CONVERSATION (through DialogueManager)
 # =========================================================================
 
 func _interact() -> void:
 	var qm = get_node_or_null("/root/QuestManager")
 	if not qm:
 		return
-	_input_cooldown = 0.25
+	_input_cooldown = 0.4
 	
-	# 1. Turn-in ready fetch quests first
-	for q in quests:
-		if qm.is_quest_active(q.quest_id) and q.quest_type == Quest.QuestType.FETCH_ITEM:
-			if qm.try_turn_in(q.quest_id):
-				_open_panel(npc_name, "Ha, you actually found it! Here's your reward.", "[E] Close")
-				offered_quest = null
-				return
+	var lines: Array = []
+	_pending_offer = null
+	var q = _current_quest(qm)
 	
-	# 2. Any of my quests still active? Remind.
-	for q in quests:
-		if qm.is_quest_active(q.quest_id):
-			_open_panel(npc_name, reminder + "\n\n" + _progress_text(qm, q), "[E] Close")
-			offered_quest = null
+	# FETCH turn-in beats everything: player returned with the item
+	if q and qm.is_quest_active(q.quest_id) and q.quest_type == Quest.QuestType.FETCH_ITEM:
+		var entry = qm.get_active_entry(q.quest_id)
+		if not entry.is_empty() and entry.item_held:
+			qm.try_turn_in(q.quest_id)
+			lines = [_line("You found it! Incredible. Here - you've earned this.")]
+			_speak(lines)
 			return
 	
-	# 3. Offer the next available quest - after the intro conversation,
-	# where each message points to the next (or straight to the offer)
-	var next_quest = _next_available_quest(qm)
-	if next_quest:
-		if not intro_dialogue.is_empty():
-			_dialogue_queue = intro_dialogue.duplicate()
-			_after_dialogue = _offer_quest.bind(next_quest)
-			_show_next_dialogue_message()
-		else:
-			_offer_quest(next_quest)
-		return
+	match get_state():
+		GiverState.FIRST_OFFER:
+			# Small talk first, then the ask as an X/O choice
+			for talk in small_talk:
+				lines.append(_line(talk))
+			lines.append(_line(quest_ask))
+			lines.append(_quest_offer_line(q))
+			_pending_offer = q
+		
+		GiverState.WAITING:
+			lines = [_line(reminder), _line(_progress_text(qm, q))]
+		
+		GiverState.RETRY:
+			# Encourage, then re-offer (no small talk the second time around)
+			lines.append(_line(retry_line))
+			lines.append(_quest_offer_line(q))
+			_pending_offer = q
+		
+		GiverState.DONE:
+			lines = [_line(thanks)]
 	
-	# 4. Nothing left
-	_open_panel(npc_name, thanks, "[E] Close")
-	offered_quest = null
+	_speak(lines)
 
 
-func _show_next_dialogue_message() -> void:
-	"""Pop the next message off the conversation queue and show it.
-	Each message 'points to' the next; the last one hands off to
-	_after_dialogue (usually the quest offer)."""
-	_input_cooldown = 0.25
-	var msg = _dialogue_queue.pop_front()
-	var hint = "[E] Next" if not _dialogue_queue.is_empty() or _after_dialogue.is_valid() else "[E] Close"
-	_open_panel(npc_name, msg, hint)
+func _speak(lines: Array) -> void:
+	_in_conversation = true
+	prompt_label.visible = false
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended, CONNECT_ONE_SHOT)
+	if _pending_offer:
+		DialogueManager.choice_made.connect(_on_choice_made, CONNECT_ONE_SHOT)
+	DialogueManager.start_dialogue_lines(lines, true)
 
 
-func _offer_quest(next_quest: Quest) -> void:
-	offered_quest = next_quest
-	var body_text = greeting + "\n\n%s\n%s" % [next_quest.title, next_quest.description]
-	body_text += "\n\nReward: %d CRED" % next_quest.cred_reward
-	if next_quest.has_time_limit:
-		body_text += "   |   Time limit: %ds" % int(next_quest.time_limit_seconds)
-	_open_panel(npc_name, body_text, "[E] Accept       [Esc] Not now")
+func _line(text: String) -> Dictionary:
+	return {"speaker": npc_name, "text": text, "portrait": portrait}
 
 
-func _confirm_panel() -> void:
-	_input_cooldown = 0.25
-	# Mid-conversation: this message points to the next one
-	if not _dialogue_queue.is_empty():
-		_show_next_dialogue_message()
+func _quest_offer_line(q: Quest) -> Dictionary:
+	var text = "%s\n%s\n\nReward: %d CRED" % [q.title, q.description, q.cred_reward]
+	if q.has_time_limit:
+		text += "   |   Time limit: %ds" % int(q.time_limit_seconds)
+	return {"speaker": npc_name, "text": text, "portrait": portrait, "choice": true}
+
+
+func _on_choice_made(accepted: bool) -> void:
+	var offer = _pending_offer
+	_pending_offer = null
+	if not offer:
 		return
-	# Conversation over: run whatever it was leading to (quest offer etc.)
-	if _after_dialogue.is_valid():
-		var follow_up = _after_dialogue
-		_after_dialogue = Callable()
-		follow_up.call()
-		return
-	if offered_quest:
-		var qm = get_node_or_null("/root/QuestManager")
-		if qm:
-			qm.accept_quest(offered_quest, self)
-		offered_quest = null
-	_close_panel()
+	var qm = get_node_or_null("/root/QuestManager")
+	if accepted and qm:
+		qm.accept_quest(offer, self)
+	elif not accepted:
+		# A brief "no worries" after the box closes
+		call_deferred("_speak_decline")
 
 
-func _close_panel() -> void:
-	panel_open = false
-	panel.visible = false
-	offered_quest = null
-	_dialogue_queue.clear()
-	_after_dialogue = Callable()
-	_input_cooldown = 0.25
+func _speak_decline() -> void:
+	await get_tree().create_timer(0.05).timeout
+	_in_conversation = true
+	DialogueManager.dialogue_ended.connect(_on_dialogue_ended, CONNECT_ONE_SHOT)
+	DialogueManager.start_dialogue_lines([_line(decline_response)], true)
+
+
+func _on_dialogue_ended() -> void:
+	_in_conversation = false
+	_input_cooldown = 0.4
+	# If the conversation ended without answering the choice (shouldn't
+	# happen, but don't leak the pending offer)
+	if _pending_offer and DialogueManager.choice_made.is_connected(_on_choice_made):
+		DialogueManager.choice_made.disconnect(_on_choice_made)
+	_pending_offer = null
 	if player_in_range:
 		prompt_label.visible = true
 	_update_marker()
-
-
-func _open_panel(title: String, body_text: String, hint: String) -> void:
-	panel_open = true
-	panel.visible = true
-	prompt_label.visible = false
-	panel_title.text = title
-	panel_body.text = body_text
-	panel_hint.text = hint
-
-
-func _next_available_quest(qm) -> Quest:
-	for q in quests:
-		if q == null or q.quest_id == "":
-			continue
-		if qm.is_quest_active(q.quest_id):
-			continue
-		if qm.is_quest_completed(q.quest_id) and not q.repeatable:
-			continue
-		return q
-	return null
 
 
 func _progress_text(qm, q: Quest) -> String:
 	var entry = qm.get_active_entry(q.quest_id)
 	if entry.is_empty():
 		return ""
+	var text := ""
 	match q.quest_type:
 		Quest.QuestType.COLLECT_GEARS:
-			return "Gears: %d / %d" % [entry.progress, q.goal_count()]
+			text = "Gears so far: %d of %d." % [entry.progress, q.goal_count()]
 		Quest.QuestType.DEFEAT_ENEMY:
-			return "Defeated: %d / %d" % [entry.progress, q.goal_count()]
+			text = "Defeated: %d of %d." % [entry.progress, q.goal_count()]
 		Quest.QuestType.REACH_LOCATION:
-			return "You haven't reached the spot yet."
+			text = "You still haven't made it to the spot. It's up there somewhere!"
 		Quest.QuestType.FETCH_ITEM:
-			return "Bring me the item!" if not entry.item_held else "Hand it over!"
-	return ""
+			text = "Still waiting on that item. Go grab it!" if not entry.item_held else "You have it? Hand it over!"
+	if q.has_time_limit and entry.has("time_left"):
+		text += " You've got %d seconds left." % int(entry.time_left)
+	return text
 
 
 func _update_marker() -> void:
 	if not _marker:
 		return
-	var qm = get_node_or_null("/root/QuestManager")
-	if not qm:
-		return
-	# "!" = quest available, "?" = quest in progress, none = all done
-	var has_active := false
-	for q in quests:
-		if qm.is_quest_active(q.quest_id):
-			has_active = true
-			break
-	if has_active:
-		_marker.text = "?"
-		_marker.modulate = Color(0.6, 0.85, 1.0)
-	elif _next_available_quest(qm):
-		_marker.text = "!"
-		_marker.modulate = Color(1.0, 0.85, 0.2)
-	else:
-		_marker.text = ""
+	match get_state():
+		GiverState.FIRST_OFFER:
+			_marker.text = "!"
+			_marker.modulate = Color(1.0, 0.85, 0.2)
+		GiverState.WAITING:
+			_marker.text = "?"
+			_marker.modulate = Color(0.6, 0.85, 1.0)
+		GiverState.RETRY:
+			_marker.text = "!"
+			_marker.modulate = Color(1.0, 0.45, 0.3)
+		GiverState.DONE:
+			_marker.text = ""
 
 
 # =========================================================================
@@ -271,7 +311,8 @@ func _on_area_entered(body: Node3D) -> void:
 		player_in_range = true
 		current_player = body
 		prompt_label.text = "[E] Talk to " + npc_name
-		prompt_label.visible = true
+		if not DialogueManager.is_dialogue_active():
+			prompt_label.visible = true
 
 
 func _on_area_exited(body: Node3D) -> void:
@@ -279,8 +320,6 @@ func _on_area_exited(body: Node3D) -> void:
 		player_in_range = false
 		current_player = null
 		prompt_label.visible = false
-		if panel_open:
-			_close_panel()
 
 
 func _build_visual() -> void:
@@ -308,7 +347,6 @@ func _build_visual() -> void:
 	head.position.y = 1.9
 	_mesh_root.add_child(head)
 	
-	# Eyes so you can tell which way it faces
 	var eye_mat = StandardMaterial3D.new()
 	eye_mat.albedo_color = Color(0.1, 0.1, 0.15)
 	for ex in [-0.12, 0.12]:
@@ -329,7 +367,6 @@ func _build_visual() -> void:
 	col.position.y = 0.8
 	add_child(col)
 	
-	# Floating quest marker
 	_marker = Label3D.new()
 	_marker.text = "!"
 	_marker.font_size = 140
@@ -339,7 +376,6 @@ func _build_visual() -> void:
 	_marker.modulate = Color(1.0, 0.85, 0.2)
 	add_child(_marker)
 	
-	# Name tag
 	var tag = Label3D.new()
 	tag.text = npc_name
 	tag.font_size = 40
@@ -367,49 +403,3 @@ func _build_ui() -> void:
 	prompt_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	prompt_label.visible = false
 	canvas.add_child(prompt_label)
-	
-	panel = PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.offset_left = -320
-	panel.offset_right = 320
-	panel.offset_top = -160
-	panel.offset_bottom = 160
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.07, 0.07, 0.11, 0.92)
-	style.border_color = Color(1.0, 0.8, 0.3)
-	style.border_width_left = 2
-	style.border_width_right = 2
-	style.border_width_top = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_left = 12
-	style.corner_radius_bottom_right = 12
-	style.content_margin_left = 24
-	style.content_margin_right = 24
-	style.content_margin_top = 16
-	style.content_margin_bottom = 16
-	panel.add_theme_stylebox_override("panel", style)
-	panel.visible = false
-	canvas.add_child(panel)
-	
-	var vbox = VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
-	panel.add_child(vbox)
-	
-	panel_title = Label.new()
-	panel_title.add_theme_font_size_override("font_size", 26)
-	panel_title.add_theme_color_override("font_color", Color(1.0, 0.85, 0.4))
-	vbox.add_child(panel_title)
-	
-	panel_body = Label.new()
-	panel_body.add_theme_font_size_override("font_size", 18)
-	panel_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	panel_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_child(panel_body)
-	
-	panel_hint = Label.new()
-	panel_hint.add_theme_font_size_override("font_size", 16)
-	panel_hint.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
-	panel_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(panel_hint)

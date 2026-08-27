@@ -28,6 +28,12 @@ var input_block_duration: float = 0.2
 signal dialogue_started
 signal dialogue_line_changed(speaker: String, text: String, portrait: String)
 signal dialogue_ended
+## Fired when the player answers a choice line (X = accepted, O = denied).
+signal choice_made(accepted: bool)
+
+## True while the current line is a choice ("choice": true). The dialogue UI
+## switches from "advance on accept" to "X = yes / O = no" handling.
+var awaiting_choice: bool = false
 
 func _ready() -> void:
 	update_scene_name()
@@ -77,6 +83,35 @@ func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null, shou
 	else:
 		print("DialogueManager: No UI registered!")
 
+func start_dialogue_lines(lines: Array, should_pause: bool = true) -> void:
+	"""Start a dialogue from an in-memory array of line dictionaries instead
+	of a JSON file. Same line format ({speaker, text, portrait, next, id,
+	choice}). Used by quest givers and other dynamic speakers."""
+	update_scene_name()
+	current_trigger = null
+	
+	if lines.is_empty():
+		return
+	
+	current_dialogue = lines
+	current_index = 0
+	
+	if dialogue_ui:
+		dialogue_ui.show_dialogue(should_pause)
+		show_current_line()
+		dialogue_started.emit()
+	else:
+		print("DialogueManager: No UI registered!")
+
+func resolve_choice(accepted: bool) -> void:
+	"""The UI calls this when the player answers a choice line with X or O.
+	Emits choice_made, then ends the conversation."""
+	if not awaiting_choice:
+		return
+	awaiting_choice = false
+	choice_made.emit(accepted)
+	end_dialogue()
+
 func load_dialogue(dialogue_name: String) -> Array:
 	# Build path: res://dialogue/SCENE_NAME/dialogue_name.json
 	var file_path = DIALOGUE_BASE_PATH + current_scene_name + "/"
@@ -124,6 +159,7 @@ func show_current_line() -> void:
 	var text = line.get("text", "")
 	var portrait = line.get("portrait", "")
 	var voiced = line.get("voiced", false)
+	awaiting_choice = bool(line.get("choice", false))
 	
 	# Stop any previous voice line, then play this one if it's voiced
 	if voice_player and voice_player.playing:
@@ -199,6 +235,7 @@ func _find_line_by_id(line_id: String) -> int:
 	return -1
 
 func end_dialogue() -> void:
+	awaiting_choice = false
 	if voice_player and voice_player.playing:
 		voice_player.stop()
 	if dialogue_ui:

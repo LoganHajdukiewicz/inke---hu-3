@@ -140,8 +140,14 @@ func perform_attack(_is_heavy: bool):
 	# Enable hitbox detection
 	attack_hitbox.monitoring = true
 	
-	# Wait one physics frame for Area3D to detect overlaps
+	# Wait TWO physics frames for Area3D to detect overlaps: the signal
+	# fires at the START of a physics step, so after one await the overlap
+	# lists may not include newly-monitored areas yet (wall buttons etc.)
 	await player.get_tree().physics_frame
+	await player.get_tree().physics_frame
+	
+	if not is_instance_valid(attack_hitbox):
+		return
 	
 	# Get all overlapping bodies and areas
 	var hit_bodies = attack_hitbox.get_overlapping_bodies()
