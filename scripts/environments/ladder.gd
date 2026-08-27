@@ -1,3 +1,4 @@
+@tool
 extends ClimbableWall
 class_name Ladder
 

@@ -121,15 +121,26 @@ func _physics_process(delta: float):
 
 func _apply_obstacle_avoidance(_delta: float):
 	"""HU-3 flies - when the path ahead is blocked, climb over it and slide
-	along the wall instead of face-planting into it."""
+	along the wall instead of face-planting into it.
+	
+	IMPORTANT: the whisker only probes HORIZONTALLY. Probing along the full
+	velocity meant that diving toward a gear on the ground "detected" the
+	floor as an obstacle and fired the climb boost - HU-3 would shake above
+	the gear forever and could never collect anything below head height.
+	Floors are not obstacles for a descending flyer; walls are."""
 	if velocity.length() < 0.5:
 		return
 	
-	var space_state = get_world_3d().direct_space_state
-	var move_dir = velocity.normalized()
-	var probe_len = maxf(avoid_probe_distance, velocity.length() * 0.25)
+	# Only the horizontal component matters for wall avoidance
+	var flat_vel = Vector3(velocity.x, 0.0, velocity.z)
+	if flat_vel.length() < 0.5:
+		return  # Moving (almost) straight up/down: no walls to avoid
 	
-	# Main whisker: straight along our velocity
+	var space_state = get_world_3d().direct_space_state
+	var move_dir = flat_vel.normalized()
+	var probe_len = maxf(avoid_probe_distance, flat_vel.length() * 0.25)
+	
+	# Main whisker: straight along our horizontal travel
 	var query = PhysicsRayQueryParameters3D.create(global_position, global_position + move_dir * probe_len)
 	query.collision_mask = 1
 	query.exclude = [self]
@@ -137,6 +148,15 @@ func _apply_obstacle_avoidance(_delta: float):
 		query.exclude.append(player)
 	var hit = space_state.intersect_ray(query)
 	if not hit:
+		return
+	
+	# Ignore floor-ish surfaces entirely (ramps read as walkable, not walls)
+	if hit.normal.y > 0.55:
+		return
+	
+	# Never fight a deliberate descent toward a pickup
+	if is_collecting_gear and target_gear and is_instance_valid(target_gear) \
+		and target_gear.global_position.y < global_position.y:
 		return
 	
 	# Something's in the way. Is there clear air above it? (flying robot!)
@@ -435,9 +455,13 @@ func move_to_gear(delta: float):
 		var target_basis = Basis.looking_at(flat_dir.normalized(), Vector3.UP)
 		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 5.0).orthonormalized()
 	
-	# Check if close enough to collect
-	var distance = global_position.distance_to(target_gear.global_position)
-	if distance < 1.5:
+	# Check if close enough to collect. HU-3's body physically can't reach
+	# ground-level gear centers (its collider keeps its center ~0.5m up), so
+	# be generous vertically: close horizontally + within grabbing reach
+	# vertically counts as collected.
+	var to_gear = target_gear.global_position - global_position
+	var flat_dist = Vector2(to_gear.x, to_gear.z).length()
+	if to_gear.length() < 1.5 or (flat_dist < 1.0 and absf(to_gear.y) < 2.0):
 		collect_gear(target_gear)
 
 func collect_gear(gear: Node):

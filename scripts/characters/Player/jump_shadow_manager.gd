@@ -9,8 +9,18 @@ var shadow_base_size: float = 1.2
 var shadow_fade_start: float = 5.0
 # Shadow darkness: 1.0 = fully opaque black at the center. Kept high so the
 # landing marker is reliably visible on any surface/lighting.
-var shadow_opacity: float = 0.95
-var shadow_min_opacity: float = 0.55   # Never fades below this while visible
+# (0.95 -> 0.98: transparency halved again per feedback)
+var shadow_opacity: float = 0.98
+var shadow_min_opacity: float = 0.8    # Never fades below this while visible
+
+# Smoothing: the decal used to snap instantly between raycast hits, which
+# looked jittery on uneven ground. Position/size/alpha now ease toward
+# their targets.
+var position_smooth_speed: float = 25.0
+var size_smooth_speed: float = 12.0
+var _smoothed_size: float = 1.2
+var _smoothed_alpha: float = 0.98
+var _has_valid_pose: bool = false
 
 # Multi-raycast variables for surface detection
 var raycast_count: int = 12
@@ -76,15 +86,11 @@ func create_shadow_texture() -> Texture2D:
 			var pos = Vector2(x, y)
 			var dist = pos.distance_to(center)
 			
-			# Create circular gradient with a dark solid core: the pow(0.6)
-			# curve keeps most of the disc near-full alpha and only feathers
-			# the outer rim, so the shadow reads clearly against the ground
-			var alpha = 1.0 - clamp(dist / max_radius, 0.0, 1.0)
-			alpha = pow(alpha, 0.6)
-			
-			# Apply additional softening at edges
-			if alpha < 0.1:
-				alpha = 0.0
+			# Solid dark core with a silky feathered rim: smoothstep over the
+			# outer 45% of the radius. No hard alpha cutoff (the old < 0.1
+			# clamp created a visible ring at the edge).
+			var t = 1.0 - clamp(dist / max_radius, 0.0, 1.0)
+			var alpha = smoothstep(0.0, 0.45, t)
 			
 			image.set_pixel(x, y, Color(1.0, 1.0, 1.0, alpha))
 	
@@ -112,8 +118,8 @@ func setup_raycasts():
 		player.add_child(raycast)
 		shadow_raycasts.append(raycast)
 
-func _physics_process(_delta):
-	update_jump_shadow()
+func _physics_process(delta):
+	update_jump_shadow(delta)
 
 func set_enabled(enabled: bool):
 	"""Enable or disable the shadow rendering"""
@@ -121,7 +127,7 @@ func set_enabled(enabled: bool):
 	if jump_shadow_decal:
 		jump_shadow_decal.visible = enabled and is_enabled
 
-func update_jump_shadow():
+func update_jump_shadow(delta: float = 1.0 / 60.0):
 	"""Update the decal shadow position and appearance based on raycasts"""
 	if not jump_shadow_decal or not is_enabled:
 		if jump_shadow_decal:
@@ -163,7 +169,7 @@ func update_jump_shadow():
 	if found_ground:
 		# Position decal slightly above surface to avoid z-fighting
 		var shadow_offset = 0.05
-		jump_shadow_decal.global_position = closest_point + closest_normal * shadow_offset
+		var target_pos = closest_point + closest_normal * shadow_offset
 		
 		# Calculate size based on distance
 		var scale_factor = 1.0
@@ -171,18 +177,36 @@ func update_jump_shadow():
 			scale_factor = 1.0
 		else:
 			scale_factor = max(0.3, 1.0 - (closest_distance - 0.2) / 20.0)
-		
-		# Update decal size (maintain aspect ratio)
-		var size_multiplier = scale_factor * shadow_base_size
-		jump_shadow_decal.size = Vector3(size_multiplier, size_multiplier, 1.0)
+		var target_size = scale_factor * shadow_base_size
 		
 		# Calculate alpha based on distance (stays dark - it's a gameplay aid)
-		var alpha = shadow_opacity
+		var target_alpha = shadow_opacity
 		if closest_distance > shadow_fade_start:
-			alpha = max(shadow_min_opacity, shadow_opacity - (closest_distance - shadow_fade_start) / 25.0)
+			target_alpha = max(shadow_min_opacity, shadow_opacity - (closest_distance - shadow_fade_start) / 25.0)
 		
-		# Update decal modulate for alpha
-		jump_shadow_decal.modulate = Color(0, 0, 0, alpha)
+		# SMOOTHING: ease toward the new pose instead of snapping. Horizontal
+		# tracking is snappy (must stay under the player), but height/size/
+		# alpha changes ease in so ledge transitions don't pop.
+		if not _has_valid_pose or not jump_shadow_decal.visible:
+			# First frame after being hidden: snap everything
+			jump_shadow_decal.global_position = target_pos
+			_smoothed_size = target_size
+			_smoothed_alpha = target_alpha
+			_has_valid_pose = true
+		else:
+			var pos_w = clampf(position_smooth_speed * delta, 0.0, 1.0)
+			var cur = jump_shadow_decal.global_position
+			# XZ follows tightly, Y eases (that's where the popping happened)
+			jump_shadow_decal.global_position = Vector3(
+				lerpf(cur.x, target_pos.x, minf(pos_w * 2.0, 1.0)),
+				lerpf(cur.y, target_pos.y, pos_w),
+				lerpf(cur.z, target_pos.z, minf(pos_w * 2.0, 1.0)))
+			var size_w = clampf(size_smooth_speed * delta, 0.0, 1.0)
+			_smoothed_size = lerpf(_smoothed_size, target_size, size_w)
+			_smoothed_alpha = lerpf(_smoothed_alpha, target_alpha, size_w)
+		
+		jump_shadow_decal.size = Vector3(_smoothed_size, _smoothed_size, 1.0)
+		jump_shadow_decal.modulate = Color(0, 0, 0, _smoothed_alpha)
 		
 		# CRITICAL: Orient decal to match surface normal
 		# Decals project along their -Z axis, so we need to align -Z with the surface normal
@@ -204,3 +228,4 @@ func update_jump_shadow():
 		jump_shadow_decal.visible = true
 	else:
 		jump_shadow_decal.visible = false
+		_has_valid_pose = false

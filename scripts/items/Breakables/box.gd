@@ -44,6 +44,15 @@ var just_bounced: bool = false  # Prevent multiple bounces in rapid succession
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
+# Support check: a real box falls off an edge when its center of mass is
+# past the support - i.e. when more than 50% of it hangs over. We sample
+# rays under the base each frame while grounded and shove the box toward
+# the unsupported side when the balance tips.
+var slide_off_speed: float = 2.0        # How fast an overhanging box slides off
+var support_probe_depth: float = 0.35   # How far below the base counts as "supported"
+var _base_half_extents: Vector2 = Vector2(0.5, 0.5)
+var _last_tip_dir: Vector3 = Vector3.ZERO  # Keeps the slide going on the final sliver
+
 func _ready():
 	current_health = max_health
 	game_manager = get_node("/root/GameManager")
@@ -68,17 +77,106 @@ func _ready():
 
 func _physics_process(delta: float):
 	"""Explicit gravity: if nothing is under the box, it falls. Every frame,
-	no sleeping, no exceptions. Boxes settle on floors and on each other."""
+	no sleeping, no exceptions. Boxes settle on floors and on each other.
+	
+	REALISTIC SUPPORT: is_on_floor() is true even when one pixel touches.
+	So while grounded we check how much of the base is actually supported -
+	if the center of mass is past the support (more than half hanging over
+	an edge), the box slides off toward the overhang and falls, like a real
+	object would."""
 	if is_broken:
 		return
 	if is_on_floor():
-		velocity = Vector3.ZERO
+		var tip_dir = _get_tip_direction()
+		if tip_dir != Vector3.ZERO:
+			# Over-balanced: slide off toward the unsupported side
+			velocity.x = tip_dir.x * slide_off_speed
+			velocity.z = tip_dir.z * slide_off_speed
+			velocity.y = -1.0
+		else:
+			velocity = Vector3.ZERO
 	else:
 		velocity.y -= gravity * delta
 		# Light horizontal damping so nudged boxes don't glide forever
 		velocity.x = move_toward(velocity.x, 0.0, 6.0 * delta)
 		velocity.z = move_toward(velocity.z, 0.0, 6.0 * delta)
 	move_and_slide()
+
+func _get_tip_direction() -> Vector3:
+	"""Sample 5 points under the base (center + 4 corners). Returns the
+	horizontal direction to fall in if the box is over-balanced, or ZERO if
+	it's stably supported.
+	
+	Physics rule of thumb: a uniform box on an edge tips exactly when its
+	CENTER is past the support. So: center supported = stable, no matter
+	how little of the rim hangs on. Center unsupported = more than 50% is
+	overhanging -> fall toward the unsupported side."""
+	_refresh_base_extents()
+	var space_state = get_world_3d().direct_space_state
+	var base_y = global_position.y  # Origin is at the collider center; rays start low
+	
+	var hx = _base_half_extents.x * 0.8
+	var hz = _base_half_extents.y * 0.8
+	var offsets := [
+		Vector3.ZERO,
+		Vector3(hx, 0, hz), Vector3(-hx, 0, hz),
+		Vector3(hx, 0, -hz), Vector3(-hx, 0, -hz),
+	]
+	
+	var supported: Array[Vector3] = []
+	var unsupported: Array[Vector3] = []
+	for off in offsets:
+		var from = Vector3(global_position.x + off.x, base_y, global_position.z + off.z)
+		var to = from + Vector3(0, -(_collider_half_height() + support_probe_depth), 0)
+		var query = PhysicsRayQueryParameters3D.create(from, to)
+		query.collision_mask = 1
+		query.exclude = [self]
+		if space_state.intersect_ray(query):
+			supported.append(off)
+		else:
+			unsupported.append(off)
+	
+	# Fully supported: stable, clear any tip memory
+	if unsupported.is_empty():
+		_last_tip_dir = Vector3.ZERO
+		return Vector3.ZERO
+	
+	# All probe rays miss but is_on_floor() is still true: we're balanced on
+	# a sliver thinner than the probe ring. If we were already tipping, keep
+	# sliding the same way until we're truly airborne (otherwise the box
+	# stalls, held up by one pixel - exactly the bug we're fixing).
+	if supported.is_empty():
+		return _last_tip_dir
+	
+	# Center supported = center of mass is over the ledge = stable
+	if Vector3.ZERO in supported:
+		_last_tip_dir = Vector3.ZERO
+		return Vector3.ZERO
+	
+	# Center hanging over: fall away from whatever support remains
+	var support_centroid := Vector3.ZERO
+	for s in supported:
+		support_centroid += s
+	support_centroid /= supported.size()
+	if support_centroid.length() < 0.01:
+		return Vector3.ZERO  # Support is symmetric (e.g. straddling a gap): balanced
+	_last_tip_dir = -support_centroid.normalized()
+	return _last_tip_dir
+
+func _refresh_base_extents():
+	if collision and collision.shape is BoxShape3D:
+		var s = (collision.shape as BoxShape3D).size * collision.scale
+		_base_half_extents = Vector2(s.x * 0.5, s.z * 0.5)
+	elif collision and collision.shape is CylinderShape3D:
+		var r = (collision.shape as CylinderShape3D).radius
+		_base_half_extents = Vector2(r * 0.7, r * 0.7)  # Inscribed square-ish
+
+func _collider_half_height() -> float:
+	if collision and collision.shape is BoxShape3D:
+		return (collision.shape as BoxShape3D).size.y * 0.5 + collision.position.y
+	elif collision and collision.shape is CylinderShape3D:
+		return (collision.shape as CylinderShape3D).height * 0.5 + collision.position.y
+	return 0.5
 
 func setup_bounce_detection():
 	"""

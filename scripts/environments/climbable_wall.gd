@@ -1,9 +1,12 @@
+@tool
 extends StaticBody3D
 class_name ClimbableWall
 
 ## A wall the player can free-climb (up / down / left / right).
 ## Just being in the "ClimbableWall" group is what makes it climbable -
 ## this script only handles sizing and the lattice visual.
+## @tool: the wall builds its mesh + collision in the EDITOR too, so you
+## can see and place it like any other prop. Resize via wall_size.
 
 @export var wall_size: Vector3 = Vector3(8, 6, 0.5):
 	set(value):
