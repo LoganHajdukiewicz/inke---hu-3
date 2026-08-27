@@ -229,10 +229,14 @@ func _teleport_to_player():
 	stuck_time = 0.0
 	los_blocked_time = 0.0
 	reset_collection_state()
-	# Blink feedback
-	scale = Vector3(0.3, 0.3, 0.3)
-	var tween = create_tween()
-	tween.tween_property(self, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# Blink feedback. IMPORTANT: scale the MESH, not the body - tweening the
+	# body's scale bakes scale into its Basis, and Basis.slerp() then throws
+	# "must be normalized to be casted to a Quaternion" every frame.
+	var mesh_node = get_node_or_null("Mesh")
+	if mesh_node:
+		mesh_node.scale = Vector3(0.3, 0.3, 0.3)
+		var tween = create_tween()
+		tween.tween_property(mesh_node, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 func follow_player_smooth(delta: float):
 	"""
@@ -341,7 +345,9 @@ func follow_player_smooth(delta: float):
 		var up_dot = abs(look_direction.dot(Vector3.UP))
 		if up_dot < 0.98:  # Only rotate if not too vertical (98% aligned with up)
 			var target_basis = Basis.looking_at(look_direction, Vector3.UP)
-			global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
+			# orthonormalized() on BOTH sides: any residual scale/drift in the
+			# basis makes slerp -> Quaternion casting error-spam
+			global_transform.basis = global_transform.basis.orthonormalized().slerp(target_basis, delta * 4.0).orthonormalized()
 
 func _is_player_wall_attached() -> bool:
 	"""True while the player is glued to geometry (ledge hang / wall climb):
@@ -388,7 +394,7 @@ func _steer_toward(target_pos: Vector3, delta: float) -> void:
 	to_player.y = 0
 	if to_player.length() > 0.5:
 		var target_basis = Basis.looking_at(to_player.normalized(), Vector3.UP)
-		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 4.0)
+		global_transform.basis = global_transform.basis.orthonormalized().slerp(target_basis, delta * 4.0).orthonormalized()
 
 func is_player_rail_grinding() -> bool:
 	"""Check if the player is currently rail grinding"""
@@ -453,7 +459,7 @@ func move_to_gear(delta: float):
 	var flat_dir = Vector3(direction.x, 0.0, direction.z)
 	if flat_dir.length() > 0.15:
 		var target_basis = Basis.looking_at(flat_dir.normalized(), Vector3.UP)
-		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 5.0).orthonormalized()
+		global_transform.basis = global_transform.basis.orthonormalized().slerp(target_basis, delta * 5.0).orthonormalized()
 	
 	# Check if close enough to collect. HU-3's body physically can't reach
 	# ground-level gear centers (its collider keeps its center ~0.5m up), so

@@ -14,7 +14,8 @@ enum FloorType {
 	MOVING, 
 	DAMAGE, # non-lethal damaging floors, i.e. lava, electric
 	FROZEN,
-	SLIDING  # Forces player into sliding state, sliding down the slope
+	SLIDING,  # Forces player into sliding state, sliding down the slope
+	TREADMILL  # Conveyor belt: pushes the player, the ground itself stays put
 }
 
 enum FloorShape {
@@ -89,6 +90,14 @@ enum SpinDirection {
 @export var damage_interval: float = 0.5  # Time between damage ticks
 @export var damage_knockback_force: float = 15.0  # Horizontal knockback strength
 @export var damage_knockback_upward: float = 8.0  # Upward knockback strength
+
+@export_group("Treadmill Floor Settings")
+## Belt speed in m/s. The ground never moves - only things standing on it.
+@export var treadmill_speed: float = 15.0
+## Belt direction in the floor's LOCAL space (rotate the floor to aim it).
+@export var treadmill_direction: Vector3 = Vector3(1, 0, 0)
+## Scroll the belt texture so the direction reads at a glance.
+@export var treadmill_visual_scroll: bool = true
 
 @export_group("Momentum Settings")
 @export var momentum_transfer_strength: float = 0.6 : set = _set_momentum_transfer_strength
@@ -281,6 +290,8 @@ func _update_editor_preview():
 			base_color = Color(0.6, 0.9, 1.0, 0.8)
 		FloorType.SLIDING:
 			base_color = Color(0.9, 0.9, 0.3, 0.8)  # Yellow for sliding floors
+		FloorType.TREADMILL:
+			base_color = Color(0.25, 0.25, 0.3, 0.8)  # Dark belt grey
 		_:
 			base_color = Color(0.5, 0.5, 0.5, 0.8)
 	
@@ -410,6 +421,8 @@ func _create_handler(t: FloorType) -> FloorTypeHandler:
 			return DamageFloor.new(self)
 		FloorType.SLIDING:
 			return SlidingFloor.new(self)
+		FloorType.TREADMILL:
+			return TreadmillFloor.new(self)
 	return null
 
 func has_floor_type(t: FloorType) -> bool:
