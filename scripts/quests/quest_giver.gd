@@ -15,6 +15,9 @@ extends CharacterBody3D
 @export var body_color: Color = Color(0.95, 0.75, 0.2)
 
 @export_group("Dialogue Lines")
+## Spoken one message at a time before the quest offer - each press of E
+## points to the next message; after the last one the quest offer shows.
+@export_multiline var intro_dialogue: Array[String] = []
 @export_multiline var greeting: String = "Hey! I've got work if you want it."
 @export_multiline var reminder: String = "How's that job coming along?"
 @export_multiline var thanks: String = "That's everything I had. Thanks!"
@@ -24,6 +27,8 @@ var current_player: CharacterBody3D = null
 var panel_open: bool = false
 var offered_quest: Quest = null
 var _input_cooldown: float = 0.0
+var _dialogue_queue: Array[String] = []   # intro messages still to show
+var _after_dialogue: Callable = Callable() # what to do when the chat ends
 
 # UI
 var canvas: CanvasLayer
@@ -130,16 +135,16 @@ func _interact() -> void:
 			offered_quest = null
 			return
 	
-	# 3. Offer the next available quest
+	# 3. Offer the next available quest - after the intro conversation,
+	# where each message points to the next (or straight to the offer)
 	var next_quest = _next_available_quest(qm)
 	if next_quest:
-		offered_quest = next_quest
-		var body_text = greeting + "\n\n[b]%s[/b]\n%s" % [next_quest.title, next_quest.description]
-		body_text = body_text.replace("[b]", "").replace("[/b]", "")  # plain label
-		body_text += "\n\nReward: %d CRED" % next_quest.cred_reward
-		if next_quest.has_time_limit:
-			body_text += "   |   Time limit: %ds" % int(next_quest.time_limit_seconds)
-		_open_panel(npc_name, body_text, "[E] Accept       [Esc] Not now")
+		if not intro_dialogue.is_empty():
+			_dialogue_queue = intro_dialogue.duplicate()
+			_after_dialogue = _offer_quest.bind(next_quest)
+			_show_next_dialogue_message()
+		else:
+			_offer_quest(next_quest)
 		return
 	
 	# 4. Nothing left
@@ -147,8 +152,37 @@ func _interact() -> void:
 	offered_quest = null
 
 
+func _show_next_dialogue_message() -> void:
+	"""Pop the next message off the conversation queue and show it.
+	Each message 'points to' the next; the last one hands off to
+	_after_dialogue (usually the quest offer)."""
+	_input_cooldown = 0.25
+	var msg = _dialogue_queue.pop_front()
+	var hint = "[E] Next" if not _dialogue_queue.is_empty() or _after_dialogue.is_valid() else "[E] Close"
+	_open_panel(npc_name, msg, hint)
+
+
+func _offer_quest(next_quest: Quest) -> void:
+	offered_quest = next_quest
+	var body_text = greeting + "\n\n%s\n%s" % [next_quest.title, next_quest.description]
+	body_text += "\n\nReward: %d CRED" % next_quest.cred_reward
+	if next_quest.has_time_limit:
+		body_text += "   |   Time limit: %ds" % int(next_quest.time_limit_seconds)
+	_open_panel(npc_name, body_text, "[E] Accept       [Esc] Not now")
+
+
 func _confirm_panel() -> void:
 	_input_cooldown = 0.25
+	# Mid-conversation: this message points to the next one
+	if not _dialogue_queue.is_empty():
+		_show_next_dialogue_message()
+		return
+	# Conversation over: run whatever it was leading to (quest offer etc.)
+	if _after_dialogue.is_valid():
+		var follow_up = _after_dialogue
+		_after_dialogue = Callable()
+		follow_up.call()
+		return
 	if offered_quest:
 		var qm = get_node_or_null("/root/QuestManager")
 		if qm:
@@ -161,6 +195,8 @@ func _close_panel() -> void:
 	panel_open = false
 	panel.visible = false
 	offered_quest = null
+	_dialogue_queue.clear()
+	_after_dialogue = Callable()
 	_input_cooldown = 0.25
 	if player_in_range:
 		prompt_label.visible = true

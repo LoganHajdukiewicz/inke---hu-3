@@ -23,6 +23,9 @@
 [ext_resource type="PackedScene" uid="uid://questitem0001" path="res://scenes/quests/quest_item.tscn" id="21_item"]
 [ext_resource type="Script" path="res://scripts/quests/quest.gd" id="22_quest"]
 [ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="23_enemy"]
+[ext_resource type="PackedScene" uid="uid://pressbtn00001" path="res://scenes/environments/pressable_button.tscn" id="24_btn"]
+[ext_resource type="PackedScene" uid="uid://enemyspawn001" path="res://scenes/environments/enemy_spawner.tscn" id="25_spawn"]
+[ext_resource type="PackedScene" uid="uid://lasrenemy0001" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="26_laser"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -106,6 +109,7 @@ target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [node name="Inke" parent="." unique_id=1291768979 instance=ExtResource("2_84upl")]
 debug_double_jump = true
+debug_wall_jump = true
 debug_dash = true
 debug_speed_upgrade = true
 debug_health_upgrade = true
@@ -506,6 +510,7 @@ outline_size = 14
 [node name="QuestGiver" parent="QuestHub" instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
 npc_name = "Gizmo"
+intro_dialogue = Array[String](["Oh! A visitor. Don't get many of those out here in the grey.", "Name's Gizmo. I fix things. Or I would, if my stuff wasn't scattered all over this place.", "Tell you what - help me out and I'll make it worth your CRED."])
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears"), SubResource("Quest_defeat"), SubResource("Quest_reach"), SubResource("Quest_fetch")])
 
 [node name="SummitFlag" parent="QuestHub" instance=ExtResource("20_flag")]
@@ -533,5 +538,76 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 7.5, -20)
 pixel_size = 0.012
 billboard = 1
 text = "LOCATION FLAG (stand here for The Summit quest)"
+font_size = 36
+outline_size = 14
+
+[node name="ButtonArena" type="Node3D" parent="."]
+
+[node name="MeleeSpawner" parent="ButtonArena" instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 45)
+enemy_scene = ExtResource("23_enemy")
+enemy_label = "MELEE INKLING SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_melee"
+
+[node name="LaserSpawner" parent="ButtonArena" instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 45)
+enemy_scene = ExtResource("26_laser")
+enemy_label = "LASER INKLING SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_laser"
+
+[node name="GroundButton" parent="ButtonArena" instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 54)
+mount_mode = 0
+label_text = "JUMP ON ME:\nSPAWNS MELEE INKLING"
+spawner_path = NodePath("../MeleeSpawner")
+
+[node name="ButtonWall" parent="ButtonArena" instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 56)
+floor_size = Vector3(4, 4, 1)
+
+[node name="WallButton" parent="ButtonArena" instance=ExtResource("24_btn")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 70, 2.1, 55.4)
+mount_mode = 1
+button_color = Color(0.2, 0.5, 1, 1)
+label_text = "PUNCH ME:\nSPAWNS LASER INKLING"
+spawner_path = NodePath("../LaserSpawner")
+
+[node name="ButtonArenaLabel" type="Label3D" parent="ButtonArena"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 6.5, 50)
+pixel_size = 0.012
+billboard = 1
+text = "BUTTON ARENA - press a button,\nits labeled spawner opens and the enemy comes out"
+font_size = 36
+outline_size = 14
+
+[node name="WallJumpTower" type="Node3D" parent="."]
+
+[node name="TowerWallA" parent="WallJumpTower" instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 15, -20)
+floor_size = Vector3(1, 30, 10)
+
+[node name="TowerWallB" parent="WallJumpTower" instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45, 15, -20)
+floor_size = Vector3(1, 30, 10)
+
+[node name="TowerTopPlatform" parent="WallJumpTower" instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 29.75, -20)
+floor_size = Vector3(9, 0.5, 10)
+
+[node name="TowerSummitFlag" parent="WallJumpTower" instance=ExtResource("20_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 30, -20)
+flag_id = "gb_walljump_tower_top"
+shape = 0
+size = Vector3(9, 4, 10)
+visible_in_game = true
+discovery_text = "TOWER CONQUERED - 30 UNITS UP!"
+
+[node name="TowerLabel" type="Label3D" parent="WallJumpTower"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.5, 5, -13.5)
+pixel_size = 0.012
+billboard = 1
+text = "WALL JUMP TOWER - bounce between\nthe two walls, 30 units to the top"
 font_size = 36
 outline_size = 14

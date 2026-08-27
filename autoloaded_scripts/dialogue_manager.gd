@@ -166,12 +166,37 @@ static func voice_file_name_for(text: String) -> String:
 	return "-".join(first_five)
 
 func next_line() -> void:
+	# Optional branching: a line may carry "next": "<id>" pointing at another
+	# line's "id", or "next": "end" to stop the conversation right there.
+	# Without "next", flow falls through to the following line in the array
+	# (the default, fully backward-compatible behavior).
+	if current_index < current_dialogue.size():
+		var line = current_dialogue[current_index]
+		var jump = str(line.get("next", ""))
+		if jump == "end":
+			end_dialogue()
+			return
+		elif jump != "":
+			var idx = _find_line_by_id(jump)
+			if idx >= 0:
+				current_index = idx
+				show_current_line()
+				return
+			push_warning("DialogueManager: 'next' id not found: " + jump)
+	
 	current_index += 1
 	
 	if current_index >= current_dialogue.size():
 		end_dialogue()
 	else:
 		show_current_line()
+
+func _find_line_by_id(line_id: String) -> int:
+	"""Index of the dialogue line whose \"id\" matches, or -1."""
+	for i in range(current_dialogue.size()):
+		if str(current_dialogue[i].get("id", "")) == line_id:
+			return i
+	return -1
 
 func end_dialogue() -> void:
 	if voice_player and voice_player.playing:
