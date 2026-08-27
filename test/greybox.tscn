@@ -8,11 +8,11 @@
 [ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="6_wall"]
 [ext_resource type="PackedScene" uid="uid://cladderwall01" path="res://scenes/environments/ladder.tscn" id="7_ladder"]
 [ext_resource type="PackedScene" uid="uid://balbeam000001" path="res://scenes/environments/balance_beam.tscn" id="8_beam"]
-[ext_resource type="PackedScene" uid="uid://slampatch0001" path="res://scenes/environments/slam_patch.tscn" id="9_patch"]
-[ext_resource type="PackedScene" uid="uid://swingrope0001" path="res://scenes/items/rope.tscn" id="10_rope"]
-[ext_resource type="PackedScene" uid="uid://healpatch0001" path="res://scenes/environments/heal_patch.tscn" id="11_heal"]
+[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/slam_patch.tscn" id="9_patch"]
+[ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/items/rope.tscn" id="10_rope"]
+[ext_resource type="PackedScene" uid="uid://diup37v2ws5aa" path="res://scenes/environments/heal_patch.tscn" id="11_heal"]
 [ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="12_box"]
-[ext_resource type="PackedScene" uid="uid://explbarrel001" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="13_barrel"]
+[ext_resource type="PackedScene" uid="uid://3bpo7uite5aa" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="13_barrel"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="14_gear"]
 [ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="15_cred"]
 [ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/ink_wisp.tscn" id="16_wisp"]
@@ -32,7 +32,7 @@ sky = SubResource("Sky_sdd4f")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Curve3D" id="Curve3D_ba0e1"]
+[sub_resource type="Curve3D" id="Curve3D_t08ho"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 108.91814, 13.674346, -0.07700789, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
@@ -40,259 +40,288 @@ _data = {
 }
 point_count = 3
 
-[node name="Greybox" type="Node3D"]
+[node name="Greybox" type="Node3D" unique_id=2063258851]
 
-[node name="Inke" parent="." instance=ExtResource("2_84upl")]
+[node name="Inke" parent="." unique_id=1291768979 instance=ExtResource("2_84upl")]
 debug_double_jump = true
 debug_dash = true
 debug_speed_upgrade = true
 debug_health_upgrade = true
 debug_damage_upgrade = true
 
-[node name="DebugOverlay" type="CanvasLayer" parent="."]
+[node name="DebugOverlay" type="CanvasLayer" parent="." unique_id=1004073196]
 script = ExtResource("3_sdd4f")
 
-[node name="Environment" type="Node" parent="."]
+[node name="Environment" type="Node" parent="." unique_id=693738588]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment" unique_id=949679333]
 environment = SubResource("Environment_k7grp")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment" unique_id=1533371288]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
 shadow_enabled = true
-directional_shadow_max_distance = 100.0
 
-[node name="Ground" parent="." instance=ExtResource("1_v8rb7")]
+[node name="Ground" parent="." unique_id=617684107 instance=ExtResource("1_v8rb7")]
 texture_scale = Vector2(150, 150)
 floor_size = Vector3(1000, 0.5, 1000)
 
-[node name="Floors" type="Node3D" parent="."]
+[node name="Floors" type="Node3D" parent="." unique_id=984809972]
 
-[node name="NormalFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="NormalFloor" parent="Floors" unique_id=588136910 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, -25)
 floor_size = Vector3(20, 0.5, 20)
 
-[node name="FrozenFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="FrozenFloor" parent="Floors" unique_id=2042185687 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 0)
 floor_type = 6
 floor_size = Vector3(20, 0.5, 20)
 
-[node name="DamageFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="DamageFloor" parent="Floors" unique_id=377293843 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 25)
 floor_type = 5
 floor_size = Vector3(20, 0.5, 20)
 
-[node name="SpringFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="SpringFloor" parent="Floors" unique_id=569971683 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 50)
 floor_type = 1
 floor_size = Vector3(20, 0.5, 20)
 spring_force = 10.0
 
-[node name="SpinningFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 100)
+[node name="SpinningFloor" parent="Floors" unique_id=6880203 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.9965887, 0.2, 50.259758)
 floor_type = 3
 floor_size = Vector3(20, 0.5, 20)
 
-[node name="MovingFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 125)
+[node name="MovingFloor" parent="Floors" unique_id=564484351 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 100.14464)
 floor_type = 4
 floor_size = Vector3(20, 0.5, 20)
-movement_axis = Vector3(0, 0, 25)
+movement_axis = Vector3(20, 0, 0)
 
-[node name="FallingFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 160)
+[node name="FallingFloor" parent="Floors" unique_id=1301004131 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.8017764, 5.448037, 74.34833)
 floor_type = 2
 floor_size = Vector3(20, 0.5, 20)
 
-[node name="TreadmillFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0.2, 185)
+[node name="TreadmillFloor" parent="Floors" unique_id=1783765729 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.816811, 0.2, 25.102316)
 floor_type = 8
-floor_size = Vector3(20, 0.5, 20)
-treadmill_speed = 15.0
+floor_size = Vector3(5, 0.5, 20)
+treadmill_speed = 10.0
 treadmill_direction = Vector3(0, 0, 1)
 
-[node name="SlidingFloor" parent="Floors" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(0.9396926, 0.11697776, 0.32139376, 0, 0.93969256, -0.3420201, -0.34202012, 0.32139376, 0.8830221, -30, -1.5499973, 75)
+[node name="TreadmillFloor2" parent="Floors" unique_id=1748452824 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.258219, 0.2, 25.102316)
+floor_type = 8
+floor_size = Vector3(5, 0.5, 20)
+treadmill_direction = Vector3(0, 0, 1)
+
+[node name="TreadmillFloor3" parent="Floors" unique_id=623663852 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9417243, 0.2, 25.102316)
+floor_type = 8
+floor_size = Vector3(5, 0.5, 20)
+treadmill_speed = 20.0
+treadmill_direction = Vector3(0, 0, 1)
+
+[node name="SlidingFloor" parent="Floors" unique_id=1933812413 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(0.9396926, 0.11697776, 0.32139376, 0, 0.93969256, -0.3420201, -0.34202012, 0.32139376, 0.8830221, -30, 0.20740128, 75)
 floor_type = 7
 floor_size = Vector3(20, 0.5, 20)
 
-[node name="Ramp45" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="Ramp45" parent="Floors" unique_id=1856371330 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 0.70710677, -0.70710677, 0, 0.70710677, 0.70710677, 0, -2.5, -20)
 floor_size = Vector3(10, 10, 10)
 
-[node name="TallBlock" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="TallBlock" parent="Floors" unique_id=1782540713 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -20)
 floor_size = Vector3(10, 10, 10)
 
-[node name="TiltedBlock" parent="Floors" instance=ExtResource("1_v8rb7")]
+[node name="TiltedBlock" parent="Floors" unique_id=409098172 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(-1, 2.9900345e-08, -8.215053e-08, 0, 0.93969256, 0.3420201, 8.742278e-08, 0.3420201, -0.93969256, 20, -3, -20)
 floor_size = Vector3(10, 10, 10)
 
-[node name="Gym" type="Node3D" parent="."]
+[node name="Gym" type="Node3D" parent="." unique_id=512516654]
 
-[node name="ClimbWall" parent="Gym" instance=ExtResource("6_wall")]
+[node name="ClimbWall" parent="Gym" unique_id=22532542 instance=ExtResource("6_wall")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 10)
 
-[node name="ClimbTopPlatform" parent="Gym" instance=ExtResource("1_v8rb7")]
+[node name="ClimbTopPlatform" parent="Gym" unique_id=954092001 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 5.7, 14.5)
 floor_size = Vector3(8, 0.5, 8)
 
-[node name="Ladder" parent="Gym" instance=ExtResource("7_ladder")]
+[node name="Ladder" parent="Gym" unique_id=1797152046 instance=ExtResource("7_ladder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, 3, 10)
 
-[node name="BeamStart" parent="Gym" instance=ExtResource("1_v8rb7")]
+[node name="BeamStart" parent="Gym" unique_id=148501356 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1.5, 0)
 floor_size = Vector3(4, 0.5, 4)
 
-[node name="BalanceBeam" parent="Gym" instance=ExtResource("8_beam")]
+[node name="BalanceBeam" parent="Gym" unique_id=925944640 instance=ExtResource("8_beam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2, -7)
 beam_length = 12.0
 
-[node name="BeamEnd" parent="Gym" instance=ExtResource("1_v8rb7")]
+[node name="BeamEnd" parent="Gym" unique_id=1079249600 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1.5, -14)
 floor_size = Vector3(4, 0.5, 4)
 
-[node name="Rope1" parent="Gym" instance=ExtResource("10_rope")]
+[node name="Rope1" parent="Gym" unique_id=2115806422 instance=ExtResource("10_rope")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 9, 30)
 
-[node name="Rope2" parent="Gym" instance=ExtResource("10_rope")]
+[node name="Rope2" parent="Gym" unique_id=1214945211 instance=ExtResource("10_rope")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 9, 30)
 
-[node name="SlamPatch" parent="Gym" instance=ExtResource("9_patch")]
+[node name="SlamPatch" parent="Gym" unique_id=849260139 instance=ExtResource("9_patch")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0.25, 20)
 
-[node name="GrapplePoint" parent="Gym" instance=ExtResource("5_ba0e1")]
+[node name="GrapplePoint" parent="Gym" unique_id=1185890579 instance=ExtResource("5_ba0e1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
 
-[node name="Rail" parent="Gym" instance=ExtResource("2_k7grp")]
+[node name="Rail" parent="Gym" unique_id=60611775 instance=ExtResource("2_k7grp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 2.6968927, -0.23347282)
-curve = SubResource("Curve3D_ba0e1")
+curve = SubResource("Curve3D_t08ho")
 
-[node name="Items" type="Node3D" parent="."]
+[node name="Items" type="Node3D" parent="." unique_id=325595334]
 
-[node name="HealPatch" parent="Items" instance=ExtResource("11_heal")]
+[node name="HealPatch" parent="Items" unique_id=591988934 instance=ExtResource("11_heal")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.25, 50)
 
-[node name="BoxA" parent="Items" instance=ExtResource("12_box")]
+[node name="BoxA" parent="Items" unique_id=469889661 instance=ExtResource("12_box")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0.8, 50)
 
-[node name="BoxB" parent="Items" instance=ExtResource("12_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 1.85, 50)
+[node name="BoxB" parent="Items" unique_id=2085031882 instance=ExtResource("12_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.835, 0.8, 50)
 
-[node name="BoxC" parent="Items" instance=ExtResource("12_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 2.9, 50)
+[node name="BoxC" parent="Items" unique_id=1819001631 instance=ExtResource("12_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.977955, 2.8067837, 50)
 
-[node name="Barrel1" parent="Items" instance=ExtResource("13_barrel")]
+[node name="Barrel1" parent="Items" unique_id=2010980807 instance=ExtResource("13_barrel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.8, 50)
 
-[node name="Barrel2" parent="Items" instance=ExtResource("13_barrel")]
+[node name="Barrel2" parent="Items" unique_id=1693547547 instance=ExtResource("13_barrel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0.8, 51)
 
-[node name="Barrel3" parent="Items" instance=ExtResource("13_barrel")]
+[node name="Barrel3" parent="Items" unique_id=995766090 instance=ExtResource("13_barrel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 44, 0.8, 50)
 
-[node name="Gear1" parent="Items" instance=ExtResource("14_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.0, 1.0, 62)
+[node name="Gear1" parent="Items" unique_id=1505513292 instance=ExtResource("14_gear")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1, 62)
 
-[node name="Gear2" parent="Items" instance=ExtResource("14_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.5, 1.0, 62)
+[node name="Gear2" parent="Items" unique_id=797817533 instance=ExtResource("14_gear")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.5, 1, 62)
 
-[node name="Gear3" parent="Items" instance=ExtResource("14_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.0, 1.0, 62)
+[node name="Gear3" parent="Items" unique_id=61726215 instance=ExtResource("14_gear")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 1, 62)
 
-[node name="Gear4" parent="Items" instance=ExtResource("14_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 1.0, 62)
+[node name="Gear4" parent="Items" unique_id=472237660 instance=ExtResource("14_gear")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 1, 62)
 
-[node name="Gear5" parent="Items" instance=ExtResource("14_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.0, 1.0, 62)
+[node name="Gear5" parent="Items" unique_id=879326307 instance=ExtResource("14_gear")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 1, 62)
 
-[node name="Cred" parent="Items" instance=ExtResource("15_cred")]
+[node name="Cred" parent="Items" unique_id=1258079356 instance=ExtResource("15_cred")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 1.2, 62)
 
-[node name="InkWisp" parent="Items" instance=ExtResource("16_wisp")]
+[node name="InkWisp" parent="Items" unique_id=958525160 instance=ExtResource("16_wisp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 1.5, 62)
 
-[node name="PaintDroplet" parent="Items" instance=ExtResource("17_paint")]
+[node name="PaintDroplet" parent="Items" unique_id=1111067523 instance=ExtResource("17_paint")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 1.2, 62)
 
-[node name="Checkpoint" parent="Items" instance=ExtResource("18_check")]
+[node name="Checkpoint" parent="Items" unique_id=1027541976 instance=ExtResource("18_check")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0.25, 62)
 
-[node name="Labels" type="Node3D" parent="."]
+[node name="Labels" type="Node3D" parent="." unique_id=616622563]
 
-[node name="NormalFloorLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, -25)
-pixel_size = 0.012
-billboard = 1
-text = "NORMAL FLOOR"
-font_size = 36
-outline_size = 14
-
-[node name="FrozenFloorLabel" type="Label3D" parent="Labels"]
+[node name="FrozenFloorLabel" type="Label3D" parent="Labels" unique_id=1709674770]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 0)
 pixel_size = 0.012
 billboard = 1
-text = "FROZEN FLOOR (ice - slippery)"
+text = "FROZEN/ICE FLOOR "
 font_size = 36
 outline_size = 14
 
-[node name="DamageFloorLabel" type="Label3D" parent="Labels"]
+[node name="DamageFloorLabel" type="Label3D" parent="Labels" unique_id=1260819775]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 25)
 pixel_size = 0.012
 billboard = 1
-text = "DAMAGE FLOOR (lava - hurts!)"
+text = "DAMAGE/LAVA FLOOR"
 font_size = 36
 outline_size = 14
 
-[node name="SpringFloorLabel" type="Label3D" parent="Labels"]
+[node name="SpringFloorLabel" type="Label3D" parent="Labels" unique_id=142349174]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 50)
 pixel_size = 0.012
 billboard = 1
-text = "SPRING FLOOR (bounces you)"
+text = "SPRING FLOOR"
 font_size = 36
 outline_size = 14
 
-[node name="SpinningFloorLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 100)
+[node name="SpinningFloorLabel" type="Label3D" parent="Labels" unique_id=595767968]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.7369156, 4.5, 52.82544)
 pixel_size = 0.012
 billboard = 1
 text = "SPINNING FLOOR"
 font_size = 36
 outline_size = 14
 
-[node name="MovingFloorLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 125)
+[node name="MovingFloorLabel" type="Label3D" parent="Labels" unique_id=379719516]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 103.64363)
 pixel_size = 0.012
 billboard = 1
-text = "MOVING FLOOR (rides back + forth)"
+text = "MOVING FLOOR"
 font_size = 36
 outline_size = 14
 
-[node name="FallingFloorLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 160)
+[node name="FallingFloorLabel" type="Label3D" parent="Labels" unique_id=1433358033]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.3001518, 8.288081, 76.61196)
 pixel_size = 0.012
 billboard = 1
-text = "FALLING FLOOR (crumbles when stepped on)"
+text = "FALLING FLOOR "
 font_size = 36
 outline_size = 14
 
-[node name="TreadmillFloorLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 185)
+[node name="TreadmillFloorLabel" type="Label3D" parent="Labels" unique_id=933797931]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.925439, 1.9676313, 18.666977)
 pixel_size = 0.012
 billboard = 1
-text = "TREADMILL (pushes you +Z at speed 15)"
+text = "10mph
+"
 font_size = 36
 outline_size = 14
 
-[node name="SlidingFloorLabel" type="Label3D" parent="Labels"]
+[node name="TreadmillFloorLabel2" type="Label3D" parent="Labels" unique_id=155503638]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.4855814, 1.9676313, 18.666977)
+pixel_size = 0.012
+billboard = 1
+text = "15mph"
+font_size = 36
+outline_size = 14
+
+[node name="TreadmillFloorLabel3" type="Label3D" parent="Labels" unique_id=1265287343]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07999897, 1.9676313, 18.666977)
+pixel_size = 0.012
+billboard = 1
+text = "20mph"
+font_size = 36
+outline_size = 14
+
+[node name="TreadmillFloorLabel4" type="Label3D" parent="Labels" unique_id=1194823861]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.38984, 4.8235216, 18.666977)
+pixel_size = 0.012
+billboard = 1
+text = "TREADMILL FLOOR"
+font_size = 36
+outline_size = 14
+
+[node name="SlidingFloorLabel" type="Label3D" parent="Labels" unique_id=129610252]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 4.5, 75)
 pixel_size = 0.012
 billboard = 1
-text = "SLIDING FLOOR (forces a slide downhill)"
+text = "SLIDING FLOOR "
 font_size = 36
 outline_size = 14
 
-[node name="Ramp45Label" type="Label3D" parent="Labels"]
+[node name="Ramp45Label" type="Label3D" parent="Labels" unique_id=1787879693]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.5, -20)
 pixel_size = 0.012
 billboard = 1
@@ -300,15 +329,15 @@ text = "45-DEGREE RAMP"
 font_size = 36
 outline_size = 14
 
-[node name="TallBlockLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 8.0, -20)
+[node name="TallBlockLabel" type="Label3D" parent="Labels" unique_id=2078113272]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 8, -20)
 pixel_size = 0.012
 billboard = 1
-text = "TALL BLOCK (wall jump / ledge grab)"
+text = "LEDGE GRAB BLOCK"
 font_size = 36
 outline_size = 14
 
-[node name="TiltedBlockLabel" type="Label3D" parent="Labels"]
+[node name="TiltedBlockLabel" type="Label3D" parent="Labels" unique_id=2103140702]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 5.5, -20)
 pixel_size = 0.012
 billboard = 1
@@ -316,130 +345,96 @@ text = "TILTED BLOCK"
 font_size = 36
 outline_size = 14
 
-[node name="ClimbWallLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 8.0, 10)
+[node name="ClimbWallLabel" type="Label3D" parent="Labels" unique_id=187540587]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 8, 10)
 pixel_size = 0.012
 billboard = 1
-text = "CLIMBABLE WALL (jump on: WASD to climb,\nSpace = leap off, press down at bottom = let go)"
+text = "CLIMBABLE WALL"
 font_size = 36
 outline_size = 14
 
-[node name="LadderLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, 7.2, 10)
-pixel_size = 0.012
-billboard = 1
-text = "LADDER (up / down only)"
-font_size = 36
-outline_size = 14
-
-[node name="BeamLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 5.0, -7)
-pixel_size = 0.012
-billboard = 1
-text = "BALANCE BEAM (walk it - don't wobble off!)"
-font_size = 36
-outline_size = 14
-
-[node name="RopeLabel" type="Label3D" parent="Labels"]
+[node name="RopeLabel" type="Label3D" parent="Labels" unique_id=1687066961]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 11.5, 30)
 pixel_size = 0.012
 billboard = 1
-text = "ROPES (jump + grab: WASD swings,\nTriangle/X-key climbs, crouch slides down, Space launches)"
-font_size = 32
+text = "ROPES"
 outline_size = 14
 
-[node name="SlamPatchLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 3.0, 20)
+[node name="SlamPatchLabel" type="Label3D" parent="Labels" unique_id=1270389466]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 3, 20)
 pixel_size = 0.012
 billboard = 1
-text = "SLAM PATCH (ground pound it: jump + crouch)"
+text = "GROUND POUND PATCH"
 font_size = 36
 outline_size = 14
 
-[node name="GrappleLabel" type="Label3D" parent="Labels"]
+[node name="GrappleLabel" type="Label3D" parent="Labels" unique_id=1277008129]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 21.5, -35)
 pixel_size = 0.012
 billboard = 1
-text = "GRAPPLE POINT (yo-yo up here!)"
+text = "GRAPPLE POINT"
 font_size = 36
 outline_size = 14
 
-[node name="RailLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3, 6.0, 0)
+[node name="RailLabel" type="Label3D" parent="Labels" unique_id=238377841]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.3, 6, 0)
 pixel_size = 0.012
 billboard = 1
-text = "GRIND RAIL (jump onto it)"
+text = "GRIND RAIL"
 font_size = 36
 outline_size = 14
 
-[node name="HealPatchLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 3.0, 50)
+[node name="HealPatchLabel" type="Label3D" parent="Labels" unique_id=1707252130]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 3, 50)
 pixel_size = 0.012
 billboard = 1
-text = "HEAL PATCH (instantly refills health + paint)"
+text = "HEAL PATCH"
 font_size = 36
 outline_size = 14
 
-[node name="BoxLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 5.0, 50)
+[node name="BoxLabel" type="Label3D" parent="Labels" unique_id=1560133746]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 5, 50)
 pixel_size = 0.012
 billboard = 1
-text = "BREAKABLE BOXES (attack or stomp -\nbreak the bottom one, the rest fall!)"
-font_size = 32
+text = "BREAKABLE BOXES"
 outline_size = 14
 
-[node name="BarrelLabel" type="Label3D" parent="Labels"]
+[node name="BarrelLabel" type="Label3D" parent="Labels" unique_id=528844722]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 3.5, 50)
 pixel_size = 0.012
 billboard = 1
-text = "EXPLOSIVE BARRELS (one hit = chain BOOM)"
+text = "EXPLOSIVE BARRELS "
 font_size = 36
 outline_size = 14
 
-[node name="GearLabel" type="Label3D" parent="Labels"]
+[node name="GearLabel" type="Label3D" parent="Labels" unique_id=1880699590]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 3.2, 62)
 pixel_size = 0.012
 billboard = 1
-text = "GEARS (currency - HU-3 fetches them too)"
+text = "GEARS "
 font_size = 36
 outline_size = 14
 
-[node name="CredLabel" type="Label3D" parent="Labels"]
+[node name="CredLabel" type="Label3D" parent="Labels" unique_id=1642667852]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 3.2, 62)
 pixel_size = 0.012
 billboard = 1
-text = "CRED (big reward collectible)"
+text = "CRED "
 font_size = 36
 outline_size = 14
 
-[node name="WispLabel" type="Label3D" parent="Labels"]
+[node name="WispLabel" type="Label3D" parent="Labels" unique_id=1643369074]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3.4, 62)
 pixel_size = 0.012
 billboard = 1
-text = "INK WISP (find all in a level -> CRED)"
+text = "INK WISP"
 font_size = 36
 outline_size = 14
 
-[node name="PaintLabel" type="Label3D" parent="Labels"]
+[node name="PaintLabel" type="Label3D" parent="Labels" unique_id=2010190695]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 3.2, 62)
 pixel_size = 0.012
 billboard = 1
-text = "PAINT DROPLET (refills paint meter)"
+text = "PAINT DROPLET "
 font_size = 36
-outline_size = 14
-
-[node name="CheckpointLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 3.5, 62)
-pixel_size = 0.012
-billboard = 1
-text = "CHECKPOINT (respawn here after falling)"
-font_size = 36
-outline_size = 14
-
-[node name="WelcomeLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.0, 8)
-pixel_size = 0.012
-billboard = 1
-text = "GREYBOX GYM - everything is labeled!\nWest: floor types  |  East: movement gym + items"
-font_size = 44
 outline_size = 14
