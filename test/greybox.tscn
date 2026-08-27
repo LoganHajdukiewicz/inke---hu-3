@@ -18,6 +18,11 @@
 [ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/ink_wisp.tscn" id="16_wisp"]
 [ext_resource type="PackedScene" uid="uid://csfqpj8nsbrvu" path="res://scenes/items/Collectibles/paint_droplet.tscn" id="17_paint"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="18_check"]
+[ext_resource type="PackedScene" uid="uid://questgiver001" path="res://scenes/quests/quest_giver.tscn" id="19_giver"]
+[ext_resource type="PackedScene" uid="uid://locflag000001" path="res://scenes/quests/location_flag.tscn" id="20_flag"]
+[ext_resource type="PackedScene" uid="uid://questitem0001" path="res://scenes/quests/quest_item.tscn" id="21_item"]
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="22_quest"]
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="23_enemy"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -39,6 +44,63 @@ _data = {
 "tilts": PackedFloat32Array(0, 0, 0)
 }
 point_count = 3
+
+[sub_resource type="Resource" id="Quest_gears"]
+script = ExtResource("22_quest")
+quest_id = "gb_collect_gears"
+title = "Gear Grab"
+description = "HU-3 is hungry. Collect 5 GEARs - the gear line by the items plaza is a good start."
+quest_type = 0
+target_count = 5
+target_id = ""
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 10
+repeatable = true
+target_enemy_spawn_position = Vector3(0, 0, 0)
+
+[sub_resource type="Resource" id="Quest_defeat"]
+script = ExtResource("22_quest")
+quest_id = "gb_defeat_bully"
+title = "The Bully"
+description = "Some inkling has been stomping around the plaza. Teach it a lesson! (It shows up when you accept.)"
+quest_type = 1
+target_count = 1
+target_id = "gb_bully"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 15
+repeatable = true
+spawn_target_enemy = ExtResource("23_enemy")
+target_enemy_spawn_position = Vector3(25, 1.5, 68)
+
+[sub_resource type="Resource" id="Quest_reach"]
+script = ExtResource("22_quest")
+quest_id = "gb_reach_summit"
+title = "The Summit"
+description = "Get to the top of the tall block west of spawn. Wall jump, ledge grab - however you can."
+quest_type = 2
+target_count = 1
+target_id = "gb_tall_block_summit"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 15
+repeatable = true
+target_enemy_spawn_position = Vector3(0, 0, 0)
+
+[sub_resource type="Resource" id="Quest_fetch"]
+script = ExtResource("22_quest")
+quest_id = "gb_fetch_gem"
+title = "Lost Gizmo"
+description = "I dropped my favorite gizmo on the platform on top of the climbable wall. Bring it back, will you?"
+quest_type = 3
+target_count = 1
+target_id = "gb_lost_gizmo"
+has_time_limit = true
+time_limit_seconds = 90.0
+cred_reward = 20
+repeatable = true
+target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [node name="Greybox" type="Node3D" unique_id=2063258851]
 
@@ -436,5 +498,40 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 3.2, 62)
 pixel_size = 0.012
 billboard = 1
 text = "PAINT DROPLET "
+font_size = 36
+outline_size = 14
+
+[node name="QuestHub" type="Node3D" parent="."]
+
+[node name="QuestGiver" parent="QuestHub" instance=ExtResource("19_giver")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
+npc_name = "Gizmo"
+quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears"), SubResource("Quest_defeat"), SubResource("Quest_reach"), SubResource("Quest_fetch")])
+
+[node name="SummitFlag" parent="QuestHub" instance=ExtResource("20_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5, -20)
+flag_id = "gb_tall_block_summit"
+shape = 0
+size = Vector3(10, 4, 10)
+visible_in_game = true
+discovery_text = "SUMMIT REACHED!"
+
+[node name="LostGizmo" parent="QuestHub" instance=ExtResource("21_item")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 6, 14.5)
+item_id = "gb_lost_gizmo"
+
+[node name="QuestGiverLabel" type="Label3D" parent="QuestHub"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 4.2, 8)
+pixel_size = 0.012
+billboard = 1
+text = "QUEST GIVER (press E to talk -\ngear hunt, bully fight, summit climb, fetch job)"
+font_size = 36
+outline_size = 14
+
+[node name="SummitFlagLabel" type="Label3D" parent="QuestHub"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 7.5, -20)
+pixel_size = 0.012
+billboard = 1
+text = "LOCATION FLAG (stand here for The Summit quest)"
 font_size = 36
 outline_size = 14

@@ -28,6 +28,7 @@ DialogueManager="*res://autoloaded_scripts/dialogue_manager.gd"
 PaintManager="*uid://428tu2ybxugn"
 PaintUiManager="*uid://b8qhf4vxh06wg"
 PauseMenuManager="*res://autoloaded_scripts/pause_menu_manager.gd"
+QuestManager="*res://autoloaded_scripts/quest_manager.gd"
 
 [display]
 

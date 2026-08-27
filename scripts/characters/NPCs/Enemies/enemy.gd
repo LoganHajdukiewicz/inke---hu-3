@@ -1,6 +1,10 @@
 extends CharacterBody3D
 class_name Enemy
 
+## Optional quest hook: DEFEAT_ENEMY quests track kills by this id.
+## Leave empty for regular enemies.
+@export var enemy_id: String = ""
+
 # Health system
 @export var max_health: int = 3
 @export var current_health: int = 3
@@ -293,6 +297,12 @@ func spawn_paint_droplets():
 
 func die():
 	"""Enemy dies, spawns gears, and is removed from scene"""
+	
+	# Quest hook: report the kill if this enemy is a quest target
+	if enemy_id != "":
+		var qm = get_node_or_null("/root/QuestManager")
+		if qm:
+			qm.notify_enemy_defeated(enemy_id)
 	
 	# Spawn gear explosion
 	if drops_gears_on_death:

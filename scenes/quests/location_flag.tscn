@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://locflag000001"]
+
+[ext_resource type="Script" path="res://scripts/quests/location_flag.gd" id="1_flag"]
+
+[node name="LocationFlag" type="Area3D"]
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_flag")
