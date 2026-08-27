@@ -12,7 +12,7 @@ material = SubResource("StandardMaterial3D_6nuk2")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_6nuk2"]
 
-[node name="Box" type="RigidBody3D" unique_id=1779844061 groups=["Breakables"]]
+[node name="Box" type="CharacterBody3D" unique_id=1779844061 groups=["Breakables"]]
 script = ExtResource("1_6nuk2")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1763112803]

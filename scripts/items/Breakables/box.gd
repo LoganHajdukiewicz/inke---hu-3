@@ -1,5 +1,10 @@
-extends RigidBody3D
+extends CharacterBody3D
 class_name Box
+
+## NOTE: Boxes used to be RigidBody3D, but stacked boxes refused to fall
+## when their support broke (sleeping bodies never re-check support).
+## Now they're CharacterBody3D with explicit gravity every frame - dumb,
+## predictable, and it always works.
 
 # Crate properties
 @export_group("Crate Health")
@@ -37,15 +42,11 @@ var is_broken: bool = false
 var game_manager
 var just_bounced: bool = false  # Prevent multiple bounces in rapid succession
 
+var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+
 func _ready():
 	current_health = max_health
 	game_manager = get_node("/root/GameManager")
-	
-	# GRAVITY FIX: sleeping RigidBodies do NOT wake up when the body they're
-	# resting on is queue_free()d - so a box stacked on a broken box would
-	# float. Keep boxes light sleepers and wake the neighborhood on break.
-	contact_monitor = true
-	max_contacts_reported = 4
 	
 	# Add to Breakables group
 	if not is_in_group("Breakables"):
@@ -64,6 +65,20 @@ func _ready():
 	if mesh and mesh.get_active_material(0):
 		var material = mesh.get_active_material(0).duplicate()
 		mesh.set_surface_override_material(0, material)
+
+func _physics_process(delta: float):
+	"""Explicit gravity: if nothing is under the box, it falls. Every frame,
+	no sleeping, no exceptions. Boxes settle on floors and on each other."""
+	if is_broken:
+		return
+	if is_on_floor():
+		velocity = Vector3.ZERO
+	else:
+		velocity.y -= gravity * delta
+		# Light horizontal damping so nudged boxes don't glide forever
+		velocity.x = move_toward(velocity.x, 0.0, 6.0 * delta)
+		velocity.z = move_toward(velocity.z, 0.0, 6.0 * delta)
+	move_and_slide()
 
 func setup_bounce_detection():
 	"""
@@ -270,10 +285,6 @@ func break_crate():
 	
 	is_broken = true
 	
-	# GRAVITY FIX: wake every physics body resting on/near this box so
-	# stacked boxes actually fall when their support disappears.
-	_wake_nearby_bodies()
-	
 	# Spawn particles
 	if particles:
 		particles.emitting = true
@@ -293,19 +304,6 @@ func break_crate():
 	else:
 		pass
 
-func _wake_nearby_bodies():
-	"""Wake sleeping RigidBodies near this box. Godot does not wake sleeping
-	bodies when the body under them is freed, so without this a box stacked
-	on a broken box hangs in the air."""
-	var wake_radius: float = 3.0
-	for body in get_tree().get_nodes_in_group("Breakables"):
-		if body == self or not (body is RigidBody3D) or not is_instance_valid(body):
-			continue
-		if body.global_position.distance_to(global_position) <= wake_radius:
-			body.set_deferred("sleeping", false)
-			# A tiny nudge guarantees the physics engine re-evaluates support
-			body.call_deferred("apply_central_impulse", Vector3(0, -0.01, 0))
-
 func play_break_animation():
 	"""
 	Animated destruction of the crate.
@@ -319,9 +317,6 @@ func play_break_animation():
 		collision.set_deferred("disabled", true)
 	if damage_area:
 		damage_area.set_deferred("monitoring", false)
-	
-	# Disable contact monitoring
-	set_deferred("contact_monitor", false)
 	
 	# Break animation
 	var tween = create_tween()

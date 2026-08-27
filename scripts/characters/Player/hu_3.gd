@@ -425,10 +425,15 @@ func move_to_gear(delta: float):
 	var direction = (target_gear.global_position - global_position).normalized()
 	velocity = direction * gear_collection_speed
 	
-	# Rotate to face gear
-	if velocity.length() > 0.1:
-		var target_basis = Basis.looking_at(velocity.normalized(), Vector3.UP)
-		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 5.0)
+	# Rotate to face gear.
+	# COLINEAR GUARD: when the gear is almost straight above/below, the look
+	# direction is parallel to UP and Basis.looking_at() spams warnings and
+	# can spin wildly around Z. Only yaw toward the flat component, and skip
+	# rotation entirely when the flat component is negligible.
+	var flat_dir = Vector3(direction.x, 0.0, direction.z)
+	if flat_dir.length() > 0.15:
+		var target_basis = Basis.looking_at(flat_dir.normalized(), Vector3.UP)
+		global_transform.basis = global_transform.basis.slerp(target_basis, delta * 5.0).orthonormalized()
 	
 	# Check if close enough to collect
 	var distance = global_position.distance_to(target_gear.global_position)

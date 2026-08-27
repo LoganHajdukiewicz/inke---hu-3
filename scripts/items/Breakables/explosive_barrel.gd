@@ -102,9 +102,6 @@ func explode():
 		elif b.has_method("take_damage"):
 			b.call_deferred("take_damage", 99)
 	
-	# Wake anything stacked nearby
-	_wake_nearby_bodies()
-	
 	# --- Visuals ---
 	_spawn_explosion_visual(center)
 	
@@ -114,7 +111,6 @@ func explode():
 		collision.set_deferred("disabled", true)
 	if damage_area:
 		damage_area.set_deferred("monitoring", false)
-	set_deferred("contact_monitor", false)
 	if mesh:
 		mesh.visible = false
 	

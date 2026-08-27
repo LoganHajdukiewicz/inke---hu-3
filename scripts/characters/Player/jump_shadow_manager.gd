@@ -7,6 +7,10 @@ var shadow_raycasts: Array[RayCast3D] = []
 var shadow_max_distance: float = 50.0
 var shadow_base_size: float = 1.2
 var shadow_fade_start: float = 5.0
+# Shadow darkness: 1.0 = fully opaque black at the center. Kept high so the
+# landing marker is reliably visible on any surface/lighting.
+var shadow_opacity: float = 0.95
+var shadow_min_opacity: float = 0.55   # Never fades below this while visible
 
 # Multi-raycast variables for surface detection
 var raycast_count: int = 12
@@ -42,7 +46,7 @@ func setup_jump_shadow():
 	# Configure decal
 	jump_shadow_decal.texture_albedo = shadow_texture
 	jump_shadow_decal.size = decal_size
-	jump_shadow_decal.modulate = Color(0, 0, 0, 0.6)  # Black with transparency
+	jump_shadow_decal.modulate = Color(0, 0, 0, shadow_opacity)  # Near-solid black
 	jump_shadow_decal.cull_mask = 1  # Only project on default layer
 	jump_shadow_decal.emission_energy = 0.0
 	jump_shadow_decal.albedo_mix = 1.0
@@ -72,9 +76,11 @@ func create_shadow_texture() -> Texture2D:
 			var pos = Vector2(x, y)
 			var dist = pos.distance_to(center)
 			
-			# Create soft circular gradient
+			# Create circular gradient with a dark solid core: the pow(0.6)
+			# curve keeps most of the disc near-full alpha and only feathers
+			# the outer rim, so the shadow reads clearly against the ground
 			var alpha = 1.0 - clamp(dist / max_radius, 0.0, 1.0)
-			alpha = pow(alpha, 2.0)  # Sharper falloff
+			alpha = pow(alpha, 0.6)
 			
 			# Apply additional softening at edges
 			if alpha < 0.1:
@@ -170,10 +176,10 @@ func update_jump_shadow():
 		var size_multiplier = scale_factor * shadow_base_size
 		jump_shadow_decal.size = Vector3(size_multiplier, size_multiplier, 1.0)
 		
-		# Calculate alpha based on distance
-		var alpha = 0.6
+		# Calculate alpha based on distance (stays dark - it's a gameplay aid)
+		var alpha = shadow_opacity
 		if closest_distance > shadow_fade_start:
-			alpha = max(0.2, 0.6 - (closest_distance - shadow_fade_start) / 25.0)
+			alpha = max(shadow_min_opacity, shadow_opacity - (closest_distance - shadow_fade_start) / 25.0)
 		
 		# Update decal modulate for alpha
 		jump_shadow_decal.modulate = Color(0, 0, 0, alpha)

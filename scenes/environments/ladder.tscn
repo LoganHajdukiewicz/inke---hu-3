@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://cladderwall01"]
+
+[ext_resource type="Script" path="res://scripts/environments/ladder.gd" id="1_ladder"]
+
+[node name="Ladder" type="StaticBody3D" groups=["ClimbableWall", "Ladder"]]
+script = ExtResource("1_ladder")
+wall_size = Vector3(1.2, 6, 0.15)

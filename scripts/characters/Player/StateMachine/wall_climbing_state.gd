@@ -3,8 +3,11 @@ class_name WallClimbingState
 
 ## Free climbing on walls in the "ClimbableWall" group.
 ## Up / down / left / right movement across the wall face.
+## LADDERS ("Ladder" group) restrict movement to up/down only.
 ## Jump = leap off the wall (away from it). Crouch = let go and fall.
 ## Climbing over the top edge automatically vaults the player up.
+## Climbing down past the bottom edge (or holding down while standing on
+## the ground) detaches - no jump required.
 
 @export var climb_speed: float = 4.0
 @export var wall_offset: float = 0.55       # How far the player's center sits off the wall
@@ -14,6 +17,7 @@ class_name WallClimbingState
 
 var wall_normal: Vector3 = Vector3.ZERO
 var wall_point: Vector3 = Vector3.ZERO
+var is_ladder: bool = false            # "Ladder" group: up/down only
 
 func setup(normal: Vector3, point: Vector3):
 	wall_normal = Vector3(normal.x, 0, normal.z).normalized()
@@ -28,6 +32,10 @@ func enter():
 	
 	# Snap to the wall at the proper offset
 	_snap_to_wall()
+	
+	# Ladder? Lock horizontal movement for this climb
+	var probe = _probe_wall(player.global_position)
+	is_ladder = not probe.is_empty() and probe.collider.is_in_group("Ladder")
 	
 	# Grab feedback
 	var tween = create_tween()
@@ -56,8 +64,16 @@ func physics_update(delta: float):
 	# Movement across the wall face:
 	# left/right = along the wall, forward/back = up/down the wall
 	var input_dir = Input.get_vector("left", "right", "forward", "back")
+	if is_ladder:
+		input_dir.x = 0.0  # Ladders: up/down only, no sideways shuffling
 	var side_axis = wall_normal.cross(Vector3.UP).normalized()  # "left" along the wall
 	var move = side_axis * -input_dir.x + Vector3.UP * -input_dir.y
+	
+	# BOTTOM DETACH: already standing on the ground and still pushing down?
+	# Let go - no jump required to leave the wall.
+	if move.y < -0.3 and player.is_on_floor():
+		_detach_at_bottom()
+		return
 	
 	if move.length() > 0.1:
 		move = move.normalized()
@@ -76,8 +92,12 @@ func physics_update(delta: float):
 			# Moving up but no wall above -> we've reached the top edge. Vault!
 			_vault_over_top()
 			return
+		elif move.y < -0.3:
+			# Moving down but no wall below -> bottom edge. Let go and drop.
+			_detach_at_bottom()
+			return
 		else:
-			# Edge of the wall (side or bottom): stop
+			# Side edge of the wall: stop
 			player.velocity = Vector3.ZERO
 	else:
 		player.velocity = Vector3.ZERO
@@ -94,6 +114,18 @@ func physics_update(delta: float):
 		and _probe_wall(player.global_position + Vector3(0, -0.3, 0)).is_empty():
 			player.climb_regrab_timer = player.climb_regrab_delay
 			change_to("FallingState")
+
+func _detach_at_bottom():
+	"""Reached the bottom of the wall while pressing down: release the grip.
+	On the ground -> Idle; in the air -> gentle drop away from the wall."""
+	player.climb_regrab_timer = player.climb_regrab_delay
+	if player.is_on_floor():
+		player.velocity = Vector3.ZERO
+		change_to("IdleState")
+	else:
+		player.velocity = wall_normal * 1.5
+		player.velocity.y = 0.0
+		change_to("FallingState")
 
 func _vault_over_top():
 	"""Pop up and over the top edge of the wall."""

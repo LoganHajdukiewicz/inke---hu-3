@@ -18,6 +18,15 @@ class_name CowardEnemy
 @export var calm_distance: float = 14.0       # Stop fleeing when player is this far
 @export var taunt_enabled: bool = true        # Cheeky hop while fleeing
 
+@export_group("Loot")
+## What the coward drops when caught. Any scene works (gear, cred,
+## paint droplet, health, a key item...). Leave empty for no drop.
+@export var drop_scene: PackedScene = preload("res://scenes/items/Collectibles/six_teeth_gear.tscn")
+## How many copies of drop_scene it spills.
+@export var drop_count: int = 20
+@export var drop_scatter_radius: float = 2.5
+@export var drop_scatter_duration: float = 0.45
+
 var track: Path3D = null
 var track_progress: float = 0.0
 var track_is_loop: bool = false
@@ -146,6 +155,32 @@ func _flee_freely(delta: float):
 	velocity.x = dir.x * flee_speed
 	velocity.z = dir.z * flee_speed
 	rotation.y = lerp_angle(rotation.y, atan2(-dir.x, -dir.z), 10.0 * delta)
+
+func spawn_gear_explosion():
+	"""Overridden: drop whatever the Inspector says (drop_scene x drop_count)
+	instead of the base enemy's hardcoded gears."""
+	if not drop_scene or drop_count <= 0:
+		return
+	
+	var spawn_position = global_position + Vector3(0, 0.5, 0)
+	var container = get_parent()
+	if not container:
+		return
+	
+	for i in range(drop_count):
+		var item = drop_scene.instantiate()
+		container.add_child(item)
+		
+		var angle = randf() * TAU
+		var radius = randf_range(drop_scatter_radius * 0.3, drop_scatter_radius)
+		var target = spawn_position + Vector3(cos(angle) * radius, randf_range(0.3, 1.0), sin(angle) * radius)
+		
+		if item is Node3D:
+			item.global_position = spawn_position
+			if item.has_method("scatter_to"):
+				item.scatter_to(target, drop_scatter_duration)
+			else:
+				item.global_position = target
 
 func _yelp():
 	"""Startled feedback when the player gets close."""

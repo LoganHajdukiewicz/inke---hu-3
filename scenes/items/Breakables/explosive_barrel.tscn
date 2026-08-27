@@ -21,7 +21,7 @@ height = 1.1
 height = 1.2
 radius = 0.5
 
-[node name="ExplosiveBarrel" type="RigidBody3D" groups=["Breakables", "Explosive"]]
+[node name="ExplosiveBarrel" type="CharacterBody3D" groups=["Breakables", "Explosive"]]
 script = ExtResource("1_barrel")
 drops_gears = false
 max_health = 1
