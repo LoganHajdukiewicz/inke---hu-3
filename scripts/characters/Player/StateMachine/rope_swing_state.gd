@@ -16,6 +16,15 @@ class_name RopeSwingState
 @export var max_swing_angle_degrees: float = 95.0  # Same auto-launch as grapple
 @export var auto_launch_speed: float = 13.0
 
+@export_category("Exit Momentum")
+## How much swing momentum survives LETTING GO (crouch-off / sliding off the
+## end / touching ground). 1.0 = keep everything, 0.5 was the old hardcoded
+## value that felt over-damped.
+@export_range(0.0, 1.0) var let_go_momentum_keep: float = 0.9
+## Extra cap applied to the jump-off launch. Raise it if big swings should
+## throw you further.
+@export var max_launch_speed: float = 26.0
+
 var rope: SwingRope = null
 var hold_distance: float = 4.0   # Current distance from anchor (climbing changes it)
 
@@ -133,18 +142,24 @@ func _launch_off(auto: bool = false):
 	else:
 		facing = facing.normalized()
 	
-	var speed = Vector3(player.velocity.x, 0, player.velocity.z).length()
-	speed = maxf(speed + release_boost, auto_launch_speed if auto else speed + release_boost)
-	speed = minf(speed, max_swing_speed + release_boost)
+	# Preserve the FULL earned swing speed (horizontal + a share of vertical
+	# rise), then add the boost. The old version dropped all vertical energy.
+	var h_speed = Vector3(player.velocity.x, 0, player.velocity.z).length()
+	var rising = maxf(player.velocity.y, 0.0)
+	var speed = h_speed + rising * 0.5 + release_boost
+	if auto:
+		speed = maxf(speed, auto_launch_speed)
+	speed = minf(speed, max_launch_speed)
 	
 	player.velocity = facing * speed
-	player.velocity.y = jump_off_up_speed
+	player.velocity.y = maxf(jump_off_up_speed, rising * 0.6 + 4.0)
 	
 	_detach()
 	change_to("FallingState")
 
 func _let_go(extra_velocity: Vector3):
-	player.velocity *= 0.5
+	# Inspector-tunable momentum preservation (was a hardcoded 0.5 damp)
+	player.velocity *= let_go_momentum_keep
 	player.velocity += extra_velocity
 	_detach()
 	if player.is_on_floor():

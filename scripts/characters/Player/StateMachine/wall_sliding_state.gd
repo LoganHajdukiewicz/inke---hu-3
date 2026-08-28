@@ -2,17 +2,23 @@ extends State
 class_name WallSlidingState
 
 # Wall sliding configuration
-@export var slide_speed: float = -2.0  # Slow downward slide
-@export var min_slide_speed: float = -5.0  # Maximum slide speed
+@export var slide_speed: float = -1.5  # Slow downward slide (much slower than falling)
+@export var min_slide_speed: float = -4.0  # Maximum slide speed
 @export var slide_friction: float = 0.95  # How much to slow down vertical velocity
 @export var wall_check_distance: float = 1.2  # How far to check for walls (generous so near-misses still count)
 @export var wall_stick_force: float = 4.0  # Gentle pull toward the wall - makes the wall "sticky"
 @export var detach_hold_time: float = 0.25  # Hold away from wall this long to deliberately detach
 
+@export_category("Dust Effect")
+@export var dust_enabled: bool = true
+@export var dust_color: Color = Color(0.75, 0.72, 0.68, 0.85)
+@export var dust_amount: int = 24
+
 # Internal state
 var wall_normal: Vector3 = Vector3.ZERO
 var is_sliding: bool = false
 var away_hold_timer: float = 0.0  # How long the stick has been held away from the wall
+var _dust: GPUParticles3D = null
 
 func enter():
 	
@@ -32,6 +38,9 @@ func enter():
 	# Face the wall
 	var target_rotation = atan2(-wall_normal.x, -wall_normal.z)
 	player.rotation.y = target_rotation
+	
+	if dust_enabled:
+		_create_dust()
 
 func physics_update(delta: float):
 	# Refresh the wall normal each frame (walls can curve / we can drift)
@@ -69,12 +78,12 @@ func physics_update(delta: float):
 	# margin would otherwise drift us out of raycast range
 	player.velocity += -wall_normal * wall_stick_force * delta
 	
-	# Apply slide speed
-	player.velocity.y = max(player.velocity.y + player.get_gravity().y * delta * 0.3, min_slide_speed)
-	
-	# Clamp to slide speed
-	if player.velocity.y < slide_speed:
-		player.velocity.y = slide_speed
+	# Slide physics: heavily damped gravity, ramping from slide_speed down
+	# to min_slide_speed. Much slower than vanilla falling - the wall has
+	# friction. (The old code had two contradictory clamps that pinned the
+	# speed at slide_speed forever.)
+	player.velocity.y += player.get_gravity().y * delta * 0.25
+	player.velocity.y = clampf(player.velocity.y, min_slide_speed, slide_speed)
 	
 	# Minimal horizontal control while sliding
 	var move_input = Input.get_vector("left", "right", "forward", "back")
@@ -103,7 +112,53 @@ func physics_update(delta: float):
 		change_to("IdleState")
 		return
 	
+	# Keep the dust pinned to the wall contact point, scaled with slide speed
+	if _dust and is_instance_valid(_dust):
+		_dust.global_position = player.global_position + Vector3(0, 0.9, 0) - wall_normal * 0.45
+		_dust.emitting = player.velocity.y < -0.5
+	
 	player.move_and_slide()
+
+func _create_dust():
+	"""Little dust cloud kicked up at the hand/wall contact point."""
+	_dust = GPUParticles3D.new()
+	_dust.amount = dust_amount
+	_dust.lifetime = 0.55
+	_dust.local_coords = false
+	_dust.emitting = true
+	
+	var mat = ParticleProcessMaterial.new()
+	mat.direction = Vector3(0, 1, 0)
+	mat.spread = 40.0
+	mat.initial_velocity_min = 0.8
+	mat.initial_velocity_max = 1.8
+	mat.gravity = Vector3(0, 1.5, 0)          # Dust drifts UP as you scrape down
+	mat.scale_min = 0.5
+	mat.scale_max = 1.4
+	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_SPHERE
+	mat.emission_sphere_radius = 0.25
+	mat.color = dust_color
+	
+	var curve = Curve.new()                    # Shrink to nothing over lifetime
+	curve.add_point(Vector2(0.0, 1.0))
+	curve.add_point(Vector2(1.0, 0.0))
+	var curve_tex = CurveTexture.new()
+	curve_tex.curve = curve
+	mat.scale_curve = curve_tex
+	_dust.process_material = mat
+	
+	var mesh = SphereMesh.new()
+	mesh.radius = 0.07
+	mesh.height = 0.14
+	var mesh_mat = StandardMaterial3D.new()
+	mesh_mat.albedo_color = dust_color
+	mesh_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mesh_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh.material = mesh_mat
+	_dust.draw_pass_1 = mesh
+	
+	player.get_parent().add_child(_dust)
+	_dust.global_position = player.global_position + Vector3(0, 0.9, 0) - wall_normal * 0.45
 
 func detect_wall() -> Vector3:
 	"""Detect which wall we're against (8 directions for reliability)"""
@@ -137,10 +192,14 @@ func detect_wall() -> Vector3:
 	
 	return Vector3.ZERO
 
-func is_against_wall() -> bool:
-	"""Check if still against a wall"""
-	return detect_wall() != Vector3.ZERO
-
 func exit():
 	is_sliding = false
 	wall_normal = Vector3.ZERO
+	if _dust and is_instance_valid(_dust):
+		# Let live particles finish, then clean up
+		_dust.emitting = false
+		var d = _dust
+		player.get_tree().create_timer(0.7).timeout.connect(func():
+			if is_instance_valid(d):
+				d.queue_free())
+		_dust = null

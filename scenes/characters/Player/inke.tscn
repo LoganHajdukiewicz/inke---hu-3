@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/wall_climbing_state.gd" id="18_wclimb"]
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/rope_swing_state.gd" id="19_rope"]
 [ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/balance_beam_state.gd" id="20_beam"]
+[ext_resource type="Script" path="res://scripts/characters/Player/StateMachine/swing_bar_state.gd" id="21_swingbar"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hiafp"]
 shading_mode = 2
@@ -112,6 +113,9 @@ script = ExtResource("19_rope")
 
 [node name="BalanceBeamState" type="Node" parent="StateMachine" unique_id=532446011]
 script = ExtResource("20_beam")
+
+[node name="SwingBarState" type="Node" parent="StateMachine" unique_id=532446012]
+script = ExtResource("21_swingbar")
 
 [node name="SpinAttackState" type="Node" parent="StateMachine" unique_id=532446007]
 script = ExtResource("16_1168t")

@@ -983,8 +983,8 @@ func _update_mid() -> void:
 				var ml: float  = _prop(cs, "momentum_lock_duration", 0.35)
 				var fd: float  = _prop(cs, "momentum_fade_duration", 0.15)
 				var tl: float  = _prop(cs, "total_lock_time", 0.5)
-				var wjv: float = _prop(cs, "wall_jump_velocity", 5.0)
-				var hf: float  = _prop(cs, "wall_jump_horizontal_force", 12.0)
+				var wjv: float = _prop(cs, "wall_jump_up_velocity", 11.0)
+				var hf: float  = _prop(cs, "wall_jump_horizontal_force", 9.5)
 				var wdir: Variant = cs.get("wall_direction")
 				var phase := "LOCK"
 				var ctrl  := 0.0

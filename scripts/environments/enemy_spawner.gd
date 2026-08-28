@@ -29,6 +29,13 @@ signal enemy_spawned(enemy: Node)
 ## Optional: quest hook - spawned enemies get this enemy_id.
 @export var spawned_enemy_id: String = ""
 
+@export_group("Boss Spawns")
+## Tick to spawn the enemy as a BOSS (named bottom-screen health bar).
+@export var spawn_as_boss: bool = false
+@export var boss_name: String = "BOSS"
+@export var boss_health: int = 12
+@export var boss_bar_color: Color = Color(0.85, 0.15, 0.15)
+
 var _alive: Array[Node] = []
 var _door_pivot: Node3D
 var _spawning: bool = false
@@ -84,6 +91,19 @@ func _spawn_one() -> void:
 		enemy.spawn_position = start
 	if spawned_enemy_id != "" and "enemy_id" in enemy:
 		enemy.enemy_id = spawned_enemy_id
+	if spawn_as_boss and "is_boss" in enemy:
+		# Must be set BEFORE the enemy's _ready would run... but add_child
+		# already ran it, so configure and build the bar manually.
+		enemy.is_boss = true
+		enemy.boss_name = boss_name
+		enemy.boss_bar_color = boss_bar_color
+		enemy.max_health = boss_health
+		enemy.current_health = boss_health
+		if enemy.get("_boss_bar") == null:
+			var bar = BossHealthBar.new()
+			bar.setup(enemy)
+			enemy.add_child(bar)
+			enemy._boss_bar = bar
 	
 	_alive.append(enemy)
 	

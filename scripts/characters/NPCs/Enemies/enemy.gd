@@ -9,6 +9,29 @@ class_name Enemy
 @export var max_health: int = 3
 @export var current_health: int = 3
 
+@export_group("Boss")
+## Tick this to make ANY enemy (or subclass) a boss: it gets a big named
+## health bar pinned to the bottom of the screen. All look & feel knobs
+## below are Inspector-tweakable per boss.
+@export var is_boss: bool = false
+@export var boss_name: String = "BOSS"
+## Fill color of the health bar.
+@export var boss_bar_color: Color = Color(0.85, 0.15, 0.15)
+## Background color behind the fill.
+@export var boss_bar_bg_color: Color = Color(0.12, 0.1, 0.1, 0.85)
+## Color of the name text above the bar.
+@export var boss_name_color: Color = Color(1, 1, 1)
+@export var boss_name_font_size: int = 30
+## Bar width in pixels (height scales with it).
+@export var boss_bar_width: float = 620.0
+@export var boss_bar_height: float = 26.0
+## Only show the bar once the player gets within this range (0 = always).
+@export var boss_bar_show_range: float = 30.0
+## Delayed white "damage ghost" behind the fill, like classic boss bars.
+@export var boss_bar_damage_ghost: bool = true
+
+var _boss_bar: BossHealthBar = null
+
 # Behavior parameters
 @export var detection_range: float = 15.0
 @export var chase_speed: float = 8.0
@@ -93,9 +116,6 @@ func _ready():
 		# Connect body_entered signal
 		if not hit_box.body_entered.is_connected(_on_hit_box_body_entered):
 			hit_box.body_entered.connect(_on_hit_box_body_entered)
-		
-		if not hit_box.area_entered.is_connected(_on_hit_box_area_entered):
-			hit_box.area_entered.connect(_on_hit_box_area_entered)
 	else:
 		print("ERROR: HitBox not found on enemy!")
 	
@@ -103,6 +123,11 @@ func _ready():
 	state_machine.enemy = self
 	add_child(state_machine)
 	state_machine.initialize_states()
+	
+	if is_boss:
+		_boss_bar = BossHealthBar.new()
+		_boss_bar.setup(self)
+		add_child(_boss_bar)
 
 func _is_player_stomp_threat() -> bool:
 	"""True ONLY when the player is directly above us AND falling - i.e. a
@@ -189,20 +214,6 @@ func _on_hit_box_body_entered(body: Node) -> void:
 	if is_instance_valid(self):
 		can_chase = true
 		
-
-func _on_hit_box_area_entered(area: Area3D) -> void:
-	"""This detects when an AREA3D enters the enemy's hitbox"""
-	if area.name == "AttackHitbox":
-		var attack_manager = area.get_parent()
-		if attack_manager and attack_manager.name == "AttackManager":
-			var attacking_player = attack_manager.get_parent()
-			if attacking_player and attacking_player.is_in_group("Player"):
-				# Calculate knockback direction
-				var knockback_direction = (global_position - attacking_player.global_position).normalized()
-				knockback_direction.y = 0.2  # Add slight upward component
-				
-				# Note: The actual knockback is applied in AttackManager.hit_enemy()
-				# This is just a fallback in case the signal path is used
 
 func _physics_process(delta: float) -> void:
 	# Get current state name for debugging
@@ -297,6 +308,10 @@ func spawn_paint_droplets():
 
 func die():
 	"""Enemy dies, spawns gears, and is removed from scene"""
+	
+	if _boss_bar and is_instance_valid(_boss_bar):
+		_boss_bar.dismiss()
+		_boss_bar = null
 	
 	# Quest hook: report the kill if this enemy is a quest target
 	if enemy_id != "":

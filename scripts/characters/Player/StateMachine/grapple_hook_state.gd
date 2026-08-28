@@ -19,8 +19,9 @@ class_name GrappleHookState
 @export var enemy_grapple_distance: float = 15.0  # Max distance to grapple enemies
 @export var enemy_grapple_speed: float = 35.0  # Speed when grappling to enemy
 @export var enemy_attack_damage: int = 2  # Damage dealt on grapple attack
-@export var enemy_knockback_force: float = 15.0  # Knockback applied to enemy
-@export var bounce_back_force: float = 12.0  # Bounce away from enemy after attack
+@export var enemy_knockback_force: float = 6.0   # Light knockback so the enemy stays under you
+@export var grapple_jump_up_velocity: float = 12.0   # The pop-up jump after the strike
+@export var grapple_jump_forward: float = 2.5        # Slight drift over the enemy's head
 
 # Grapple state
 var grapple_point: Vector3 = Vector3.ZERO
@@ -163,6 +164,11 @@ func physics_update(delta: float):
 
 func handle_enemy_grapple(delta: float):
 	"""Pull player toward enemy and attack on contact"""
+	# Already struck - we're mid grapple-jump; let gravity run, don't re-pull
+	if has_attacked_enemy:
+		player.velocity += player.get_gravity() * delta
+		return
+	
 	# Check if enemy is still valid
 	if not grapple_target_enemy or not is_instance_valid(grapple_target_enemy):
 		release_grapple()
@@ -193,22 +199,26 @@ func attack_grappled_enemy():
 	
 	has_attacked_enemy = true
 	
-	# Calculate knockback direction (away from player)
-	var knockback_direction = (grapple_target_enemy.global_position - player.global_position).normalized()
-	knockback_direction.y = 0.3  # Slight upward component
+	# LIGHT horizontal knockback only - we WANT the enemy to stay put so the
+	# follow-up head bounce connects
+	var to_enemy = (grapple_target_enemy.global_position - player.global_position).normalized()
+	var knockback_velocity = Vector3(to_enemy.x, 0, to_enemy.z) * enemy_knockback_force
 	
-	# Create knockback velocity
-	var knockback_velocity = knockback_direction * enemy_knockback_force
-	knockback_velocity.y = 5.0  # Upward boost
-	
-	# Deal damage to enemy
 	if grapple_target_enemy.has_method("take_damage"):
 		grapple_target_enemy.take_damage(enemy_attack_damage, knockback_velocity)
 	
-	# Bounce player away from enemy
-	var bounce_direction = -knockback_direction
-	bounce_direction.y = 0.5  # Upward bounce
-	player.velocity = bounce_direction * bounce_back_force
+	# GRAPPLE JUMP: strike, then vault UP and slightly OVER the enemy -
+	# prime position to chain straight into a head bounce on the way down
+	var over = Vector3(to_enemy.x, 0, to_enemy.z)
+	over = over.normalized() if over.length() > 0.1 else Vector3.ZERO
+	player.velocity = over * grapple_jump_forward
+	player.velocity.y = grapple_jump_up_velocity
+	
+	# Refresh air options so the whole combo stays alive after the bounce
+	player.can_double_jump = true
+	player.has_double_jumped = false
+	player.can_air_dash = true
+	player.has_air_dashed = false
 	
 	# Visual feedback - quick flash/pulse
 	create_attack_flash()

@@ -5,7 +5,11 @@ class_name Ladder
 ## A ClimbableWall that only allows UP / DOWN movement - no left/right.
 ## The climbing state checks for the "Ladder" group and locks the
 ## horizontal axis. Visually built like an actual ladder: two side
-## rails + rungs instead of a lattice slab.
+## rails + rungs (the parent's chain-link look doesn't apply here).
+
+@export var rail_color: Color = Color(0.45, 0.33, 0.2)   # Wooden rails
+@export var rung_color: Color = Color(0.55, 0.42, 0.28)  # Lighter rungs
+@export var rung_spacing: float = 0.75
 
 func _ready():
 	add_to_group("ClimbableWall")
@@ -24,7 +28,7 @@ func _rebuild():
 	add_child(collision)
 	
 	var rail_mat = StandardMaterial3D.new()
-	rail_mat.albedo_color = wall_color
+	rail_mat.albedo_color = rail_color
 	rail_mat.roughness = 0.9
 	
 	var rung_mat = StandardMaterial3D.new()

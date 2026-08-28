@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" uid="uid://pressbtn00001" path="res://scenes/environments/pressable_button.tscn" id="24_btn"]
 [ext_resource type="PackedScene" uid="uid://enemyspawn001" path="res://scenes/environments/enemy_spawner.tscn" id="25_spawn"]
 [ext_resource type="PackedScene" uid="uid://lasrenemy0001" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="26_laser"]
+[ext_resource type="PackedScene" uid="uid://swingbar00001" path="res://scenes/environments/swing_bar.tscn" id="27_swingbar"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -648,3 +649,47 @@ billboard = 1
 text = "WALL JUMP TOWER - bounce between\nthe two walls, 30 units to the top"
 font_size = 36
 outline_size = 14
+
+[node name="SwingBarCourse" type="Node3D" parent="."]
+
+[node name="Bar1" parent="SwingBarCourse" instance=ExtResource("27_swingbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 4.5, 40)
+post_height = 4.5
+
+[node name="Bar2" parent="SwingBarCourse" instance=ExtResource("27_swingbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5.5, 49)
+post_height = 5.5
+
+[node name="Bar3Tree" parent="SwingBarCourse" instance=ExtResource("27_swingbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 6.5, 58)
+tree_disguise = true
+post_height = 5.5
+
+[node name="LandingPlatform" parent="SwingBarCourse" instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 3, 67)
+floor_size = Vector3(6, 0.5, 6)
+
+[node name="SwingBarLabel" type="Label3D" parent="SwingBarCourse"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 8.5, 40)
+pixel_size = 0.012
+billboard = 1
+text = "SWING BARS (Jak style) - jump into a bar to grab,\nit swings itself - press JUMP at the top of the arc to launch.\nThird one is hiding as a tree. Land the platform!"
+
+[node name="BossSpawner" parent="ButtonArena" instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 45)
+enemy_scene = ExtResource("23_enemy")
+enemy_label = "BOSS SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawn_count = 1
+max_alive = 1
+spawn_as_boss = true
+boss_name = "INKZILLA, DEVOURER OF PAINT"
+boss_health = 12
+boss_bar_color = Color(0.7, 0.2, 0.9, 1)
+
+[node name="BossButton" parent="ButtonArena" instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 54)
+mount_mode = 0
+button_color = Color(0.7, 0.2, 0.9, 1)
+label_text = "JUMP ON ME:\nSPAWNS A BOSS (health bar demo)"
+spawner_path = NodePath("../BossSpawner")

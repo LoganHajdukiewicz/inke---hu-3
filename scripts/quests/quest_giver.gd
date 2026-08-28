@@ -52,6 +52,8 @@ var prompt_label: Label
 var _mesh_root: Node3D
 var _marker: Label3D
 var _bob_time: float = 0.0
+var _settled: bool = false
+var _settled_position: Vector3
 
 
 func _ready() -> void:
@@ -82,27 +84,41 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	# Settle onto the floor once, then FREEZE. A CharacterBody3D that keeps
+	# calling move_and_slide() gets depenetration-shoved by the player - that
+	# was why givers could be pushed around by walking into them. Once
+	# settled we never move again, so we behave like a static obstacle.
+	if _settled:
+		if global_position != _settled_position:
+			global_position = _settled_position   # paranoia: undo any nudge
+		return
+	
 	if not is_on_floor():
 		velocity.y -= 25.0 * delta
 	else:
 		velocity.y = 0.0
+		_settled = true
+		_settled_position = global_position
 	velocity.x = 0.0
 	velocity.z = 0.0
 	move_and_slide()
-	
+	if _settled:
+		_settled_position = global_position
+
+
+func _process(delta: float) -> void:
 	_bob_time += delta
 	if _marker:
 		_marker.position.y = 2.6 + sin(_bob_time * 2.5) * 0.1
 	
-	if player_in_range and current_player and is_instance_valid(current_player):
+	# Face the player (visual only - the body itself never moves)
+	if player_in_range and current_player and is_instance_valid(current_player) and _mesh_root:
 		var to_p = current_player.global_position - global_position
 		to_p.y = 0
-		if to_p.length() > 0.3 and _mesh_root:
+		if to_p.length() > 0.3:
 			var target = Basis.looking_at(to_p.normalized(), Vector3.UP)
 			_mesh_root.global_transform.basis = _mesh_root.global_transform.basis.orthonormalized().slerp(target, delta * 8.0).orthonormalized()
-
-
-func _process(delta: float) -> void:
+	
 	if _input_cooldown > 0.0:
 		_input_cooldown -= delta
 	
