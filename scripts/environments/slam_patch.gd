@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 class_name SlamPatch
 
@@ -24,7 +25,8 @@ var used: bool = false
 var bump_mesh: MeshInstance3D = null
 
 func _ready():
-	add_to_group("SlamPatch")
+	if not Engine.is_editor_hint():
+		add_to_group("SlamPatch")
 	_build_visual()
 
 func _build_visual():
@@ -70,10 +72,11 @@ func _build_visual():
 	
 	# Gentle "breathing" pulse so the bump catches the eye (visual only -
 	# the collision hull stays put so it never pushes the player around)
-	var tween = create_tween()
-	tween.set_loops()
-	tween.tween_property(bump_mesh, "scale", Vector3(1.0, 1.08, 1.0), 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(bump_mesh, "scale", Vector3.ONE, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if not Engine.is_editor_hint():
+		var tween = create_tween()
+		tween.set_loops()
+		tween.tween_property(bump_mesh, "scale", Vector3(1.0, 1.08, 1.0), 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(bump_mesh, "scale", Vector3.ONE, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func on_ground_slammed(slammer: Node3D):
 	"""Called by GroundSlamState when the player slams on/near this patch."""

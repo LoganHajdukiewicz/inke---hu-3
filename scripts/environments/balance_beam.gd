@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 class_name BalanceBeam
 
@@ -15,7 +16,8 @@ class_name BalanceBeam
 @export var beam_color: Color = Color(0.55, 0.4, 0.22)
 
 func _ready():
-	add_to_group("BalanceBeam")
+	if not Engine.is_editor_hint():
+		add_to_group("BalanceBeam")
 	_rebuild()
 
 func _rebuild():
