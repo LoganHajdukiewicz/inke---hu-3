@@ -14,10 +14,17 @@ class_name SwingBarState
 @export var auto_pump_torque: float = 2.6       # Self-pumping strength (the "auto swing")
 @export var input_pump_torque: float = 2.2      # Extra pump from holding forward
 @export var max_amplitude_degrees: float = 108.0  # Swing tops out just past horizontal
-@export var launch_boost: float = 1.25          # Multiplier on tangential speed at release
-@export var min_launch_speed: float = 9.0       # Floor so even lazy releases feel decent
-@export var max_launch_speed: float = 24.0      # Cap on release speed
 @export var regrab_lockout: float = 0.35        # Seconds before the same bar can catch you again
+
+@export_category("Launch Juice")
+## Multiplier on your tangential swing speed at the moment of release.
+@export var launch_boost: float = 1.6
+## Flat extra HEIGHT added to every jump-off. Crank for bigger air.
+@export var launch_up_bonus: float = 7.0
+## Flat extra OUTWARD push along the swing direction.
+@export var launch_forward_bonus: float = 5.0
+@export var min_launch_speed: float = 12.0      # Floor so even lazy releases feel decent
+@export var max_launch_speed: float = 32.0      # Cap on release speed
 
 var bar: Node3D = null            # The SwingBar we're on
 var _swing_axis: Vector3          # Bar's long axis (we rotate around this)
@@ -35,21 +42,32 @@ func enter():
 	
 	_swing_axis = bar.get_bar_axis()
 	
-	# Swing plane forward = the horizontal direction the player was moving,
-	# projected perpendicular to the bar. Falling straight down? Use facing.
+	# Swing plane forward = the direction you're FACING, projected
+	# perpendicular to the bar. You always swing the way you came in -
+	# never flipped backwards. (Velocity is the fallback if facing is
+	# parallel to the bar.)
+	var facing = -player.global_transform.basis.z
 	var h_vel = Vector3(player.velocity.x, 0, player.velocity.z)
-	var seed_dir = h_vel if h_vel.length() > 1.0 else -player.global_transform.basis.z
-	_swing_forward = (seed_dir - _swing_axis * seed_dir.dot(_swing_axis))
+	_swing_forward = (facing - _swing_axis * facing.dot(_swing_axis))
+	if _swing_forward.length() < 0.15 and h_vel.length() > 0.5:
+		_swing_forward = (h_vel - _swing_axis * h_vel.dot(_swing_axis))
 	if _swing_forward.length() < 0.1:
 		_swing_forward = _swing_axis.cross(Vector3.UP)
 	_swing_forward = _swing_forward.normalized()
+	if _swing_forward.y != 0.0:
+		_swing_forward.y = 0.0
+		_swing_forward = _swing_forward.normalized()
 	
-	# Convert grab momentum into initial swing energy (tangential speed)
-	var tangent = _tangent_dir()
-	_angle = 0.0
-	_angular_velocity = clampf(player.velocity.dot(tangent) / hang_radius, -4.0, 4.0)
-	if absf(_angular_velocity) < 1.2:
-		_angular_velocity = 1.2 * signf(_angular_velocity if _angular_velocity != 0.0 else 1.0)
+	# Start at the angle you actually grabbed at (no snap-teleport to the
+	# bottom of the arc, which is what caused the backwards flip)
+	var anchor = bar.get_grab_point(player.global_position)
+	var rel = player.global_position - anchor
+	_angle = clampf(atan2(rel.dot(_swing_forward), maxf(-rel.y, 0.05)), -1.2, 1.2)
+	
+	# Momentum ALWAYS carries forward: swing speed comes from how fast you
+	# were going, direction is always the way you're facing.
+	var grab_speed = maxf(h_vel.length(), maxf(-player.velocity.y * 0.5, 0.0))
+	_angular_velocity = clampf(grab_speed / hang_radius, 1.4, 5.5)
 	
 	player.velocity = Vector3.ZERO
 	
@@ -115,9 +133,18 @@ func physics_update(delta: float):
 	player.global_position = anchor + offset
 	player.velocity = _tangent_dir() * _angular_velocity * hang_radius
 	
-	# Face along the swing direction
-	var face = _swing_forward * signf(_angular_velocity if absf(_angular_velocity) > 0.1 else 1.0)
-	player.rotation.y = lerp_angle(player.rotation.y, atan2(-face.x, -face.z), 10.0 * delta)
+	# BODY TILT: stay aligned with the swing rod - head toward the bar,
+	# like a human hanging on. Fully sideways = body horizontal, head in.
+	var body_up = (anchor - player.global_position).normalized()
+	var travel = signf(_angular_velocity) if absf(_angular_velocity) > 0.1 else 1.0
+	var face = _swing_forward * travel
+	var fwd = (face - body_up * face.dot(body_up)).normalized()
+	var z_axis = -fwd
+	var x_axis = body_up.cross(z_axis).normalized()
+	var target_basis = Basis(x_axis, body_up, z_axis).orthonormalized()
+	# Track hard - the swing moves fast and a lazy slerp visibly lags,
+	# leaving Inke facing up when she should be sideways-head-in
+	player.global_transform.basis = player.global_transform.basis.slerp(target_basis, minf(30.0 * delta, 1.0)).orthonormalized()
 
 func _tangent_dir() -> Vector3:
 	"""Direction of travel along the arc for positive angular velocity."""
@@ -129,22 +156,30 @@ func _current_amplitude(g: float) -> float:
 	return acos(clampf(cos_peak, -1.0, 1.0))
 
 func _launch():
-	"""Release along the arc tangent - timing the jump IS the skill."""
+	"""Release along the arc tangent - timing the jump IS the skill.
+	Then add the flat up/forward juice bonuses (Inspector-tunable)."""
+	var travel = signf(_angular_velocity) if _angular_velocity != 0.0 else 1.0
 	var v = _tangent_dir() * _angular_velocity * hang_radius * launch_boost
 	
 	var speed = v.length()
 	if speed < min_launch_speed:
-		v = (v.normalized() if speed > 0.1 else _swing_forward) * min_launch_speed
-	elif speed > max_launch_speed:
-		v = v.normalized() * max_launch_speed
+		v = (v.normalized() if speed > 0.1 else _swing_forward * travel) * min_launch_speed
 	
 	# Never launch downward off a swing bar - flatten and keep the speed
 	if v.y < 0.0:
 		var flat = Vector3(v.x, 0, v.z)
-		v = (flat.normalized() if flat.length() > 0.1 else _swing_forward) * v.length() * 0.9
-		v.y = 3.0
+		v = (flat.normalized() if flat.length() > 0.1 else _swing_forward * travel) * v.length() * 0.9
+		v.y = 0.0
+	
+	# THE JUICE: flat height + outward push on top of the earned speed
+	v += _swing_forward * travel * launch_forward_bonus
+	v.y += launch_up_bonus
+	
+	if v.length() > max_launch_speed:
+		v = v.normalized() * max_launch_speed
 	
 	player.velocity = v
+	_set_upright()
 	_detach()
 	
 	# Launch flourish
@@ -156,8 +191,18 @@ func _launch():
 
 func _drop_off():
 	player.velocity = Vector3(0, -1.0, 0)
+	_set_upright()
 	_detach()
 	change_to("FallingState")
+
+func _set_upright():
+	"""Undo the swing tilt: back to feet-down, keeping the yaw we're facing."""
+	var fwd = -player.global_transform.basis.z
+	fwd.y = 0.0
+	if fwd.length() < 0.1:
+		fwd = _swing_forward
+	fwd = fwd.normalized()
+	player.rotation = Vector3(0, atan2(-fwd.x, -fwd.z), 0)
 
 func _detach():
 	if bar and is_instance_valid(bar):
@@ -171,4 +216,5 @@ func exit():
 	if bar and is_instance_valid(bar):
 		bar.notify_released(player, regrab_lockout)
 	bar = null
+	_set_upright()
 	player.scale = Vector3.ONE

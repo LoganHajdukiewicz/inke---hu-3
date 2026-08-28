@@ -14,6 +14,12 @@ class_name AttackManager
 @export_group("Spin Attack")
 @export var spin_attack_cooldown: float = 1.0
 
+@export_group("Sound")
+## Sound played on every attack swing. Leave EMPTY for the beefy built-in
+## default - drop any AudioStream here to replace it.
+@export var attack_sound: AudioStream = null
+@export var attack_volume_db: float = 0.0
+
 # Attack state
 var can_attack: bool = true
 var attack_timer: float = 0.0
@@ -38,7 +44,7 @@ func setup_attack_hitbox():
 	# Layer 1 = default layer where enemies exist
 	# We need to DETECT layer 1 (enemies) but not BE on layer 1 (to avoid self-collision)
 	attack_hitbox.collision_layer = 0    # Don't exist on any layer
-	attack_hitbox.collision_mask = 1     # Detect things on layer 1 (enemies)
+	attack_hitbox.collision_mask = 1 | 4  # Layer 1 (enemies/props) + layer 4 (NPCs)
 	attack_hitbox.monitoring = false     # Start disabled
 	attack_hitbox.monitorable = false    # We don't need to be detected
 	
@@ -108,6 +114,10 @@ func perform_spin_attack():
 	can_attack = false
 	attack_timer = spin_attack_cooldown
 	
+	# Spin swing sound - slightly lower pitch than the light attack
+	var snd = attack_sound if attack_sound else Sfx.attack_whoosh()
+	Sfx.play_3d(player, snd, player.global_position, attack_volume_db, 0.85)
+	
 	# Transition to spin attack state
 	state_machine.change_state("SpinAttackState")
 
@@ -127,6 +137,10 @@ func perform_attack(_is_heavy: bool):
 	can_attack = false
 	attack_timer = cooldown
 	is_attacking = true
+	
+	# Swing sound (Inspector slot overrides the built-in default)
+	var snd = attack_sound if attack_sound else Sfx.attack_whoosh()
+	Sfx.play_3d(player, snd, player.global_position, attack_volume_db)
 	
 	# Update hitbox size for this attack
 	var collision_shape = attack_hitbox.get_child(0) as CollisionShape3D
@@ -176,6 +190,12 @@ func perform_attack(_is_heavy: bool):
 		elif body.is_in_group("Enemy") and body not in damaged_entities:
 			hit_enemy(body, damage, knockback_horizontal, knockback_vertical)
 			damaged_entities.append(body)
+		
+		# NPCs (quest givers etc): no damage, no shove - they just react
+		elif body.is_in_group("NPCs") and body not in damaged_entities:
+			if body.has_method("on_hit"):
+				body.on_hit()
+			damaged_entities.append(body)
 	
 	# Process area hits
 	for area in hit_areas:
@@ -199,6 +219,11 @@ func perform_attack(_is_heavy: bool):
 			# Check for enemy parent
 			elif parent.is_in_group("Enemy") and parent not in damaged_entities:
 				hit_enemy(parent, damage, knockback_horizontal, knockback_vertical)
+				damaged_entities.append(parent)
+			
+			elif parent.is_in_group("NPCs") and parent not in damaged_entities:
+				if parent.has_method("on_hit"):
+					parent.on_hit()
 				damaged_entities.append(parent)
 	
 	

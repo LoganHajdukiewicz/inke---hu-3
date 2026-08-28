@@ -67,6 +67,19 @@ func physics_update(delta: float):
 		change_to("DoubleJumpState")
 		return
 	
+	# Wall slide: falling while pushing INTO a wall -> grab on and slide.
+	# (Without this, wall sliding was only reachable after a wall jump, so
+	# normal falls against walls stayed at full falling speed with no dust.)
+	if fall_time > 0.08 and player.velocity.y < -1.5:
+		var slide_input = Input.get_vector("left", "right", "forward", "back")
+		if slide_input.length() > 0.3:
+			var cam_basis = player.get_node("CameraController").transform.basis
+			var wish = (cam_basis * Vector3(slide_input.x, 0, slide_input.y)).normalized()
+			var wall_hit = _check_slideable_wall(wish)
+			if wall_hit:
+				change_to("WallSlidingState")
+				return
+	
 	# Very limited air control while falling
 	handle_falling_movement(delta)
 	
@@ -81,6 +94,25 @@ func physics_update(delta: float):
 		return
 	
 	player.move_and_slide()
+
+func _check_slideable_wall(direction: Vector3) -> bool:
+	"""Is there a wall in this direction that we're pressing into?
+	Climbable walls and ladders are excluded - climbing wins there."""
+	var space_state = player.get_world_3d().direct_space_state
+	for height in [0.5, 1.2]:
+		var ray_start = player.global_position + Vector3(0, height, 0)
+		var query = PhysicsRayQueryParameters3D.create(ray_start, ray_start + direction * 0.9)
+		query.collision_mask = 1
+		query.exclude = [player]
+		var result = space_state.intersect_ray(query)
+		if result:
+			var collider = result.collider
+			if collider and (collider.is_in_group("ClimbableWall") or collider.is_in_group("Ladder")):
+				return false
+			# Must be a real wall (near-vertical) and we must be pressing into it
+			if absf(result.normal.y) < 0.35 and direction.dot(result.normal) < -0.5:
+				return true
+	return false
 
 func get_fall_gravity_multiplier() -> float:
 	# Progressive gravity increase for faster falling

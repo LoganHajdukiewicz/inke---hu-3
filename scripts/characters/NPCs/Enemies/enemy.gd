@@ -40,6 +40,12 @@ var _boss_bar: BossHealthBar = null
 @export var bounce_feedback: int = 9
 @export var max_roam_distance: float = 10.0  # Maximum distance from spawn point
 
+@export_group("Sound")
+## Played when the player bounces off this enemy's head. Leave EMPTY for
+## the beefy built-in thud - drop any AudioStream here to replace it.
+@export var stomp_sound: AudioStream = null
+@export var stomp_volume_db: float = 1.0
+
 @export_group("Attack")
 @export var attack_range: float = 2.8           # Start a lunge from this close
 @export var attack_windup: float = 0.35         # Telegraph time before the lunge
@@ -386,6 +392,10 @@ func _on_head_hurtbox_body_entered(body: Node3D):
 		# Give player bounce
 		if "velocity" in body:
 			body.velocity.y = bounce_feedback
+		
+		# Meaty head-bounce thud (Inspector slot overrides the default)
+		var snd = stomp_sound if stomp_sound else Sfx.stomp_bounce()
+		Sfx.play_3d(self, snd, global_position, stomp_volume_db)
 		
 		# Prevent enemy from damaging player
 		can_chase = false

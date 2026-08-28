@@ -60,7 +60,7 @@ func setup_spin_hitbox():
 	
 	# Set collision properties
 	spin_hitbox.collision_layer = 0
-	spin_hitbox.collision_mask = 1  # Detect enemies
+	spin_hitbox.collision_mask = 1 | 4  # Enemies + NPCs (layer 4)
 	spin_hitbox.monitoring = true
 	spin_hitbox.monitorable = false
 	
@@ -156,6 +156,10 @@ func check_and_pushback_enemies():
 			if body.has_method("take_damage"):
 				body.take_damage(damage)
 				hit_enemies.append(body)
+		elif body.is_in_group("NPCs") and body not in hit_enemies:
+			if body.has_method("on_hit"):
+				body.on_hit()
+			hit_enemies.append(body)
 	
 	# Process areas
 	for area in overlapping_areas:

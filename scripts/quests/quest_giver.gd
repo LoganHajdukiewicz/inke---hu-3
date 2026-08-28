@@ -55,11 +55,14 @@ var _marker: Label3D
 var _bob_time: float = 0.0
 var _settled: bool = false
 var _settled_position: Vector3
+var _flashing: bool = false
+var _flash_mats: Array = []   # [material, original_color] pairs, collected once
 
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
 		add_to_group("QuestGiver")
+		add_to_group("NPCs")   # Hittable-but-not-hurtable: attacks make us flash
 	
 	_build_visual()
 	_build_interaction_area()
@@ -440,6 +443,39 @@ func _build_visual() -> void:
 	tag.pixel_size = 0.008
 	tag.position.y = 2.35
 	add_child(tag)
+
+
+# === HIT REACTION ============================================================
+# NPCs can't be damaged or moved, but they DO notice. For now: a white
+# flash + a little indignant squash. Once the NPCs are modeled, swap the
+# squash for a proper hurt animation here.
+
+func on_hit() -> void:
+	"""Called by the player's attacks (they scan the \"NPCs\" group)."""
+	if Engine.is_editor_hint() or _flashing or not _mesh_root:
+		return
+	_flashing = true
+	
+	# Collect flashable materials once (torso, head, eyes)
+	if _flash_mats.is_empty():
+		for child in _mesh_root.get_children():
+			if child is MeshInstance3D and child.material_override is StandardMaterial3D:
+				_flash_mats.append([child.material_override, child.material_override.albedo_color])
+	
+	for pair in _flash_mats:
+		pair[0].albedo_color = Color.WHITE
+	
+	# Indignant flinch (visual only - the body never moves from its spot)
+	var tween = create_tween()
+	tween.tween_property(_mesh_root, "scale", Vector3(1.12, 0.85, 1.12), 0.06)
+	tween.tween_property(_mesh_root, "scale", Vector3.ONE, 0.16).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	await get_tree().create_timer(0.12).timeout
+	if not is_instance_valid(self):
+		return
+	for pair in _flash_mats:
+		pair[0].albedo_color = pair[1]
+	_flashing = false
 
 
 func _build_ui() -> void:

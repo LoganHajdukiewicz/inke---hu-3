@@ -14,6 +14,12 @@ class_name GroundSlamState
 @export var camera_shake_intensity: float = 0.35
 @export var camera_shake_duration: float = 0.25
 
+@export_category("Sound")
+## Impact sound on landing. Leave EMPTY for the beefy built-in boom -
+## drop any AudioStream here to replace it.
+@export var slam_sound: AudioStream = null
+@export var slam_volume_db: float = 2.0
+
 var slam_phase: String = "hang"   # "hang" -> "fall" -> done
 var hang_timer: float = 0.0
 
@@ -57,6 +63,10 @@ func physics_update(delta: float):
 
 func _impact():
 	"""Landing: AOE damage, screen shake, squash effect"""
+	# BOOM (Inspector slot overrides the built-in default)
+	var snd = slam_sound if slam_sound else Sfx.slam_boom()
+	Sfx.play_3d(player, snd, player.global_position, slam_volume_db)
+	
 	# Squash!
 	var tween = create_tween()
 	tween.tween_property(player, "scale", Vector3(1.4, 0.55, 1.4), 0.06)

@@ -2,23 +2,26 @@ extends State
 class_name WallSlidingState
 
 # Wall sliding configuration
-@export var slide_speed: float = -1.5  # Slow downward slide (much slower than falling)
-@export var min_slide_speed: float = -4.0  # Maximum slide speed
-@export var slide_friction: float = 0.95  # How much to slow down vertical velocity
+@export var slide_speed: float = -1.2  # Slow downward slide (much slower than falling)
+@export var min_slide_speed: float = -3.5  # Maximum slide speed
+@export var grab_deceleration: float = 40.0  # How hard the wall grabs you on entry (units/s^2)
 @export var wall_check_distance: float = 1.2  # How far to check for walls (generous so near-misses still count)
 @export var wall_stick_force: float = 4.0  # Gentle pull toward the wall - makes the wall "sticky"
 @export var detach_hold_time: float = 0.25  # Hold away from wall this long to deliberately detach
 
 @export_category("Dust Effect")
 @export var dust_enabled: bool = true
-@export var dust_color: Color = Color(0.75, 0.72, 0.68, 0.85)
+@export var dust_color: Color = Color(0.9, 0.88, 0.82, 0.75)   # Same as the landing puff
 @export var dust_amount: int = 48
+@export var puff_interval: float = 0.09    # Seconds between scrape puffs
 
 # Internal state
 var wall_normal: Vector3 = Vector3.ZERO
 var is_sliding: bool = false
 var away_hold_timer: float = 0.0  # How long the stick has been held away from the wall
 var _dust: GPUParticles3D = null
+var _puff_timer: float = 0.0
+var _grab_settled: bool = false   # Finished decelerating into the slide?
 
 func enter():
 	
@@ -31,9 +34,12 @@ func enter():
 	
 	is_sliding = true
 	away_hold_timer = 0.0
+	_puff_timer = 0.0
+	_grab_settled = player.velocity.y >= slide_speed
 	
-	# Reduce velocity for slide
-	player.velocity.y = max(player.velocity.y * slide_friction, slide_speed)
+	# Kill horizontal speed - we're stuck to the wall now
+	player.velocity.x = 0.0
+	player.velocity.z = 0.0
 	
 	# Face the wall
 	var target_rotation = atan2(-wall_normal.x, -wall_normal.z)
@@ -41,6 +47,7 @@ func enter():
 	
 	if dust_enabled:
 		_create_dust()
+		_spawn_scrape_puff(1.2)   # Grab burst so the catch reads instantly
 
 func physics_update(delta: float):
 	# Refresh the wall normal each frame (walls can curve / we can drift)
@@ -78,12 +85,19 @@ func physics_update(delta: float):
 	# margin would otherwise drift us out of raycast range
 	player.velocity += -wall_normal * wall_stick_force * delta
 	
-	# Slide physics: heavily damped gravity, ramping from slide_speed down
-	# to min_slide_speed. Much slower than vanilla falling - the wall has
-	# friction. (The old code had two contradictory clamps that pinned the
-	# speed at slide_speed forever.)
-	player.velocity.y += player.get_gravity().y * delta * 0.25
-	player.velocity.y = clampf(player.velocity.y, min_slide_speed, slide_speed)
+	# Slide physics. Two phases:
+	# 1) GRAB: if we came in falling fast, decelerate HARD toward slide
+	#    speed (this is the friction-catch that makes sliding visibly
+	#    slower than falling - snapping instantly read as a teleport,
+	#    not clamping at all read as "same speed as falling")
+	# 2) SLIDE: gentle gravity ramp from slide_speed to min_slide_speed
+	if not _grab_settled:
+		player.velocity.y = move_toward(player.velocity.y, slide_speed, grab_deceleration * delta)
+		if player.velocity.y >= slide_speed - 0.01:
+			_grab_settled = true
+	else:
+		player.velocity.y += player.get_gravity().y * delta * 0.25
+		player.velocity.y = clampf(player.velocity.y, min_slide_speed, slide_speed)
 	
 	# Minimal horizontal control while sliding
 	var move_input = Input.get_vector("left", "right", "forward", "back")
@@ -117,7 +131,52 @@ func physics_update(delta: float):
 		_dust.global_position = player.global_position + Vector3(0, 0.9, 0) - wall_normal * 0.45
 		_dust.emitting = player.velocity.y < -0.5
 	
+	# Scrape puffs - same dust-ball style as landing on the ground, so the
+	# slide visibly kicks up dust the whole way down
+	if dust_enabled and player.velocity.y < -0.5:
+		_puff_timer -= delta
+		if _puff_timer <= 0.0:
+			_puff_timer = puff_interval
+			_spawn_scrape_puff(0.5)
+	
 	player.move_and_slide()
+
+func _spawn_scrape_puff(strength: float):
+	"""Dust balls at the wall contact point - same look as the landing puff
+	(unshaded spheres that scatter and fade), so the effect matches."""
+	var parent = player.get_parent()
+	if not parent:
+		return
+	var contact = player.global_position + Vector3(0, 0.9, 0) - wall_normal * 0.4
+	var along = Vector3.UP.cross(wall_normal).normalized()
+	var count = 2 if strength < 1.0 else 5
+	for i in range(count):
+		var puff = MeshInstance3D.new()
+		var sphere = SphereMesh.new()
+		var size = randf_range(0.09, 0.2) * strength
+		sphere.radius = size
+		sphere.height = size * 2.0
+		sphere.radial_segments = 8
+		sphere.rings = 4
+		puff.mesh = sphere
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = dust_color
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		puff.material_override = mat
+		parent.add_child(puff)
+		puff.global_position = contact + along * randf_range(-0.3, 0.3) + Vector3(0, randf_range(-0.2, 0.2), 0)
+		# Puffs kick UP and slightly off the wall as you scrape down
+		var target = puff.global_position \
+			+ wall_normal * randf_range(0.15, 0.45) \
+			+ along * randf_range(-0.4, 0.4) \
+			+ Vector3(0, randf_range(0.4, 0.9), 0)
+		var tween = puff.create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(puff, "global_position", target, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(puff, "scale", Vector3(0.1, 0.1, 0.1), 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tween.tween_property(mat, "albedo_color:a", 0.0, 0.35)
+		tween.chain().tween_callback(puff.queue_free)
 
 func _create_dust():
 	"""Little dust cloud kicked up at the hand/wall contact point."""
