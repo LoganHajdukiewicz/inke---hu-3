@@ -121,11 +121,11 @@ func _on_health_changed(health: int) -> void:
 		_ghost_tween.tween_property(_ghost, "size:x", inner_w * frac, 0.3) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	
-	# Hit shake
+	# Hit shake (use offset instead of position to maintain anchor layout)
 	var shake = create_tween()
-	shake.tween_property(_root, "position", Vector2(6, 0), 0.04)
-	shake.tween_property(_root, "position", Vector2(-4, 0), 0.04)
-	shake.tween_property(_root, "position", Vector2.ZERO, 0.06)
+	shake.tween_property(_root, "offset_top", -(boss.boss_bar_height + 78.0) + 6, 0.04)
+	shake.tween_property(_root, "offset_top", -(boss.boss_bar_height + 78.0) - 4, 0.04)
+	shake.tween_property(_root, "offset_top", -(boss.boss_bar_height + 78.0), 0.06)
 
 
 func dismiss() -> void:

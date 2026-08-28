@@ -1,3 +1,4 @@
+@tool
 class_name QuestGiver
 extends CharacterBody3D
 
@@ -57,23 +58,18 @@ var _settled_position: Vector3
 
 
 func _ready() -> void:
-	add_to_group("QuestGiver")
+	if not Engine.is_editor_hint():
+		add_to_group("QuestGiver")
+	
 	_build_visual()
+	_build_interaction_area()
+	
+	if Engine.is_editor_hint():
+		_build_debug_area_mesh()
+		return  # Skip gameplay setup in editor
+	
 	_build_ui()
 	_ensure_dialogue_ui()
-	
-	var area = Area3D.new()
-	area.collision_layer = 0
-	area.collision_mask = 1
-	var col = CollisionShape3D.new()
-	var sph = SphereShape3D.new()
-	sph.radius = 3.0
-	col.shape = sph
-	col.position.y = 1.0
-	area.add_child(col)
-	add_child(area)
-	area.body_entered.connect(_on_area_entered)
-	area.body_exited.connect(_on_area_exited)
 	
 	var qm = get_node_or_null("/root/QuestManager")
 	if qm:
@@ -83,7 +79,50 @@ func _ready() -> void:
 	_update_marker()
 
 
+func _build_interaction_area() -> void:
+	"""Create the Area3D for player detection (used in both editor and runtime)."""
+	var area = Area3D.new()
+	area.name = "InteractionArea"
+	area.collision_layer = 0
+	area.collision_mask = 1
+	var col = CollisionShape3D.new()
+	var sph = SphereShape3D.new()
+	sph.radius = 3.0
+	col.shape = sph
+	col.position.y = 1.0
+	area.add_child(col)
+	add_child(area)
+	
+	if not Engine.is_editor_hint():
+		area.body_entered.connect(_on_area_entered)
+		area.body_exited.connect(_on_area_exited)
+
+
+func _build_debug_area_mesh() -> void:
+	"""Create a semi-transparent sphere mesh to visualize interaction area in editor."""
+	var debug_mesh_instance = MeshInstance3D.new()
+	debug_mesh_instance.name = "DebugInteractionArea"
+	
+	var sphere_mesh = SphereMesh.new()
+	sphere_mesh.radius = 3.0
+	sphere_mesh.height = 6.0
+	debug_mesh_instance.mesh = sphere_mesh
+	debug_mesh_instance.position.y = 1.0
+	
+	# Semi-transparent green material for visibility
+	var debug_mat = StandardMaterial3D.new()
+	debug_mat.albedo_color = Color(0.0, 1.0, 0.5, 0.15)
+	debug_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	debug_mat.no_depth_test = false
+	debug_mesh_instance.set_surface_override_material(0, debug_mat)
+	
+	add_child(debug_mesh_instance)
+
+
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return  # No physics in editor
+	
 	# Settle onto the floor once, then FREEZE. Always call move_and_slide()
 	# to maintain collision with the player, but reset position to prevent
 	# being pushed around by walk-into forces.
@@ -108,6 +147,9 @@ func _process(delta: float) -> void:
 	_bob_time += delta
 	if _marker:
 		_marker.position.y = 2.6 + sin(_bob_time * 2.5) * 0.1
+	
+	if Engine.is_editor_hint():
+		return  # Skip gameplay logic in editor
 	
 	# Face the player (visual only - the body itself never moves)
 	if player_in_range and current_player and is_instance_valid(current_player) and _mesh_root:
