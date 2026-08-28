@@ -208,6 +208,10 @@ beam_length = 12.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1.5, -14)
 floor_size = Vector3(4, 0.5, 4)
 
+[node name="BeamEnd2" parent="Gym" unique_id=1202502755 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1.5, -0.42356825)
+floor_size = Vector3(4, 0.5, 4)
+
 [node name="Rope1" parent="Gym" unique_id=2115806422 instance=ExtResource("10_rope")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 9, 30)
 
@@ -236,7 +240,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0.8, 50)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.835, 0.8, 50)
 
 [node name="BoxC" parent="Items" unique_id=1819001631 instance=ExtResource("12_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.977955, 2.8067837, 50)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.977955, 1.8174396, 50)
 
 [node name="Barrel1" parent="Items" unique_id=2010980807 instance=ExtResource("13_barrel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.8, 50)
@@ -486,7 +490,7 @@ outline_size = 14
 [node name="QuestHub" type="Node3D" parent="." unique_id=1489415191]
 
 [node name="GizmoGears" parent="QuestHub" unique_id=1363694966 instance=ExtResource("19_giver")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2962103, 0.5, 8)
 npc_name = "Gizmo"
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears")])
 small_talk = Array[String](["Oh! A visitor. Don't get many of those out here in the grey.", "Name's Gizmo. I fix things. Or I would, if I had any spare parts left."])
@@ -496,7 +500,7 @@ retry_line = "Bah, gears are slippery little things. Dust yourself off - another
 thanks = "My workbench is saved! You're a lifesaver."
 
 [node name="BruiserBetty" parent="QuestHub" unique_id=503681364 instance=ExtResource("19_giver")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4763908, 0.5, 8)
 npc_name = "Betty"
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_defeat")])
 body_color = Color(0.85, 0.3, 0.25, 1)
@@ -518,7 +522,7 @@ retry_line = "Gravity wins sometimes. Dust yourself off and climb again, friend.
 thanks = "You made it! I can almost see the view through your eyes."
 
 [node name="ForgetfulFern" parent="QuestHub" unique_id=735298719 instance=ExtResource("19_giver")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.5, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.057325, 0.5, 8)
 npc_name = "Fern"
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_fetch")])
 body_color = Color(0.6, 0.4, 0.85, 1)
@@ -545,8 +549,7 @@ item_id = "gb_lost_gizmo"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 4.2, 8)
 pixel_size = 0.012
 billboard = 1
-text = "QUEST ROW (press E to talk) - Gizmo: gear hunt |
-Betty: bully fight | Pete: summit climb | Fern: timed fetch"
+text = "QUESTS"
 font_size = 36
 outline_size = 14
 
