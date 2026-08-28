@@ -18,15 +18,15 @@
 [ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/ink_wisp.tscn" id="16_wisp"]
 [ext_resource type="PackedScene" uid="uid://csfqpj8nsbrvu" path="res://scenes/items/Collectibles/paint_droplet.tscn" id="17_paint"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="18_check"]
-[ext_resource type="PackedScene" uid="uid://questgiver001" path="res://scenes/quests/quest_giver.tscn" id="19_giver"]
-[ext_resource type="PackedScene" uid="uid://locflag000001" path="res://scenes/quests/location_flag.tscn" id="20_flag"]
-[ext_resource type="PackedScene" uid="uid://questitem0001" path="res://scenes/quests/quest_item.tscn" id="21_item"]
-[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="22_quest"]
+[ext_resource type="PackedScene" uid="uid://bercg7tu4yiyy" path="res://scenes/quests/quest_giver.tscn" id="19_giver"]
+[ext_resource type="PackedScene" uid="uid://dxioe5mivmaii" path="res://scenes/quests/location_flag.tscn" id="20_flag"]
+[ext_resource type="PackedScene" uid="uid://bercha5ed7iyy" path="res://scenes/quests/quest_item.tscn" id="21_item"]
+[ext_resource type="Script" uid="uid://dnraa8fco3c7e" path="res://scripts/quests/quest.gd" id="22_quest"]
 [ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="23_enemy"]
-[ext_resource type="PackedScene" uid="uid://pressbtn00001" path="res://scenes/environments/pressable_button.tscn" id="24_btn"]
-[ext_resource type="PackedScene" uid="uid://enemyspawn001" path="res://scenes/environments/enemy_spawner.tscn" id="25_spawn"]
-[ext_resource type="PackedScene" uid="uid://lasrenemy0001" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="26_laser"]
-[ext_resource type="PackedScene" uid="uid://swingbar00001" path="res://scenes/environments/swing_bar.tscn" id="27_swingbar"]
+[ext_resource type="PackedScene" uid="uid://brcf25nq7iyy" path="res://scenes/environments/pressable_button.tscn" id="24_btn"]
+[ext_resource type="PackedScene" uid="uid://ryreqr1dg5aa" path="res://scenes/environments/enemy_spawner.tscn" id="25_spawn"]
+[ext_resource type="PackedScene" uid="uid://djy07jj4umaii" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="26_laser"]
+[ext_resource type="PackedScene" uid="uid://dgu522lrq7iyy" path="res://scenes/environments/swing_bar.tscn" id="27_swingbar"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -41,7 +41,7 @@ sky = SubResource("Sky_sdd4f")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Curve3D" id="Curve3D_t08ho"]
+[sub_resource type="Curve3D" id="Curve3D_2uvoh"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 108.91814, 13.674346, -0.07700789, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
@@ -54,14 +54,7 @@ script = ExtResource("22_quest")
 quest_id = "gb_collect_gears"
 title = "Gear Grab"
 description = "HU-3 is hungry. Collect 5 GEARs - the gear line by the items plaza is a good start."
-quest_type = 0
 target_count = 5
-target_id = ""
-has_time_limit = false
-time_limit_seconds = 60.0
-cred_reward = 10
-repeatable = false
-target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [sub_resource type="Resource" id="Quest_defeat"]
 script = ExtResource("22_quest")
@@ -69,12 +62,8 @@ quest_id = "gb_defeat_bully"
 title = "The Bully"
 description = "Some inkling has been stomping around the plaza. Teach it a lesson! (It shows up when you accept.)"
 quest_type = 1
-target_count = 1
 target_id = "gb_bully"
-has_time_limit = false
-time_limit_seconds = 60.0
 cred_reward = 15
-repeatable = false
 spawn_target_enemy = ExtResource("23_enemy")
 target_enemy_spawn_position = Vector3(25, 1.5, 68)
 
@@ -84,13 +73,8 @@ quest_id = "gb_reach_summit"
 title = "The Summit"
 description = "Get to the top of the tall block west of spawn. Wall jump, ledge grab - however you can."
 quest_type = 2
-target_count = 1
 target_id = "gb_tall_block_summit"
-has_time_limit = false
-time_limit_seconds = 60.0
 cred_reward = 15
-repeatable = false
-target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [sub_resource type="Resource" id="Quest_fetch"]
 script = ExtResource("22_quest")
@@ -98,13 +82,10 @@ quest_id = "gb_fetch_gem"
 title = "Lost Gizmo"
 description = "I dropped my favorite gizmo on the platform on top of the climbable wall. Bring it back, will you?"
 quest_type = 3
-target_count = 1
 target_id = "gb_lost_gizmo"
 has_time_limit = true
 time_limit_seconds = 90.0
 cred_reward = 20
-repeatable = false
-target_enemy_spawn_position = Vector3(0, 0, 0)
 
 [node name="Greybox" type="Node3D" unique_id=2063258851]
 
@@ -219,10 +200,6 @@ floor_size = Vector3(8, 0.5, 8)
 [node name="Ladder" parent="Gym" unique_id=1797152046 instance=ExtResource("7_ladder")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, 3, 10)
 
-[node name="BeamStart" parent="Gym" unique_id=148501356 instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1.5, 0)
-floor_size = Vector3(4, 0.5, 4)
-
 [node name="BalanceBeam" parent="Gym" unique_id=925944640 instance=ExtResource("8_beam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2, -7)
 beam_length = 12.0
@@ -245,7 +222,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
 
 [node name="Rail" parent="Gym" unique_id=60611775 instance=ExtResource("2_k7grp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 2.6968927, -0.23347282)
-curve = SubResource("Curve3D_t08ho")
+curve = SubResource("Curve3D_2uvoh")
 
 [node name="Items" type="Node3D" parent="." unique_id=325595334]
 
@@ -506,9 +483,9 @@ text = "PAINT DROPLET "
 font_size = 36
 outline_size = 14
 
-[node name="QuestHub" type="Node3D" parent="."]
+[node name="QuestHub" type="Node3D" parent="." unique_id=1489415191]
 
-[node name="GizmoGears" parent="QuestHub" instance=ExtResource("19_giver")]
+[node name="GizmoGears" parent="QuestHub" unique_id=1363694966 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, 8)
 npc_name = "Gizmo"
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears")])
@@ -518,60 +495,62 @@ reminder = "Those gears won't collect themselves, friend."
 retry_line = "Bah, gears are slippery little things. Dust yourself off - another go?"
 thanks = "My workbench is saved! You're a lifesaver."
 
-[node name="BruiserBetty" parent="QuestHub" instance=ExtResource("19_giver")]
+[node name="BruiserBetty" parent="QuestHub" unique_id=503681364 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.5, 8)
 npc_name = "Betty"
-body_color = Color(0.85, 0.3, 0.25, 1)
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_defeat")])
+body_color = Color(0.85, 0.3, 0.25, 1)
 small_talk = Array[String](["You hear that stomping last night? That inkling bully is back.", "I'd handle it myself, but my stomping days are behind me."])
 quest_ask = "Would you rough it up on my behalf?"
 reminder = "That bully is still out there strutting around. You'll hear it before you see it."
 retry_line = "It got the better of you, huh? Shake it off, champ. Round two?"
 thanks = "HA! I heard the thud from here. You're my hero."
 
-[node name="PeakPete" parent="QuestHub" instance=ExtResource("19_giver")]
+[node name="PeakPete" parent="QuestHub" unique_id=1758887687 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0.5, 8)
 npc_name = "Pete"
-body_color = Color(0.3, 0.7, 0.4, 1)
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_reach")])
+body_color = Color(0.3, 0.7, 0.4, 1)
 small_talk = Array[String](["I used to climb, you know. Best view in the grey, up on that tall block.", "These old servos won't make the trip anymore."])
 quest_ask = "Would you climb it for me? Just to know someone still can."
 reminder = "The tall block, west of spawn. The view's worth it, I promise."
 retry_line = "Gravity wins sometimes. Dust yourself off and climb again, friend."
 thanks = "You made it! I can almost see the view through your eyes."
 
-[node name="ForgetfulFern" parent="QuestHub" instance=ExtResource("19_giver")]
+[node name="ForgetfulFern" parent="QuestHub" unique_id=735298719 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.5, 8)
 npc_name = "Fern"
-body_color = Color(0.6, 0.4, 0.85, 1)
 quests = Array[ExtResource("22_quest")]([SubResource("Quest_fetch")])
+body_color = Color(0.6, 0.4, 0.85, 1)
 small_talk = Array[String](["Have you seen my gizmo? Pink, shiny, extremely important?", "I left it SOMEWHERE. On top of something. Something climbable?"])
 quest_ask = "Could you fetch it before something eats it? You're on the clock!"
 reminder = "My gizmo! Top of the climbing wall! Tick tock!"
 retry_line = "Time got away from you? Happens to me constantly. Dust off - try again?"
 thanks = "MY GIZMO! Oh thank you thank you thank you!"
 
-[node name="SummitFlag" parent="QuestHub" instance=ExtResource("20_flag")]
+[node name="SummitFlag" parent="QuestHub" unique_id=1618863247 instance=ExtResource("20_flag")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5, -20)
+monitorable = false
 flag_id = "gb_tall_block_summit"
 shape = 0
 size = Vector3(10, 4, 10)
 visible_in_game = true
 discovery_text = "SUMMIT REACHED!"
 
-[node name="LostGizmo" parent="QuestHub" instance=ExtResource("21_item")]
+[node name="LostGizmo" parent="QuestHub" unique_id=1242573672 instance=ExtResource("21_item")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 6, 14.5)
 item_id = "gb_lost_gizmo"
 
-[node name="QuestGiverLabel" type="Label3D" parent="QuestHub"]
+[node name="QuestGiverLabel" type="Label3D" parent="QuestHub" unique_id=771848633]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 4.2, 8)
 pixel_size = 0.012
 billboard = 1
-text = "QUEST ROW (press E to talk) - Gizmo: gear hunt |\nBetty: bully fight | Pete: summit climb | Fern: timed fetch"
+text = "QUEST ROW (press E to talk) - Gizmo: gear hunt |
+Betty: bully fight | Pete: summit climb | Fern: timed fetch"
 font_size = 36
 outline_size = 14
 
-[node name="SummitFlagLabel" type="Label3D" parent="QuestHub"]
+[node name="SummitFlagLabel" type="Label3D" parent="QuestHub" unique_id=740840468]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 7.5, -20)
 pixel_size = 0.012
 billboard = 1
@@ -579,117 +558,115 @@ text = "LOCATION FLAG (stand here for The Summit quest)"
 font_size = 36
 outline_size = 14
 
-[node name="ButtonArena" type="Node3D" parent="."]
+[node name="ButtonArena" type="Node3D" parent="." unique_id=1801561175]
 
-[node name="MeleeSpawner" parent="ButtonArena" instance=ExtResource("25_spawn")]
+[node name="MeleeSpawner" parent="ButtonArena" unique_id=1863351799 instance=ExtResource("25_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 45)
 enemy_scene = ExtResource("23_enemy")
 enemy_label = "MELEE INKLING SPAWNER"
 spawn_direction = Vector3(0, 0, 4)
 spawned_enemy_id = "gb_button_melee"
 
-[node name="LaserSpawner" parent="ButtonArena" instance=ExtResource("25_spawn")]
+[node name="LaserSpawner" parent="ButtonArena" unique_id=954316083 instance=ExtResource("25_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 45)
 enemy_scene = ExtResource("26_laser")
 enemy_label = "LASER INKLING SPAWNER"
 spawn_direction = Vector3(0, 0, 4)
 spawned_enemy_id = "gb_button_laser"
 
-[node name="GroundButton" parent="ButtonArena" instance=ExtResource("24_btn")]
+[node name="GroundButton" parent="ButtonArena" unique_id=1697526947 instance=ExtResource("24_btn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 54)
-mount_mode = 0
-label_text = "JUMP ON ME:\nSPAWNS MELEE INKLING"
+label_text = "JUMP ON ME:
+SPAWNS MELEE INKLING"
 spawner_path = NodePath("../MeleeSpawner")
 
-[node name="ButtonWall" parent="ButtonArena" instance=ExtResource("1_v8rb7")]
+[node name="ButtonWall" parent="ButtonArena" unique_id=1815099806 instance=ExtResource("1_v8rb7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 56)
 floor_size = Vector3(4, 4, 1)
 
-[node name="WallButton" parent="ButtonArena" instance=ExtResource("24_btn")]
+[node name="WallButton" parent="ButtonArena" unique_id=1587303985 instance=ExtResource("24_btn")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 70, 2.1, 55.4)
 mount_mode = 1
+label_text = "PUNCH ME:
+SPAWNS LASER INKLING"
 button_color = Color(0.2, 0.5, 1, 1)
-label_text = "PUNCH ME:\nSPAWNS LASER INKLING"
 spawner_path = NodePath("../LaserSpawner")
 
-[node name="ButtonArenaLabel" type="Label3D" parent="ButtonArena"]
+[node name="ButtonArenaLabel" type="Label3D" parent="ButtonArena" unique_id=1925732929]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 6.5, 50)
 pixel_size = 0.012
 billboard = 1
-text = "BUTTON ARENA - press a button,\nits labeled spawner opens and the enemy comes out"
+text = "BUTTON ARENA"
 font_size = 36
 outline_size = 14
 
-[node name="WallJumpTower" type="Node3D" parent="."]
-
-[node name="TowerWallA" parent="WallJumpTower" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 15, -20)
-floor_size = Vector3(1, 30, 10)
-
-[node name="TowerWallB" parent="WallJumpTower" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45, 15, -20)
-floor_size = Vector3(1, 30, 10)
-
-[node name="TowerTopPlatform" parent="WallJumpTower" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 29.75, -20)
-floor_size = Vector3(9, 0.5, 10)
-
-[node name="TowerSummitFlag" parent="WallJumpTower" instance=ExtResource("20_flag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 30, -20)
-flag_id = "gb_walljump_tower_top"
-shape = 0
-size = Vector3(9, 4, 10)
-visible_in_game = true
-discovery_text = "TOWER CONQUERED - 30 UNITS UP!"
-
-[node name="TowerLabel" type="Label3D" parent="WallJumpTower"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.5, 5, -13.5)
-pixel_size = 0.012
-billboard = 1
-text = "WALL JUMP TOWER - bounce between\nthe two walls, 30 units to the top"
-font_size = 36
-outline_size = 14
-
-[node name="SwingBarCourse" type="Node3D" parent="."]
-
-[node name="Bar1" parent="SwingBarCourse" instance=ExtResource("27_swingbar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 4.5, 40)
-post_height = 4.5
-
-[node name="Bar2" parent="SwingBarCourse" instance=ExtResource("27_swingbar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5.5, 49)
-post_height = 5.5
-
-[node name="Bar3Tree" parent="SwingBarCourse" instance=ExtResource("27_swingbar")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 6.5, 58)
-tree_disguise = true
-post_height = 5.5
-
-[node name="LandingPlatform" parent="SwingBarCourse" instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 3, 67)
-floor_size = Vector3(6, 0.5, 6)
-
-[node name="SwingBarLabel" type="Label3D" parent="SwingBarCourse"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 8.5, 40)
-pixel_size = 0.012
-billboard = 1
-text = "SWING BARS (Jak style) - jump into a bar to grab,\nit swings itself - press JUMP at the top of the arc to launch.\nThird one is hiding as a tree. Land the platform!"
-
-[node name="BossSpawner" parent="ButtonArena" instance=ExtResource("25_spawn")]
+[node name="BossSpawner" parent="ButtonArena" unique_id=1763020842 instance=ExtResource("25_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 45)
 enemy_scene = ExtResource("23_enemy")
 enemy_label = "BOSS SPAWNER"
-spawn_direction = Vector3(0, 0, 4)
-spawn_count = 1
 max_alive = 1
+spawn_direction = Vector3(0, 0, 4)
 spawn_as_boss = true
-boss_name = "INKZILLA, DEVOURER OF PAINT"
-boss_health = 12
+boss_name = "DEBORA"
+boss_health = 3
 boss_bar_color = Color(0.7, 0.2, 0.9, 1)
 
-[node name="BossButton" parent="ButtonArena" instance=ExtResource("24_btn")]
+[node name="BossButton" parent="ButtonArena" unique_id=656783583 instance=ExtResource("24_btn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 54)
-mount_mode = 0
+label_text = "
+SPAWNS A BOSS (health bar demo)"
 button_color = Color(0.7, 0.2, 0.9, 1)
-label_text = "JUMP ON ME:\nSPAWNS A BOSS (health bar demo)"
 spawner_path = NodePath("../BossSpawner")
+
+[node name="WallJumpTower" type="Node3D" parent="." unique_id=1177389306]
+
+[node name="TowerWallA" parent="WallJumpTower" unique_id=594239786 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 15, -20)
+floor_size = Vector3(1, 30, 10)
+
+[node name="TowerWallB" parent="WallJumpTower" unique_id=1709212747 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45, 15, -20)
+floor_size = Vector3(1, 30, 10)
+
+[node name="TowerTopPlatform" parent="WallJumpTower" unique_id=1152911223 instance=ExtResource("1_v8rb7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 29.75, -20)
+floor_size = Vector3(9, 0.5, 10)
+
+[node name="TowerSummitFlag" parent="WallJumpTower" unique_id=365716022 instance=ExtResource("20_flag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 30, -20)
+monitorable = false
+flag_id = "gb_walljump_tower_top"
+shape = 0
+size = Vector3(9, 4, 10)
+celebrate = false
+
+[node name="TowerLabel" type="Label3D" parent="WallJumpTower" unique_id=1219397492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.5, 5, -13.5)
+pixel_size = 0.012
+billboard = 1
+text = "WALL JUMP TOWER "
+font_size = 36
+outline_size = 14
+
+[node name="SwingBarCourse" type="Node3D" parent="." unique_id=169254054]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 52.60582, 0, -64.427216)
+
+[node name="Bar1" parent="SwingBarCourse" unique_id=1067788166 instance=ExtResource("27_swingbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 4.5, 40)
+post_height = 4.5
+
+[node name="Bar2" parent="SwingBarCourse" unique_id=747680918 instance=ExtResource("27_swingbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5.5, 46.440098)
+post_height = 5.5
+
+[node name="Bar3Tree" parent="SwingBarCourse" unique_id=481476226 instance=ExtResource("27_swingbar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 6.5, 50.91219)
+post_height = 5.5
+tree_disguise = true
+
+[node name="SwingBarLabel" type="Label3D" parent="SwingBarCourse" unique_id=437038687]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 8.5, 40)
+pixel_size = 0.012
+billboard = 1
+text = "SWING BARS
+"

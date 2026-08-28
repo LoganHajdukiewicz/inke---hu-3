@@ -84,26 +84,24 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	# Settle onto the floor once, then FREEZE. A CharacterBody3D that keeps
-	# calling move_and_slide() gets depenetration-shoved by the player - that
-	# was why givers could be pushed around by walking into them. Once
-	# settled we never move again, so we behave like a static obstacle.
+	# Settle onto the floor once, then FREEZE. Always call move_and_slide()
+	# to maintain collision with the player, but reset position to prevent
+	# being pushed around by walk-into forces.
 	if _settled:
 		if global_position != _settled_position:
 			global_position = _settled_position   # paranoia: undo any nudge
-		return
-	
-	if not is_on_floor():
-		velocity.y -= 25.0 * delta
+		velocity = Vector3.ZERO
 	else:
-		velocity.y = 0.0
-		_settled = true
-		_settled_position = global_position
-	velocity.x = 0.0
-	velocity.z = 0.0
+		if not is_on_floor():
+			velocity.y -= 25.0 * delta
+		else:
+			velocity.y = 0.0
+			_settled = true
+			_settled_position = global_position
+		velocity.x = 0.0
+		velocity.z = 0.0
+	
 	move_and_slide()
-	if _settled:
-		_settled_position = global_position
 
 
 func _process(delta: float) -> void:

@@ -12,7 +12,7 @@ class_name WallSlidingState
 @export_category("Dust Effect")
 @export var dust_enabled: bool = true
 @export var dust_color: Color = Color(0.75, 0.72, 0.68, 0.85)
-@export var dust_amount: int = 24
+@export var dust_amount: int = 48
 
 # Internal state
 var wall_normal: Vector3 = Vector3.ZERO
@@ -123,15 +123,15 @@ func _create_dust():
 	"""Little dust cloud kicked up at the hand/wall contact point."""
 	_dust = GPUParticles3D.new()
 	_dust.amount = dust_amount
-	_dust.lifetime = 0.55
+	_dust.lifetime = 0.7
 	_dust.local_coords = false
 	_dust.emitting = true
 	
 	var mat = ParticleProcessMaterial.new()
 	mat.direction = Vector3(0, 1, 0)
-	mat.spread = 40.0
-	mat.initial_velocity_min = 0.8
-	mat.initial_velocity_max = 1.8
+	mat.spread = 50.0
+	mat.initial_velocity_min = 1.2
+	mat.initial_velocity_max = 2.4
 	mat.gravity = Vector3(0, 1.5, 0)          # Dust drifts UP as you scrape down
 	mat.scale_min = 0.5
 	mat.scale_max = 1.4
@@ -191,6 +191,10 @@ func detect_wall() -> Vector3:
 			return result.normal
 	
 	return Vector3.ZERO
+
+func is_against_wall() -> bool:
+	"""Check if still against a wall"""
+	return detect_wall() != Vector3.ZERO
 
 func exit():
 	is_sliding = false
