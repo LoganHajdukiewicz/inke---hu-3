@@ -109,6 +109,30 @@ func _ready():
 		$Area3D.body_exited.connect(_on_area_3d_body_exited)
 	else:
 		print("WARNING: Merchant needs an Area3D child node!")
+	
+	_ensure_dialogue_ui()
+
+
+func _ensure_dialogue_ui() -> void:
+	"""Levels without a DialogueUI instance (like the greybox) still need the
+	dialogue box for the intro lines - instance it on demand, exactly once.
+	(Same pattern as QuestGiver - without this the intro dies with
+	'DialogueManager: No UI registered!')"""
+	var dm = get_node_or_null("/root/DialogueManager")
+	if not dm:
+		return
+	if dm.dialogue_ui and is_instance_valid(dm.dialogue_ui):
+		return
+	var scene_root = get_tree().current_scene
+	if not scene_root:
+		return
+	if scene_root.find_child("DialogueUi", false, false) or scene_root.find_child("DialogueUI", false, false):
+		return
+	var ui_scene = load("res://scenes/UI/dialogue_ui.tscn")
+	if ui_scene:
+		var ui = ui_scene.instantiate()
+		ui.name = "DialogueUI"
+		scene_root.add_child.call_deferred(ui)
 
 
 func setup_upgrade_data():
@@ -545,6 +569,12 @@ func _start_interaction():
 	
 	var dm = get_node_or_null("/root/DialogueManager")
 	var wants_intro = intro_lines.size() > 0 and (intro_every_time or not _intro_played)
+	
+	# Belt and braces: if the UI never registered (scene loaded oddly, UI got
+	# freed on a scene change...), skip the intro instead of soft-locking.
+	if dm and (not dm.dialogue_ui or not is_instance_valid(dm.dialogue_ui)):
+		_ensure_dialogue_ui()
+		wants_intro = false
 	
 	if wants_intro and dm:
 		_busy = true

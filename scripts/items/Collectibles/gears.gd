@@ -14,15 +14,26 @@ var time_passed: float = 0.0
 var collected: bool = false  # Prevent double collection
 var is_scattering: bool = false  # Suppress bobbing while scatter tween runs
 var pickup_locked: bool = false  # Can't be collected (by player OR HU-3) while true
+var hu3_locked: bool = false     # HU-3 specifically must keep ignoring it
 
 func lock_pickup(duration: float) -> void:
 	"""Make the gear uncollectable for a moment (used when it explodes out of
-	a slam patch / box so the player actually SEES the loot fly)."""
+	a ground pound area / box so the player actually SEES the loot fly)."""
 	pickup_locked = true
 	var timer = get_tree().create_timer(duration)
 	timer.timeout.connect(func():
 		if is_instance_valid(self):
 			pickup_locked = false
+	)
+
+func lock_hu3_pickup(duration: float) -> void:
+	"""Keep HU-3 away for longer than the player lock - so the buddy robot
+	doesn't vacuum up ground-pound loot before the player gets a chance."""
+	hu3_locked = true
+	var timer = get_tree().create_timer(duration)
+	timer.timeout.connect(func():
+		if is_instance_valid(self):
+			hu3_locked = false
 	)
 
 func scatter_arc(target: Vector3, duration: float, arc_height: float = 2.0) -> void:

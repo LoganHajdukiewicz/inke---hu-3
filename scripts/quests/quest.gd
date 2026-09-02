@@ -6,8 +6,12 @@ extends Resource
 ##
 ## Quest types:
 ##   COLLECT_GEARS  - collect target_count GEARs (counted from quest start)
-##   DEFEAT_ENEMY   - defeat target_count enemies whose enemy_id == target_id
-##                    (optionally spawn the target when the quest is accepted)
+##   DEFEAT_ENEMY   - "ELECTS" enemies rather than spawning them: pick an
+##                    enemy TYPE (target_enemy_scene) and a COUNT
+##                    (target_count) in the Inspector, and any kill of a
+##                    matching enemy already in the level counts.
+##                    "Kill this boss" = require_boss on, count 1.
+##                    "Kill 15 regular enemies" = enemy.tscn, count 15.
 ##   REACH_LOCATION - touch the LocationFlag whose flag_id == target_id
 ##   FETCH_ITEM     - grab the QuestItem whose item_id == target_id, then
 ##                    return to the quest giver and talk to them
@@ -28,8 +32,20 @@ enum QuestType {
 
 ## COLLECT_GEARS: how many gears. DEFEAT_ENEMY: how many kills. Others: ignored.
 @export var target_count: int = 1
-## DEFEAT_ENEMY: enemy_id to hunt. REACH_LOCATION: flag_id. FETCH_ITEM: item_id.
+## REACH_LOCATION: flag_id. FETCH_ITEM: item_id.
+## DEFEAT_ENEMY: optional specific enemy_id to hunt (leave empty when using
+## target_enemy_scene type matching instead).
 @export var target_id: String = ""
+
+@export_group("Defeat Quest Target")
+## WHICH TYPE of enemy counts. Drop any enemy scene here (enemy.tscn,
+## laser_enemy.tscn, shield_enemy.tscn...) - every kill of that type
+## progresses the quest. Leave empty to match ANY enemy type.
+@export var target_enemy_scene: PackedScene = null
+## Only BOSSES count (enemies with is_boss ticked). Combine with
+## target_enemy_scene for "this specific kind of boss", or leave the scene
+## empty for "any boss".
+@export var require_boss: bool = false
 
 @export_group("Time Limit")
 ## Default: no time limit.
@@ -42,11 +58,22 @@ enum QuestType {
 ## Can the quest be taken again after completing it?
 @export var repeatable: bool = false
 
-@export_group("Defeat Quest Spawning")
-## Optional: spawn this enemy scene when the quest is accepted (its enemy_id
-## is set to target_id automatically). Leave empty to hunt a pre-placed enemy.
-@export var spawn_target_enemy: PackedScene
-@export var target_enemy_spawn_position: Vector3 = Vector3.ZERO
+
+func enemy_counts_for_quest(enemy: Node) -> bool:
+	"""Does killing this enemy progress this DEFEAT_ENEMY quest?"""
+	if quest_type != QuestType.DEFEAT_ENEMY or enemy == null:
+		return false
+	# Boss requirement
+	if require_boss and not (enemy.get("is_boss") == true):
+		return false
+	# Specific enemy_id (old-style targeted hunt)
+	if target_id != "":
+		return enemy.get("enemy_id") == target_id
+	# Type matching by scene
+	if target_enemy_scene != null:
+		return enemy.scene_file_path == target_enemy_scene.resource_path
+	# No filters at all: any enemy counts
+	return true
 
 
 func goal_count() -> int:

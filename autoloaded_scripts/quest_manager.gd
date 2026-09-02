@@ -105,9 +105,6 @@ func accept_quest(quest: Quest, _giver: Node = null) -> bool:
 		failed_quest_ids.remove_at(fail_idx)
 	
 	match quest.quest_type:
-		Quest.QuestType.DEFEAT_ENEMY:
-			if quest.spawn_target_enemy:
-				_spawn_quest_enemy(quest)
 		Quest.QuestType.REACH_LOCATION:
 			# Already been there? Complete right away.
 			if location_flags.has(quest.target_id):
@@ -180,12 +177,15 @@ func has_location_flag(flag_id: String) -> bool:
 
 # --- Event hooks (called by enemies / items / GameManager signals) ---
 
-func notify_enemy_defeated(enemy_id: String) -> void:
-	if enemy_id == "":
+func notify_enemy_defeated(enemy: Node) -> void:
+	"""Called by every dying enemy. DEFEAT_ENEMY quests 'elect' their targets:
+	each quest checks whether this particular kill matches its configured
+	enemy type / boss flag / enemy_id and counts it if so."""
+	if enemy == null:
 		return
 	for entry in active_quests.duplicate():
 		var q: Quest = entry.quest
-		if q.quest_type == Quest.QuestType.DEFEAT_ENEMY and q.target_id == enemy_id:
+		if q.enemy_counts_for_quest(enemy):
 			entry.progress += 1
 			quest_progressed.emit(q, entry.progress, q.goal_count())
 			if entry.progress >= q.goal_count():
@@ -273,19 +273,6 @@ func _spawn_reward_cred(reward: int) -> void:
 	var tween = cred.create_tween()
 	tween.tween_property(cred, "scale", Vector3.ONE, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
-
-func _spawn_quest_enemy(quest: Quest) -> void:
-	var scene = get_tree().current_scene
-	if not scene:
-		return
-	var enemy = quest.spawn_target_enemy.instantiate()
-	scene.add_child(enemy)
-	if "enemy_id" in enemy:
-		enemy.enemy_id = quest.target_id
-	if enemy is Node3D:
-		enemy.global_position = quest.target_enemy_spawn_position
-	if "spawn_position" in enemy:
-		enemy.spawn_position = quest.target_enemy_spawn_position
 
 
 # =========================================================================

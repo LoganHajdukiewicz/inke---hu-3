@@ -61,13 +61,12 @@ target_count = 5
 [sub_resource type="Resource" id="Quest_defeat"]
 script = ExtResource("22_quest")
 quest_id = "gb_defeat_bully"
-title = "The Bully"
-description = "Some inkling has been stomping around the plaza. Teach it a lesson! (It shows up when you accept.)"
+title = "Pest Control"
+description = "Inklings are loose around the plaza. Squash 3 of them - the button arena spawners have plenty."
 quest_type = 1
-target_id = "gb_bully"
+target_count = 3
+target_enemy_scene = ExtResource("23_enemy")
 cred_reward = 15
-spawn_target_enemy = ExtResource("23_enemy")
-target_enemy_spawn_position = Vector3(25, 1.5, 68)
 
 [sub_resource type="Resource" id="Quest_reach"]
 script = ExtResource("22_quest")

@@ -13,6 +13,9 @@ class_name GroundPoundArea
 @export var scatter_radius: float = 3.2      # How far the loot explodes outward
 @export var scatter_duration: float = 0.7
 @export var pickup_lock_time: float = 1.0    # Loot can't be collected while flying out
+## How long HU-3 keeps IGNORING the popped loot (on top of the scatter
+## time), so the buddy robot doesn't vacuum it up before you even see it.
+@export var hu3_ignore_time: float = 4.0
 @export var one_shot: bool = true            # Can it only be slammed open once?
 
 @export_group("Appearance")
@@ -109,6 +112,8 @@ func _burst_open(_slammer: Node3D):
 			# other collectables via lock_pickup; harmless otherwise)
 			if item.has_method("lock_pickup"):
 				item.lock_pickup(scatter_duration + pickup_lock_time)
+			if item.has_method("lock_hu3_pickup"):
+				item.lock_hu3_pickup(scatter_duration + hu3_ignore_time)
 			
 			var angle = (TAU / max(collectable_count, 1)) * i + randf_range(-0.3, 0.3)
 			var radius = randf_range(scatter_radius * 0.6, scatter_radius)

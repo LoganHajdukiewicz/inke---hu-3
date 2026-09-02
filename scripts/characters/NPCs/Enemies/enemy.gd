@@ -364,11 +364,11 @@ func die():
 		_boss_bar.dismiss()
 		_boss_bar = null
 	
-	# Quest hook: report the kill if this enemy is a quest target
-	if enemy_id != "":
-		var qm = get_node_or_null("/root/QuestManager")
-		if qm:
-			qm.notify_enemy_defeated(enemy_id)
+	# Quest hook: every kill is reported - DEFEAT_ENEMY quests decide for
+	# themselves whether this enemy's type/boss-flag/id counts for them
+	var qm = get_node_or_null("/root/QuestManager")
+	if qm:
+		qm.notify_enemy_defeated(self)
 	
 	# Spawn gear explosion
 	if drops_gears_on_death:

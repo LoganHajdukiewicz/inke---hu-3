@@ -421,8 +421,9 @@ func find_nearest_gear():
 			continue
 		
 		# Loot that just exploded out of a patch/box is locked - let the player
-		# SEE it before HU-3 vacuums it up
-		if gear.get("pickup_locked"):
+		# SEE it before HU-3 vacuums it up. hu3_locked is the longer, separate
+		# HU-3-only timer (Inspector: GroundPoundArea.hu3_ignore_time).
+		if gear.get("pickup_locked") or gear.get("hu3_locked"):
 			continue
 			
 		var distance = global_position.distance_to(gear.global_position)
@@ -475,7 +476,7 @@ func collect_gear(gear: Node):
 		reset_collection_state()
 		return
 	
-	if gear.has_method("get") and (gear.get("collected") or gear.get("pickup_locked")):
+	if gear.has_method("get") and (gear.get("collected") or gear.get("pickup_locked") or gear.get("hu3_locked")):
 		reset_collection_state()
 		return
 	
