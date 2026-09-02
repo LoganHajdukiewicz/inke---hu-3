@@ -288,11 +288,10 @@ func _interact() -> void:
 	_pending_offer = null
 	var q = _current_quest(qm)
 	
-	# FETCH turn-in beats everything: player returned with the item
-	if q and qm.is_quest_active(q.quest_id) and q.quest_type == Quest.QuestType.FETCH_ITEM:
-		var entry = qm.get_active_entry(q.quest_id)
-		if not entry.is_empty() and entry.item_held:
-			qm.try_turn_in(q.quest_id)
+	# Turn-in beats everything: the quest TYPE decides if talking completes
+	# it (fetch-style quests return true here once the item is in hand)
+	if q and qm.is_quest_active(q.quest_id):
+		if qm.try_turn_in(q.quest_id):
 			lines = [_line("You found it! Incredible. Here - you've earned this.")]
 			_speak(lines)
 			return
@@ -378,16 +377,7 @@ func _progress_text(qm, q: Quest) -> String:
 	var entry = qm.get_active_entry(q.quest_id)
 	if entry.is_empty():
 		return ""
-	var text := ""
-	match q.quest_type:
-		Quest.QuestType.COLLECT_GEARS:
-			text = "Gears so far: %d of %d." % [entry.progress, q.goal_count()]
-		Quest.QuestType.DEFEAT_ENEMY:
-			text = "Defeated: %d of %d." % [entry.progress, q.goal_count()]
-		Quest.QuestType.REACH_LOCATION:
-			text = "You still haven't made it to the spot. It's up there somewhere!"
-		Quest.QuestType.FETCH_ITEM:
-			text = "Still waiting on that item. Go grab it!" if not entry.item_held else "You have it? Hand it over!"
+	var text: String = entry.handler.describe_reminder(entry)
 	if q.has_time_limit and entry.has("time_left"):
 		text += " You've got %d seconds left." % int(entry.time_left)
 	return text

@@ -1,40 +1,40 @@
+@tool
 class_name Quest
 extends Resource
 
 ## A single quest definition. Create these in the Inspector on a QuestGiver
-## (or save as .tres files to reuse across levels).
+## or save as .tres files in res://quests/ to reuse across levels.
 ##
-## Quest types:
-##   COLLECT_GEARS  - collect target_count GEARs (counted from quest start)
-##   DEFEAT_ENEMY   - "ELECTS" enemies rather than spawning them: pick an
-##                    enemy TYPE (target_enemy_scene) and a COUNT
-##                    (target_count) in the Inspector, and any kill of a
-##                    matching enemy already in the level counts.
-##                    "Kill this boss" = require_boss on, count 1.
-##                    "Kill 15 regular enemies" = enemy.tscn, count 15.
-##   REACH_LOCATION - touch the LocationFlag whose flag_id == target_id
-##   FETCH_ITEM     - grab the QuestItem whose item_id == target_id, then
+## QUEST TYPES ARE FILES, NOT AN ENUM: the quest_type dropdown below is
+## built by scanning scripts/quests/quest_types/ - every handler script in
+## that folder is a type. To add a new type, copy _template.gd there and
+## fill in the hooks (see the README.md next to it). It appears in this
+## dropdown automatically.
+##
+## Built-in types:
+##   collect_gears  - collect target_count GEARs (counted from quest start)
+##   defeat_enemy   - "ELECTS" enemies: pick a type (target_enemy_scene),
+##                    a boss requirement (require_boss) and a count.
+##   reach_location - touch the LocationFlag whose flag_id == target_id
+##   fetch_item     - grab the QuestItem (item_id == target_id), then
 ##                    return to the quest giver and talk to them
 ##
 ## Completion reward: cred_reward worth of CRED appears in front of the player.
 
-enum QuestType {
-	COLLECT_GEARS,
-	DEFEAT_ENEMY,
-	REACH_LOCATION,
-	FETCH_ITEM,
-}
+const TYPES_DIR := "res://scripts/quests/quest_types"
 
 @export var quest_id: String = ""
 @export var title: String = "Quest"
 @export_multiline var description: String = ""
-@export var quest_type: QuestType = QuestType.COLLECT_GEARS
 
-## COLLECT_GEARS: how many gears. DEFEAT_ENEMY: how many kills. Others: ignored.
+## Which quest type file handles this quest. Dropdown lists everything in
+## scripts/quests/quest_types/ (via _get_property_list below).
+var quest_type: String = "collect_gears"
+
+## How many (gears, kills, seconds... whatever the type counts).
 @export var target_count: int = 1
-## REACH_LOCATION: flag_id. FETCH_ITEM: item_id.
-## DEFEAT_ENEMY: optional specific enemy_id to hunt (leave empty when using
-## target_enemy_scene type matching instead).
+## Free-form target id: reach_location = flag_id, fetch_item = item_id,
+## defeat_enemy = optional specific enemy_id.
 @export var target_id: String = ""
 
 @export_group("Defeat Quest Target")
@@ -48,7 +48,8 @@ enum QuestType {
 @export var require_boss: bool = false
 
 @export_group("Time Limit")
-## Default: no time limit.
+## Default: no time limit. When on, the QuestManager ticks the clock and
+## FAILS the quest automatically at zero.
 @export var has_time_limit: bool = false
 @export var time_limit_seconds: float = 60.0
 
@@ -59,26 +60,64 @@ enum QuestType {
 @export var repeatable: bool = false
 
 
-func enemy_counts_for_quest(enemy: Node) -> bool:
-	"""Does killing this enemy progress this DEFEAT_ENEMY quest?"""
-	if quest_type != QuestType.DEFEAT_ENEMY or enemy == null:
-		return false
-	# Boss requirement
-	if require_boss and not (enemy.get("is_boss") == true):
-		return false
-	# Specific enemy_id (old-style targeted hunt)
-	if target_id != "":
-		return enemy.get("enemy_id") == target_id
-	# Type matching by scene
-	if target_enemy_scene != null:
-		return enemy.scene_file_path == target_enemy_scene.resource_path
-	# No filters at all: any enemy counts
-	return true
-
-
 func goal_count() -> int:
-	match quest_type:
-		QuestType.COLLECT_GEARS, QuestType.DEFEAT_ENEMY:
-			return maxi(1, target_count)
-		_:
-			return 1
+	return maxi(1, target_count)
+
+
+# =========================================================================
+# quest_type dropdown: scan the quest_types folder for handler scripts
+# =========================================================================
+
+static var _type_ids_cache: PackedStringArray = []
+
+static func available_types() -> PackedStringArray:
+	"""Every quest type in the quest_types folder, by type_id()."""
+	if not _type_ids_cache.is_empty():
+		return _type_ids_cache
+	var ids := PackedStringArray()
+	var dir = DirAccess.open(TYPES_DIR)
+	if dir:
+		for f in dir.get_files():
+			var fname = f.trim_suffix(".remap")   # Exported builds remap .gd
+			if not fname.ends_with(".gd"):
+				continue
+			if fname == "quest_type.gd" or fname.begins_with("_"):
+				continue
+			var script = load(TYPES_DIR + "/" + fname)
+			if script is GDScript:
+				var inst = script.new()
+				if inst is QuestTypeHandler:
+					ids.append(inst.type_id())
+	ids.sort()
+	_type_ids_cache = ids
+	return ids
+
+static func create_handler(type: String) -> QuestTypeHandler:
+	"""Instance the handler script whose type_id() matches."""
+	var dir = DirAccess.open(TYPES_DIR)
+	if dir:
+		for f in dir.get_files():
+			var fname = f.trim_suffix(".remap")
+			if not fname.ends_with(".gd"):
+				continue
+			if fname == "quest_type.gd" or fname.begins_with("_"):
+				continue
+			var script = load(TYPES_DIR + "/" + fname)
+			if script is GDScript:
+				var inst = script.new()
+				if inst is QuestTypeHandler and inst.type_id() == type:
+					return inst
+	push_warning("Quest: unknown quest_type '%s' (no handler in %s)" % [type, TYPES_DIR])
+	return null
+
+
+func _get_property_list() -> Array:
+	# Expose quest_type as an enum-style dropdown fed by the folder scan
+	var options = ",".join(available_types())
+	return [{
+		"name": "quest_type",
+		"type": TYPE_STRING,
+		"hint": PROPERTY_HINT_ENUM_SUGGESTION,
+		"hint_string": options,
+		"usage": PROPERTY_USAGE_DEFAULT,
+	}]

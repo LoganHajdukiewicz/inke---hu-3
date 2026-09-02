@@ -26,8 +26,10 @@ var boss_ready: bool = false
 
 var cred_scene: PackedScene = preload("res://scenes/items/Collectibles/cred.tscn")
 
-# Active quest entries: { quest: Quest, progress: int, gear_baseline: int,
-#                         time_left: float, item_held: bool }
+# Active quest entries: { quest: Quest, handler: QuestTypeHandler,
+#                         progress: int, data: Dictionary, time_left: float }
+# `handler` is the quest TYPE instance (from scripts/quests/quest_types/);
+# all type-specific logic lives there. `data` is handler-private state.
 var active_quests: Array[Dictionary] = []
 var completed_quest_ids: PackedStringArray = []
 var failed_quest_ids: PackedStringArray = []   # failed at least once, not yet completed
@@ -89,13 +91,19 @@ func accept_quest(quest: Quest, _giver: Node = null) -> bool:
 	if is_quest_completed(quest.quest_id) and not quest.repeatable:
 		return false
 	
-	var gm = get_node_or_null("/root/GameManager")
+	var handler = Quest.create_handler(quest.quest_type)
+	if handler == null:
+		push_warning("QuestManager: quest '%s' has unknown type '%s'" % [quest.quest_id, quest.quest_type])
+		return false
+	handler.quest = quest
+	handler.manager = self
+	
 	var entry := {
 		"quest": quest,
+		"handler": handler,
 		"progress": 0,
-		"gear_baseline": gm.gear_count if gm else 0,
+		"data": {},
 		"time_left": quest.time_limit_seconds,
-		"item_held": false,
 	}
 	active_quests.append(entry)
 	
@@ -104,15 +112,7 @@ func accept_quest(quest: Quest, _giver: Node = null) -> bool:
 	if fail_idx != -1:
 		failed_quest_ids.remove_at(fail_idx)
 	
-	match quest.quest_type:
-		Quest.QuestType.REACH_LOCATION:
-			# Already been there? Complete right away.
-			if location_flags.has(quest.target_id):
-				call_deferred("_complete_quest", entry)
-		Quest.QuestType.FETCH_ITEM:
-			# Already holding it? Just needs the return trip.
-			if carried_items.has(quest.target_id):
-				entry.item_held = true
+	handler.on_accepted(entry)
 	
 	quest_accepted.emit(quest)
 	show_notification("NEW QUEST: " + quest.title, Color(0.4, 0.85, 1.0))
@@ -141,20 +141,21 @@ func get_active_entry(quest_id: String) -> Dictionary:
 	return {}
 
 
-## FETCH quests: the giver calls this when the player talks to them.
-## Returns true (and completes the quest) if the item is in hand.
+## The giver calls this when the player talks to them while the quest is
+## active. The quest TYPE decides if that completes it (fetch turn-ins).
 func try_turn_in(quest_id: String) -> bool:
 	var entry = get_active_entry(quest_id)
 	if entry.is_empty():
 		return false
-	var q: Quest = entry.quest
-	if q.quest_type != Quest.QuestType.FETCH_ITEM:
-		return false
-	if not entry.item_held:
-		return false
-	carried_items.erase(q.target_id)
+	return entry.handler.try_turn_in(entry)
+
+
+## Handler-facing API (quest types call these via progress()/complete()):
+func emit_progress(entry: Dictionary) -> void:
+	quest_progressed.emit(entry.quest, entry.progress, entry.quest.goal_count())
+
+func complete_entry(entry: Dictionary) -> void:
 	_complete_quest(entry)
-	return true
 
 
 # --- Location flags ("the player has been here") ---
@@ -166,9 +167,7 @@ func set_location_flag(flag_id: String) -> void:
 	location_flag_set.emit(flag_id)
 	
 	for entry in active_quests.duplicate():
-		var q: Quest = entry.quest
-		if q.quest_type == Quest.QuestType.REACH_LOCATION and q.target_id == flag_id:
-			_complete_quest(entry)
+		entry.handler.notify_location_flag(entry, flag_id)
 
 
 func has_location_flag(flag_id: String) -> bool:
@@ -178,44 +177,24 @@ func has_location_flag(flag_id: String) -> bool:
 # --- Event hooks (called by enemies / items / GameManager signals) ---
 
 func notify_enemy_defeated(enemy: Node) -> void:
-	"""Called by every dying enemy. DEFEAT_ENEMY quests 'elect' their targets:
-	each quest checks whether this particular kill matches its configured
-	enemy type / boss flag / enemy_id and counts it if so."""
+	"""Called by every dying enemy - each quest type decides if it counts."""
 	if enemy == null:
 		return
 	for entry in active_quests.duplicate():
-		var q: Quest = entry.quest
-		if q.enemy_counts_for_quest(enemy):
-			entry.progress += 1
-			quest_progressed.emit(q, entry.progress, q.goal_count())
-			if entry.progress >= q.goal_count():
-				_complete_quest(entry)
+		entry.handler.notify_enemy_defeated(entry, enemy)
 
 
 func notify_item_grabbed(item_id: String) -> void:
 	if item_id == "":
 		return
 	carried_items[item_id] = true
-	for entry in active_quests:
-		var q: Quest = entry.quest
-		if q.quest_type == Quest.QuestType.FETCH_ITEM and q.target_id == item_id and not entry.item_held:
-			entry.item_held = true
-			quest_progressed.emit(q, 1, 1)
-			show_notification("Got it! Return to the quest giver.", Color(1.0, 0.9, 0.3))
+	for entry in active_quests.duplicate():
+		entry.handler.notify_item_grabbed(entry, item_id)
 
 
 func _on_gear_collected(total_gears: int) -> void:
 	for entry in active_quests.duplicate():
-		var q: Quest = entry.quest
-		if q.quest_type != Quest.QuestType.COLLECT_GEARS:
-			continue
-		var collected = total_gears - entry.gear_baseline
-		var new_progress = clampi(collected, 0, q.goal_count())
-		if new_progress != entry.progress:
-			entry.progress = new_progress
-			quest_progressed.emit(q, entry.progress, q.goal_count())
-			if entry.progress >= q.goal_count():
-				_complete_quest(entry)
+		entry.handler.notify_gears_changed(entry, total_gears)
 
 
 # =========================================================================
@@ -318,16 +297,7 @@ func _update_tracker() -> void:
 	var lines: Array[String] = []
 	for entry in active_quests:
 		var q: Quest = entry.quest
-		var line = q.title
-		match q.quest_type:
-			Quest.QuestType.COLLECT_GEARS:
-				line += "  —  gears %d/%d" % [entry.progress, q.goal_count()]
-			Quest.QuestType.DEFEAT_ENEMY:
-				line += "  —  defeated %d/%d" % [entry.progress, q.goal_count()]
-			Quest.QuestType.REACH_LOCATION:
-				line += "  —  reach the spot"
-			Quest.QuestType.FETCH_ITEM:
-				line += "  —  " + ("return to giver!" if entry.item_held else "find the item")
+		var line = q.title + "  —  " + entry.handler.describe_progress(entry)
 		if q.has_time_limit:
 			line += "   [%d:%02d]" % [int(entry.time_left) / 60, int(entry.time_left) % 60]
 		lines.append(line)

@@ -193,15 +193,43 @@ func _build_model():
 	body.position.y = 0.85
 	_model.add_child(body)
 	
-	# --- Head: hooded sphere, mostly shadow ------------------------------
-	var head = MeshInstance3D.new()
-	var head_mesh = SphereMesh.new()
-	head_mesh.radius = 0.34
-	head_mesh.height = 0.68
-	head.mesh = head_mesh
-	head.material_override = coat_mat
-	head.position.y = 1.95
-	_model.add_child(head)
+	# --- Head: a proper HOOD, not a bald sphere ---------------------------
+	# Tapered cone-ish hood rising to a soft point, with a wide draped brim
+	# that overhangs the face opening.
+	var hood = MeshInstance3D.new()
+	var hood_mesh = CylinderMesh.new()
+	hood_mesh.top_radius = 0.06        # Nearly a point at the top
+	hood_mesh.bottom_radius = 0.38     # Drapes wide over the shoulders
+	hood_mesh.height = 0.75
+	hood.mesh = hood_mesh
+	hood.material_override = coat_mat
+	hood.position.y = 2.0
+	hood.rotation_degrees.x = 8.0      # Slight forward slouch
+	_model.add_child(hood)
+	
+	# Drooping hood TIP flopped forward (the classic bent point)
+	var hood_tip = MeshInstance3D.new()
+	var tip_mesh = CylinderMesh.new()
+	tip_mesh.top_radius = 0.015
+	tip_mesh.bottom_radius = 0.07
+	tip_mesh.height = 0.3
+	hood_tip.mesh = tip_mesh
+	hood_tip.material_override = coat_mat
+	hood_tip.position = Vector3(0, 2.38, -0.1)
+	hood_tip.rotation_degrees.x = -55.0   # Flops forward over the face
+	_model.add_child(hood_tip)
+	
+	# Hood brim: a squashed torus-ish ring framing the face opening
+	var brim = MeshInstance3D.new()
+	var brim_mesh = TorusMesh.new()
+	brim_mesh.inner_radius = 0.2
+	brim_mesh.outer_radius = 0.3
+	brim.mesh = brim_mesh
+	brim.material_override = coat_mat
+	brim.position = Vector3(0, 1.95, -0.16)
+	brim.rotation_degrees.x = 78.0     # Facing forward, slightly tilted down
+	brim.scale = Vector3(1.0, 1.0, 0.7)
+	_model.add_child(brim)
 	
 	# Dark face void under the hood
 	var face = MeshInstance3D.new()
@@ -254,7 +282,8 @@ func _build_model():
 		panel.position = Vector3(-side * 0.21, -0.25, -0.12)
 		pivot.add_child(panel)
 		
-		# Red lining on the inside face
+		# Red lining on the inside face (the reveal is the lining itself -
+		# no floating wares clipping through the panels anymore)
 		var lining = MeshInstance3D.new()
 		var lining_mesh = BoxMesh.new()
 		lining_mesh.size = Vector3(0.38, 1.28, 0.015)
@@ -262,42 +291,12 @@ func _build_model():
 		lining.material_override = lining_mat
 		lining.position = Vector3(-side * 0.21, -0.25, -0.15)
 		pivot.add_child(lining)
-		
-		# Wares strapped to the inside of each panel (revealed on open)
-		for i in range(3):
-			var ware = MeshInstance3D.new()
-			var ware_mesh = SphereMesh.new()
-			ware_mesh.radius = 0.055
-			ware_mesh.height = 0.11
-			ware.mesh = ware_mesh
-			var ware_mat = StandardMaterial3D.new()
-			var hue = Color.from_hsv(randf_range(0.05, 0.55), 0.8, 1.0)
-			ware_mat.albedo_color = hue
-			ware_mat.emission_enabled = true
-			ware_mat.emission = hue
-			ware_mat.emission_energy_multiplier = 1.2
-			ware.material_override = ware_mat
-			ware.position = Vector3(-side * (0.1 + (i % 2) * 0.18), -0.05 - i * 0.32, -0.17)
-			pivot.add_child(ware)
 	
-	# Wares hanging inside the coat cavity itself
+	# Kept as an (empty) anchor so open/close code stays simple; if wares
+	# ever come back they go here.
 	_wares_root = Node3D.new()
 	_model.add_child(_wares_root)
-	for i in range(3):
-		var ware = MeshInstance3D.new()
-		var ware_mesh = BoxMesh.new()
-		ware_mesh.size = Vector3(0.09, 0.09, 0.09)
-		ware.mesh = ware_mesh
-		var ware_mat = StandardMaterial3D.new()
-		var hue = Color.from_hsv(randf_range(0.5, 0.95), 0.7, 1.0)
-		ware_mat.albedo_color = hue
-		ware_mat.emission_enabled = true
-		ware_mat.emission = hue
-		ware_mat.emission_energy_multiplier = 1.0
-		ware.material_override = ware_mat
-		ware.position = Vector3(-0.16 + i * 0.16, 1.05 - (i % 2) * 0.25, -0.3)
-		_wares_root.add_child(ware)
-	_wares_root.visible = false   # Hidden until the coat opens
+	_wares_root.visible = false
 	
 	# Name tag
 	var tag = Label3D.new()

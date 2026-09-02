@@ -86,7 +86,7 @@ func _process(delta: float) -> void:
 
 
 func _on_quest_accepted(quest: Quest) -> void:
-	if quest.quest_type == Quest.QuestType.FETCH_ITEM and quest.target_id == item_id:
+	if quest.quest_type == "fetch_item" and quest.target_id == item_id:
 		visible = true
 		set_deferred("monitoring", true)
 

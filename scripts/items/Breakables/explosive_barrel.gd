@@ -15,6 +15,9 @@ class_name ExplosiveBarrel
 @export var chain_reaction: bool = true            # Set off other explosives in range
 @export var chain_delay: float = 0.15              # Fuse delay between chained barrels
 @export var fuse_time: float = 0.0                 # Optional delay after being hit before boom
+## Explode the moment Inke TOUCHES the barrel (no attack needed). Walk
+## into it, land on it, brush past it - boom. Fuse_time still applies.
+@export var explode_on_player_contact: bool = false
 
 @export_group("Warning Light")
 ## Subtle pulsating red glow - reads as "this thing is dangerous".
@@ -40,6 +43,17 @@ func _ready():
 		current_health = 1
 	if warning_light_enabled:
 		_create_warning_light()
+	
+	# Contact trigger: reuse the DamageDetection area that already watches
+	# for the player - we just react to ANY touch instead of only attacks.
+	if explode_on_player_contact and damage_area:
+		damage_area.body_entered.connect(_on_contact_body_entered)
+
+func _on_contact_body_entered(body: Node3D) -> void:
+	if exploding or is_broken:
+		return
+	if body.is_in_group("Player"):
+		break_crate()
 
 func _create_warning_light():
 	# Little bulb on the lid
