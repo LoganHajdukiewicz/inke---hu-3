@@ -9,6 +9,8 @@ class_name SpinAttackState
 @export var pushback_force: float = 25.0  # Force to push enemies
 @export var pushback_radius: float = 3.0  # Radius of 360° pushback
 @export var damage: int = 2  # Damage dealt by spin
+## Show the spin hitbox as a red translucent sphere while spinning.
+@export var show_hitbox: bool = false
 
 # Internal state
 var spin_timer: float = 0.0
@@ -73,6 +75,23 @@ func setup_spin_hitbox():
 	collision_shape.shape = sphere_shape
 	collision_shape.position = Vector3(0, 1.0, 0)  # Center on player body
 	spin_hitbox.add_child(collision_shape)
+	
+	# Debug visualization (Inspector: show_hitbox)
+	if show_hitbox:
+		var vis = MeshInstance3D.new()
+		var vis_mesh = SphereMesh.new()
+		vis_mesh.radius = pushback_radius
+		vis_mesh.height = pushback_radius * 2.0
+		vis.mesh = vis_mesh
+		var vis_mat = StandardMaterial3D.new()
+		vis_mat.albedo_color = Color(1.0, 0.15, 0.1, 0.22)
+		vis_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		vis_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		vis_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		vis_mat.no_depth_test = true
+		vis.material_override = vis_mat
+		vis.position = Vector3(0, 1.0, 0)
+		spin_hitbox.add_child(vis)
 	
 
 func start_spin_animation():

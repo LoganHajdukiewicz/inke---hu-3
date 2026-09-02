@@ -2,13 +2,23 @@ extends Node
 class_name AttackManager
 
 # Attack configuration
+# RATCHET-STYLE MELEE: a compact pocket IN FRONT of Inke, not a bubble
+# around her. Generous enough to be forgiving (it's wider than the wrench
+# looks), but everything it hits is something you were facing - no more
+# "how did I hit that" kills from 10 meters behind you.
 @export_group("Light Attack")
 @export var light_attack_damage: int = 1
-@export var light_attack_range: float = 0.1
-@export var light_attack_radius: float = 10
+## How far in front of Inke the swing pocket sits.
+@export var light_attack_range: float = 1.1
+## Radius of the swing pocket. Total reach = range + radius (~2.5m).
+@export var light_attack_radius: float = 1.4
 @export var light_attack_cooldown: float = 0.3
-@export var light_knockback_force: float = 40.0
+@export var light_knockback_force: float = 12.0
 @export var light_knockback_upward: float = 3.0
+
+@export_group("Debug")
+## Show the attack hitbox as a red translucent sphere during each swing.
+@export var show_hitbox: bool = false
 
 # Spin attack now replaces heavy attack
 @export_group("Spin Attack")
@@ -25,6 +35,7 @@ var can_attack: bool = true
 var attack_timer: float = 0.0
 var attack_hitbox: Area3D
 var is_attacking: bool = false
+var _hitbox_vis: MeshInstance3D = null
 
 # References
 var player: CharacterBody3D
@@ -57,6 +68,22 @@ func setup_attack_hitbox():
 	collision_shape.shape = sphere_shape
 	collision_shape.position = Vector3(0, 0, 0)
 	attack_hitbox.add_child(collision_shape)
+	
+	# Debug visualization (toggled by show_hitbox)
+	_hitbox_vis = MeshInstance3D.new()
+	var vis_mesh = SphereMesh.new()
+	vis_mesh.radius = light_attack_radius
+	vis_mesh.height = light_attack_radius * 2.0
+	_hitbox_vis.mesh = vis_mesh
+	var vis_mat = StandardMaterial3D.new()
+	vis_mat.albedo_color = Color(1.0, 0.15, 0.1, 0.28)
+	vis_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	vis_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	vis_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	vis_mat.no_depth_test = true          # Readable even inside walls/enemies
+	_hitbox_vis.material_override = vis_mat
+	_hitbox_vis.visible = false
+	attack_hitbox.add_child(_hitbox_vis)
 	
 
 func _physics_process(delta: float):
@@ -151,6 +178,13 @@ func perform_attack(_is_heavy: bool):
 	# Position hitbox in front of player
 	update_hitbox_position(attack_range)
 	
+	# Debug view: flash the hitbox for the duration of the swing
+	if show_hitbox and _hitbox_vis:
+		if _hitbox_vis.mesh.radius != attack_radius:
+			_hitbox_vis.mesh.radius = attack_radius
+			_hitbox_vis.mesh.height = attack_radius * 2.0
+		_hitbox_vis.visible = true
+	
 	# Enable hitbox detection
 	attack_hitbox.monitoring = true
 	
@@ -229,6 +263,8 @@ func perform_attack(_is_heavy: bool):
 	
 	# Disable hitbox after attack
 	attack_hitbox.monitoring = false
+	if _hitbox_vis:
+		_hitbox_vis.visible = false
 	
 	# Visual feedback duration
 	await player.get_tree().create_timer(0.2).timeout
@@ -239,12 +275,11 @@ func update_hitbox_position(attack_range: float):
 	if not attack_hitbox:
 		return
 	
-	# Get player's forward direction
-	var forward_direction = -player.global_transform.basis.z.normalized()
-	
-	# Calculate position in front of player
-	var offset = forward_direction * attack_range
-	offset.y = 0.5  # Height offset
+	# LOCAL forward: the hitbox is a child of the player, so its position
+	# must be in player-local space. (The old code used the GLOBAL forward
+	# vector as a local offset - the pocket wandered as you rotated.)
+	var offset = Vector3.FORWARD * attack_range   # -Z is forward locally
+	offset.y = 0.9  # Chest height, where the wrench actually swings
 	
 	# Set the hitbox position
 	attack_hitbox.position = offset
