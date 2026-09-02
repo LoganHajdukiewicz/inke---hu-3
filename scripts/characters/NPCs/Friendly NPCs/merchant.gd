@@ -78,8 +78,7 @@ var item_cards: Array = []         # [{panel, name_label, cost_label, status_lab
 
 # Model references
 var _model: Node3D
-var _coat_left_pivot: Node3D
-var _coat_right_pivot: Node3D
+var _coat_pivot: Node3D    # Single hinge at the shoulder - one flap, one hand
 var _wares_root: Node3D
 
 # UI Colors
@@ -260,37 +259,55 @@ func _build_model():
 		eye.position = Vector3(ex, 1.96, -0.33)
 		_model.add_child(eye)
 	
-	# --- THE COAT: two hinged front panels that swing open ----------------
-	# Hinges sit at the shoulders; closed panels overlap the chest.
-	_coat_left_pivot = Node3D.new()
-	_coat_left_pivot.position = Vector3(-0.36, 1.1, -0.18)
-	_model.add_child(_coat_left_pivot)
+	# --- THE COAT: ONE full-width flap hinged at his shoulder -------------
+	# The RE4 move: he grabs one side of the coat and holds it open. The
+	# hinge sits at the +X shoulder and the flap extends across the chest;
+	# opening rotates it OUT and FORWARD, away from the body, so it can
+	# never sweep through the torso (that's what read as "wings" before).
+	_coat_pivot = Node3D.new()
+	_coat_pivot.position = Vector3(0.4, 1.15, -0.28)   # Shoulder, in FRONT of the body
+	_model.add_child(_coat_pivot)
 	
-	_coat_right_pivot = Node3D.new()
-	_coat_right_pivot.position = Vector3(0.36, 1.1, -0.18)
-	_model.add_child(_coat_right_pivot)
+	# The flap: spans the whole chest, extends inward (-X) from the hinge
+	var panel = MeshInstance3D.new()
+	var panel_mesh = BoxMesh.new()
+	panel_mesh.size = Vector3(0.85, 1.4, 0.05)
+	panel.mesh = panel_mesh
+	panel.material_override = coat_mat
+	panel.position = Vector3(-0.42, -0.28, -0.06)
+	_coat_pivot.add_child(panel)
 	
-	for side in [-1.0, 1.0]:
-		var pivot = _coat_left_pivot if side < 0 else _coat_right_pivot
-		
-		var panel = MeshInstance3D.new()
-		var panel_mesh = BoxMesh.new()
-		panel_mesh.size = Vector3(0.42, 1.35, 0.05)
-		panel.mesh = panel_mesh
-		panel.material_override = coat_mat
-		# Panel extends inward from its hinge so the two meet in the middle
-		panel.position = Vector3(-side * 0.21, -0.25, -0.12)
-		pivot.add_child(panel)
-		
-		# Red lining on the inside face (the reveal is the lining itself -
-		# no floating wares clipping through the panels anymore)
-		var lining = MeshInstance3D.new()
-		var lining_mesh = BoxMesh.new()
-		lining_mesh.size = Vector3(0.38, 1.28, 0.015)
-		lining.mesh = lining_mesh
-		lining.material_override = lining_mat
-		lining.position = Vector3(-side * 0.21, -0.25, -0.15)
-		pivot.add_child(lining)
+	# Red lining on the inside face - THE reveal when the coat opens
+	var lining = MeshInstance3D.new()
+	var lining_mesh = BoxMesh.new()
+	lining_mesh.size = Vector3(0.8, 1.34, 0.015)
+	lining.mesh = lining_mesh
+	lining.material_override = lining_mat
+	lining.position = Vector3(-0.42, -0.28, -0.09)
+	_coat_pivot.add_child(lining)
+	
+	# His ARM holding the flap's outer edge (sells "he's holding it open")
+	var arm = MeshInstance3D.new()
+	var arm_mesh = CapsuleMesh.new()
+	arm_mesh.radius = 0.07
+	arm_mesh.height = 0.55
+	arm.mesh = arm_mesh
+	arm.material_override = coat_mat
+	arm.position = Vector3(-0.8, 0.05, -0.06)
+	arm.rotation_degrees.z = 65.0
+	_coat_pivot.add_child(arm)
+	
+	var hand = MeshInstance3D.new()
+	var hand_mesh = SphereMesh.new()
+	hand_mesh.radius = 0.085
+	hand_mesh.height = 0.17
+	hand.mesh = hand_mesh
+	var hand_mat = StandardMaterial3D.new()
+	hand_mat.albedo_color = Color(0.45, 0.38, 0.3)   # Grubby glove
+	hand_mat.roughness = 0.9
+	hand.material_override = hand_mat
+	hand.position = Vector3(-0.86, 0.18, -0.06)
+	_coat_pivot.add_child(hand)
 	
 	# Kept as an (empty) anchor so open/close code stays simple; if wares
 	# ever come back they go here.
@@ -313,15 +330,18 @@ func _build_model():
 
 
 func _set_coat(open: bool, instant: bool = false):
-	"""Swing the coat panels. Closed: panels overlap the chest. Open: flung
-	wide like the RE4 merchant showing you the goods."""
+	"""ONE flap, hinged at the shoulder. Closed: draped across the chest.
+	Open: swung out to his side and forward - a clean single-arm hold-open,
+	never through the body. Slight outer-edge lift = raised holding arm."""
 	_coat_is_open = open
-	var left_target = deg_to_rad(-118.0) if open else deg_to_rad(8.0)
-	var right_target = deg_to_rad(118.0) if open else deg_to_rad(-8.0)
+	# rotation.y negative swings the (-X extending) flap out toward the
+	# front on his hinge side; rotation.z lifts the outer edge (raised arm)
+	var yaw_target = deg_to_rad(-100.0) if open else 0.0
+	var lift_target = deg_to_rad(-14.0) if open else 0.0
 	
 	if instant:
-		_coat_left_pivot.rotation.y = left_target
-		_coat_right_pivot.rotation.y = right_target
+		_coat_pivot.rotation.y = yaw_target
+		_coat_pivot.rotation.z = lift_target
 		_wares_root.visible = open
 		return
 	
@@ -330,14 +350,11 @@ func _set_coat(open: bool, instant: bool = false):
 	tween.set_parallel(true)
 	tween.set_trans(Tween.TRANS_BACK)
 	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(_coat_left_pivot, "rotation:y", left_target, coat_open_time)
-	tween.tween_property(_coat_right_pivot, "rotation:y", right_target, coat_open_time)
-	# Little showman lean-back as the coat opens
+	tween.tween_property(_coat_pivot, "rotation:y", yaw_target, coat_open_time)
+	tween.tween_property(_coat_pivot, "rotation:z", lift_target, coat_open_time)
 	if open:
 		_wares_root.visible = true
-		tween.tween_property(_model, "rotation:x", deg_to_rad(-6.0), coat_open_time)
 	else:
-		tween.tween_property(_model, "rotation:x", 0.0, coat_open_time)
 		tween.chain().tween_callback(func(): _wares_root.visible = false)
 
 
