@@ -34,6 +34,16 @@ var _boss_bar: BossHealthBar = null
 
 # Behavior parameters
 @export var detection_range: float = 15.0
+
+@export_group("Vision Cone")
+## On top of the all-around detection circle, enemies get a forward VISION
+## CONE that sees much further. Sneak up from behind - but don't cross in
+## front of them.
+@export var vision_cone_enabled: bool = true
+## How far the cone reaches (should be > detection_range to matter).
+@export var vision_cone_length: float = 28.0
+## Full width of the cone in degrees.
+@export var vision_cone_angle_degrees: float = 70.0
 @export var chase_speed: float = 8.0
 @export var wander_speed: float = 3.0
 @export var damage_to_player: int = 1
@@ -147,6 +157,41 @@ func _is_player_stomp_threat() -> bool:
 	var player_airborne = not player.is_on_floor()
 	var player_falling = player.velocity.y < -0.5 if "velocity" in player else false
 	return player_airborne and player_falling and height > stomp_danger_height and horizontal < stomp_danger_radius
+
+func can_see_player() -> bool:
+	"""Detection = all-around circle (detection_range) PLUS a forward vision
+	cone that reaches further (vision_cone_length, vision_cone_angle).
+	The cone is line-of-sight checked so walls actually hide you."""
+	if not player or not is_instance_valid(player) or not player.is_inside_tree():
+		return false
+	var to_player = player.global_position - global_position
+	var flat = Vector3(to_player.x, 0, to_player.z)
+	var distance = flat.length()
+	
+	# 1) Close = always noticed (hearing/peripherals), original behavior
+	if distance < detection_range:
+		return true
+	
+	# 2) Farther out: only inside the forward cone
+	if not vision_cone_enabled or distance > vision_cone_length:
+		return false
+	var forward = -global_transform.basis.z
+	forward.y = 0
+	if forward.length() < 0.01:
+		return false
+	var angle_to = forward.normalized().angle_to(flat.normalized())
+	if angle_to > deg_to_rad(vision_cone_angle_degrees * 0.5):
+		return false
+	
+	# Line of sight: something solid in the way blocks the cone
+	var space_state = get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(
+		global_position + Vector3(0, 1.0, 0),
+		player.global_position + Vector3(0, 0.5, 0))
+	query.collision_mask = 1
+	query.exclude = [self]
+	var result = space_state.intersect_ray(query)
+	return result.is_empty() or result.collider == player
 
 func _separation_push() -> Vector3:
 	"""Push-apart vector from other nearby enemies so groups spread out
@@ -449,8 +494,7 @@ class AIIdleState extends EnemyState:
 			return
 		
 		if enemy.player and enemy.player.is_inside_tree() and enemy.can_chase:
-			var distance_to_player = enemy.global_position.distance_to(enemy.player.global_position)
-			if distance_to_player < enemy.detection_range:
+			if enemy.can_see_player():
 				enemy.state_machine.change_state("aichasestate")
 				return
 		
@@ -501,7 +545,8 @@ class AIChaseState extends EnemyState:
 		var distance_to_player = to_player.length()
 		
 		# Give up if the player got far away
-		if distance_to_player > enemy.detection_range * 1.5:
+		var give_up_range = maxf(enemy.detection_range * 1.5, enemy.vision_cone_length if enemy.vision_cone_enabled else 0.0)
+		if distance_to_player > give_up_range:
 			chase_timeout += delta
 			if chase_timeout > max_chase_time:
 				enemy.state_machine.change_state("aiidlestate")

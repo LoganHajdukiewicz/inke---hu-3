@@ -67,17 +67,24 @@ enum SpinDirection {
 @export var shake_intensity: float = 0.35
 @export var shake_duration: float = 1.0
 
-@export_group("Spinning Floor Settings")
-@export var spin_speed: float = 90.0  # degrees per second
-@export var spin_direction: SpinDirection = SpinDirection.RIGHT
-
-@export_group("Moving Floor Settings")
+@export_group("Motion Floor Settings")
+## MOVING and SPINNING are the same system (one MotionFloor handler that
+## carries riders and hands momentum over on exit). The floor type picks
+## the default, or force either/both here:
+## Translate between two points (defaults on for FloorType.MOVING).
+@export var motion_moves_override: bool = false
+## Spin around Y (defaults on for FloorType.SPINNING).
+@export var motion_spins_override: bool = false
+@export_subgroup("Movement")
 @export var movement_axis: Vector3 = Vector3(10, 0, 0)  # Distance to move in each axis
 @export var movement_duration: float = 3.0  # Time to complete one movement cycle
 @export var movement_repeat: bool = true  # Whether to repeat the movement
 @export var movement_delay: float = 0.0  # Delay before starting movement
 @export var movement_easing: Tween.EaseType = Tween.EASE_IN_OUT
 @export var movement_transition: Tween.TransitionType = Tween.TRANS_SINE
+@export_subgroup("Spin")
+@export var spin_speed: float = 90.0  # degrees per second
+@export var spin_direction: SpinDirection = SpinDirection.RIGHT
 
 @export_group("Frozen Floor Settings")
 @export var frozen_friction: float = 0.01  # Very low friction for ice
@@ -116,6 +123,13 @@ var players_on_floor: Array[CharacterBody3D] = []
 var original_position: Vector3
 var start_position: Vector3
 var end_position: Vector3
+
+## Does this floor translate? (MOVING type, or forced via override)
+var motion_moves: bool:
+	get: return motion_moves_override or has_floor_type(FloorType.MOVING)
+## Does this floor spin? (SPINNING type, or forced via override)
+var motion_spins: bool:
+	get: return motion_spins_override or has_floor_type(FloorType.SPINNING)
 
 # Momentum tracking (read by handlers)
 var floor_velocity: Vector3 = Vector3.ZERO
@@ -411,10 +425,13 @@ func _create_handler(t: FloorType) -> FloorTypeHandler:
 			return SpringFloor.new(self)
 		FloorType.FALLING:
 			return FallingFloor.new(self)
-		FloorType.SPINNING:
-			return SpinningFloor.new(self)
-		FloorType.MOVING:
-			return MovingFloor.new(self)
+		FloorType.SPINNING, FloorType.MOVING:
+			# One unified motion handler covers both (and both at once).
+			# Don't create it twice if MOVING + SPINNING are combined.
+			for h in type_handlers:
+				if h is MotionFloor:
+					return null
+			return MotionFloor.new(self)
 		FloorType.FROZEN:
 			return FrozenFloor.new(self)
 		FloorType.DAMAGE:
@@ -449,7 +466,7 @@ func calculate_floor_velocity(delta: float):
 	floor_velocity = (global_position - previous_floor_position) / delta
 	previous_floor_position = global_position
 	
-	if has_floor_type(FloorType.SPINNING):
+	if motion_spins:
 		var rotation_speed = spin_speed * (PI / 180.0)
 		floor_angular_velocity = rotation_speed if spin_direction == SpinDirection.RIGHT else -rotation_speed
 

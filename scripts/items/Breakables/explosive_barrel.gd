@@ -16,7 +16,20 @@ class_name ExplosiveBarrel
 @export var chain_delay: float = 0.15              # Fuse delay between chained barrels
 @export var fuse_time: float = 0.0                 # Optional delay after being hit before boom
 
+@export_group("Warning Light")
+## Subtle pulsating red glow - reads as "this thing is dangerous".
+@export var warning_light_enabled: bool = true
+@export var warning_light_color: Color = Color(1.0, 0.12, 0.05)
+## Base glow strength (the pulse breathes around this).
+@export var warning_light_energy: float = 0.55
+## Pulses per second - keep it slow and ominous.
+@export var warning_pulse_speed: float = 1.4
+
 var exploding: bool = false
+var _warn_light: OmniLight3D = null
+var _warn_bulb: MeshInstance3D = null
+var _warn_bulb_mat: StandardMaterial3D = null
+var _pulse_time: float = 0.0
 
 func _ready():
 	super._ready()
@@ -25,6 +38,46 @@ func _ready():
 	if max_health > 1:
 		max_health = 1
 		current_health = 1
+	if warning_light_enabled:
+		_create_warning_light()
+
+func _create_warning_light():
+	# Little bulb on the lid
+	_warn_bulb = MeshInstance3D.new()
+	var bulb = SphereMesh.new()
+	bulb.radius = 0.07
+	bulb.height = 0.14
+	_warn_bulb.mesh = bulb
+	_warn_bulb_mat = StandardMaterial3D.new()
+	_warn_bulb_mat.albedo_color = warning_light_color
+	_warn_bulb_mat.emission_enabled = true
+	_warn_bulb_mat.emission = warning_light_color
+	_warn_bulb_mat.emission_energy_multiplier = 1.0
+	_warn_bulb.material_override = _warn_bulb_mat
+	_warn_bulb.position.y = 1.16
+	add_child(_warn_bulb)
+	
+	# Soft red spill onto the barrel and nearby floor
+	_warn_light = OmniLight3D.new()
+	_warn_light.light_color = warning_light_color
+	_warn_light.light_energy = warning_light_energy
+	_warn_light.omni_range = 2.6
+	_warn_light.omni_attenuation = 1.6
+	_warn_light.shadow_enabled = false     # Cheap - many barrels, no shadows
+	_warn_light.position.y = 1.2
+	add_child(_warn_light)
+
+func _process(delta: float) -> void:
+	if not _warn_light or exploding:
+		return
+	_pulse_time += delta
+	# Slow sine breathe with a soft "heartbeat" double-thump feel
+	var s = sin(_pulse_time * TAU * warning_pulse_speed)
+	var pulse = 0.5 + 0.5 * s
+	pulse = pulse * pulse    # Bias toward dim - the bright peak feels like a blink
+	_warn_light.light_energy = warning_light_energy * (0.45 + pulse * 1.1)
+	if _warn_bulb_mat:
+		_warn_bulb_mat.emission_energy_multiplier = 0.6 + pulse * 2.4
 
 func break_crate():
 	"""Overridden: instead of quietly breaking, BOOM."""
@@ -43,6 +96,10 @@ func break_crate():
 	explode()
 
 func _fuse_flash():
+	# Fuse burning: the warning light goes frantic
+	if _warn_light:
+		warning_pulse_speed = 8.0
+		warning_light_energy = 1.6
 	if not mesh or not is_instance_valid(mesh):
 		return
 	var material = mesh.get_active_material(0)

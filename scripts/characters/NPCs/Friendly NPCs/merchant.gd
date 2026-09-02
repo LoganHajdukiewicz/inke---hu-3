@@ -1,20 +1,26 @@
 extends CharacterBody3D
+class_name Merchant
+
+## The Merchant - heavily inspired by a certain Resident Evil 4 gentleman.
+## Talk to him and he plays his intro line(s) through the real dialogue box
+## (editable in the Inspector), then THROWS OPEN HIS COAT to reveal the
+## goods hanging inside, and the shop menu appears.
+##
+## "Whaddya buyin'?"
 
 # ==========================================
 # UPGRADE CONFIGURATION
 # ==========================================
 
-# Powerup types enum
 enum PowerupType {
 	DOUBLE_JUMP,
-	WALL_JUMP, 
-	DASH, 
+	WALL_JUMP,
+	DASH,
 	SPEED_UPGRADE,
-	HEALTH_UPGRADE, 
+	HEALTH_UPGRADE,
 	DAMAGE_UPGRADE
 }
 
-# Inspector-configurable upgrades
 @export_group("Available Upgrades")
 @export var available_upgrades: Array[PowerupType] = [
 	PowerupType.DOUBLE_JUMP,
@@ -24,414 +30,588 @@ enum PowerupType {
 
 @export_group("Merchant Settings")
 @export var merchant_name: String = "Merchant"
-@export var greeting_text: String = "Welcome to my shop!"
+## Shown at the top of the shop menu.
+@export var greeting_text: String = "Whaddya buyin'?"
+## Portrait name for the dialogue box (assets/portraits/{name}.png), optional.
+@export var portrait: String = ""
+
+@export_group("Intro Dialogue")
+## Played through the dialogue box BEFORE the coat opens, one message per
+## entry. Edit freely in the Inspector.
+@export_multiline var intro_lines: Array[String] = [
+	"Ahh... I'll buy it at a high price. Heh heh heh...",
+	"Got some rare things on sale, stranger.",
+]
+## Play the intro every single time (off = only the first visit).
+@export var intro_every_time: bool = false
+
+@export_group("Coat")
+@export var coat_color: Color = Color(0.16, 0.13, 0.11)     # Grimy long coat
+@export var coat_open_time: float = 0.45                     # How fast the reveal is
+@export var eye_color: Color = Color(1.0, 0.45, 0.1)         # Glowing eyes under the hood
 
 # ==========================================
-# STATE VARIABLES
+# STATE
 # ==========================================
 
 var player_in_range: bool = false
 var current_player: CharacterBody3D = null
 var shop_open: bool = false
+var _busy: bool = false            # Mid-intro-dialogue or mid-coat-animation
+var _intro_played: bool = false
+var _coat_is_open: bool = false
 
-# Current selection
 var current_upgrade_index: int = 0
-var upgrade_data: Array = []  # Will store upgrade info dictionaries
+var upgrade_data: Array = []
 
 # UI references
 var canvas_layer: CanvasLayer
 var interaction_label: Label
+var dim_rect: ColorRect
 var shop_panel: Panel
 var title_label: Label
+var greeting_label: Label
 var gear_count_label: Label
-var upgrade_name_label: Label
 var upgrade_description_label: Label
-var upgrade_cost_label: Label
 var status_label: Label
-var navigation_hint_label: Label
-var controls_hint_label: Label
+var item_cards: Array = []         # [{panel, name_label, cost_label, status_label}]
 
-# Selection indicator
-var selection_indicators: Array = []
+# Model references
+var _model: Node3D
+var _coat_left_pivot: Node3D
+var _coat_right_pivot: Node3D
+var _wares_root: Node3D
 
 # UI Colors
-var COLOR_PURCHASED = Color(0.3, 0.8, 0.3)
-var COLOR_AFFORDABLE = Color(0.9, 0.9, 0.2)
-var COLOR_EXPENSIVE = Color(0.8, 0.3, 0.3)
-var COLOR_SELECTED = Color(0.2, 0.6, 1.0)
-var COLOR_UNSELECTED = Color(0.4, 0.4, 0.4)
+const COLOR_PURCHASED := Color(0.35, 0.85, 0.4)
+const COLOR_AFFORDABLE := Color(0.95, 0.85, 0.3)
+const COLOR_EXPENSIVE := Color(0.85, 0.35, 0.3)
+const COLOR_SELECTED_BG := Color(0.16, 0.22, 0.32, 1.0)
+const COLOR_UNSELECTED_BG := Color(0.1, 0.11, 0.14, 1.0)
 
-# Input cooldown - FIXED: Increased to prevent accidental input
 var input_cooldown: float = 0.0
-var input_cooldown_time: float = 0.2  # Base cooldown time
+var input_cooldown_time: float = 0.18
 
 # ==========================================
 # INITIALIZATION
 # ==========================================
 
 func _ready():
+	add_to_group("NPCs")
 	setup_upgrade_data()
+	_build_model()
 	setup_ui()
 	
-	# Make sure merchant can process even when game is paused
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	
-	# Connect Area3D signals safely
 	if has_node("Area3D"):
 		$Area3D.body_entered.connect(_on_area_3d_body_entered)
 		$Area3D.body_exited.connect(_on_area_3d_body_exited)
 	else:
 		print("WARNING: Merchant needs an Area3D child node!")
 
+
 func setup_upgrade_data():
-	"""Build upgrade data array from available_upgrades"""
 	upgrade_data.clear()
-	
 	for powerup_type in available_upgrades:
 		var upgrade_key = get_upgrade_key(powerup_type)
 		if upgrade_key != "":
-			var data = {
+			upgrade_data.append({
 				"type": powerup_type,
 				"key": upgrade_key,
 				"name": GameManager.get_upgrade_name(upgrade_key),
 				"description": GameManager.get_upgrade_description(upgrade_key),
-				"cost": GameManager.get_upgrade_cost(upgrade_key)
-			}
-			upgrade_data.append(data)
-	
+				"cost": GameManager.get_upgrade_cost(upgrade_key),
+			})
+
 
 func get_upgrade_key(powerup_type: PowerupType) -> String:
-	"""Convert PowerupType enum to string key for GameManager"""
 	match powerup_type:
-		PowerupType.DOUBLE_JUMP:
-			return "double_jump"
-		PowerupType.WALL_JUMP:
-			return "wall_jump"
-		PowerupType.DASH:
-			return "dash"
-		PowerupType.SPEED_UPGRADE:
-			return "speed_upgrade"
-		PowerupType.HEALTH_UPGRADE:
-			return "health_upgrade"
-		PowerupType.DAMAGE_UPGRADE:
-			return "damage_upgrade"
-		_:
-			return ""
+		PowerupType.DOUBLE_JUMP: return "double_jump"
+		PowerupType.WALL_JUMP: return "wall_jump"
+		PowerupType.DASH: return "dash"
+		PowerupType.SPEED_UPGRADE: return "speed_upgrade"
+		PowerupType.HEALTH_UPGRADE: return "health_upgrade"
+		PowerupType.DAMAGE_UPGRADE: return "damage_upgrade"
+		_: return ""
+
 
 # ==========================================
-# UI SETUP
+# MODEL - long coat, hood, glowing eyes, and the famous coat reveal
+# ==========================================
+
+func _build_model():
+	# Hide any placeholder mesh from the scene file
+	for child in get_children():
+		if child is MeshInstance3D:
+			child.visible = false
+	
+	_model = Node3D.new()
+	_model.name = "Model"
+	add_child(_model)
+	
+	var coat_mat = StandardMaterial3D.new()
+	coat_mat.albedo_color = coat_color
+	coat_mat.roughness = 0.95
+	
+	var lining_mat = StandardMaterial3D.new()
+	lining_mat.albedo_color = Color(0.3, 0.08, 0.08)   # Deep red coat lining
+	lining_mat.roughness = 0.9
+	
+	# --- Body: long tapered coat (wider at the bottom, like a robe) -------
+	var body = MeshInstance3D.new()
+	var body_mesh = CylinderMesh.new()
+	body_mesh.top_radius = 0.38
+	body_mesh.bottom_radius = 0.55
+	body_mesh.height = 1.7
+	body.mesh = body_mesh
+	body.material_override = coat_mat
+	body.position.y = 0.85
+	_model.add_child(body)
+	
+	# --- Head: hooded sphere, mostly shadow ------------------------------
+	var head = MeshInstance3D.new()
+	var head_mesh = SphereMesh.new()
+	head_mesh.radius = 0.34
+	head_mesh.height = 0.68
+	head.mesh = head_mesh
+	head.material_override = coat_mat
+	head.position.y = 1.95
+	_model.add_child(head)
+	
+	# Dark face void under the hood
+	var face = MeshInstance3D.new()
+	var face_mesh = SphereMesh.new()
+	face_mesh.radius = 0.26
+	face_mesh.height = 0.52
+	face.mesh = face_mesh
+	var face_mat = StandardMaterial3D.new()
+	face_mat.albedo_color = Color(0.03, 0.03, 0.04)
+	face_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	face.material_override = face_mat
+	face.position = Vector3(0, 1.93, -0.12)
+	_model.add_child(face)
+	
+	# Glowing eyes
+	var eye_mat = StandardMaterial3D.new()
+	eye_mat.albedo_color = eye_color
+	eye_mat.emission_enabled = true
+	eye_mat.emission = eye_color
+	eye_mat.emission_energy_multiplier = 2.5
+	for ex in [-0.09, 0.09]:
+		var eye = MeshInstance3D.new()
+		var es = SphereMesh.new()
+		es.radius = 0.035
+		es.height = 0.07
+		eye.mesh = es
+		eye.material_override = eye_mat
+		eye.position = Vector3(ex, 1.96, -0.33)
+		_model.add_child(eye)
+	
+	# --- THE COAT: two hinged front panels that swing open ----------------
+	# Hinges sit at the shoulders; closed panels overlap the chest.
+	_coat_left_pivot = Node3D.new()
+	_coat_left_pivot.position = Vector3(-0.36, 1.1, -0.18)
+	_model.add_child(_coat_left_pivot)
+	
+	_coat_right_pivot = Node3D.new()
+	_coat_right_pivot.position = Vector3(0.36, 1.1, -0.18)
+	_model.add_child(_coat_right_pivot)
+	
+	for side in [-1.0, 1.0]:
+		var pivot = _coat_left_pivot if side < 0 else _coat_right_pivot
+		
+		var panel = MeshInstance3D.new()
+		var panel_mesh = BoxMesh.new()
+		panel_mesh.size = Vector3(0.42, 1.35, 0.05)
+		panel.mesh = panel_mesh
+		panel.material_override = coat_mat
+		# Panel extends inward from its hinge so the two meet in the middle
+		panel.position = Vector3(-side * 0.21, -0.25, -0.12)
+		pivot.add_child(panel)
+		
+		# Red lining on the inside face
+		var lining = MeshInstance3D.new()
+		var lining_mesh = BoxMesh.new()
+		lining_mesh.size = Vector3(0.38, 1.28, 0.015)
+		lining.mesh = lining_mesh
+		lining.material_override = lining_mat
+		lining.position = Vector3(-side * 0.21, -0.25, -0.15)
+		pivot.add_child(lining)
+		
+		# Wares strapped to the inside of each panel (revealed on open)
+		for i in range(3):
+			var ware = MeshInstance3D.new()
+			var ware_mesh = SphereMesh.new()
+			ware_mesh.radius = 0.055
+			ware_mesh.height = 0.11
+			ware.mesh = ware_mesh
+			var ware_mat = StandardMaterial3D.new()
+			var hue = Color.from_hsv(randf_range(0.05, 0.55), 0.8, 1.0)
+			ware_mat.albedo_color = hue
+			ware_mat.emission_enabled = true
+			ware_mat.emission = hue
+			ware_mat.emission_energy_multiplier = 1.2
+			ware.material_override = ware_mat
+			ware.position = Vector3(-side * (0.1 + (i % 2) * 0.18), -0.05 - i * 0.32, -0.17)
+			pivot.add_child(ware)
+	
+	# Wares hanging inside the coat cavity itself
+	_wares_root = Node3D.new()
+	_model.add_child(_wares_root)
+	for i in range(3):
+		var ware = MeshInstance3D.new()
+		var ware_mesh = BoxMesh.new()
+		ware_mesh.size = Vector3(0.09, 0.09, 0.09)
+		ware.mesh = ware_mesh
+		var ware_mat = StandardMaterial3D.new()
+		var hue = Color.from_hsv(randf_range(0.5, 0.95), 0.7, 1.0)
+		ware_mat.albedo_color = hue
+		ware_mat.emission_enabled = true
+		ware_mat.emission = hue
+		ware_mat.emission_energy_multiplier = 1.0
+		ware.material_override = ware_mat
+		ware.position = Vector3(-0.16 + i * 0.16, 1.05 - (i % 2) * 0.25, -0.3)
+		_wares_root.add_child(ware)
+	_wares_root.visible = false   # Hidden until the coat opens
+	
+	# Name tag
+	var tag = Label3D.new()
+	tag.text = merchant_name
+	tag.font_size = 40
+	tag.outline_size = 10
+	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	tag.pixel_size = 0.008
+	tag.position.y = 2.5
+	tag.modulate = Color(0.9, 0.75, 0.4)
+	_model.add_child(tag)
+	
+	_set_coat(false, true)
+
+
+func _set_coat(open: bool, instant: bool = false):
+	"""Swing the coat panels. Closed: panels overlap the chest. Open: flung
+	wide like the RE4 merchant showing you the goods."""
+	_coat_is_open = open
+	var left_target = deg_to_rad(-118.0) if open else deg_to_rad(8.0)
+	var right_target = deg_to_rad(118.0) if open else deg_to_rad(-8.0)
+	
+	if instant:
+		_coat_left_pivot.rotation.y = left_target
+		_coat_right_pivot.rotation.y = right_target
+		_wares_root.visible = open
+		return
+	
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)   # Animates even when paused
+	tween.set_parallel(true)
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(_coat_left_pivot, "rotation:y", left_target, coat_open_time)
+	tween.tween_property(_coat_right_pivot, "rotation:y", right_target, coat_open_time)
+	# Little showman lean-back as the coat opens
+	if open:
+		_wares_root.visible = true
+		tween.tween_property(_model, "rotation:x", deg_to_rad(-6.0), coat_open_time)
+	else:
+		tween.tween_property(_model, "rotation:x", 0.0, coat_open_time)
+		tween.chain().tween_callback(func(): _wares_root.visible = false)
+
+
+func on_hit() -> void:
+	"""NPC hit reaction: clutch the coat shut and glare."""
+	if _busy or shop_open:
+		return
+	var tween = create_tween()
+	tween.tween_property(_model, "scale", Vector3(1.08, 0.9, 1.08), 0.06)
+	tween.tween_property(_model, "scale", Vector3.ONE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+# ==========================================
+# UI - centered, anchored, controller-friendly
 # ==========================================
 
 func setup_ui():
-	"""Create a polished, controller-friendly shop UI"""
 	canvas_layer = CanvasLayer.new()
-	add_child(canvas_layer)
-	# CRITICAL: Make sure UI processes even when game is paused
+	canvas_layer.layer = 44
 	canvas_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(canvas_layer)
 	
-	# Interaction prompt (visible when near merchant)
+	# Interaction prompt (anchored bottom-center - works on any resolution)
 	interaction_label = Label.new()
-	interaction_label.text = "[SPACE] or [X] Talk to " + merchant_name
+	interaction_label.text = "[E] Talk to " + merchant_name
 	interaction_label.add_theme_font_size_override("font_size", 24)
+	interaction_label.add_theme_constant_override("outline_size", 8)
+	interaction_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	interaction_label.position = Vector2(860, 900)
-	interaction_label.size = Vector2(200, 50)
+	interaction_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	interaction_label.offset_top = -130
+	interaction_label.offset_bottom = -95
+	interaction_label.offset_left = -300
+	interaction_label.offset_right = 300
 	interaction_label.visible = false
 	canvas_layer.add_child(interaction_label)
 	
-	# Main shop panel
+	# Full-screen dim behind the shop
+	dim_rect = ColorRect.new()
+	dim_rect.color = Color(0, 0, 0, 0.55)
+	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim_rect.visible = false
+	canvas_layer.add_child(dim_rect)
+	
+	# Main shop panel - centered
 	shop_panel = Panel.new()
-	shop_panel.size = Vector2(1200, 700)
-	shop_panel.position = Vector2(360, 190)
+	shop_panel.set_anchors_preset(Control.PRESET_CENTER)
+	shop_panel.offset_left = -480
+	shop_panel.offset_right = 480
+	shop_panel.offset_top = -300
+	shop_panel.offset_bottom = 300
 	shop_panel.visible = false
 	
-	# Create a semi-transparent dark background
 	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.1, 0.1, 0.15, 0.95)
-	panel_style.border_color = Color(0.4, 0.6, 0.8, 1.0)
-	panel_style.border_width_left = 4
-	panel_style.border_width_right = 4
-	panel_style.border_width_top = 4
-	panel_style.border_width_bottom = 4
-	panel_style.corner_radius_top_left = 10
-	panel_style.corner_radius_top_right = 10
-	panel_style.corner_radius_bottom_left = 10
-	panel_style.corner_radius_bottom_right = 10
+	panel_style.bg_color = Color(0.08, 0.08, 0.11, 0.97)
+	panel_style.border_color = Color(0.75, 0.6, 0.3)
+	panel_style.set_border_width_all(3)
+	panel_style.set_corner_radius_all(14)
+	panel_style.shadow_size = 24
+	panel_style.shadow_color = Color(0, 0, 0, 0.5)
 	shop_panel.add_theme_stylebox_override("panel", panel_style)
-	
 	canvas_layer.add_child(shop_panel)
 	
 	# Title
 	title_label = Label.new()
-	title_label.text = merchant_name + "'s Shop"
-	title_label.add_theme_font_size_override("font_size", 48)
-	title_label.add_theme_color_override("font_color", Color(0.9, 0.9, 1.0))
+	title_label.text = merchant_name.to_upper()
+	title_label.add_theme_font_size_override("font_size", 40)
+	title_label.add_theme_color_override("font_color", Color(0.95, 0.8, 0.45))
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.position = Vector2(0, 20)
-	title_label.size = Vector2(1200, 60)
+	title_label.position = Vector2(0, 18)
+	title_label.size = Vector2(960, 48)
 	shop_panel.add_child(title_label)
 	
-	# Greeting
-	var greeting_label = Label.new()
-	greeting_label.text = greeting_text
+	# Greeting ("Whaddya buyin'?")
+	greeting_label = Label.new()
+	greeting_label.text = "\"" + greeting_text + "\""
 	greeting_label.add_theme_font_size_override("font_size", 20)
-	greeting_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.9))
+	greeting_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
 	greeting_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	greeting_label.position = Vector2(0, 80)
-	greeting_label.size = Vector2(1200, 30)
+	greeting_label.position = Vector2(0, 66)
+	greeting_label.size = Vector2(960, 28)
 	shop_panel.add_child(greeting_label)
 	
-	# Gear count
+	# Gear count - top right corner chip
 	gear_count_label = Label.new()
-	gear_count_label.add_theme_font_size_override("font_size", 28)
-	gear_count_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.3))
-	gear_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	gear_count_label.position = Vector2(0, 120)
-	gear_count_label.size = Vector2(1200, 40)
+	gear_count_label.add_theme_font_size_override("font_size", 26)
+	gear_count_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.35))
+	gear_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	gear_count_label.position = Vector2(660, 24)
+	gear_count_label.size = Vector2(270, 36)
 	shop_panel.add_child(gear_count_label)
 	
-	# Upgrades list container
-	var upgrades_container_y = 180
-	setup_upgrade_list(upgrades_container_y)
+	_build_item_cards()
 	
-	# Selected upgrade details panel
-	var details_y = 180
-	setup_details_panel(details_y)
-	
-	# Navigation hints
-	navigation_hint_label = Label.new()
-	navigation_hint_label.text = "◀ D-Pad Left/Right ▶  Navigate"
-	navigation_hint_label.add_theme_font_size_override("font_size", 22)
-	navigation_hint_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8))
-	navigation_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	navigation_hint_label.position = Vector2(0, 600)
-	navigation_hint_label.size = Vector2(1200, 30)
-	shop_panel.add_child(navigation_hint_label)
-	
-	# Controls hint
-	controls_hint_label = Label.new()
-	controls_hint_label.text = "[X] or [SPACE] Purchase  |  [B] or [X] Close"
-	controls_hint_label.add_theme_font_size_override("font_size", 22)
-	controls_hint_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.8))
-	controls_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	controls_hint_label.position = Vector2(0, 640)
-	controls_hint_label.size = Vector2(1200, 30)
-	shop_panel.add_child(controls_hint_label)
-
-func setup_upgrade_list(start_y: int):
-	"""Create horizontal upgrade selection list"""
-	var container_width = 1160
-	var container_x = 20
-	var item_width = 160
-	var item_height = 200
-	var spacing = 20
-	
-	# Calculate total width needed and starting position
-	var total_items = upgrade_data.size()
-	var total_width = (item_width * total_items) + (spacing * (total_items - 1))
-	var start_x : float = container_x + (container_width - total_width) / 2
-	
-	for i in range(upgrade_data.size()):
-		var upgrade = upgrade_data[i]
-		var x_pos = start_x + (i * (item_width + spacing))
-		
-		# Create upgrade item panel
-		var item_panel = Panel.new()
-		item_panel.size = Vector2(item_width, item_height)
-		item_panel.position = Vector2(x_pos, start_y)
-		
-		var item_style = StyleBoxFlat.new()
-		item_style.bg_color = COLOR_UNSELECTED
-		item_style.border_color = Color(0.3, 0.3, 0.4)
-		item_style.border_width_left = 2
-		item_style.border_width_right = 2
-		item_style.border_width_top = 2
-		item_style.border_width_bottom = 2
-		item_style.corner_radius_top_left = 8
-		item_style.corner_radius_top_right = 8
-		item_style.corner_radius_bottom_left = 8
-		item_style.corner_radius_bottom_right = 8
-		item_panel.add_theme_stylebox_override("panel", item_style)
-		
-		shop_panel.add_child(item_panel)
-		selection_indicators.append(item_panel)
-		
-		# Upgrade icon/name
-		var name_label = Label.new()
-		name_label.text = upgrade.name
-		name_label.add_theme_font_size_override("font_size", 18)
-		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		name_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-		name_label.position = Vector2(5, 10)
-		name_label.size = Vector2(item_width - 10, 60)
-		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		item_panel.add_child(name_label)
-		
-		# Cost
-		var cost_label = Label.new()
-		cost_label.text = str(upgrade.cost) + " ⚙"
-		cost_label.add_theme_font_size_override("font_size", 24)
-		cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		cost_label.position = Vector2(0, 120)
-		cost_label.size = Vector2(item_width, 30)
-		item_panel.add_child(cost_label)
-		
-		# Status indicator
-		var status = Label.new()
-		status.add_theme_font_size_override("font_size", 16)
-		status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		status.position = Vector2(0, 160)
-		status.size = Vector2(item_width, 30)
-		item_panel.add_child(status)
-
-func setup_details_panel(start_y: int):
-	"""Create detailed info panel for selected upgrade"""
-	var details_panel = Panel.new()
-	details_panel.size = Vector2(1160, 380)
-	details_panel.position = Vector2(20, start_y)
-	
-	var details_style = StyleBoxFlat.new()
-	details_style.bg_color = Color(0.15, 0.15, 0.2, 0.8)
-	details_style.border_color = Color(0.3, 0.5, 0.7)
-	details_style.border_width_left = 2
-	details_style.border_width_right = 2
-	details_style.border_width_top = 2
-	details_style.border_width_bottom = 2
-	details_style.corner_radius_top_left = 8
-	details_style.corner_radius_top_right = 8
-	details_style.corner_radius_bottom_left = 8
-	details_style.corner_radius_bottom_right = 8
-	details_panel.add_theme_stylebox_override("panel", details_style)
-	
-	shop_panel.add_child(details_panel)
-	
-	# Selected upgrade name
-	upgrade_name_label = Label.new()
-	upgrade_name_label.add_theme_font_size_override("font_size", 36)
-	upgrade_name_label.add_theme_color_override("font_color", COLOR_SELECTED)
-	upgrade_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	upgrade_name_label.position = Vector2(20, 20)
-	upgrade_name_label.size = Vector2(1120, 50)
-	details_panel.add_child(upgrade_name_label)
-	
-	# Description
+	# Description strip under the cards
 	upgrade_description_label = Label.new()
-	upgrade_description_label.add_theme_font_size_override("font_size", 24)
+	upgrade_description_label.add_theme_font_size_override("font_size", 21)
 	upgrade_description_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
 	upgrade_description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	upgrade_description_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
-	upgrade_description_label.position = Vector2(40, 90)
-	upgrade_description_label.size = Vector2(1080, 120)
+	upgrade_description_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	upgrade_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	details_panel.add_child(upgrade_description_label)
+	upgrade_description_label.position = Vector2(60, 420)
+	upgrade_description_label.size = Vector2(840, 70)
+	shop_panel.add_child(upgrade_description_label)
 	
-	# Cost display
-	upgrade_cost_label = Label.new()
-	upgrade_cost_label.add_theme_font_size_override("font_size", 32)
-	upgrade_cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	upgrade_cost_label.position = Vector2(20, 230)
-	upgrade_cost_label.size = Vector2(1120, 50)
-	details_panel.add_child(upgrade_cost_label)
-	
-	# Status message
+	# Status / purchase prompt
 	status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 28)
+	status_label.add_theme_font_size_override("font_size", 26)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status_label.position = Vector2(20, 300)
-	status_label.size = Vector2(1120, 50)
-	details_panel.add_child(status_label)
+	status_label.position = Vector2(0, 495)
+	status_label.size = Vector2(960, 40)
+	shop_panel.add_child(status_label)
+	
+	# Controls hint
+	var controls = Label.new()
+	controls.text = "◀ ▶ Browse      [SPACE/X] Buy      [ESC/C] Leave"
+	controls.add_theme_font_size_override("font_size", 18)
+	controls.add_theme_color_override("font_color", Color(0.55, 0.55, 0.62))
+	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	controls.position = Vector2(0, 555)
+	controls.size = Vector2(960, 28)
+	shop_panel.add_child(controls)
+
+
+func _build_item_cards():
+	item_cards.clear()
+	var count = upgrade_data.size()
+	if count == 0:
+		return
+	
+	var card_w = 200
+	var card_h = 240
+	var spacing = 24
+	var total_w = card_w * count + spacing * (count - 1)
+	var start_x = (960 - total_w) / 2.0
+	var y = 115
+	
+	for i in range(count):
+		var upgrade = upgrade_data[i]
+		
+		var card = Panel.new()
+		card.position = Vector2(start_x + i * (card_w + spacing), y)
+		card.size = Vector2(card_w, card_h)
+		var style = StyleBoxFlat.new()
+		style.bg_color = COLOR_UNSELECTED_BG
+		style.border_color = Color(0.3, 0.3, 0.38)
+		style.set_border_width_all(2)
+		style.set_corner_radius_all(10)
+		card.add_theme_stylebox_override("panel", style)
+		shop_panel.add_child(card)
+		
+		var name_label = Label.new()
+		name_label.text = upgrade.name
+		name_label.add_theme_font_size_override("font_size", 21)
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		name_label.position = Vector2(8, 14)
+		name_label.size = Vector2(card_w - 16, 64)
+		card.add_child(name_label)
+		
+		var cost_label = Label.new()
+		cost_label.text = str(upgrade.cost) + " ⚙"
+		cost_label.add_theme_font_size_override("font_size", 30)
+		cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		cost_label.position = Vector2(0, 130)
+		cost_label.size = Vector2(card_w, 40)
+		card.add_child(cost_label)
+		
+		var st = Label.new()
+		st.add_theme_font_size_override("font_size", 17)
+		st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		st.position = Vector2(0, 195)
+		st.size = Vector2(card_w, 28)
+		card.add_child(st)
+		
+		item_cards.append({"panel": card, "name": name_label, "cost": cost_label, "status": st})
+
 
 # ==========================================
 # GAME LOOP
 # ==========================================
 
 func _process(delta):
-	# Update input cooldown
 	if input_cooldown > 0:
 		input_cooldown -= delta
 	
-	# FIXED: Only check for interaction when shop is NOT open
-	if player_in_range and not shop_open:
-		# Only check for ui_accept if cooldown has passed
-		if input_cooldown <= 0 and Input.is_action_just_pressed("ui_accept"):
-			open_shop()
+	if player_in_range and not shop_open and not _busy:
+		if input_cooldown <= 0 and (Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("ui_accept")):
+			_start_interaction()
 	
-	# FIXED: Only handle shop input when shop is actually open AND cooldown expired
 	if shop_open and input_cooldown <= 0:
 		handle_shop_input()
 
+
 func handle_shop_input():
-	"""Handle controller/keyboard input for shop navigation"""
-	# SAFETY CHECK: Don't process if cooldown is active
-	if input_cooldown > 0:
-		return
-	
-	# Navigate left
 	if Input.is_action_just_pressed("left") or Input.is_action_just_pressed("d_pad_left"):
-		current_upgrade_index = max(0, current_upgrade_index - 1)
+		current_upgrade_index = maxi(0, current_upgrade_index - 1)
 		update_selection()
 		input_cooldown = input_cooldown_time
 	
-	# Navigate right
 	if Input.is_action_just_pressed("right") or Input.is_action_just_pressed("d_pad_right"):
-		current_upgrade_index = min(upgrade_data.size() - 1, current_upgrade_index + 1)
+		current_upgrade_index = mini(upgrade_data.size() - 1, current_upgrade_index + 1)
 		update_selection()
 		input_cooldown = input_cooldown_time
 	
-	# Purchase (A button / Space / ui_accept)
 	if Input.is_action_just_pressed("ui_accept"):
 		attempt_purchase()
 		input_cooldown = input_cooldown_time
 	
-	# Close shop (B button, X button, dash, heavy_attack, or ui_cancel)
 	if Input.is_action_just_pressed("ui_cancel") or Input.is_action_just_pressed("dash") or Input.is_action_just_pressed("heavy_attack"):
 		close_shop()
 		input_cooldown = input_cooldown_time
+
+
+# ==========================================
+# INTERACTION FLOW: intro dialogue -> coat opens -> shop
+# ==========================================
+
+func _start_interaction():
+	input_cooldown = 0.4
+	
+	# Face the player
+	if current_player and is_instance_valid(current_player) and _model:
+		var to_p = current_player.global_position - global_position
+		to_p.y = 0
+		if to_p.length() > 0.1:
+			_model.rotation.y = atan2(-to_p.x, -to_p.z) - rotation.y
+	
+	var dm = get_node_or_null("/root/DialogueManager")
+	var wants_intro = intro_lines.size() > 0 and (intro_every_time or not _intro_played)
+	
+	if wants_intro and dm:
+		_busy = true
+		_intro_played = true
+		var lines: Array = []
+		for text in intro_lines:
+			lines.append({"speaker": merchant_name, "text": text, "portrait": portrait})
+		if not dm.dialogue_ended.is_connected(_on_intro_ended):
+			dm.dialogue_ended.connect(_on_intro_ended, CONNECT_ONE_SHOT)
+		dm.start_dialogue_lines(lines)
+	else:
+		_open_coat_then_shop()
+
+
+func _on_intro_ended():
+	if not _busy:
+		return
+	_open_coat_then_shop()
+
+
+func _open_coat_then_shop():
+	"""The RE4 moment: coat flies open, THEN the menu appears."""
+	_busy = true
+	
+	# Lock the player down for the reveal
+	if current_player and is_instance_valid(current_player):
+		set_player_ignore_jump(true)
+		current_player.controls_disabled = true
+		current_player.velocity = Vector3.ZERO
+		var sm = current_player.get_node_or_null("StateMachine")
+		if sm and sm.has_method("change_state"):
+			sm.change_state("IdleState")
+	
+	_set_coat(true)
+	
+	# Let the coat swing finish before the menu drops in
+	await get_tree().create_timer(coat_open_time + 0.15, true, false, true).timeout
+	if not is_instance_valid(self):
+		return
+	_busy = false
+	open_shop()
+
 
 # ==========================================
 # SHOP MANAGEMENT
 # ==========================================
 
 func open_shop():
-	if not current_player or upgrade_data.is_empty():
+	if not current_player or upgrade_data.is_empty() or shop_open:
 		return
-	
-	if shop_open:
-		return
-	
-	
-	# TEACHING MOMENT: This is the KEY fix - we now use a helper function
-	# that works exactly like the dialogue trigger
-	# It sets the flag AND schedules automatic cleanup
-	set_player_ignore_jump(true)
-	
-	# Disable player controls to prevent movement behind menu
-	current_player.controls_disabled = true
-	current_player.velocity = Vector3.ZERO
-	
-	# FIX (merchant exit jump): the Space press that opened the shop can also
-	# fire a jump in the player's state machine on the same frame, leaving the
-	# player frozen mid-JumpingState while the shop is open. Force the state
-	# machine back to Idle so nothing resumes when we unpause.
-	var sm = current_player.get_node_or_null("StateMachine")
-	if sm and sm.has_method("change_state"):
-		sm.change_state("IdleState")
 	
 	shop_open = true
 	current_upgrade_index = 0
-	
-	# Pause the game
 	get_tree().paused = true
 	
-	# Show UI
+	dim_rect.visible = true
 	shop_panel.visible = true
+	# Menu pop-in
+	shop_panel.scale = Vector2(0.9, 0.9)
+	shop_panel.pivot_offset = shop_panel.size / 2.0
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.tween_property(shop_panel, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	
-	# Update selection to show current state
 	update_selection()
-	
-	# FIXED: Longer initial cooldown to prevent any inputs from bleeding through
-	input_cooldown = 0.5
-	
+	input_cooldown = 0.45
+
 
 func close_shop():
 	if not shop_open:
@@ -439,181 +619,119 @@ func close_shop():
 	
 	shop_open = false
 	shop_panel.visible = false
-	
-	# Unpause the game
+	dim_rect.visible = false
 	get_tree().paused = false
 	
-	# TEACHING MOMENT: Same cleanup as dialogue trigger
-	# Set the flag again to block the close button from causing a jump
-	set_player_ignore_jump(true)
+	_set_coat(false)
 	
-	# FIX (merchant exit jump): the button that closes the shop (Esc/C/B) can
-	# double as a gameplay action (dash!) on the very frame we unpause. Keep the
-	# player's controls disabled for a short grace window so no stray input
-	# leaks into the state machine, then re-enable.
+	set_player_ignore_jump(true)
 	if current_player and is_instance_valid(current_player):
 		current_player.velocity = Vector3.ZERO
 		_reenable_controls_after_grace(current_player)
 	
-	# FIXED: Longer cooldown to prevent immediate re-opening or accidental jumps
 	input_cooldown = 0.5
+
 
 func _reenable_controls_after_grace(p: CharacterBody3D):
 	"""Re-enable player controls a few frames after the shop closes so the
 	close-button press can't trigger jump/dash on the unpause frame."""
 	await get_tree().create_timer(0.15, true, false, true).timeout
-	if is_instance_valid(p):
-		# Don't re-enable if something else (dialogue, another shop) took over
-		if not shop_open:
-			p.controls_disabled = false
-	
+	if is_instance_valid(p) and not shop_open:
+		p.controls_disabled = false
+
 
 # ==========================================
-# IGNORE JUMP HELPER FUNCTIONS
+# IGNORE JUMP HELPERS (same pattern as dialogue_trigger.gd)
 # ==========================================
-# TEACHING MOMENT: These functions are modeled EXACTLY after how dialogue_trigger.gd
-# handles the ignore_next_jump flag. This is the proper pattern to follow.
 
 func set_player_ignore_jump(should_ignore: bool):
-	"""
-	Set the player's ignore_next_jump flag with automatic cleanup.
-	
-	WHY THIS WORKS:
-	1. We set the flag immediately to block the current input
-	2. We schedule cleanup after a tiny delay (0.01 seconds)
-	3. The cleanup happens on the next frame, ensuring the flag is cleared
-	
-	This is the EXACT pattern used by dialogue_trigger.gd in _on_dialogue_ended()
-	"""
 	if not current_player or not is_instance_valid(current_player):
 		return
-	
-	if current_player.has_method("set"):
-		current_player.set("ignore_next_jump", should_ignore)
-		
-		if should_ignore:
-			# Schedule automatic cleanup (just like dialogue trigger)
-			# This ensures the flag doesn't stay set forever
-			clear_ignore_jump_after_delay()
+	current_player.set("ignore_next_jump", should_ignore)
+	if should_ignore:
+		clear_ignore_jump_after_delay()
+
 
 func clear_ignore_jump_after_delay():
-	"""
-	Clear the ignore_next_jump flag after a short delay.
-	
-	TEACHING MOMENT: This timer-based approach is CRITICAL because:
-	1. It gives the current input event time to be fully processed
-	2. It ensures the flag is cleared before the next frame's input check
-	3. It prevents the flag from "sticking" and blocking future jumps
-	
-	The 0.01 second delay is the SAME as dialogue_trigger uses - it's the
-	minimum safe delay that works reliably.
-	"""
-	# Use await with create_timer to wait, then clear the flag
-	# processable=false means timer runs even when game is paused (important!)
-	# ignore_time_scale=false means timer respects time scale
-	# Note: The third parameter (process_in_physics) is true to ensure it runs in physics
 	await get_tree().create_timer(0.01, false, false, true).timeout
-	
-	# Only clear if player is still valid
-	if is_instance_valid(current_player) and current_player.has_method("set"):
+	if is_instance_valid(current_player):
 		current_player.set("ignore_next_jump", false)
+
 
 # ==========================================
 # SELECTION AND PURCHASE
 # ==========================================
 
 func update_selection():
-	"""Update UI to reflect current selection"""
 	if upgrade_data.is_empty():
 		return
 	
 	var player_gears = GameManager.get_gear_count()
-	gear_count_label.text = "Your Gears: " + str(player_gears) + " ⚙"
+	gear_count_label.text = str(player_gears) + " ⚙"
 	
-	var selected_upgrade = upgrade_data[current_upgrade_index]
-	
-	var is_purchased = GameManager.is_upgrade_purchased(selected_upgrade.key)
-	var can_afford = player_gears >= selected_upgrade.cost
-	
-	# Update selection indicators
-	for i in range(selection_indicators.size()):
-		var panel = selection_indicators[i]
-		var style = panel.get_theme_stylebox("panel") as StyleBoxFlat
+	for i in range(item_cards.size()):
+		var card = item_cards[i]
+		var style = card.panel.get_theme_stylebox("panel") as StyleBoxFlat
+		var upgrade = upgrade_data[i]
+		var owned = GameManager.is_upgrade_purchased(upgrade.key)
 		
 		if i == current_upgrade_index:
-			# Selected item
-			style.bg_color = COLOR_SELECTED
-			style.border_color = Color(0.5, 0.8, 1.0)
-			style.border_width_left = 4
-			style.border_width_right = 4
-			style.border_width_top = 4
-			style.border_width_bottom = 4
+			style.bg_color = COLOR_SELECTED_BG
+			style.border_color = Color(0.95, 0.8, 0.45)
+			style.set_border_width_all(3)
 		else:
-			# Unselected item
-			style.bg_color = COLOR_UNSELECTED
-			style.border_color = Color(0.3, 0.3, 0.4)
-			style.border_width_left = 2
-			style.border_width_right = 2
-			style.border_width_top = 2
-			style.border_width_bottom = 2
+			style.bg_color = COLOR_UNSELECTED_BG
+			style.border_color = Color(0.3, 0.3, 0.38)
+			style.set_border_width_all(2)
 		
-		# Update status text for this upgrade
-		var upgrade = upgrade_data[i]
-		var status_label_node = panel.get_child(2)  # Third child is status label
-		if GameManager.is_upgrade_purchased(upgrade.key):
-			status_label_node.text = "✓ OWNED"
-			status_label_node.add_theme_color_override("font_color", COLOR_PURCHASED)
+		if owned:
+			card.status.text = "✓ OWNED"
+			card.status.add_theme_color_override("font_color", COLOR_PURCHASED)
+			card.cost.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 		elif player_gears >= upgrade.cost:
-			status_label_node.text = "Available"
-			status_label_node.add_theme_color_override("font_color", COLOR_AFFORDABLE)
+			card.status.text = "Available"
+			card.status.add_theme_color_override("font_color", COLOR_AFFORDABLE)
+			card.cost.add_theme_color_override("font_color", COLOR_AFFORDABLE)
 		else:
-			status_label_node.text = "Not enough"
-			status_label_node.add_theme_color_override("font_color", COLOR_EXPENSIVE)
+			card.status.text = "Too pricey"
+			card.status.add_theme_color_override("font_color", COLOR_EXPENSIVE)
+			card.cost.add_theme_color_override("font_color", COLOR_EXPENSIVE)
 	
-	# Update details panel
-	upgrade_name_label.text = selected_upgrade.name
-	upgrade_description_label.text = selected_upgrade.description
-	upgrade_cost_label.text = "Cost: " + str(selected_upgrade.cost) + " ⚙"
+	var selected = upgrade_data[current_upgrade_index]
+	upgrade_description_label.text = selected.description
 	
-	if is_purchased:
-		upgrade_cost_label.add_theme_color_override("font_color", COLOR_PURCHASED)
-		status_label.text = "✓ Already Purchased!"
+	if GameManager.is_upgrade_purchased(selected.key):
+		status_label.text = "✓ Already yours, stranger."
 		status_label.add_theme_color_override("font_color", COLOR_PURCHASED)
-	elif can_afford:
-		upgrade_cost_label.add_theme_color_override("font_color", COLOR_AFFORDABLE)
-		status_label.text = "Press [X] or [SPACE] to Purchase"
+	elif player_gears >= selected.cost:
+		status_label.text = "[SPACE/X]  Buy for " + str(selected.cost) + " ⚙"
 		status_label.add_theme_color_override("font_color", COLOR_AFFORDABLE)
 	else:
-		upgrade_cost_label.add_theme_color_override("font_color", COLOR_EXPENSIVE)
-		var needed = selected_upgrade.cost - player_gears
-		status_label.text = "Need " + str(needed) + " more gears"
+		status_label.text = "Not enough gears... come back later. (" + str(selected.cost - player_gears) + " short)"
 		status_label.add_theme_color_override("font_color", COLOR_EXPENSIVE)
 
+
 func attempt_purchase():
-	"""Try to purchase the currently selected upgrade"""
 	if upgrade_data.is_empty():
 		return
 	
-	var selected_upgrade = upgrade_data[current_upgrade_index]
-	
-	# Check if already purchased
-	if GameManager.is_upgrade_purchased(selected_upgrade.key):
+	var selected = upgrade_data[current_upgrade_index]
+	if GameManager.is_upgrade_purchased(selected.key):
 		return
 	
-	# Attempt purchase through GameManager
-	if GameManager.purchase_upgrade(selected_upgrade.key):
-		
-		# Show purchase success feedback
-		status_label.text = "✓ Purchase Successful!"
+	if GameManager.purchase_upgrade(selected.key):
+		status_label.text = "\"Heh heh heh... thank you!\""
 		status_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
-		
-		# Update UI
+		# Purchase flash on the card
+		var card = item_cards[current_upgrade_index]
+		var style = card.panel.get_theme_stylebox("panel") as StyleBoxFlat
+		style.bg_color = Color(0.2, 0.4, 0.2)
+		await get_tree().create_timer(0.15, true, false, true).timeout
 		update_selection()
 	else:
-		
-		# Show error feedback
-		status_label.text = "✗ Not Enough Gears!"
+		status_label.text = "\"Not enough cash... stranger.\""
 		status_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.3))
+
 
 # ==========================================
 # AREA DETECTION
@@ -625,17 +743,15 @@ func _on_area_3d_body_entered(body):
 		current_player = body
 		interaction_label.visible = true
 
+
 func _on_area_3d_body_exited(body):
 	if body.is_in_group("Player"):
 		player_in_range = false
-		
-		# If shop is open when player leaves, close it AND clean up flag
 		if shop_open:
 			close_shop()
 		else:
-			# Even if shop wasn't open, ensure flag is clean
 			set_player_ignore_jump(false)
-		
+			if _coat_is_open:
+				_set_coat(false)
 		current_player = null
 		interaction_label.visible = false
-		

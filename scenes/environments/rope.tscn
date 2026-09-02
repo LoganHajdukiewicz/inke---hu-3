@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://swingrope0001"]
 
-[ext_resource type="Script" path="res://scripts/items/rope.gd" id="1_rope"]
+[ext_resource type="Script" path="res://scripts/environments/rope.gd" id="1_rope"]
 
 [node name="Rope" type="Node3D" groups=["Rope"]]
 script = ExtResource("1_rope")

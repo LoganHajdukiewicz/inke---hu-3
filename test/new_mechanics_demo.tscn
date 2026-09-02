@@ -3,8 +3,8 @@
 [ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="1_floor"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_inke"]
 [ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="3_climb"]
-[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/slam_patch.tscn" id="4_patch"]
-[ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/items/rope.tscn" id="5_rope"]
+[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/ground_pound_area.tscn" id="4_patch"]
+[ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/environments/rope.tscn" id="5_rope"]
 [ext_resource type="PackedScene" uid="uid://balbeam000001" path="res://scenes/environments/balance_beam.tscn" id="6_beam"]
 [ext_resource type="PackedScene" uid="uid://djy07jj4umaii" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="7_laser"]
 [ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="8_enemy"]
@@ -62,7 +62,7 @@ transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 0.8, 0, 5.7, -16)
 transform = Transform3D(0.8, 0, 0, 0, 1, 0, 0, 0, 0.8, -15.265678, -7.910427, -17.128555)
 floor_size = Vector3(10, 20, 10)
 
-[node name="SlamPatch" parent="." unique_id=517245864 instance=ExtResource("4_patch")]
+[node name="GroundPoundArea" parent="." unique_id=517245864 instance=ExtResource("4_patch")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, 0)
 
 [node name="Rope" parent="." unique_id=1795770432 instance=ExtResource("5_rope")]

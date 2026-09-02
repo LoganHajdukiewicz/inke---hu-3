@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://questgiver001"]
 
-[ext_resource type="Script" path="res://scripts/quests/quest_giver.gd" id="1_giver"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Friendly NPCs/quest_giver.gd" id="1_giver"]
 
 [node name="QuestGiver" type="CharacterBody3D"]
 collision_layer = 4

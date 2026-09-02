@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3 uid="uid://qreachloc0001"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "default_reach_location"
+title = "Scenic Route"
+description = "Reach the marked location."
+quest_type = 2
+target_count = 1
+target_id = "default_flag"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 10
+repeatable = false

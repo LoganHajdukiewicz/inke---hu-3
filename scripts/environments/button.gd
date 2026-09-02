@@ -1,4 +1,6 @@
 @tool
+# NOTE: the class keeps the PressableButton name because "Button" collides
+# with Godot's built-in Control Button class. File/scene are just "button".
 class_name PressableButton
 extends StaticBody3D
 
@@ -16,6 +18,14 @@ signal pressed
 signal released   # GROUND only: fires when everyone steps off a non-latching button
 
 enum MountMode { GROUND, WALL }
+
+## Master switch: while OFF the button is inert - it can't be pressed by
+## standing on it, hitting it, anything. Defaults ON. Flip it from the
+## Inspector or from code/signals to gate a button behind something else.
+@export var pressable: bool = true:
+	set(value):
+		pressable = value
+		_update_enabled_look()
 
 @export var mount_mode: MountMode = MountMode.GROUND:
 	set(value):
@@ -107,6 +117,8 @@ func _on_press_area_body_exited(body: Node3D) -> void:
 
 
 func _try_press() -> void:
+	if not pressable:
+		return
 	if is_pressed and latching:
 		return
 	if _cooldown > 0.0:
@@ -158,6 +170,14 @@ func _animate_press() -> void:
 # =========================================================================
 # GEOMETRY
 # =========================================================================
+
+func _update_enabled_look() -> void:
+	"""Disabled buttons dim so the state reads at a glance."""
+	if _cap_mesh and _cap_mesh.material_override is StandardMaterial3D:
+		var m: StandardMaterial3D = _cap_mesh.material_override
+		m.emission_energy_multiplier = 0.6 if pressable else 0.0
+		m.albedo_color = button_color if pressable else button_color.darkened(0.55)
+
 
 func _rebuild() -> void:
 	for child in get_children():
@@ -282,3 +302,5 @@ func _rebuild() -> void:
 		else:
 			_label.position = Vector3(0, button_radius * 1.9, 0.3)
 		add_child(_label)
+	
+	_update_enabled_look()

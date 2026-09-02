@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=3 format=3 uid="uid://qdefeatenemy1"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="2_enemy"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "default_defeat_enemy"
+title = "Pest Control"
+description = "Defeat the troublemaker."
+quest_type = 1
+target_count = 1
+target_id = "default_target"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 15
+repeatable = false
+spawn_target_enemy = ExtResource("2_enemy")
+target_enemy_spawn_position = Vector3(10, 0.5, 10)

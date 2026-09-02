@@ -1,0 +1,62 @@
+[gd_scene load_steps=8 format=3 uid="uid://climbenemy001"]
+
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/climbing_enemy.gd" id="1_climber"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_climber"]
+albedo_color = Color(0.2, 0.65, 0.35, 1)
+emission_enabled = true
+emission = Color(0.1, 0.4, 0.15, 1)
+emission_energy_multiplier = 0.3
+
+[sub_resource type="SphereMesh" id="SphereMesh_body"]
+material = SubResource("StandardMaterial3D_climber")
+radius = 0.42
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eye"]
+albedo_color = Color(1, 0.85, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.8, 0.1, 1)
+emission_energy_multiplier = 1.6
+
+[sub_resource type="SphereMesh" id="SphereMesh_eye"]
+material = SubResource("StandardMaterial3D_eye")
+radius = 0.1
+height = 0.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_body"]
+radius = 0.45
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hit"]
+radius = 0.6
+
+[node name="ClimbingEnemy" type="CharacterBody3D" groups=["Enemy"]]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_climber")
+max_health = 2
+current_health = 2
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+mesh = SubResource("SphereMesh_body")
+
+[node name="EyeL" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, 0.12, -0.35)
+mesh = SubResource("SphereMesh_eye")
+
+[node name="EyeR" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, 0.12, -0.35)
+mesh = SubResource("SphereMesh_eye")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("SphereShape3D_body")
+
+[node name="HitBox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HitBox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("SphereShape3D_hit")
+
+[connection signal="body_entered" from="HitBox" to="." method="_on_hit_box_body_entered"]

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3 uid="uid://qfetchitem001"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "default_fetch_item"
+title = "Lost and Found"
+description = "Find the lost item and bring it back."
+quest_type = 3
+target_count = 1
+target_id = "default_item"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 12
+repeatable = false

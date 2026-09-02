@@ -8,8 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="6_wall"]
 [ext_resource type="PackedScene" uid="uid://cladderwall01" path="res://scenes/environments/ladder.tscn" id="7_ladder"]
 [ext_resource type="PackedScene" uid="uid://balbeam000001" path="res://scenes/environments/balance_beam.tscn" id="8_beam"]
-[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/slam_patch.tscn" id="9_patch"]
-[ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/items/rope.tscn" id="10_rope"]
+[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/ground_pound_area.tscn" id="9_patch"]
+[ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/environments/rope.tscn" id="10_rope"]
 [ext_resource type="PackedScene" uid="uid://diup37v2ws5aa" path="res://scenes/environments/heal_patch.tscn" id="11_heal"]
 [ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="12_box"]
 [ext_resource type="PackedScene" uid="uid://3bpo7uite5aa" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="13_barrel"]
@@ -18,15 +18,17 @@
 [ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/ink_wisp.tscn" id="16_wisp"]
 [ext_resource type="PackedScene" uid="uid://csfqpj8nsbrvu" path="res://scenes/items/Collectibles/paint_droplet.tscn" id="17_paint"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="18_check"]
-[ext_resource type="PackedScene" uid="uid://bercg7tu4yiyy" path="res://scenes/quests/quest_giver.tscn" id="19_giver"]
+[ext_resource type="PackedScene" uid="uid://bercg7tu4yiyy" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="19_giver"]
 [ext_resource type="PackedScene" uid="uid://dxioe5mivmaii" path="res://scenes/quests/location_flag.tscn" id="20_flag"]
 [ext_resource type="PackedScene" uid="uid://bercha5ed7iyy" path="res://scenes/quests/quest_item.tscn" id="21_item"]
 [ext_resource type="Script" uid="uid://dnraa8fco3c7e" path="res://scripts/quests/quest.gd" id="22_quest"]
 [ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="23_enemy"]
-[ext_resource type="PackedScene" uid="uid://brcf25nq7iyy" path="res://scenes/environments/pressable_button.tscn" id="24_btn"]
+[ext_resource type="PackedScene" uid="uid://brcf25nq7iyy" path="res://scenes/environments/button.tscn" id="24_btn"]
 [ext_resource type="PackedScene" uid="uid://ryreqr1dg5aa" path="res://scenes/environments/enemy_spawner.tscn" id="25_spawn"]
 [ext_resource type="PackedScene" uid="uid://djy07jj4umaii" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="26_laser"]
 [ext_resource type="PackedScene" uid="uid://dgu522lrq7iyy" path="res://scenes/environments/swing_bar.tscn" id="27_swingbar"]
+[ext_resource type="PackedScene" uid="uid://climbenemy001" path="res://scenes/characters/NPCs/Enemies/climbing_enemy.tscn" id="28_climber"]
+[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="29_merchant"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -219,7 +221,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 9, 30)
 [node name="Rope2" parent="Gym" unique_id=1214945211 instance=ExtResource("10_rope")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 9, 30)
 
-[node name="SlamPatch" parent="Gym" unique_id=849260139 instance=ExtResource("9_patch")]
+[node name="GroundPoundArea" parent="Gym" unique_id=849260139 instance=ExtResource("9_patch")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, -0.2702334, 20)
 
 [node name="GrapplePoint" parent="Gym" unique_id=1185890579 instance=ExtResource("5_ba0e1")]
@@ -493,7 +495,7 @@ outline_size = 14
 [node name="GizmoGears" parent="QuestHub" unique_id=1363694966 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.9547696, 0.5, 8)
 npc_name = "Gizmo"
-quests = Array[ExtResource("22_quest")]([SubResource("Quest_gears")])
+quest_override = SubResource("Quest_gears")
 small_talk = Array[String](["Oh! A visitor. Don't get many of those out here in the grey.", "Name's Gizmo. I fix things. Or I would, if I had any spare parts left."])
 quest_ask = "Say... you look quick. Could you round up some gears for me?"
 reminder = "Those gears won't collect themselves, friend."
@@ -503,7 +505,7 @@ thanks = "My workbench is saved! You're a lifesaver."
 [node name="BruiserBetty" parent="QuestHub" unique_id=503681364 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1909103, 0.5, 8)
 npc_name = "Betty"
-quests = Array[ExtResource("22_quest")]([SubResource("Quest_defeat")])
+quest_override = SubResource("Quest_defeat")
 body_color = Color(0.85, 0.3, 0.25, 1)
 small_talk = Array[String](["You hear that stomping last night? That inkling bully is back.", "I'd handle it myself, but my stomping days are behind me."])
 quest_ask = "Would you rough it up on my behalf?"
@@ -514,7 +516,7 @@ thanks = "HA! I heard the thud from here. You're my hero."
 [node name="PeakPete" parent="QuestHub" unique_id=1758887687 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.022829, 0.5, 8)
 npc_name = "Pete"
-quests = Array[ExtResource("22_quest")]([SubResource("Quest_reach")])
+quest_override = SubResource("Quest_reach")
 body_color = Color(0.3, 0.7, 0.4, 1)
 small_talk = Array[String](["I used to climb, you know. Best view in the grey, up on that tall block.", "These old servos won't make the trip anymore."])
 quest_ask = "Would you climb it for me? Just to know someone still can."
@@ -525,7 +527,7 @@ thanks = "You made it! I can almost see the view through your eyes."
 [node name="ForgetfulFern" parent="QuestHub" unique_id=735298719 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.538837, 0.5, 8)
 npc_name = "Fern"
-quests = Array[ExtResource("22_quest")]([SubResource("Quest_fetch")])
+quest_override = SubResource("Quest_fetch")
 body_color = Color(0.6, 0.4, 0.85, 1)
 small_talk = Array[String](["Have you seen my gizmo? Pink, shiny, extremely important?", "I left it SOMEWHERE. On top of something. Something climbable?"])
 quest_ask = "Could you fetch it before something eats it? You're on the clock!"
@@ -674,3 +676,15 @@ pixel_size = 0.012
 billboard = 1
 text = "SWING BARS
 "
+
+[node name="WallCrawler" parent="Gym" instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 14)
+
+[node name="Merchant" parent="." instance=ExtResource("29_merchant")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.05, 8)
+
+[node name="MerchantLabel" type="Label3D" parent="Labels"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 3.2, 8)
+pixel_size = 0.012
+billboard = 1
+text = "MERCHANT - press E.\nIntro dialogue, then the coat opens..."

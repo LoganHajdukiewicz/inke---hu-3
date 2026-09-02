@@ -17,7 +17,56 @@ extends CharacterBody3D
 enum GiverState { FIRST_OFFER, WAITING, RETRY, DONE }
 
 @export var npc_name: String = "Quest Giver"
-@export var quests: Array[Quest] = []
+
+## THE quest this giver hands out - exactly ONE per person. Exposed to the
+## Inspector as a dropdown via _get_property_list: it lists every quest
+## file in res://quests/ (add .tres files there and they show up
+## automatically). Duplicate a default file to make your own.
+var quest_file: String = "":
+	set(value):
+		quest_file = value
+		_quest_cache = null
+
+## Alternative: assign a Quest resource directly (overrides quest_file).
+## Handy for one-off inline quests.
+@export var quest_override: Quest = null:
+	set(value):
+		quest_override = value
+		_quest_cache = null
+
+var _quest_cache: Quest = null
+
+const QUESTS_DIR := "res://quests"
+
+
+func _get_property_list() -> Array:
+	# Turn quest_file into a dropdown of every quest file in res://quests/
+	var options := ""
+	var dir = DirAccess.open(QUESTS_DIR)
+	if dir:
+		for f in dir.get_files():
+			if f.ends_with(".tres") or f.ends_with(".res"):
+				options += ("," if options != "" else "") + f
+	return [{
+		"name": "quest_file",
+		"type": TYPE_STRING,
+		"hint": PROPERTY_HINT_ENUM_SUGGESTION,
+		"hint_string": options,
+		"usage": PROPERTY_USAGE_DEFAULT,
+	}]
+
+
+func get_quest() -> Quest:
+	"""The single quest this giver offers (override > file > null)."""
+	if quest_override:
+		return quest_override
+	if _quest_cache:
+		return _quest_cache
+	if quest_file != "":
+		var path = quest_file if quest_file.begins_with("res://") else QUESTS_DIR + "/" + quest_file
+		if ResourceLoader.exists(path):
+			_quest_cache = load(path)
+	return _quest_cache
 @export var body_color: Color = Color(0.95, 0.75, 0.2)
 ## Portrait name (assets/portraits/{name}.png), optional.
 @export var portrait: String = ""
@@ -212,16 +261,16 @@ func get_state() -> GiverState:
 
 
 func _current_quest(qm) -> Quest:
-	"""First quest in the list that isn't finished (or is repeatable)."""
-	for q in quests:
-		if q == null or q.quest_id == "":
-			continue
-		if qm.is_quest_active(q.quest_id):
-			return q
-		if qm.has_quest_failed(q.quest_id):
-			return q
-		if not qm.is_quest_completed(q.quest_id) or q.repeatable:
-			return q
+	"""This giver's ONE quest, if it's still relevant to the player."""
+	var q = get_quest()
+	if q == null or q.quest_id == "":
+		return null
+	if qm.is_quest_active(q.quest_id):
+		return q
+	if qm.has_quest_failed(q.quest_id):
+		return q
+	if not qm.is_quest_completed(q.quest_id) or q.repeatable:
+		return q
 	return null
 
 
