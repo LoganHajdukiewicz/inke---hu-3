@@ -16,7 +16,7 @@ In any dialogue JSON, add `"voiced": true` to the line:
 
 ## Folder structure
 ```
-dialogue/voiced-lines/{scene-name}/{speaker}/{first-five-words}.ogg
+audio/voiced-lines/{scene-name}/{speaker}/{first-five-words}.ogg
 ```
 
 - **scene-name** — the name of the scene's root node (e.g. `Movement_Demo_02_24_2026`)
@@ -25,7 +25,7 @@ dialogue/voiced-lines/{scene-name}/{speaker}/{first-five-words}.ogg
 
 Example for the line above:
 ```
-dialogue/voiced-lines/Movement_Demo_02_24_2026/S-1GN/oh-hey-wow-you-actually.ogg
+audio/voiced-lines/Movement_Demo_02_24_2026/S-1GN/oh-hey-wow-you-actually.ogg
 ```
 
 Supported formats, tried in this order: `.ogg`, `.wav`, `.mp3`.

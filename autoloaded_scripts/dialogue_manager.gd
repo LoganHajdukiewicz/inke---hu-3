@@ -6,13 +6,13 @@ const DIALOGUE_BASE_PATH = "res://dialogue/"
 ## VOICED LINES
 ## Any dialogue line can set "voiced": true in its JSON to play a voice
 ## recording alongside the text box. The audio file is looked up at:
-##   res://dialogue/voiced-lines/{scene-we're-in}/{speaker}/{first-five-words-of-the-text}.{ext}
+##   res://audio/voiced-lines/{scene-we're-in}/{speaker}/{first-five-words-of-the-text}.{ext}
 ## Words are lowercased and joined with dashes; punctuation is stripped.
 ## Example: scene Movement_Demo_02_24_2026, speaker S-1GN,
 ##   text "Oh hey! Wow, you actually stopped..."
-##   -> res://dialogue/voiced-lines/Movement_Demo_02_24_2026/S-1GN/oh-hey-wow-you-actually.ogg
+##   -> res://audio/voiced-lines/Movement_Demo_02_24_2026/S-1GN/oh-hey-wow-you-actually.ogg
 ## Supported extensions (tried in order): .ogg, .wav, .mp3
-const VOICED_LINES_BASE_PATH = "res://dialogue/voiced-lines/"
+const VOICED_LINES_BASE_PATH = "res://audio/voiced-lines/"
 const VOICE_EXTENSIONS = [".ogg", ".wav", ".mp3"]
 
 var voice_player: AudioStreamPlayer = null
@@ -171,7 +171,7 @@ func show_current_line() -> void:
 
 func play_voice_line(speaker: String, text: String) -> void:
 	"""Play the voice recording for this line, looked up from
-	dialogue/voiced-lines/{scene}/{speaker}/{first-five-words}.{ext}"""
+	audio/voiced-lines/{scene}/{speaker}/{first-five-words}.{ext}"""
 	var file_base = VOICED_LINES_BASE_PATH + current_scene_name + "/" + speaker + "/" + voice_file_name_for(text)
 	for ext in VOICE_EXTENSIONS:
 		var path = file_base + ext
