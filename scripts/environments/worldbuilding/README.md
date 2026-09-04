@@ -32,21 +32,23 @@ Add a **Room** node (or instance `room.tscn`): floor + 4 walls +
 ceiling from one node. `interior_size` is the inside space.
 
 ### Doorway — doors and windows
-Add a **Doorway** as a CHILD of the Room and drag it toward a wall —
-it snaps to the nearest wall and cuts an opening (walls rebuild into
-segments + lintel/sill automatically):
+Add a **Doorway** as a CHILD of the Room and drag it INTO a wall —
+the opening is carved right where the marker sits (CSG subtraction),
+live in the editor. No snapping rules: wherever it overlaps a wall,
+there's a hole.
 
 - `sill_height = 0` → a door
 - `sill_height = 1.2` → a window
 - `width` / `height` shape the opening
+- the cut auto-rotates toward the nearest wall; rotate the Doorway
+  node yourself to override (e.g. diagonal walls)
 
 ### Buildings
-Snap Rooms side by side (corners overlap cleanly thanks to wall
-thickness padding) and put matching Doorways on the shared wall of
-each room. Outside, drop a FlattenPad on the Terrain under the
-building. Set `has_floor = false` when a room sits directly on a
-Floor/Terrain. Stack rooms for multiple storeys (`has_ceiling` off +
-a Room above with `has_floor` on).
+Butt Rooms up against each other and put a Doorway through the shared
+wall of each room to connect them. Outside, drop a FlattenPad on the
+Terrain under the building. Set `has_floor = false` when a room sits
+directly on a Floor/Terrain. Stack rooms for multiple storeys
+(`has_ceiling` off + a Room above with `has_floor` on).
 
 All generated geometry is runtime-only — your scene files stay tiny,
 and everything re-generates when the scene loads.

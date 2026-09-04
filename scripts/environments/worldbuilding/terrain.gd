@@ -154,11 +154,48 @@ func _rebuild():
 	mat.roughness = 1.0
 	_mesh_instance.material_override = mat
 	
-	# --- Exact collision --------------------------------------------------
+	# --- Collision: HeightMapShape3D, NOT a trimesh -----------------------
+	# Heightmaps always depenetrate UPWARD, so a player placed touching or
+	# slightly inside the ground pops onto the surface and walks freely.
+	# (Trimesh collision wedges anything that starts intersecting it.)
 	if _collision == null or not is_instance_valid(_collision):
 		_collision = CollisionShape3D.new()
 		add_child(_collision)
-	_collision.shape = mesh.create_trimesh_shape()
+	# HeightMapShape3D cells are fixed at 1 unit, so resample the surface
+	# at 1m spacing (bilinear) instead of scaling the shape (non-uniform
+	# collision scaling is unreliable).
+	# HeightMapShape3D cells are fixed at 1 unit and scaling collision
+	# shapes is unreliable, so resample the surface at exact 1m spacing
+	# (bilinear). The shape may overhang the visual edge by <1m; heights
+	# clamp to the border value there.
+	var cw := int(ceilf(size.x)) + 1
+	var cd := int(ceilf(size.y)) + 1
+	var cdata := PackedFloat32Array()
+	cdata.resize(cw * cd)
+	for cz in range(cd):
+		for cx in range(cw):
+			var lx = cx - (cw - 1) * 0.5
+			var lz = cz - (cd - 1) * 0.5
+			cdata[cz * cw + cx] = _sample_local_height(lx, lz)
+	var hshape := HeightMapShape3D.new()
+	hshape.map_width = cw
+	hshape.map_depth = cd
+	hshape.map_data = cdata
+	_collision.shape = hshape
+	_collision.position = Vector3.ZERO
+
+
+func _sample_local_height(lx: float, lz: float) -> float:
+	"""Bilinear height at a local XZ from the mesh grid."""
+	var n := resolution
+	var fx = clampf((lx + size.x * 0.5) / size.x, 0.0, 1.0) * n
+	var fz = clampf((lz + size.y * 0.5) / size.y, 0.0, 1.0) * n
+	var ix := int(fx); var iz := int(fz)
+	var tx: float = fx - ix
+	var tz: float = fz - iz
+	return lerpf(
+		lerpf(_grid_h(ix, iz), _grid_h(ix + 1, iz), tx),
+		lerpf(_grid_h(ix, iz + 1), _grid_h(ix + 1, iz + 1), tx), tz)
 
 
 func _grid_h(ix: int, iz: int) -> float:
@@ -198,13 +235,4 @@ func _add_skirt(mesh: ArrayMesh, n: int, step: Vector2, half: Vector2) -> ArrayM
 func get_height(world_pos: Vector3) -> float:
 	"""Terrain height (world Y) at any world XZ - handy for placing props."""
 	var local = to_local(world_pos)
-	var n := resolution
-	var fx = clampf((local.x + size.x * 0.5) / size.x, 0.0, 1.0) * n
-	var fz = clampf((local.z + size.y * 0.5) / size.y, 0.0, 1.0) * n
-	var ix := int(fx); var iz := int(fz)
-	var tx: float = fx - ix
-	var tz: float = fz - iz
-	var h = lerpf(
-		lerpf(_grid_h(ix, iz), _grid_h(ix + 1, iz), tx),
-		lerpf(_grid_h(ix, iz + 1), _grid_h(ix + 1, iz + 1), tx), tz)
-	return to_global(Vector3(0, h, 0)).y
+	return to_global(Vector3(0, _sample_local_height(local.x, local.z), 0)).y

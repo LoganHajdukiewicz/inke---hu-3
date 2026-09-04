@@ -2,5 +2,5 @@
 
 [ext_resource type="Script" path="res://scripts/environments/worldbuilding/room.gd" id="1"]
 
-[node name="Room" type="StaticBody3D"]
+[node name="Room" type="Node3D"]
 script = ExtResource("1")
