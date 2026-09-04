@@ -74,6 +74,25 @@ func _refresh_door() -> void:
 	_door.locked = door_locked
 	_door.key_id = door_key_id
 	add_child(_door)
+	_align_door_to_wall()
+
+
+func _align_door_to_wall() -> void:
+	"""Doors must lie ALONG the wall, not across it. The panel spans local
+	X, so on a +/-X wall (which runs along Z) it needs a 90-degree yaw.
+	This must run when the door is CREATED, not just when the doorway is
+	dragged - un-yawed fresh doors were sitting perpendicular to walls."""
+	if _door == null or not is_instance_valid(_door):
+		return
+	# The marker's own rotation wins (user aimed it, e.g. diagonal walls)
+	if absf(rotation.y) > 0.01:
+		_door.rotation.y = 0.0
+		return
+	if get_parent() is Room:
+		var r: Room = get_parent()
+		var dist_x = absf(absf(position.x) - r.interior_size.x * 0.5)
+		var dist_z = absf(absf(position.z) - r.interior_size.z * 0.5)
+		_door.rotation.y = (PI * 0.5) if dist_x < dist_z else 0.0
 
 
 func _exit_tree():
@@ -83,12 +102,7 @@ func _exit_tree():
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSFORM_CHANGED:
 		_poke_room()
-		# Match the door's yaw to the wall the cut auto-rotates toward
-		if _door and is_instance_valid(_door) and get_parent() is Room:
-			var r: Room = get_parent()
-			var dist_x = absf(absf(position.x) - r.interior_size.x * 0.5)
-			var dist_z = absf(absf(position.z) - r.interior_size.z * 0.5)
-			_door.rotation.y = (PI * 0.5) if dist_x < dist_z else 0.0
+		_align_door_to_wall()
 
 
 func _poke_room() -> void:

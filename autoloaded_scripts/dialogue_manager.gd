@@ -43,12 +43,14 @@ var awaiting_choice: bool = false
 var camera_director: DialogueCameraDirector = null
 var _pending_camera_focus: Node3D = null
 var _pending_camera_angles: Array = []
+var _last_camera_speaker: String = ""
 
 func request_dynamic_camera(focus: Node3D, custom_angles: Array = []) -> void:
 	_pending_camera_focus = focus
 	_pending_camera_angles = custom_angles
 
 func _consume_dynamic_camera() -> void:
+	_last_camera_speaker = ""
 	if _pending_camera_focus == null:
 		return
 	if camera_director == null:
@@ -185,9 +187,13 @@ func show_current_line() -> void:
 	var text = line.get("text", "")
 	var portrait = line.get("portrait", "")
 	
-	# New line -> new cinematic angle (if the director is running)
+	# New cinematic angle only when the SPEAKER changes. Consecutive lines
+	# by the same character hold the current shot - don't assume dialogue
+	# is back-and-forth; monologues shouldn't cut on every line.
 	if camera_director and camera_director.active and current_index > 0:
-		camera_director.next_shot()
+		if speaker != _last_camera_speaker:
+			camera_director.next_shot()
+	_last_camera_speaker = speaker
 	var voiced = line.get("voiced", false)
 	awaiting_choice = bool(line.get("choice", false))
 	

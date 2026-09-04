@@ -64,6 +64,7 @@ class_name Hallway
 	set(v): light_energy = v; _request_rebuild()
 
 var _csg: CSGCombiner3D
+var _csg_visual: CSGCombiner3D   # NON-colliding: stair steps live here
 var _rebuild_queued := false
 var _anchor_cache := []   # doorway/room pose cache for cheap editor polling
 var _poll_accum := 0.0
@@ -163,6 +164,9 @@ func _rebuild():
 	if _csg and is_instance_valid(_csg):
 		_csg.free()
 	_csg = null
+	if _csg_visual and is_instance_valid(_csg_visual):
+		_csg_visual.free()
+	_csg_visual = null
 	for c in get_children():
 		if c.has_meta("hall_extra"):
 			c.free()
@@ -178,6 +182,13 @@ func _rebuild():
 	_csg = CSGCombiner3D.new()
 	_csg.use_collision = true
 	add_child(_csg)
+	# Steps are eye-candy ONLY. If they collide, their 2-20cm lips poke
+	# through the walk ramp and CharacterBody3D (no step-up logic) treats
+	# every lip as a wall - the player had to JUMP up each step. Visual
+	# steps + a slightly-raised invisible ramp = smooth incline walking.
+	_csg_visual = CSGCombiner3D.new()
+	_csg_visual.use_collision = false
+	add_child(_csg_visual)
 	
 	# 1) All shells (union)
 	for i in range(lp.size() - 1):
@@ -309,27 +320,29 @@ func _add_stairs(p0: Vector3, p1: Vector3) -> void:
 	var dir: Vector3 = s.dir
 	var yaw := _yaw_basis(dir)
 	var bottom: float = lo.y - floor_thickness - sh
-	for i in range(n):
+	for i in range(n + 1):
 		var top: float = lo.y + i * sh
 		var center := lo + dir * ((i + 0.5) * tread)
 		var box := CSGBox3D.new()
 		box.size = Vector3(width - 0.02, maxf(top - bottom, 0.05), tread + 0.02)
 		box.transform = Transform3D(yaw, Vector3(center.x, (top + bottom) * 0.5, center.z))
 		box.material = _mat(floor_color)
-		_csg.add_child(box)
-	# Invisible nose ramp (separate body, not part of the CSG)
+		_csg_visual.add_child(box)   # visual-only: never collides (see _rebuild)
+	# Invisible smooth ramp - the ONLY thing feet touch on a stairway.
+	# Its top face rides ~4cm ABOVE the step noses so no step lip can
+	# poke through and stop the walk.
 	var ramp := StaticBody3D.new()
 	ramp.name = "StairRamp"
 	ramp.set_meta("hall_extra", true)
 	var cs := CollisionShape3D.new()
 	var shape := BoxShape3D.new()
 	var slen: float = lo.distance_to(hi)
-	shape.size = Vector3(width, 0.4, slen + 0.1)
+	shape.size = Vector3(width, 0.4, slen + 0.3)
 	cs.shape = shape
 	var sb := _slope_basis(lo, hi)
 	add_child(ramp)
 	ramp.add_child(cs)
-	ramp.transform = Transform3D(sb, (lo + hi) * 0.5 - sb.y * 0.2)
+	ramp.transform = Transform3D(sb, (lo + hi) * 0.5 - sb.y * 0.16)
 	if Engine.is_editor_hint() and get_tree() and get_tree().edited_scene_root:
 		pass   # runtime-built, never owned - rebuilt from exports each load
 

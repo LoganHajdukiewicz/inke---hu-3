@@ -89,6 +89,9 @@ func physics_update(delta: float):
 func _find_nearby_wall() -> Vector3:
 	"""Scan all around the player for a slideable wall (input-free).
 	Climbable walls and ladders are excluded - climbing wins there.
+	TALL-WALL RULE (matches WallJumpDetector): a direction only counts if
+	2+ height-staggered rays hit the same surface - buttons, crates and
+	knee-high ledges must not trigger a wall slide.
 	Returns the wall normal, or ZERO if no wall is in reach."""
 	var space_state = player.get_world_3d().direct_space_state
 	var dirs := [
@@ -98,9 +101,12 @@ func _find_nearby_wall() -> Vector3:
 	]
 	var best_normal := Vector3.ZERO
 	var best_dist := INF
-	for height in [0.5, 1.2]:
-		var ray_start = player.global_position + Vector3(0, height, 0)
-		for direction in dirs:
+	for direction in dirs:
+		var hits := 0
+		var first_normal := Vector3.ZERO
+		var nearest := INF
+		for height in [0.4, 1.1, 1.8]:
+			var ray_start = player.global_position + Vector3(0, height, 0)
 			var query = PhysicsRayQueryParameters3D.create(ray_start, ray_start + direction * 1.0)
 			query.collision_mask = 1
 			query.exclude = [player]
@@ -112,10 +118,15 @@ func _find_nearby_wall() -> Vector3:
 				continue
 			if absf(result.normal.y) >= 0.35:
 				continue   # Not a wall (slope/ceiling)
-			var dist = ray_start.distance_to(result.position)
-			if dist < best_dist:
-				best_dist = dist
-				best_normal = result.normal
+			if first_normal == Vector3.ZERO:
+				first_normal = result.normal
+			elif first_normal.angle_to(result.normal) > 0.6:
+				continue   # Different surface
+			hits += 1
+			nearest = minf(nearest, ray_start.distance_to(result.position))
+		if hits >= 2 and nearest < best_dist:
+			best_dist = nearest
+			best_normal = first_normal
 	return best_normal
 
 func get_fall_gravity_multiplier() -> float:

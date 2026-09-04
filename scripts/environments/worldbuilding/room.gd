@@ -45,8 +45,11 @@ class_name Room
 ## How close (in meters) a dragged room has to get before it snaps flush.
 @export var snap_distance: float = 3.0
 ## Push a room deeper than this (in meters) past flush into another room
-## and they MERGE into one space instead of snapping.
-@export var merge_overlap: float = 1.5
+## and they MERGE into one space instead of snapping. Kept SMALL so a
+## slight push inside is enough - you shouldn't have to stack rooms on
+## top of each other. The overlapping wall sections vanish and you can
+## walk between the rooms; the rest of both rooms stays intact.
+@export var merge_overlap: float = 0.3
 
 @export_group("Colors")
 @export var wall_color: Color = Color(0.75, 0.7, 0.62):
@@ -233,6 +236,13 @@ func _rebuild():
 		_add_doorway_cuts(r)
 	for r in group:
 		_add_auto_doorways(r, group)
+	# Merge passages: blow open the overlap zone between every merged pair
+	# so the shared wall sections vanish and you can WALK between rooms
+	# (interior cuts alone leave a slab standing on shallow overlaps).
+	for i in range(group.size()):
+		for j in range(i + 1, group.size()):
+			if _overlap_depth(group[i], group[j]) > minf(group[i].merge_overlap, group[j].merge_overlap):
+				_add_merge_passage(group[i], group[j])
 	# Colored floor/ceiling faces go in LAST so no cut erases them
 	for r in group:
 		_add_interior_liners(r)
@@ -344,6 +354,51 @@ func _add_interior_liners(r: Room) -> void:
 		cl.position = off + Vector3(0, h - 0.02, 0)
 		cl.material = _mat(r.ceiling_color)
 		_csg.add_child(cl)
+
+
+func _add_merge_passage(a: Room, b: Room) -> void:
+	"""Subtract the overlap zone between two merged rooms so the wall
+	sections inside it are GONE and the rooms become one traversable
+	space. The cut spans the exterior overlap along the penetration axis
+	(punching through BOTH wall slabs) but only the interiors' shared
+	range on the transverse axis, so outer corners stay sealed."""
+	# Exterior + interior half-extents (XZ)
+	var aeh := Vector2(a.interior_size.x * 0.5 + a.wall_thickness, a.interior_size.z * 0.5 + a.wall_thickness)
+	var beh := Vector2(b.interior_size.x * 0.5 + b.wall_thickness, b.interior_size.z * 0.5 + b.wall_thickness)
+	var aih := Vector2(a.interior_size.x * 0.5, a.interior_size.z * 0.5)
+	var bih := Vector2(b.interior_size.x * 0.5, b.interior_size.z * 0.5)
+	var ap := Vector2(a.global_position.x, a.global_position.z)
+	var bp := Vector2(b.global_position.x, b.global_position.z)
+	# Exterior overlap ranges
+	var ox_lo := maxf(ap.x - aeh.x, bp.x - beh.x); var ox_hi := minf(ap.x + aeh.x, bp.x + beh.x)
+	var oz_lo := maxf(ap.y - aeh.y, bp.y - beh.y); var oz_hi := minf(ap.y + aeh.y, bp.y + beh.y)
+	if ox_hi <= ox_lo or oz_hi <= oz_lo:
+		return
+	# Interior overlap ranges (transverse limits)
+	var ix_lo := maxf(ap.x - aih.x, bp.x - bih.x); var ix_hi := minf(ap.x + aih.x, bp.x + bih.x)
+	var iz_lo := maxf(ap.y - aih.y, bp.y - bih.y); var iz_hi := minf(ap.y + aih.y, bp.y + bih.y)
+	# Penetration axis = the thinner exterior overlap; transverse uses the
+	# interiors' shared range so side walls/corners survive.
+	var x_lo: float; var x_hi: float; var z_lo: float; var z_hi: float
+	if (ox_hi - ox_lo) <= (oz_hi - oz_lo):
+		x_lo = ox_lo - 0.05; x_hi = ox_hi + 0.05
+		z_lo = iz_lo; z_hi = iz_hi
+	else:
+		x_lo = ix_lo; x_hi = ix_hi
+		z_lo = oz_lo - 0.05; z_hi = oz_hi + 0.05
+	if x_hi - x_lo < 0.05 or z_hi - z_lo < 0.05:
+		return   # Corner-touch only, no walkable passage
+	# Vertical: shared interior height band
+	var y_lo := maxf(a.global_position.y, b.global_position.y)
+	var y_hi := minf(a.global_position.y + a.interior_size.y, b.global_position.y + b.interior_size.y)
+	if y_hi - y_lo < 0.5:
+		return
+	var cut := CSGBox3D.new()
+	cut.operation = CSGShape3D.OPERATION_SUBTRACTION
+	cut.size = Vector3(x_hi - x_lo, y_hi - y_lo, z_hi - z_lo)
+	cut.position = Vector3((x_lo + x_hi) * 0.5, (y_lo + y_hi) * 0.5, (z_lo + z_hi) * 0.5) - global_position
+	cut.material = _mat(wall_color)
+	_csg.add_child(cut)
 
 
 func _mat(c: Color) -> StandardMaterial3D:

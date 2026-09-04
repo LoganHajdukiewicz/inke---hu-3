@@ -32,10 +32,6 @@ var _patrol_wait_left: float = 0.0
 var _patrol_origin: Vector2 = Vector2.ZERO
 ## How far from the wall's surface the body sits.
 @export var surface_offset: float = 0.55
-## Chase the player along the wall when they're climbing near us?
-@export var guards_wall: bool = true
-## Range (along the wall) to start guarding.
-@export var guard_range: float = 7.0
 
 var wall: Node3D = null
 var _wall_normal: Vector3 = Vector3.FORWARD
@@ -112,20 +108,10 @@ func _physics_process(delta: float) -> void:
 	var speed = crawl_speed
 	var target_dir := _crawl_dir
 	
-	# Guard mode: if the player is close to our wall, slide toward them
-	if guards_wall and player and is_instance_valid(player) and player.is_inside_tree():
-		var rel = player.global_position - wall.global_position
-		var px = rel.dot(_wall_right)
-		var py = rel.dot(_wall_up)
-		var off_wall = absf(rel.dot(_wall_normal))
-		if off_wall < 3.0 and Vector2(px - _local_x, py - _local_y).length() < guard_range:
-			target_dir = Vector2(px - _local_x, py - _local_y)
-			if target_dir.length() > 0.3:
-				target_dir = target_dir.normalized()
-				speed = crawl_speed * 1.6
-			else:
-				target_dir = Vector2.ZERO
-	elif use_patrol and patrol_points.size() > 0:
+	# NO TRACKING WHATSOEVER (user-mandated): wall crawlers never chase,
+	# never guard, never react to the player's position. They walk their
+	# patrol path. That is it. They're moving hazards, not hunters.
+	if use_patrol and patrol_points.size() > 0:
 		# PATROL: walk the waypoint loop (wall-surface space, relative to
 		# the spawn point). Ping-pongs A->B->...->A forever.
 		if _patrol_wait_left > 0.0:

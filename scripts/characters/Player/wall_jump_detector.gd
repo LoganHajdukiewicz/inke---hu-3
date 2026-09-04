@@ -27,6 +27,14 @@ class_name WallJumpDetector
 @export var jump_buffer_time: float = 0.18
 ## How far away a wall can be and still count for a wall jump.
 @export var wall_reach: float = 1.5
+## A surface only counts as a WALL if this many height-staggered rays hit
+## it in the same direction (heights: 0.4 / 1.1 / 1.8). Buttons, crates
+## and short ledges only intercept the low ray - so they no longer
+## hijack jumps and fling the player away. 2 = needs ~1.1m of wall,
+## 3 = needs head-height wall.
+@export_range(1, 3) var min_ray_hits: int = 2
+## Heights (above the feet) the wall-check rays are cast from.
+const RAY_HEIGHTS: Array[float] = [0.4, 1.1, 1.8]
 
 var wall_jump_cooldown: float = 0.0
 var wall_jump_cooldown_time: float = 0.0
@@ -68,22 +76,18 @@ func can_perform_wall_jump() -> bool:
 			current_state_name in ["FallingState", "JumpingState", "DoubleJumpState", "WallJumpingState"])
 
 func get_wall_jump_direction() -> Vector3:
-	"""Get the wall normal to jump away from. Tries the scene's WallJumpRays
-	first, then falls back to a generous 8-direction world-space scan so
-	'near the wall but not touching it' still works."""
-	if wall_jump_rays:
-		for ray in wall_jump_rays.get_children():
-			if ray is RayCast3D:
-				var raycast = ray as RayCast3D
-				if raycast.is_colliding():
-					var collider = raycast.get_collider()
-					if collider and (collider.is_in_group("Wall") or collider is StaticBody3D):
-						return raycast.get_collision_normal()
+	"""Get the wall normal to jump away from. The 8-direction multi-height
+	scan is the single authority: a direction only counts when at least
+	min_ray_hits height-staggered rays agree there's a wall there. The old
+	WallJumpRays path is gone - a single low ray hitting a BUTTON or a
+	knee-high ledge used to hijack the jump and fling the player away."""
 	return _scan_for_wall()
 
 func _scan_for_wall() -> Vector3:
-	"""8 world-space directions at two heights; returns the nearest
-	near-vertical surface's normal, or ZERO."""
+	"""8 world-space directions x 3 heights. Per direction, count how many
+	heights hit a near-vertical surface with AGREEING normals; only
+	directions reaching min_ray_hits qualify. Returns the nearest
+	qualifying wall's normal, or ZERO."""
 	var space_state = player.get_world_3d().direct_space_state
 	var dirs := [
 		Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT,
@@ -92,9 +96,12 @@ func _scan_for_wall() -> Vector3:
 	]
 	var best_normal := Vector3.ZERO
 	var best_dist := INF
-	for height in [0.5, 1.2]:
-		var ray_start = player.global_position + Vector3(0, height, 0)
-		for direction in dirs:
+	for direction in dirs:
+		var hits := 0
+		var first_normal := Vector3.ZERO
+		var nearest := INF
+		for height in RAY_HEIGHTS:
+			var ray_start = player.global_position + Vector3(0, height, 0)
 			var query = PhysicsRayQueryParameters3D.create(ray_start, ray_start + direction * wall_reach)
 			query.collision_mask = 1
 			query.exclude = [player]
@@ -103,10 +110,15 @@ func _scan_for_wall() -> Vector3:
 				continue
 			if absf(result.normal.y) >= 0.35:
 				continue   # Slope or ceiling, not a wall
-			var dist = ray_start.distance_to(result.position)
-			if dist < best_dist:
-				best_dist = dist
-				best_normal = result.normal
+			if first_normal == Vector3.ZERO:
+				first_normal = result.normal
+			elif first_normal.angle_to(result.normal) > 0.6:
+				continue   # Different surface - doesn't stack up to a wall
+			hits += 1
+			nearest = minf(nearest, ray_start.distance_to(result.position))
+		if hits >= min_ray_hits and nearest < best_dist:
+			best_dist = nearest
+			best_normal = first_normal
 	return best_normal
 
 func check_for_wall_jump():

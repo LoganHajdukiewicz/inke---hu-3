@@ -75,10 +75,15 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# F10: free-roam debug camera toggle (works in any scene, no node needed)
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F10:
-		toggle_free_roam_camera()
-		get_viewport().set_input_as_handled()
+	# F10 or F6: free-roam debug camera toggle (works in any scene, no node
+	# needed). F6 exists because on many laptops F10 is a MEDIA key (mute)
+	# unless Fn is held - 'F10 does nothing' was the OS eating the key.
+	if event is InputEventKey and event.pressed and not event.echo:
+		var kc: int = event.keycode
+		var pkc: int = event.physical_keycode
+		if kc == KEY_F10 or pkc == KEY_F10 or kc == KEY_F6 or pkc == KEY_F6:
+			toggle_free_roam_camera()
+			get_viewport().set_input_as_handled()
 
 
 # === FREE ROAM DEBUG CAMERA (F10) ===
@@ -114,7 +119,27 @@ func toggle_free_roam_camera() -> void:
 	# Freeze the player so nothing walks off while you're framing shots
 	if player:
 		player.process_mode = Node.PROCESS_MODE_DISABLED
-	print("GameManager: free roam ON - WASD/QE fly, Shift fast, scroll speed, P prints pose, F10 exits")
+	print("GameManager: free roam ON - WASD/QE fly, Shift fast, scroll speed, P prints pose, F10/F6 exits")
+	_show_free_roam_hint()
+
+
+func _show_free_roam_hint() -> void:
+	"""On-screen control hints while flying (so you know it's ON)."""
+	var layer := CanvasLayer.new()
+	layer.name = "FreeRoamHint"
+	layer.layer = 90
+	_free_roam_cam.add_child(layer)
+	var label := Label.new()
+	label.text = "  FREE ROAM  -  WASD/QE fly | Shift fast | scroll speed | P print pose | F10/F6 exit  "
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", Color(1, 1, 1))
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.position.y = 8
+	layer.add_child(label)
 
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")

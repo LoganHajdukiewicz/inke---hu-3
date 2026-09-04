@@ -31,8 +31,14 @@ extends Node3D
 @export var pitch_max_degrees: float = 45.0
 
 @export_group("Framing")
-## How far behind the player the camera wants to sit.
-@export var camera_distance: float = 8.8
+## How far behind the player the camera wants to sit. Change it live in
+## the Inspector (runtime too) - the spring arm follows this value.
+@export var camera_distance: float = 14.0:
+	set(v):
+		camera_distance = v
+		if spring_arm:
+			spring_arm.spring_length = v
+			_smoothed_arm_length = v
 ## Pivot height above the player's feet (roughly head height).
 @export var pivot_height: float = 2.1
 ## Default downward look angle when the game starts.
@@ -89,6 +95,7 @@ const AUTO_BEHIND_SPEED: float = 3.5
 var character: Node3D = null
 var camera_target: Node3D = null      # pitch pivot
 var spring_arm: SpringArm3D = null
+var arm_end: Node3D = null            # placed BY the arm; camera hangs off it
 var camera_3d: Camera3D = null
 
 var _rad_pitch_min: float
@@ -149,13 +156,23 @@ func _build_rig() -> void:
 	if character:
 		spring_arm.add_excluded_object(character.get_rid())
 	
+	# IMPORTANT STRUCTURE: SpringArm3D repositions its DIRECT children every
+	# physics tick. If the camera were a direct child, any code writing
+	# camera_3d.position (shake, smoothing) would fight the arm and win on
+	# render frames - the camera ends up glued to the pivot (~2m from the
+	# player, 'unplayably close'). So the arm owns a bare ArmEnd node and
+	# the camera hangs OFF ArmEnd with a local offset the arm never touches.
+	arm_end = Node3D.new()
+	arm_end.name = "ArmEnd"
+	spring_arm.add_child(arm_end)
+	
 	if camera_3d == null:
 		camera_3d = Camera3D.new()
 		camera_3d.name = "Camera3D"
 		camera_3d.current = true
 	elif camera_3d.get_parent():
 		camera_3d.get_parent().remove_child(camera_3d)
-	spring_arm.add_child(camera_3d)
+	arm_end.add_child(camera_3d)
 	camera_3d.transform = Transform3D.IDENTITY
 	camera_3d.fov = base_fov
 	_smoothed_arm_length = camera_distance
@@ -276,9 +293,10 @@ func _update_arm(delta: float):
 		_smoothed_arm_length = hit                      # pull in NOW
 	else:
 		_smoothed_arm_length = lerpf(_smoothed_arm_length, hit, clampf(reexpand_speed * delta, 0.0, 1.0))
-	# The arm parks the camera at `hit`; nudge it back toward the player by
-	# the not-yet-re-expanded amount (offset <= 0 keeps us inside the swept
-	# safe corridor, so this never clips into geometry).
+	# The arm parks ArmEnd at `hit`; nudge the camera back toward the player
+	# by the not-yet-re-expanded amount (offset <= 0 keeps us inside the
+	# swept safe corridor, so this never clips into geometry). The offset
+	# lives on camera_3d (child of ArmEnd) - NEVER on a direct arm child.
 	if camera_3d:
 		camera_3d.position = shake_offset + Vector3(0, 0, _smoothed_arm_length - hit)
 
