@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dh22veje118uj"]
+
+[ext_resource type="Script" uid="uid://b112r7llqqap" path="res://scripts/environments/worldbuilding/terrain.gd" id="1_ukonp"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_4qpm1"]
+
+[node name="Node3D" type="Node3D" unique_id=1848976946]
+
+[node name="Terrain" type="StaticBody3D" parent="." unique_id=960943836]
+script = ExtResource("1_ukonp")
+metadata/_custom_type_script = "uid://b112r7llqqap"
+
+[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_4qpm1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.511712, 0)

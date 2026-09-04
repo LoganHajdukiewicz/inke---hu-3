@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://cev53dn06orlq"]
+
+[ext_resource type="Script" uid="uid://b6v4mq7p71g5k" path="res://scripts/environments/worldbuilding/room.gd" id="1_i7fno"]
+[ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="2_r474v"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_taygr"]
+[ext_resource type="Script" uid="uid://blhb3rpipv48s" path="res://scripts/environments/worldbuilding/doorway.gd" id="4_r474v"]
+
+[node name="Node3D" type="Node3D" unique_id=346946335]
+
+[node name="Inke" type="CharacterBody3D" parent="." unique_id=2088239389 node_paths=PackedStringArray("wall_jump_rays", "rail_grind_area") groups=["Player"] instance=ExtResource("2_taygr")]
+script = ExtResource("2_r474v")
+wall_jump_rays = NodePath("WallJumpRays")
+rail_grind_area = NodePath("RailGrindArea")
+
+[node name="Room" type="Node3D" parent="." unique_id=1107671474]
+script = ExtResource("1_i7fno")
+interior_size = Vector3(50, 50, 50)
+metadata/_custom_type_script = "uid://b6v4mq7p71g5k"
+
+[node name="Doorway" type="Marker3D" parent="Room" unique_id=1615253699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -24.992805)
+script = ExtResource("4_r474v")
+metadata/_custom_type_script = "uid://blhb3rpipv48s"
+
+[node name="Room2" type="Node3D" parent="." unique_id=691844903]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -50.6)
+script = ExtResource("1_i7fno")
+interior_size = Vector3(20, 20, 50)
+wall_color = Color(1, 0.5144559, 0.8059325, 1)
+floor_color = Color(0.3714573, 0.40769607, 1.92523e-07, 1)
+ceiling_color = Color(0.8901918, 0.8601499, 0, 1)
+metadata/_custom_type_script = "uid://b6v4mq7p71g5k"
+
+[node name="Doorway" type="Marker3D" parent="Room2" unique_id=1831276502]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -24.992805)
+script = ExtResource("4_r474v")
+metadata/_custom_type_script = "uid://blhb3rpipv48s"
