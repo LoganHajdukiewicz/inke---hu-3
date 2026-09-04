@@ -40,7 +40,7 @@ var hu3_scene = preload("res://scenes/characters/Player/HU3.tscn")
 var f1_held_time: float = 0.0
 const F1_QUIT_DURATION: float = 1.0  # Hold for 1 second to quit
 
-# Ink Wisp tracking (scout-fly style collectable, per level)
+# Spray Can tracking (scout-fly style collectable, per level; formerly Ink Wisp)
 var wisps_total: int = 0
 var wisps_collected: int = 0
 var _wisp_scene_id: int = 0  # instance id of the scene the wisps belong to
@@ -260,7 +260,7 @@ func get_CRED_count() -> int:
 # === INK WISP TRACKING (per level) ===
 
 func register_wisp(_wisp: Node) -> void:
-	"""Called by each InkWisp in _ready(). Counts reset automatically when
+	"""Called by each SprayCan in _ready(). Counts reset automatically when
 	wisps register from a new scene (level change / reload)."""
 	var scene = get_tree().current_scene
 	var scene_id = scene.get_instance_id() if scene else 0

@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://cinkwisp0001a"]
+
+[ext_resource type="Script" path="res://scripts/items/Collectibles/spray_can.gd" id="1_wisp"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_wisp"]
+radius = 0.8
+
+[node name="SprayCan" type="Area3D" groups=["Collectible", "SprayCan"]]
+script = ExtResource("1_wisp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_wisp")

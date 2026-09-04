@@ -206,13 +206,13 @@ func _refresh_stats():
 		# Wisp progress
 		var wp = gm.get_wisp_progress()
 		if wp.total > 0:
-			wisp_label.text = "\u25cf Ink Wisps:  %d / %d" % [wp.collected, wp.total]
+			wisp_label.text = "\u25cf Spray Cans:  %d / %d" % [wp.collected, wp.total]
 			if wp.collected >= wp.total:
-				objective_label.text = "All wisps found! Your CRED reward has appeared."
+				objective_label.text = "All spray cans found! Your CRED reward has appeared."
 			else:
 				objective_label.text = "Find all %d Ink Wisps in this level to earn a CRED." % wp.total
 		else:
-			wisp_label.text = "\u25cf Ink Wisps:  none in this level"
+			wisp_label.text = "\u25cf Spray Cans:  none in this level"
 			objective_label.text = ""
 		
 		# Upgrades owned

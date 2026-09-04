@@ -27,6 +27,14 @@ class_name CutsceneCamera
 @export_group("Cutscene")
 ## Seconds to glide from the gameplay camera to this one on activate().
 @export var default_blend_time: float = 1.2
+## Travel speed in meters/second. When > 0 it overrides blend TIMES with
+## distance-based pacing - long flights take longer, short hops stay
+## snappy. 0 = use default_blend_time per leg.
+@export var travel_speed: float = 0.0
+## PATH MODE: give this camera Marker3D/Node3D CHILDREN and activate()
+## flies through them - current view -> this camera's pose -> each child
+## in order (rotate the markers to aim the camera along the way). With no
+## children it just tweens straight to this camera's pose like usual.
 ## Tell CutsceneManager a cutscene started/ended on activate()/deactivate()
 ## (hides gameplay UI like the paint HUD).
 @export var reports_to_cutscene_manager: bool = true
@@ -57,7 +65,9 @@ func _ready():
 # Cutscene API
 # ---------------------------------------------------------------------------
 func activate(blend_time: float = -1.0) -> void:
-	"""Make this the live camera, gliding from the current one."""
+	"""Make this the live camera, gliding from the current one. If this
+	node has Marker3D/Node3D children, the camera then FLIES THROUGH them
+	in order (a camera path); otherwise it just parks at this pose."""
 	if blend_time < 0.0:
 		blend_time = default_blend_time
 	var from_cam := get_viewport().get_camera_3d()
@@ -67,18 +77,68 @@ func activate(blend_time: float = -1.0) -> void:
 		var cm = get_node_or_null("/root/CutsceneManager")
 		if cm:
 			cm.start_cutscene()
-	if from_cam and from_cam != self and blend_time > 0.05:
-		_blend_from(from_cam.global_transform, from_cam.fov, blend_time)
+	var path := _path_waypoints()
+	if from_cam and from_cam != self and (blend_time > 0.05 or travel_speed > 0.0):
+		_blend_from(from_cam.global_transform, from_cam.fov, _leg_time(from_cam.global_position, global_position, blend_time))
 	else:
 		make_current()
-	if fly_enabled:
+	if path.size() > 0:
+		_fly_path(path)
+	elif fly_enabled:
 		_begin_fly()
+
+
+func _leg_time(from_pos: Vector3, to_pos: Vector3, fallback: float) -> float:
+	"""Distance-based duration when travel_speed is set, else the fallback."""
+	if travel_speed > 0.01:
+		return maxf(from_pos.distance_to(to_pos) / travel_speed, 0.15)
+	return fallback
+
+
+func _path_waypoints() -> Array:
+	"""SNAPSHOT of the waypoint poses (child Node3Ds, in child order).
+	Must be captured BEFORE the camera moves: the markers are children of
+	this camera, so their global transforms travel WITH it - flying toward
+	live child positions would chase its own tail forever."""
+	var out: Array = []
+	for c in get_children():
+		if c is Node3D:
+			out.append({
+				"pose": c.global_transform,
+				"fov": c.fov if c is Camera3D else -1.0,
+			})
+	return out
+
+
+func _fly_path(points: Array) -> void:
+	"""Fly through the snapshotted waypoints after the initial blend-in.
+	Each leg's duration comes from travel_speed (or default_blend_time).
+	Markers' rotations aim the camera; a Camera3D waypoint also sets FOV."""
+	if _blend_tween and _blend_tween.is_valid():
+		await _blend_tween.finished
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	var prev_pose := global_transform
+	for wp in points:
+		var pose: Transform3D = wp.pose
+		var dur := _leg_time(prev_pose.origin, pose.origin, default_blend_time)
+		var from := prev_pose
+		var from_fov := fov
+		var to_fov: float = wp.fov if wp.fov > 0.0 else fov
+		tw.tween_method(func(t: float):
+			global_transform = from.interpolate_with(pose, t)
+			fov = lerpf(from_fov, to_fov, t)
+		, 0.0, 1.0, dur)
+		prev_pose = pose
+	_blend_tween = tw
 
 
 func deactivate(blend_time: float = -1.0) -> void:
 	"""Hand the view back to the gameplay camera."""
 	if blend_time < 0.0:
 		blend_time = default_blend_time
+	if _blend_tween and _blend_tween.is_valid():
+		_blend_tween.kill()
 	_end_fly()
 	if reports_to_cutscene_manager:
 		var cm = get_node_or_null("/root/CutsceneManager")
@@ -97,6 +157,7 @@ func deactivate(blend_time: float = -1.0) -> void:
 			ghost.fov = f
 			ghost.make_current()
 			var target_cam := _prev_camera
+			blend_time = _leg_time(pose.origin, target_cam.global_position, blend_time)
 			var tw := ghost.create_tween()
 			tw.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
 			tw.tween_method(func(t: float):
@@ -122,7 +183,9 @@ func snap_to(pose: Transform3D) -> void:
 func move_to(pose: Transform3D, duration: float = 2.0,
 		trans: Tween.TransitionType = Tween.TRANS_SINE) -> Tween:
 	"""Glide this camera to a new pose - chain shots by awaiting the tween:
-	   await cam.move_to(pose_b, 3.0).finished"""
+	   await cam.move_to(pose_b, 3.0).finished
+	When travel_speed > 0 the duration is distance-based instead."""
+	duration = _leg_time(global_position, pose.origin, duration)
 	if _blend_tween and _blend_tween.is_valid():
 		_blend_tween.kill()
 	_blend_tween = create_tween()

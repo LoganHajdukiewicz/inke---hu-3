@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://3bpo7uite5aa" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="13_barrel"]
 [ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="14_gear"]
 [ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="15_cred"]
-[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/ink_wisp.tscn" id="16_wisp"]
+[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/spray_can.tscn" id="16_wisp"]
 [ext_resource type="PackedScene" uid="uid://csfqpj8nsbrvu" path="res://scenes/items/Collectibles/paint_droplet.tscn" id="17_paint"]
 [ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="18_check"]
 [ext_resource type="PackedScene" uid="uid://bercg7tu4yiyy" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="19_giver"]
@@ -275,7 +275,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21, 1, 62)
 [node name="Cred" parent="Items" unique_id=1258079356 instance=ExtResource("15_cred")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 1.2, 62)
 
-[node name="InkWisp" parent="Items" unique_id=958525160 instance=ExtResource("16_wisp")]
+[node name="SprayCan" parent="Items" unique_id=958525160 instance=ExtResource("16_wisp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 1.5, 62)
 
 [node name="PaintDroplet" parent="Items" unique_id=1111067523 instance=ExtResource("17_paint")]

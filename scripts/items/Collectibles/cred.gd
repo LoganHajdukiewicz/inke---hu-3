@@ -19,6 +19,9 @@ class_name CRED
 @onready var mesh_instance: MeshInstance3D = $MeshInstance3D
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 
+# Built model root (medallion)
+var model: Node3D = null
+
 # GameManager reference
 var game_manager: Node = null
 
@@ -57,6 +60,7 @@ func _ready():
 	call_deferred("find_ground_level")
 	
 	setup_rainbow_material()
+	_build_medallion()
 	
 	# Connect area signals
 	body_entered.connect(_on_body_entered)
@@ -123,8 +127,102 @@ void fragment() {
 	rainbow_material.set_shader_parameter("brightness", 1.2)
 	rainbow_material.set_shader_parameter("saturation", 0.8)
 	
-	# Apply the material
-	mesh_instance.set_surface_override_material(0, rainbow_material)
+	# Applied to the medallion's star face in _build_medallion()
+
+
+func _build_medallion():
+	"""CRED is STREET CRED - the thing that gates the next boss. So it looks
+	like respect you can hold: a chunky gold medallion on a hint of chain,
+	with a spinning rainbow star face (graffiti-burner colors)."""
+	# Hide the old placeholder sphere
+	if mesh_instance:
+		mesh_instance.visible = false
+	
+	model = Node3D.new()
+	model.name = "Medallion"
+	add_child(model)
+	model.position = Vector3(0, 0.35, 0)
+	
+	var gold := StandardMaterial3D.new()
+	gold.albedo_color = Color(1.0, 0.82, 0.25)
+	gold.metallic = 0.9
+	gold.roughness = 0.25
+	gold.emission_enabled = true
+	gold.emission = Color(1.0, 0.75, 0.2)
+	gold.emission_energy_multiplier = 0.25
+	
+	# Outer ring
+	var ring := MeshInstance3D.new()
+	var ring_mesh := TorusMesh.new()
+	ring_mesh.inner_radius = 0.26
+	ring_mesh.outer_radius = 0.34
+	ring.mesh = ring_mesh
+	ring.material_override = gold
+	ring.rotation_degrees.x = 90.0   # face the camera plane
+	model.add_child(ring)
+	
+	# Star face: 5-point star plate with the rainbow shader
+	var star := MeshInstance3D.new()
+	star.mesh = _build_star_mesh(0.26, 0.11, 0.05)
+	star.material_override = rainbow_material
+	model.add_child(star)
+	
+	# Backing disc so the star pops
+	var disc := MeshInstance3D.new()
+	var disc_mesh := CylinderMesh.new()
+	disc_mesh.top_radius = 0.27
+	disc_mesh.bottom_radius = 0.27
+	disc_mesh.height = 0.03
+	disc.mesh = disc_mesh
+	var dark := StandardMaterial3D.new()
+	dark.albedo_color = Color(0.12, 0.1, 0.14)
+	dark.roughness = 0.5
+	disc.material_override = dark
+	disc.rotation_degrees.x = 90.0
+	model.add_child(disc)
+	
+	# Chain hint: a few small gold links arcing up from the top
+	for i in range(3):
+		var link := MeshInstance3D.new()
+		var lm := TorusMesh.new()
+		lm.inner_radius = 0.02
+		lm.outer_radius = 0.045
+		link.mesh = lm
+		link.material_override = gold
+		var ang := deg_to_rad(-20.0 + i * 20.0)
+		link.position = Vector3(sin(ang) * 0.12, 0.36 + i * 0.075, 0)
+		link.rotation_degrees = Vector3(0, 90.0 * (i % 2), 12.0 * (1 - i))
+		model.add_child(link)
+
+
+func _build_star_mesh(outer_r: float, inner_r: float, thickness: float) -> ArrayMesh:
+	"""Extruded 5-point star, facing +Z/-Z."""
+	var pts: Array = []
+	for i in range(10):
+		var r := outer_r if i % 2 == 0 else inner_r
+		var a := -PI * 0.5 + float(i) / 10.0 * TAU
+		pts.append(Vector2(cos(a) * r, -sin(a) * r))
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var hz := thickness * 0.5
+	var center_f := Vector3(0, 0, hz)
+	var center_b := Vector3(0, 0, -hz)
+	for i in range(10):
+		var p0: Vector2 = pts[i]
+		var p1: Vector2 = pts[(i + 1) % 10]
+		var f0 := Vector3(p0.x, p0.y, hz)
+		var f1 := Vector3(p1.x, p1.y, hz)
+		var b0 := Vector3(p0.x, p0.y, -hz)
+		var b1 := Vector3(p1.x, p1.y, -hz)
+		# front face fan (CW seen from +Z)
+		st.add_vertex(center_f); st.add_vertex(f1); st.add_vertex(f0)
+		# back face fan
+		st.add_vertex(center_b); st.add_vertex(b0); st.add_vertex(b1)
+		# side wall
+		st.add_vertex(f0); st.add_vertex(f1); st.add_vertex(b0)
+		st.add_vertex(b0); st.add_vertex(f1); st.add_vertex(b1)
+	st.generate_normals()
+	return st.commit()
 
 func _on_player_spawned(player_node: CharacterBody3D):
 	"""Handle player spawning"""
@@ -144,8 +242,11 @@ func _process(delta: float):
 	var float_offset = sin(time_elapsed * float_speed) * float_amplitude
 	global_position.y = ground_level + float_offset
 	
-	# Rotation animation
-	rotation.y += rotation_speed * delta
+	# Rotation animation (spin the medallion, not the pickup area)
+	if model:
+		model.rotation.y += rotation_speed * delta
+	else:
+		rotation.y += rotation_speed * delta
 	
 	# Handle cutscene
 	if is_playing_cutscene:

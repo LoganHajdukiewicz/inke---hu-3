@@ -13,7 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://bfg2o2wtbkhpj" path="res://scenes/environments/scene_transitioner.tscn" id="11_c51mo"]
 [ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="12_o3aab"]
 [ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="13_qts2m"]
-[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/ink_wisp.tscn" id="14_438eq"]
+[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/spray_can.tscn" id="14_438eq"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e5bud"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
@@ -1143,8 +1143,8 @@ curve = SubResource("Curve3D_vl83r")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.477458, 69.83793, -2338.0854)
 curve = SubResource("Curve3D_c4jn7")
 
-[node name="InkWisp" parent="." unique_id=80304372 instance=ExtResource("14_438eq")]
+[node name="SprayCan" parent="." unique_id=80304372 instance=ExtResource("14_438eq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.023943543, 0.21999988, -7.935731)
 
-[node name="InkWisp2" parent="." unique_id=262699091 instance=ExtResource("14_438eq")]
+[node name="SprayCan2" parent="." unique_id=262699091 instance=ExtResource("14_438eq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.0674868, 0.21999988, -4.6348476)

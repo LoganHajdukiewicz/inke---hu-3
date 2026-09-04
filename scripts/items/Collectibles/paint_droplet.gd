@@ -82,21 +82,20 @@ func find_ground_level():
 		ground_level = global_position.y
 
 func setup_mesh():
-	"""Create the visual mesh for the paint droplet"""
-	# Check if mesh already exists from scene
+	"""Create the visual mesh: a real paint DROP - narrow at the top,
+	bulging and drooping at the bottom, like it's about to drip."""
 	mesh_instance = get_node_or_null("Mesh")
 	
 	if not mesh_instance:
 		mesh_instance = MeshInstance3D.new()
 		mesh_instance.name = "Mesh"
-		
-		# Create a small sphere mesh
-		var sphere_mesh = SphereMesh.new()
-		sphere_mesh.radius = 0.15
-		sphere_mesh.height = 0.3
-		mesh_instance.mesh = sphere_mesh
-		
 		add_child(mesh_instance)
+	mesh_instance.mesh = _build_drop_mesh()
+	
+	# Slow wobble so the droop reads from every side
+	var wob = create_tween()
+	wob.set_loops()
+	wob.tween_property(mesh_instance, "rotation:y", TAU, 4.0).from(0.0)
 	
 	# Create glowing material
 	var material = StandardMaterial3D.new()
@@ -110,6 +109,42 @@ func setup_mesh():
 	
 	# Add gentle pulsing animation
 	create_pulse_animation()
+
+
+func _build_drop_mesh() -> ArrayMesh:
+	"""Lathe a teardrop profile: pointed tip up top, fat bulb low, with the
+	widest point BELOW center so the bottom visibly droops."""
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Profile: (radius, y) pairs from tip (top) to bottom center.
+	# Total height ~0.34; widest ring sits at 30% height => bottom-heavy.
+	var profile := [
+		Vector2(0.0,   0.24),   # tip
+		Vector2(0.035, 0.19),
+		Vector2(0.07,  0.13),
+		Vector2(0.105, 0.06),
+		Vector2(0.135, -0.02),
+		Vector2(0.15,  -0.09),  # widest: below the middle (the droop)
+		Vector2(0.135, -0.15),
+		Vector2(0.09,  -0.19),
+		Vector2(0.0,   -0.21),  # bottom center
+	]
+	var segs := 16
+	for i in range(profile.size() - 1):
+		var a: Vector2 = profile[i]
+		var b: Vector2 = profile[i + 1]
+		for s in range(segs):
+			var t0 := float(s) / segs * TAU
+			var t1 := float(s + 1) / segs * TAU
+			var a0 := Vector3(cos(t0) * a.x, a.y, sin(t0) * a.x)
+			var a1 := Vector3(cos(t1) * a.x, a.y, sin(t1) * a.x)
+			var b0 := Vector3(cos(t0) * b.x, b.y, sin(t0) * b.x)
+			var b1 := Vector3(cos(t1) * b.x, b.y, sin(t1) * b.x)
+			# two triangles per quad (clockwise winding for front faces)
+			st.add_vertex(a0); st.add_vertex(b0); st.add_vertex(a1)
+			st.add_vertex(a1); st.add_vertex(b0); st.add_vertex(b1)
+	st.generate_normals()
+	return st.commit()
 
 func create_pulse_animation():
 	"""Create a gentle pulsing glow effect"""
