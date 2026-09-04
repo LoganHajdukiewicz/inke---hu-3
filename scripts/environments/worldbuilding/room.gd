@@ -2,27 +2,22 @@
 extends Node3D
 class_name Room
 ## Urban room builder. One node = a room; drag rooms around to compose
-## whole buildings. Three modes (room_mode, on the dragged room):
+## whole buildings. No modes - what you do with the drag decides:
 ##
-##   SNAP + DOORWAY (default): drag a room near another - it snaps flush
-##     against it and a doorway is cut through the shared wall.
-##   MERGE: drag a room so it OVERLAPS another - the two union into one
+##   NEAR another room: it snaps flush against it. If both rooms have
+##     auto_doorway on (default), a doorway is cut through the shared wall.
+##   DEEP OVERLAP (pushed clearly past flush): the rooms MERGE into one
 ##     irregular open space (L-shapes, T-shapes...). Shared walls vanish.
-##   SNAP ONLY: snaps flush like the default, but NO doorway is cut.
 ##
 ## Doorway children still carve custom doors/windows anywhere.
 ## Structure is CSG: outer shell minus interior minus openings, so any
 ## overlapping merged rooms automatically become one clean space.
 
-enum RoomMode {
-	SNAP_WITH_DOORWAY,   ## Snap flush to nearby rooms + cut a shared doorway
-	MERGE,               ## Overlap another room to merge into one big room
-	SNAP_ONLY,           ## Snap flush, but keep the wall solid (no doorway)
-}
-
-@export var room_mode: RoomMode = RoomMode.SNAP_WITH_DOORWAY:
+## Cut a doorway automatically through walls shared with snapped neighbors
+## (both rooms need this on). Off = solid shared wall.
+@export var auto_doorway: bool = true:
 	set(v):
-		room_mode = v
+		auto_doorway = v
 		_request_rebuild()
 		_poke_sibling_rooms()
 
@@ -49,6 +44,9 @@ enum RoomMode {
 	set(v): auto_doorway_height = v; _request_rebuild(); _poke_sibling_rooms()
 ## How close (in meters) a dragged room has to get before it snaps flush.
 @export var snap_distance: float = 3.0
+## Push a room deeper than this (in meters) past flush into another room
+## and they MERGE into one space instead of snapping.
+@export var merge_overlap: float = 1.5
 
 @export_group("Colors")
 @export var wall_color: Color = Color(0.75, 0.7, 0.62):
@@ -134,8 +132,7 @@ func _refresh_lights() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSFORM_CHANGED and Engine.is_editor_hint() and not _snapping:
-		if room_mode != RoomMode.MERGE:
-			_try_snap()
+		_try_snap()
 		_request_rebuild()
 		_poke_sibling_rooms()
 
@@ -161,13 +158,18 @@ func _poke_sibling_rooms():
 # ---------------------------------------------------------------------------
 
 func _try_snap() -> void:
+	# Pushed deep inside another room? That's a merge - don't snap at all.
+	if _find_deep_overlap() != null:
+		return
 	var best_room: Room = null
 	var best_gap := snap_distance
 	var best_axis := 0      # 0 = x, 1 = z
 	var best_dir := 1.0
 	for c in get_parent().get_children():
-		if not (c is Room) or c == self or c.room_mode == RoomMode.MERGE:
+		if not (c is Room) or c == self:
 			continue
+		if _overlap_depth(self, c) > merge_overlap:
+			continue   # merged with this one - not a snap target
 		var other: Room = c
 		# Candidate: butt against other's +x / -x / +z / -z exterior
 		var my_half := Vector2(interior_size.x * 0.5 + wall_thickness, interior_size.z * 0.5 + wall_thickness)
@@ -208,28 +210,17 @@ func _rebuild():
 		_csg.free()
 	_csg = null
 	
-	# Merged rooms don't build - they contribute to their host's CSG
-	if room_mode == RoomMode.MERGE and _find_merge_host() != null:
+	# Merged rooms don't build - the group host's CSG includes them.
+	# Host = the merged room that comes FIRST in the scene tree.
+	if _merge_group_host() != self:
 		return
 	
 	_csg = CSGCombiner3D.new()
 	_csg.use_collision = true
 	add_child(_csg)
 	
-	# Collect this room + any MERGE rooms overlapping it (recursively safe:
-	# merged rooms found via footprint overlap with any room in the group)
-	var group: Array = [self]
-	if get_parent():
-		var changed := true
-		while changed:
-			changed = false
-			for c in get_parent().get_children():
-				if c is Room and c.room_mode == RoomMode.MERGE and not group.has(c):
-					for g in group:
-						if _footprints_overlap(c, g):
-							group.append(c)
-							changed = true
-							break
+	# Collect this room + every room deep-overlapping it (transitively)
+	var group: Array = _merge_group()
 	
 	# CSG order matters: all SHELLS (union) first, then all interior +
 	# opening SUBTRACTIONS - so interiors carve through shared walls and
@@ -247,20 +238,54 @@ func _rebuild():
 		_add_interior_liners(r)
 
 
-func _find_merge_host() -> Room:
+func _overlap_depth(a: Room, b: Room) -> float:
+	"""How far a's exterior footprint penetrates b's, in meters (the SMALLER
+	of the two axis penetrations - i.e. how far past flush the rooms sit).
+	<= 0 means not overlapping."""
+	var ah := Vector2(a.interior_size.x * 0.5 + a.wall_thickness, a.interior_size.z * 0.5 + a.wall_thickness)
+	var bh := Vector2(b.interior_size.x * 0.5 + b.wall_thickness, b.interior_size.z * 0.5 + b.wall_thickness)
+	var d := Vector2(a.global_position.x - b.global_position.x, a.global_position.z - b.global_position.z)
+	var pen_x := (ah.x + bh.x) - absf(d.x)
+	var pen_z := (ah.y + bh.y) - absf(d.y)
+	return minf(pen_x, pen_z)
+
+
+func _find_deep_overlap() -> Room:
+	"""First sibling room we overlap deeply enough to count as a merge."""
 	if get_parent() == null:
 		return null
 	for c in get_parent().get_children():
-		if c is Room and c != self and c.room_mode != RoomMode.MERGE and _footprints_overlap(self, c):
+		if c is Room and c != self and _overlap_depth(self, c) > merge_overlap:
 			return c
 	return null
 
 
-func _footprints_overlap(a: Room, b: Room) -> bool:
-	var ah := Vector2(a.interior_size.x * 0.5 + a.wall_thickness, a.interior_size.z * 0.5 + a.wall_thickness)
-	var bh := Vector2(b.interior_size.x * 0.5 + b.wall_thickness, b.interior_size.z * 0.5 + b.wall_thickness)
-	var d := Vector2(a.global_position.x - b.global_position.x, a.global_position.z - b.global_position.z)
-	return absf(d.x) < ah.x + bh.x - 0.1 and absf(d.y) < ah.y + bh.y - 0.1
+func _merge_group() -> Array:
+	"""This room + every room connected to it through deep overlaps
+	(transitive), in scene-tree order starting from self."""
+	var group: Array = [self]
+	if get_parent():
+		var changed := true
+		while changed:
+			changed = false
+			for c in get_parent().get_children():
+				if c is Room and not group.has(c):
+					for g in group:
+						if _overlap_depth(c, g) > merge_overlap:
+							group.append(c)
+							changed = true
+							break
+	return group
+
+
+func _merge_group_host() -> Room:
+	"""The room in our merge group that builds the shared CSG: the one
+	earliest in the scene tree. Alone = ourselves."""
+	var host: Room = self
+	for r in _merge_group():
+		if r.get_index() < host.get_index():
+			host = r
+	return host
 
 
 func _room_offset(r: Room) -> Vector3:
@@ -350,13 +375,13 @@ func _add_doorway_cuts(r: Room) -> void:
 
 func _add_auto_doorways(r: Room, group: Array) -> void:
 	"""Cut a doorway through every wall r shares with a snapped neighbor
-	(both rooms in SNAP_WITH_DOORWAY mode)."""
-	if r.room_mode != RoomMode.SNAP_WITH_DOORWAY or get_parent() == null:
+	(both rooms need auto_doorway on)."""
+	if not r.auto_doorway or get_parent() == null:
 		return
 	for c in get_parent().get_children():
 		if not (c is Room) or c == r or group.has(c):
 			continue
-		if c.room_mode != RoomMode.SNAP_WITH_DOORWAY:
+		if not c.auto_doorway:
 			continue
 		var n: Room = c
 		var rh := Vector2(r.interior_size.x * 0.5 + r.wall_thickness, r.interior_size.z * 0.5 + r.wall_thickness)

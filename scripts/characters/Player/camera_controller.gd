@@ -1,104 +1,196 @@
 extends Node3D
+## Third-person camera rig - FULL REWRITE.
+##
+## Node structure (rebuilt in _ready, reusing the scene's Camera3D):
+##
+##   CameraController  (this node, top_level - smoothed follow position + YAW)
+##     CameraTarget    (pivot at head height - PITCH)
+##       SpringArm3D   (collision-aware arm - pulls the camera IN when walls,
+##                      ceilings or props would otherwise put it outside the
+##                      room. This is the "camera is outside my small room"
+##                      fix: the arm shape-casts from the pivot and parks the
+##                      camera just in front of whatever it hits.)
+##         Camera3D    (+ shake offset applied here)
+##
+## Everything is Inspector-tunable. External API kept from the old camera:
+##   handle_camera_input(delta), follow_character(pos, vel),
+##   initialize_camera(), get_camera_forward()/get_camera_right(),
+##   shake(intensity, duration), auto_behind, lock-on API,
+##   transform.basis (yaw-only - movement code reads this).
 
-# Camera Speed as a Decimal Percent
-const BASE_CAMERA_SPEED: float = 0.15
-const FAST_CAMERA_SPEED: float = 0.25
-const SPEED_THRESHOLD: float = 12.0
-const LOCK_ON_SPEED: float = 0.3
+# ---------------------------------------------------------------------------
+# Tunables
+# ---------------------------------------------------------------------------
+@export_group("Look")
+@export var mouse_sensitivity: float = 0.002
+@export var controller_sensitivity: float = 2.0
+@export var invert_y: bool = false
+## Lowest the camera can look (degrees, negative = down).
+@export var pitch_min_degrees: float = -65.0
+## Highest the camera can look (degrees).
+@export var pitch_max_degrees: float = 45.0
 
-# Camera Limits
-const MIN_PITCH: float = -40.0
-const MAX_PITCH: float = 25.0
+@export_group("Framing")
+## How far behind the player the camera wants to sit.
+@export var camera_distance: float = 8.8
+## Pivot height above the player's feet (roughly head height).
+@export var pivot_height: float = 2.1
+## Default downward look angle when the game starts.
+@export var default_pitch_degrees: float = -12.0
 
-# Lock-on settings
-const LOCK_ON_RANGE: float = 30.0
-const LOCK_ON_SWITCH_COOLDOWN: float = 0.3
+@export_group("Follow")
+## How quickly the rig position catches up to the player (higher = snappier).
+@export var follow_speed: float = 9.0
+## Extra catch-up at high player speeds so fast movement never outruns the camera.
+@export var follow_speed_fast: float = 14.0
+@export var fast_speed_threshold: float = 12.0
 
-# Camera variables
-var mouse_sensitivity: float = 0.002
-var controller_sensitivity: float = 2.0
-var twist_input: float = 0.0
-var pitch_input: float = 0.0
+@export_group("Collision")
+## Physics layers the camera arm collides with (world geometry).
+@export_flags_3d_physics var collision_mask: int = 1
+## Gap kept between the camera and the surface it hit.
+@export var collision_margin: float = 0.3
+## Radius of the sphere the arm sweeps (bigger = camera avoids corners sooner
+## and never lets walls clip into the near plane).
+@export var collision_sphere_radius: float = 0.4
+## How fast the camera glides back OUT after an obstruction clears.
+## (Pulling IN is instant so geometry never occludes the player.)
+@export var reexpand_speed: float = 6.0
+
+@export_group("Speed FOV")
+@export var fov_kick_enabled: bool = true
+@export var base_fov: float = 75.0
+@export var max_fov: float = 92.0
+@export var fov_kick_start_speed: float = 12.0
+@export var fov_max_speed: float = 40.0
+@export var fov_lerp_speed: float = 4.0
+
+@export_group("Lock On")
+@export var lock_on_range: float = 30.0
+@export var lock_on_turn_speed: float = 0.3
+@export var lock_on_switch_cooldown: float = 0.3
+
+# ---------------------------------------------------------------------------
+# State
+# ---------------------------------------------------------------------------
+var twist_input: float = 0.0          # yaw (radians)
+var pitch_input: float = 0.0          # pitch (radians)
 var mouse_captured: bool = false
 
-# Lock-on system
 var lock_on_active: bool = false
 var locked_target: Node3D = null
 var lock_on_switch_timer: float = 0.0
-
-# Cached references
-var character: Node3D = null
-var camera_target: Node3D = null
-
-# Pre-calculated values
-var rad_min_pitch: float
-var rad_max_pitch: float
-
-# Camera shake
-var shake_time_left: float = 0.0
-var shake_strength: float = 0.0
-var shake_offset: Vector3 = Vector3.ZERO
 
 # Auto-behind mode (balance beams etc.): the camera swings around to sit
 # directly behind the player's facing direction.
 var auto_behind: bool = false
 const AUTO_BEHIND_SPEED: float = 3.5
 
-# Speed FOV kick: widen the FOV as the player speeds up for a sense of
-# velocity. Tunable in the Inspector.
-@export_group("Speed FOV")
-@export var fov_kick_enabled: bool = true
-@export var base_fov: float = 75.0
-@export var max_fov: float = 92.0            # FOV at/above fov_max_speed
-@export var fov_kick_start_speed: float = 12.0
-@export var fov_max_speed: float = 40.0
-@export var fov_lerp_speed: float = 4.0
-
+var character: Node3D = null
+var camera_target: Node3D = null      # pitch pivot
+var spring_arm: SpringArm3D = null
 var camera_3d: Camera3D = null
 
+var _rad_pitch_min: float
+var _rad_pitch_max: float
+var _smoothed_arm_length: float = 0.0
+
+# Camera shake
+var shake_time_left: float = 0.0
+var shake_strength: float = 0.0
+var shake_offset: Vector3 = Vector3.ZERO
+
+# Zoom punch (cred pickups etc.)
+var _zoom_fov_offset: float = 0.0
+
+
 func _ready():
-	# Cache the camera target node
-	camera_target = $CameraTarget
-	camera_3d = camera_target.get_node_or_null("Camera3D")
-	if camera_3d:
-		base_fov = camera_3d.fov
+	_rad_pitch_min = deg_to_rad(pitch_min_degrees)
+	_rad_pitch_max = deg_to_rad(pitch_max_degrees)
+	pitch_input = deg_to_rad(default_pitch_degrees)
 	
-	# Pre-calculate radians for pitch limits
-	rad_min_pitch = deg_to_rad(MIN_PITCH)
-	rad_max_pitch = deg_to_rad(MAX_PITCH)
-	
-	# Initialize relative to parent character
 	if get_parent() is CharacterBody3D:
 		character = get_parent()
-		_initialize_relative_position()
-
-func _initialize_relative_position():
-	"""Set initial camera position relative to character"""
+	
+	_build_rig()
+	
 	if character:
-		# Start camera behind and above the character
 		global_position = character.global_position
-		# Initial rotation can be set to face the character's forward direction
 		rotation.y = character.rotation.y
+		twist_input = character.rotation.y
+
+
+func _build_rig() -> void:
+	"""Assemble pivot -> spring arm -> camera, reusing whatever the scene
+	already has so saved Camera3D settings (fov, environment...) survive."""
+	camera_target = get_node_or_null("CameraTarget")
+	if camera_target == null:
+		camera_target = Node3D.new()
+		camera_target.name = "CameraTarget"
+		add_child(camera_target)
+	# The pivot sits at head height with NO baked tilt/offset - pitch is
+	# applied as pure rotation and the spring arm handles the distance.
+	camera_target.transform = Transform3D.IDENTITY
+	camera_target.position = Vector3(0, pivot_height, 0)
+	
+	# Find an existing camera anywhere under us (the old scene had it as a
+	# direct child of CameraTarget).
+	camera_3d = _find_camera(self)
+	
+	spring_arm = SpringArm3D.new()
+	spring_arm.name = "SpringArm3D"
+	spring_arm.collision_mask = collision_mask
+	spring_arm.margin = collision_margin
+	spring_arm.spring_length = camera_distance
+	var sphere := SphereShape3D.new()
+	sphere.radius = collision_sphere_radius
+	spring_arm.shape = sphere
+	camera_target.add_child(spring_arm)
+	if character:
+		spring_arm.add_excluded_object(character.get_rid())
+	
+	if camera_3d == null:
+		camera_3d = Camera3D.new()
+		camera_3d.name = "Camera3D"
+		camera_3d.current = true
+	elif camera_3d.get_parent():
+		camera_3d.get_parent().remove_child(camera_3d)
+	spring_arm.add_child(camera_3d)
+	camera_3d.transform = Transform3D.IDENTITY
+	camera_3d.fov = base_fov
+	_smoothed_arm_length = camera_distance
+
+
+func _find_camera(node: Node) -> Camera3D:
+	for c in node.get_children():
+		if c is Camera3D:
+			return c
+		var found := _find_camera(c)
+		if found:
+			return found
+	return null
+
 
 func initialize_camera():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	mouse_captured = true
 
+
+# ---------------------------------------------------------------------------
+# Per-frame driving (called from the player)
+# ---------------------------------------------------------------------------
 func _process(delta: float):
-	# Update camera shake
 	_update_shake(delta)
 	
-	# Update lock-on timer
 	if lock_on_switch_timer > 0.0:
 		lock_on_switch_timer -= delta
-	
-	# Handle lock-on toggle
 	if Input.is_action_just_pressed("lock_on"):
 		toggle_lock_on()
-	
-	# Handle lock-on switching
 	if lock_on_active and lock_on_switch_timer <= 0.0:
 		_check_lock_on_switch()
+	
+	_update_arm(delta)
+
 
 func handle_camera_input(delta: float):
 	if lock_on_active and is_instance_valid(locked_target):
@@ -107,105 +199,115 @@ func handle_camera_input(delta: float):
 		_handle_auto_behind_camera(delta)
 	else:
 		_handle_free_camera(delta)
-	
 	_update_fov_kick(delta)
 
+
+func _handle_free_camera(delta: float):
+	var stick := Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
+	if stick.length_squared() > 0.01:
+		twist_input -= stick.x * controller_sensitivity * delta
+		var y := stick.y * controller_sensitivity * delta
+		pitch_input += y if invert_y else -y
+	_apply_rotation()
+
+
 func _handle_auto_behind_camera(delta: float):
-	"""Swing the camera around to sit directly behind the player's facing
-	direction (used on balance beams). Player camera input is overridden but
-	pitch stays where it was."""
+	"""Swing around to sit directly behind the player's facing (balance
+	beams). Pitch stays player-controlled."""
 	if not character:
 		_handle_free_camera(delta)
 		return
-	# Behind the player = same yaw as the player's facing
-	var target_yaw = character.rotation.y
-	twist_input = lerp_angle(twist_input, target_yaw, clampf(AUTO_BEHIND_SPEED * delta, 0.0, 1.0))
-	pitch_input = clamp(pitch_input, rad_min_pitch, rad_max_pitch)
-	rotation.y = twist_input
-	camera_target.rotation.x = pitch_input
+	twist_input = lerp_angle(twist_input, character.rotation.y, clampf(AUTO_BEHIND_SPEED * delta, 0.0, 1.0))
+	_apply_rotation()
 
-func _update_fov_kick(delta: float):
-	"""Widen FOV with speed for a sense of velocity."""
-	if not fov_kick_enabled or not camera_3d or not character:
-		return
-	var h_speed = Vector2(character.velocity.x, character.velocity.z).length()
-	var t = clampf((h_speed - fov_kick_start_speed) / maxf(fov_max_speed - fov_kick_start_speed, 0.01), 0.0, 1.0)
-	# Ease so the kick comes on smoothly
-	t = t * t * (3.0 - 2.0 * t)
-	var target_fov = lerpf(base_fov, max_fov, t)
-	camera_3d.fov = lerpf(camera_3d.fov, target_fov, clampf(fov_lerp_speed * delta, 0.0, 1.0))
-
-func _handle_free_camera(delta: float):
-	"""Handle normal free camera movement"""
-	# Handle right stick camera input
-	var right_stick_input = Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
-	if right_stick_input.length_squared() > 0.01:  # Squared for optimization
-		twist_input -= right_stick_input.x * controller_sensitivity * delta
-		pitch_input -= right_stick_input.y * controller_sensitivity * delta
-	
-	# Clamp pitch to prevent over-rotation
-	pitch_input = clamp(pitch_input, rad_min_pitch, rad_max_pitch)
-	
-	# Apply camera rotations
-	rotation.y = twist_input
-	camera_target.rotation.x = pitch_input
 
 func _handle_lock_on_camera(_delta: float):
-	"""Handle camera when locked onto target"""
 	if not is_instance_valid(locked_target):
 		disable_lock_on()
 		return
-	
-	# Calculate direction to target from character position
-	var char_pos = character.global_position if character else global_position
-	var direction_to_target = locked_target.global_position - char_pos
-	var distance = direction_to_target.length()
-	
-	# Check if target is out of range
-	if distance > LOCK_ON_RANGE:
+	var char_pos: Vector3 = character.global_position if character else global_position
+	var to_target: Vector3 = locked_target.global_position - char_pos
+	var distance := to_target.length()
+	if distance > lock_on_range:
 		disable_lock_on()
 		return
-	
-	# Calculate desired rotation (fixed direction)
-	var target_rotation_y = atan2(-direction_to_target.x, -direction_to_target.z)
-	var target_rotation_x = asin(direction_to_target.y / distance)
-	
-	# Smoothly interpolate to target rotation
-	twist_input = lerp_angle(twist_input, target_rotation_y, LOCK_ON_SPEED)
-	pitch_input = lerp_angle(pitch_input, target_rotation_x, LOCK_ON_SPEED)
-	
-	# Clamp pitch
-	pitch_input = clamp(pitch_input, rad_min_pitch, rad_max_pitch)
-	
-	# Apply rotations
+	var target_yaw := atan2(-to_target.x, -to_target.z)
+	var target_pitch := asin(clampf(to_target.y / maxf(distance, 0.001), -1.0, 1.0))
+	twist_input = lerp_angle(twist_input, target_yaw, lock_on_turn_speed)
+	pitch_input = lerp_angle(pitch_input, target_pitch, lock_on_turn_speed)
+	_apply_rotation()
+
+
+func _apply_rotation():
+	pitch_input = clampf(pitch_input, _rad_pitch_min, _rad_pitch_max)
 	rotation.y = twist_input
-	camera_target.rotation.x = pitch_input
+	if camera_target:
+		camera_target.rotation.x = pitch_input
+
 
 func follow_character(character_position: Vector3, character_velocity: Vector3 = Vector3.ZERO):
-	"""Follow the character with dynamic camera speed"""
-	# Use squared length for optimization (avoid sqrt)
-	var horizontal_speed_sq = character_velocity.x * character_velocity.x + character_velocity.z * character_velocity.z
-	var threshold_sq = SPEED_THRESHOLD * SPEED_THRESHOLD
-	
-	# Calculate camera speed based on character velocity
-	var camera_speed = BASE_CAMERA_SPEED
-	if horizontal_speed_sq > threshold_sq:
-		var horizontal_speed = sqrt(horizontal_speed_sq)
-		var speed_factor = min((horizontal_speed - SPEED_THRESHOLD) * 0.1, 1.0)
-		camera_speed = lerp(BASE_CAMERA_SPEED, FAST_CAMERA_SPEED, speed_factor)
-	
-	position = lerp(position, character_position, camera_speed) + shake_offset
+	"""Smoothly follow the player. Frame-rate independent exponential
+	smoothing; catches up faster when the player is moving fast."""
+	var delta := get_physics_process_delta_time()
+	var h_speed := Vector2(character_velocity.x, character_velocity.z).length()
+	var speed := follow_speed
+	if h_speed > fast_speed_threshold:
+		var t: float = clampf((h_speed - fast_speed_threshold) * 0.1, 0.0, 1.0)
+		speed = lerpf(follow_speed, follow_speed_fast, t)
+	var alpha := 1.0 - exp(-speed * delta)
+	position = position.lerp(character_position, alpha)
 
+
+func _update_arm(delta: float):
+	"""Enclosed-space handling. The SpringArm sweeps a sphere and yields a
+	hit length; we snap IN instantly (never let a wall occlude the player)
+	but glide back OUT smoothly so clearing a doorway doesn't yank the
+	camera."""
+	if spring_arm == null:
+		return
+	# IMPORTANT: spring_length stays at FULL distance so the arm always
+	# casts the whole way (shortening it here deadlocks the arm: a capped
+	# cast can never report anything farther than the cap). The arm places
+	# the camera at the hit instantly (pull-in is immediate = never
+	# occluded); re-expansion is smoothed with a local camera offset.
+	spring_arm.spring_length = camera_distance
+	var hit: float = spring_arm.get_hit_length()
+	if hit < _smoothed_arm_length:
+		_smoothed_arm_length = hit                      # pull in NOW
+	else:
+		_smoothed_arm_length = lerpf(_smoothed_arm_length, hit, clampf(reexpand_speed * delta, 0.0, 1.0))
+	# The arm parks the camera at `hit`; nudge it back toward the player by
+	# the not-yet-re-expanded amount (offset <= 0 keeps us inside the swept
+	# safe corridor, so this never clips into geometry).
+	if camera_3d:
+		camera_3d.position = shake_offset + Vector3(0, 0, _smoothed_arm_length - hit)
+
+
+func _update_fov_kick(delta: float):
+	if not camera_3d or not character:
+		return
+	var target_fov := base_fov
+	if fov_kick_enabled:
+		var h_speed := Vector2(character.velocity.x, character.velocity.z).length()
+		var t := clampf((h_speed - fov_kick_start_speed) / maxf(fov_max_speed - fov_kick_start_speed, 0.01), 0.0, 1.0)
+		t = t * t * (3.0 - 2.0 * t)
+		target_fov = lerpf(base_fov, max_fov, t)
+	target_fov += _zoom_fov_offset
+	camera_3d.fov = lerpf(camera_3d.fov, target_fov, clampf(fov_lerp_speed * delta, 0.0, 1.0))
+
+
+# ---------------------------------------------------------------------------
+# Shake / zoom effects
+# ---------------------------------------------------------------------------
 func shake(intensity: float = 0.3, duration: float = 0.25):
-	"""Kick off a camera shake (used by ground slam, big impacts, etc.)"""
-	shake_strength = max(shake_strength, intensity)
-	shake_time_left = max(shake_time_left, duration)
+	shake_strength = maxf(shake_strength, intensity)
+	shake_time_left = maxf(shake_time_left, duration)
+
 
 func _update_shake(delta: float):
 	if shake_time_left > 0.0:
 		shake_time_left -= delta
-		var t = shake_time_left  # decays naturally as time runs out
-		var amount = shake_strength * clampf(t / 0.25, 0.0, 1.0)
+		var amount: float = shake_strength * clampf(shake_time_left / 0.25, 0.0, 1.0)
 		shake_offset = Vector3(
 			randf_range(-amount, amount),
 			randf_range(-amount, amount),
@@ -217,127 +319,114 @@ func _update_shake(delta: float):
 	else:
 		shake_offset = Vector3.ZERO
 
+
+func start_zoom_effect(strength: float = 0.3, duration: float = 0.6):
+	"""Brief FOV punch-in (cred pickups etc.)."""
+	var tween := create_tween()
+	tween.tween_property(self, "_zoom_fov_offset", -base_fov * clampf(strength, 0.0, 0.8), duration * 0.3)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "_zoom_fov_offset", 0.0, duration * 0.7)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN_OUT)
+
+
+# ---------------------------------------------------------------------------
+# Lock-on
+# ---------------------------------------------------------------------------
 func toggle_lock_on():
-	"""Toggle lock-on mode"""
 	if lock_on_active:
 		disable_lock_on()
 	else:
 		enable_lock_on()
 
+
 func enable_lock_on():
-	"""Enable lock-on and find nearest target"""
-	var nearest_enemy = _find_nearest_enemy()
-	if nearest_enemy:
+	var nearest := _find_nearest_enemy()
+	if nearest:
 		lock_on_active = true
-		locked_target = nearest_enemy
-	else:
-		pass
+		locked_target = nearest
+
 
 func disable_lock_on():
-	"""Disable lock-on mode"""
 	lock_on_active = false
 	locked_target = null
 
+
 func _find_nearest_enemy() -> Node3D:
-	"""Find the nearest enemy within lock-on range"""
-	var enemies = get_tree().get_nodes_in_group("Enemy")
-	if enemies.is_empty():
-		return null
-	
+	var enemies := get_tree().get_nodes_in_group("Enemy")
 	var nearest: Node3D = null
-	var nearest_distance_sq: float = LOCK_ON_RANGE * LOCK_ON_RANGE
-	
+	var nearest_sq := lock_on_range * lock_on_range
 	for enemy in enemies:
 		if not is_instance_valid(enemy) or not enemy is Node3D:
 			continue
-		
-		var distance_sq = global_position.distance_squared_to(enemy.global_position)
-		if distance_sq < nearest_distance_sq:
-			nearest_distance_sq = distance_sq
+		var d := global_position.distance_squared_to(enemy.global_position)
+		if d < nearest_sq:
+			nearest_sq = d
 			nearest = enemy
-	
 	return nearest
 
+
 func _check_lock_on_switch():
-	"""Check if player wants to switch lock-on target"""
-	var camera_input = Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
-	
-	# Only switch if there's significant input
+	var camera_input := Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
 	if camera_input.length_squared() < 0.5:
 		return
-	
-	var switch_direction = Vector3(camera_input.x, 0, camera_input.y).normalized()
-	var new_target = _find_target_in_direction(switch_direction)
-	
+	var switch_direction := Vector3(camera_input.x, 0, camera_input.y).normalized()
+	var new_target := _find_target_in_direction(switch_direction)
 	if new_target and new_target != locked_target:
 		locked_target = new_target
-		lock_on_switch_timer = LOCK_ON_SWITCH_COOLDOWN
+		lock_on_switch_timer = lock_on_switch_cooldown
+
 
 func _find_target_in_direction(direction: Vector3) -> Node3D:
-	"""Find the best target in the given direction"""
-	var enemies = get_tree().get_nodes_in_group("Enemy")
-	if enemies.is_empty():
-		return null
-	
 	var best_target: Node3D = null
 	var best_score: float = -1.0
-	
-	# Transform direction to world space
-	var world_direction = global_transform.basis * direction
-	
-	for enemy in enemies:
-		if not is_instance_valid(enemy) or not enemy is Node3D:
+	var world_direction := global_transform.basis * direction
+	for enemy in get_tree().get_nodes_in_group("Enemy"):
+		if not is_instance_valid(enemy) or not enemy is Node3D or enemy == locked_target:
 			continue
-		
-		if enemy == locked_target:
+		var to_enemy: Vector3 = enemy.global_position - global_position
+		var distance := to_enemy.length()
+		if distance > lock_on_range:
 			continue
-		
-		var to_enemy = enemy.global_position - global_position
-		var distance = to_enemy.length()
-		
-		if distance > LOCK_ON_RANGE:
-			continue
-		
-		# Calculate how aligned the enemy is with the desired direction
-		var alignment = to_enemy.normalized().dot(world_direction)
-		
-		# Score based on alignment and distance (favor closer and more aligned)
-		var score = alignment / (distance * 0.1 + 1.0)
-		
+		var alignment := to_enemy.normalized().dot(world_direction)
+		var score := alignment / (distance * 0.1 + 1.0)
 		if score > best_score:
 			best_score = score
 			best_target = enemy
-	
 	return best_target
 
+
+# ---------------------------------------------------------------------------
+# Input
+# ---------------------------------------------------------------------------
 func _unhandled_input(event):
-	if event is InputEventMouseMotion and mouse_captured:
-		if not lock_on_active:  # Don't process mouse movement during lock-on
-			twist_input -= event.relative.x * mouse_sensitivity
-			pitch_input -= event.relative.y * mouse_sensitivity
+	if event is InputEventMouseMotion and mouse_captured and not lock_on_active:
+		twist_input -= event.relative.x * mouse_sensitivity
+		var y: float = event.relative.y * mouse_sensitivity
+		pitch_input += y if invert_y else -y
 	
 	if event.is_action_pressed("ui_cancel"):
 		mouse_captured = !mouse_captured
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if mouse_captured else Input.MOUSE_MODE_VISIBLE)
 	
-	# Click to capture mouse
 	if event is InputEventMouseButton and event.pressed and not mouse_captured:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		mouse_captured = true
 
-# Public API for external scripts
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
 func get_camera_forward() -> Vector3:
-	"""Get the forward direction of the camera"""
 	return -camera_target.global_transform.basis.z
 
+
 func get_camera_right() -> Vector3:
-	"""Get the right direction of the camera"""
 	return camera_target.global_transform.basis.x
 
+
 func is_locked_on() -> bool:
-	"""Check if camera is currently locked onto a target"""
 	return lock_on_active
 
+
 func get_locked_target() -> Node3D:
-	"""Get the current locked target"""
 	return locked_target if lock_on_active else null

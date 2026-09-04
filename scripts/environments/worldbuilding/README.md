@@ -31,18 +31,18 @@ the editor. Use one per building/arena/spawn clearing.
 Add a **Room** node (or instance `room.tscn`): floor + 4 walls +
 ceiling from one node. `interior_size` is the inside space.
 
-### Room modes (`room_mode`)
-- **Snap With Doorway** (default, the main flow): drag a room near
-  another and it snaps flush against it — and a doorway is cut through
+### Composing rooms — no modes, the drag decides
+- **Drag a room NEAR another**: it snaps flush against it. If both
+  rooms have `auto_doorway` on (the default), a doorway is cut through
   the shared wall automatically. Chain rooms into whole buildings by
   just dragging them next to each other. `auto_doorway_width/height`
   and `snap_distance` tune it.
-- **Merge**: drag the room so it OVERLAPS another room — it merges into
-  it, becoming one large irregular space (L-shapes, T-shapes). The
-  shared walls vanish; the merged room contributes its footprint to the
-  host room's geometry.
-- **Snap Only**: snaps flush like the default but keeps the shared wall
-  solid — for when two rooms should touch without a connecting door.
+- **`auto_doorway` off**: still snaps flush, but the shared wall stays
+  solid — two rooms touching without a connecting door.
+- **Push a room DEEPER than flush** (more than `merge_overlap` meters,
+  default 1.5): the rooms MERGE into one large irregular space
+  (L-shapes, T-shapes). Shared walls vanish automatically; pull the
+  room back out and they split apart again.
 
 ### Doorway — doors and windows
 Add a **Doorway** as a CHILD of the Room and drag it INTO a wall —

@@ -73,6 +73,49 @@ func _process(delta: float) -> void:
 	else:
 		f1_held_time = 0.0
 
+
+func _unhandled_input(event: InputEvent) -> void:
+	# F10: free-roam debug camera toggle (works in any scene, no node needed)
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F10:
+		toggle_free_roam_camera()
+		get_viewport().set_input_as_handled()
+
+
+# === FREE ROAM DEBUG CAMERA (F10) ===
+
+var _free_roam_cam: CutsceneCamera = null
+
+func toggle_free_roam_camera() -> void:
+	"""Detach a fly camera from the current view (F10). Fly with WASD/QE,
+	Shift = fast, scroll = speed, P prints the pose for cutscene authoring.
+	F10 again returns to gameplay. The player is frozen while flying."""
+	if _free_roam_cam and is_instance_valid(_free_roam_cam):
+		# Back to gameplay
+		_free_roam_cam.deactivate(0.0)
+		_free_roam_cam.queue_free()
+		_free_roam_cam = null
+		if player:
+			player.process_mode = Node.PROCESS_MODE_INHERIT
+		print("GameManager: free roam OFF")
+		return
+	var scene = get_tree().current_scene
+	if scene == null:
+		return
+	var from_cam := get_viewport().get_camera_3d()
+	_free_roam_cam = CutsceneCamera.new()
+	_free_roam_cam.name = "FreeRoamCamera"
+	_free_roam_cam.reports_to_cutscene_manager = false
+	_free_roam_cam.default_blend_time = 0.0
+	scene.add_child(_free_roam_cam)
+	if from_cam:
+		_free_roam_cam.global_transform = from_cam.global_transform
+		_free_roam_cam.fov = from_cam.fov
+	_free_roam_cam.activate(0.0)
+	# Freeze the player so nothing walks off while you're framing shots
+	if player:
+		player.process_mode = Node.PROCESS_MODE_DISABLED
+	print("GameManager: free roam ON - WASD/QE fly, Shift fast, scroll speed, P prints pose, F10 exits")
+
 func find_player():
 	var players = get_tree().get_nodes_in_group("Player")
 	if players.size() > 0:
