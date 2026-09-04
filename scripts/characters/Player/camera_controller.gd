@@ -33,7 +33,7 @@ extends Node3D
 @export_group("Framing")
 ## How far behind the player the camera wants to sit. Change it live in
 ## the Inspector (runtime too) - the spring arm follows this value.
-@export var camera_distance: float = 14.0:
+@export var camera_distance: float = 12.6:
 	set(v):
 		camera_distance = v
 		if spring_arm:

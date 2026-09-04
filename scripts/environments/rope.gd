@@ -75,6 +75,14 @@ func _process(_delta):
 	else:
 		attached_player = null
 		_draw_rope_to(global_position + Vector3.DOWN * rope_length)
+		# body_entered only fires on ENTRY - someone already standing inside
+		# the grab zone (ground grabs!) would never trigger it. Poll while
+		# unoccupied so standing at a rope grabs it too.
+		if grab_area and grab_area.monitoring:
+			for b in grab_area.get_overlapping_bodies():
+				if b.is_in_group("Player"):
+					_on_body_entered(b)
+					break
 
 func _draw_rope_to(world_point: Vector3):
 	if not rope_visual or not is_inside_tree():
@@ -106,15 +114,19 @@ func _on_body_entered(body: Node3D):
 	if body.has_meta("rope_regrab_until") and Time.get_ticks_msec() < body.get_meta("rope_regrab_until"):
 		return
 	
-	# Only grab while airborne
-	if body.is_on_floor():
-		return
-	
 	var sm = body.get_node_or_null("StateMachine")
 	if not sm:
 		return
 	var state_name = sm.current_state.get_script().get_global_name() if sm.current_state else ""
-	if not state_name in ["JumpingState", "FallingState", "DoubleJumpState", "WallJumpingState", "GrappleHookState"]:
+	var grounded: bool = body.is_on_floor()
+	if grounded:
+		# GROUND GRAB: walking into a rope grabs it too - hop the player up a
+		# touch first so the swing starts clean instead of dragging the floor.
+		if not state_name in ["IdleState", "WalkingState", "RunningState"]:
+			return
+		body.global_position.y += 0.6
+		body.velocity.y = maxf(body.velocity.y, 2.5)
+	elif not state_name in ["JumpingState", "FallingState", "DoubleJumpState", "WallJumpingState", "GrappleHookState"]:
 		return
 	
 	var rope_state = sm.states.get("ropeswingstate")

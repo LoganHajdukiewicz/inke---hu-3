@@ -15,6 +15,8 @@ class_name SpinAttackState
 # Internal state
 var spin_timer: float = 0.0
 var is_spinning: bool = false
+var _started_airborne: bool = false
+var _spin_start_rotation: float = 0.0
 var hit_enemies: Array = []  # Track hit enemies to avoid multiple hits
 var spin_hitbox: Area3D
 
@@ -26,6 +28,7 @@ func enter():
 	# Reset state
 	spin_timer = 0.0
 	is_spinning = true
+	_started_airborne = not player.is_on_floor()
 	hit_enemies.clear()
 	
 	# Only apply upward force if IN THE AIR
@@ -102,8 +105,8 @@ func start_spin_animation():
 	spin_tween = create_tween()
 	spin_tween.set_loops()
 	
-	var current_rotation = player.rotation.y
-	spin_tween.tween_property(player, "rotation:y", current_rotation + TAU, spin_duration)
+	_spin_start_rotation = player.rotation.y
+	spin_tween.tween_property(player, "rotation:y", _spin_start_rotation + TAU, spin_duration)
 
 func physics_update(delta: float):
 	spin_timer += delta
@@ -154,8 +157,10 @@ func physics_update(delta: float):
 	
 	player.move_and_slide()
 	
-	# Check for landing - exit immediately when touching ground
-	if player.is_on_floor() and spin_timer > 0.05:  # Very brief ground time before exit
+	# Landing cancel is for AIR spins only. Ground spins run their full
+	# duration - the early exit here was cutting the 360-degree turn short
+	# (partial turn on the ground).
+	if _started_airborne and player.is_on_floor() and spin_timer > 0.05:
 		exit_spin()
 		return
 
@@ -237,6 +242,12 @@ func exit_spin():
 		change_to("FallingState")
 
 func exit():
+	
+	# Finish the turn: TAU is a full circle, so snapping to start+TAU keeps
+	# the facing identical while guaranteeing the mesh never freezes
+	# mid-rotation if the state is cancelled early (jump/dash cancels).
+	if spin_tween and is_instance_valid(spin_tween) and spin_tween.is_running():
+		player.rotation.y = _spin_start_rotation + TAU
 	
 	# Clean up
 	is_spinning = false

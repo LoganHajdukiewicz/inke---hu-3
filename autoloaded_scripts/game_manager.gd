@@ -57,6 +57,11 @@ signal wisp_collected_signal(collected: int, total: int)
 signal all_wisps_collected()
 
 func _ready():
+	# ALWAYS: the free-roam camera toggle must work even while the tree is
+	# paused (dialogue pauses the game - that's exactly when you want to
+	# frame dialogue shots). Default INHERIT meant F10/F6 was dead during
+	# dialogue and pause - 'F10 does nothing'.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	find_player()
 	
 	if player and player.has_method("get_hu3_companion"):
@@ -74,10 +79,12 @@ func _process(delta: float) -> void:
 		f1_held_time = 0.0
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	# F10 or F6: free-roam debug camera toggle (works in any scene, no node
 	# needed). F6 exists because on many laptops F10 is a MEDIA key (mute)
-	# unless Fn is held - 'F10 does nothing' was the OS eating the key.
+	# unless Fn is held. _input (not _unhandled_input) so no UI/dialogue
+	# box can swallow the key first, and PROCESS_MODE_ALWAYS (see _ready)
+	# so it works while the game is paused (e.g. during dialogue).
 	if event is InputEventKey and event.pressed and not event.echo:
 		var kc: int = event.keycode
 		var pkc: int = event.physical_keycode
@@ -111,6 +118,8 @@ func toggle_free_roam_camera() -> void:
 	_free_roam_cam.name = "FreeRoamCamera"
 	_free_roam_cam.reports_to_cutscene_manager = false
 	_free_roam_cam.default_blend_time = 0.0
+	# Fly controls must run even while the tree is paused (dialogue!)
+	_free_roam_cam.process_mode = Node.PROCESS_MODE_ALWAYS
 	scene.add_child(_free_roam_cam)
 	if from_cam:
 		_free_roam_cam.global_transform = from_cam.global_transform

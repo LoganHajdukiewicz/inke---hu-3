@@ -151,9 +151,8 @@ func perform_spin_attack():
 	can_attack = false
 	attack_timer = spin_attack_cooldown
 	
-	# Spin swing sound - slightly lower pitch than the light attack
-	var snd = attack_sound if attack_sound else Sfx.attack_whoosh()
-	Sfx.play_3d(player, snd, player.global_position, attack_volume_db, 0.85)
+	# NOTE: no swing sound here - the hit sound only plays when the spin
+	# actually CONNECTS (see SpinAttackState.hit_enemy).
 	
 	# Transition to spin attack state
 	state_machine.change_state("SpinAttackState")
@@ -175,9 +174,11 @@ func perform_attack(_is_heavy: bool):
 	attack_timer = cooldown
 	is_attacking = true
 	
-	# Swing sound (Inspector slot overrides the built-in default)
-	var snd = attack_sound if attack_sound else Sfx.attack_whoosh()
-	Sfx.play_3d(player, snd, player.global_position, attack_volume_db)
+	# NOTE: no sound here. The hit sound plays ONLY when something is
+	# actually hit (end of check_attack_collisions). Playing it at swing
+	# start meant (a) whiffs made the hit sound and (b) the attack action
+	# is bound to mouse buttons, so the click that focuses the window on
+	# level load fired a phantom 'hit' sound every time.
 	
 	# Update hitbox size for this attack (sideways capsule = wide arc)
 	var collision_shape = attack_hitbox.get_child(0) as CollisionShape3D
@@ -272,6 +273,11 @@ func perform_attack(_is_heavy: bool):
 					parent.on_hit()
 				damaged_entities.append(parent)
 	
+	
+	# Hit sound ONLY on connect - whiffs are silent
+	if damaged_entities.size() > 0:
+		var snd = attack_sound if attack_sound else Sfx.attack_whoosh()
+		Sfx.play_3d(player, snd, player.global_position, attack_volume_db)
 	
 	# Disable hitbox after attack
 	attack_hitbox.monitoring = false

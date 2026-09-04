@@ -144,10 +144,19 @@ func update_jump_shadow(delta: float = 1.0 / 60.0):
 	var closest_normal = Vector3.UP
 	var found_ground = false
 	
-	# Find the closest collision point from all raycasts
+	# Find the closest collision point from all raycasts.
+	# WORLD-SPACE DOWN: the rays are children of the player, so their local
+	# -Y target tilts WITH her - on swing bars (body angled) the rays fired
+	# sideways and the shadow shot off wildly. Overwriting the whole global
+	# transform with an IDENTITY basis makes local -Y = world -Y no matter
+	# how the player is rotated.
+	var i := 0
 	for raycast in shadow_raycasts:
-		raycast.global_position = ray_start
+		var angle = (i / float(raycast_count)) * TAU
+		var ring_offset := Vector3(cos(angle) * raycast_radius, 0, sin(angle) * raycast_radius)
+		raycast.global_transform = Transform3D(Basis.IDENTITY, ray_start + ring_offset)
 		raycast.force_raycast_update()
+		i += 1
 		
 		if raycast.is_colliding():
 			var hit_point = raycast.get_collision_point()

@@ -549,6 +549,20 @@ func reset_landing_puff_tracker():
 	_puff_was_airborne = false
 	_air_min_vy = 0.0
 
+func _land_puff_color() -> Color:
+	"""Dust tint depends on what we landed on: Terrain = dirt brown, with
+	~20% of the puffs grass green. Everything else keeps the pale dust."""
+	var space_state = get_world_3d().direct_space_state
+	var q = PhysicsRayQueryParameters3D.create(global_position + Vector3(0, 0.3, 0), global_position + Vector3(0, -2.0, 0))
+	q.collision_mask = 1
+	q.exclude = [self]
+	var hit = space_state.intersect_ray(q)
+	if hit and hit.collider is Terrain:
+		if randf() < 0.2:
+			return Color(0.38, 0.52, 0.24, 0.75)   # grass green (20%)
+		return Color(0.48, 0.36, 0.24, 0.75)       # dirt brown (80%)
+	return Color(0.9, 0.88, 0.82, 0.75)            # default pale dust
+
 func spawn_land_puff(strength: float = 1.0):
 	"""Little ring of dust balls that scatter outward and fade."""
 	var parent = get_parent()
@@ -565,7 +579,7 @@ func spawn_land_puff(strength: float = 1.0):
 		sphere.rings = 4
 		puff.mesh = sphere
 		var mat = StandardMaterial3D.new()
-		mat.albedo_color = Color(0.9, 0.88, 0.82, 0.75)
+		mat.albedo_color = _land_puff_color()   # per-puff: terrain = 80/20 dirt/grass
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		puff.material_override = mat

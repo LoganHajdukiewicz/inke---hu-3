@@ -295,23 +295,15 @@ func _on_area_entered(area: Area3D):
 			start_collection_cutscene(player_node)
 
 func start_collection_cutscene(player_node: CharacterBody3D):
-	"""Start the collection cutscene"""
+	"""Instant collect (the mini cutscene is postponed - won't make demo
+	day). No movement freeze, no wait: grab it and keep moving. A small
+	FOV punch still sells the pickup."""
 	if collected or is_playing_cutscene:
 		return
 	
 	player = player_node
-	is_playing_cutscene = true
-	cutscene_timer = 0.0
-	
-	
 	cutscene_started.emit(self)
-	
-	if player and player.has_method("set_movement_enabled"):
-		player.set_movement_enabled(false)
-	
 	apply_cutscene_camera_effects()
-	
-	await get_tree().create_timer(collection_delay).timeout
 	collect_cred()
 
 func apply_cutscene_camera_effects():

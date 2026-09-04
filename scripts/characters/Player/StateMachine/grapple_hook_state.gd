@@ -38,10 +38,10 @@ var rope_line: ImmediateMesh = null
 var rope_mesh_instance: MeshInstance3D = null
 
 func enter():
-	# Grappling refreshes your double jump (same as rails/bars/ropes) -
-	# air traversal chains stay alive through a grapple.
-	player.can_double_jump = true
-	player.has_double_jumped = false
+	# NOTE: the double-jump refresh happens ONLY when a grapple actually
+	# CONNECTS (swing/pull/enemy branches below). Refreshing it here,
+	# before target checks, let players alternate grapple+jump on empty
+	# air for infinite height - a whiffed grapple must refresh nothing.
 	
 	# Reset enemy grapple state
 	has_attacked_enemy = false
@@ -92,6 +92,9 @@ func enter():
 			grapple_mode = "pull"
 			# Start pulling immediately
 			player.velocity = Vector3.ZERO
+			# Connected: pull grapples refresh the double jump too
+			player.can_double_jump = true
+			player.has_double_jumped = false
 	else:
 		# Nothing valid to grapple
 		if player.is_on_floor():
