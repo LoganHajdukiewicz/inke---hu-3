@@ -28,7 +28,7 @@ enum RoomMode {
 
 @export_group("Shape")
 ## Interior space: width (X), wall height (Y), depth (Z).
-@export var interior_size: Vector3 = Vector3(10, 4, 8):
+@export var interior_size: Vector3 = Vector3(50, 30, 50):
 	set(v): interior_size = v; _request_rebuild(); _poke_sibling_rooms()
 @export var wall_thickness: float = 0.3:
 	set(v): wall_thickness = v; _request_rebuild()
