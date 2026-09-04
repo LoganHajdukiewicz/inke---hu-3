@@ -104,6 +104,13 @@ func setup_raycasts():
 		var angle = (i / float(raycast_count)) * TAU
 		var raycast = RayCast3D.new()
 		raycast.name = "ShadowRaycast_%d" % i
+		# TOP LEVEL: the ray's transform is WORLD space - it never inherits
+		# the player's rotation/scale. Two bugs die here:
+		#  - tilted player (swing bars) can't tilt the rays
+		#  - assigning global_transform to a child needs the PARENT's inverse;
+		#    when a scale-punch tween makes the player's scale 0 for a frame,
+		#    that inverse is impossible -> 'invert: det == 0' error spam.
+		raycast.top_level = true
 		raycast.target_position = Vector3(0, -shadow_max_distance, 0)
 		raycast.collision_mask = 1
 		raycast.enabled = true
@@ -144,12 +151,11 @@ func update_jump_shadow(delta: float = 1.0 / 60.0):
 	var closest_normal = Vector3.UP
 	var found_ground = false
 	
-	# Find the closest collision point from all raycasts.
-	# WORLD-SPACE DOWN: the rays are children of the player, so their local
-	# -Y target tilts WITH her - on swing bars (body angled) the rays fired
-	# sideways and the shadow shot off wildly. Overwriting the whole global
-	# transform with an IDENTITY basis makes local -Y = world -Y no matter
-	# how the player is rotated.
+	# The rays are top_level (world-space): identity basis = straight down
+	# regardless of how the player is tilted (swing bars). Ring rays help
+	# catch ledge edges, but only their VERTICAL drop competes for closest -
+	# comparing full 3D distance made the winner hop between ring points
+	# 0.5m apart as you moved (shadow jitter).
 	var i := 0
 	for raycast in shadow_raycasts:
 		var angle = (i / float(raycast_count)) * TAU
@@ -160,10 +166,10 @@ func update_jump_shadow(delta: float = 1.0 / 60.0):
 		
 		if raycast.is_colliding():
 			var hit_point = raycast.get_collision_point()
-			var distance = ray_start.distance_to(hit_point)
+			var drop = ray_start.y - hit_point.y   # vertical only (see above)
 			
-			if distance < closest_distance:
-				closest_distance = distance
+			if drop < closest_distance:
+				closest_distance = drop
 				closest_point = hit_point
 				closest_normal = raycast.get_collision_normal()
 				found_ground = true
@@ -176,9 +182,12 @@ func update_jump_shadow(delta: float = 1.0 / 60.0):
 		found_ground = true
 	
 	if found_ground:
-		# Position decal slightly above surface to avoid z-fighting
+		# Position decal slightly above surface to avoid z-fighting.
+		# XZ is pinned to the PLAYER (the shadow marks where SHE lands) -
+		# only the height comes from the winning ray. Using the ray's own
+		# XZ made the shadow jump between ring points (jitter).
 		var shadow_offset = 0.05
-		var target_pos = closest_point + closest_normal * shadow_offset
+		var target_pos = Vector3(player.global_position.x, closest_point.y, player.global_position.z) + closest_normal * shadow_offset
 		
 		# Calculate size based on distance
 		var scale_factor = 1.0

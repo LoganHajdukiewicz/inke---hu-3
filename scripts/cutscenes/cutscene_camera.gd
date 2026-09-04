@@ -267,7 +267,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_speed_mult = clampf(_speed_mult / 1.2, 0.1, 20.0)
 			get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_P:
-		print_pose()
+		save_shot()
 		get_viewport().set_input_as_handled()
 
 
@@ -278,3 +278,86 @@ func print_pose() -> void:
 	print("  position = Vector3(%.3f, %.3f, %.3f)" % [global_position.x, global_position.y, global_position.z])
 	print("  rotation_degrees = Vector3(%.2f, %.2f, %.2f)" % [rd.x, rd.y, rd.z])
 	print("  fov = %.1f" % fov)
+
+
+func save_shot() -> void:
+	"""P in fly mode: SAVE this pose as a pre-scripted cinematic shot.
+	Printing alone 'did nothing' visible in-game, so this now:
+	  1. appends a posed CutsceneCamera to res://cinematic_shots/shots.tscn
+	     (open that scene in the editor, copy shots into your levels or
+	     into custom_camera_angles)
+	  2. copies an Inspector-ready snippet to the clipboard
+	  3. shows an on-screen toast so you KNOW it worked
+	(res:// is writable when running from the editor - shots persist.)"""
+	print_pose()
+	var rd := rotation_degrees
+	var snippet := "position = Vector3(%.3f, %.3f, %.3f)\nrotation_degrees = Vector3(%.2f, %.2f, %.2f)\nfov = %.1f" % [
+		global_position.x, global_position.y, global_position.z, rd.x, rd.y, rd.z, fov]
+	DisplayServer.clipboard_set(snippet)
+	
+	var shot_name := _persist_shot()
+	var msg := "SHOT SAVED"
+	if shot_name != "":
+		msg += ": %s -> res://cinematic_shots/shots.tscn" % shot_name
+	msg += "   (pose copied to clipboard)"
+	_toast(msg)
+
+
+func _persist_shot() -> String:
+	"""Append a CutsceneCamera with this pose into the shots library scene.
+	Returns the new shot's name, or '' on failure (exported builds)."""
+	var dir_path := "res://cinematic_shots"
+	var file_path := dir_path + "/shots.tscn"
+	DirAccess.make_dir_recursive_absolute(dir_path)
+	var root: Node3D
+	if ResourceLoader.exists(file_path):
+		var packed: PackedScene = ResourceLoader.load(file_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE)
+		root = packed.instantiate() if packed else Node3D.new()
+	else:
+		root = Node3D.new()
+	root.name = "CinematicShots"
+	
+	var shot := CutsceneCamera.new()
+	var level: String = String(get_tree().current_scene.name) if get_tree().current_scene else "scene"
+	var idx := root.get_child_count() + 1
+	shot.name = "%s_Shot%d" % [level, idx]
+	root.add_child(shot)
+	shot.owner = root
+	shot.transform = Transform3D(Basis.from_euler(rotation), global_position)
+	shot.fov = fov
+	
+	# Existing children must be owned by root or pack() drops them
+	for c in root.get_children():
+		if c.owner != root:
+			c.owner = root
+	
+	var packed_out := PackedScene.new()
+	if packed_out.pack(root) != OK:
+		root.free()
+		return ""
+	var err := ResourceSaver.save(packed_out, file_path)
+	var out_name := String(shot.name)
+	root.free()
+	return out_name if err == OK else ""
+
+
+func _toast(text: String) -> void:
+	"""Brief on-screen confirmation (bottom of screen, fades out)."""
+	var layer := CanvasLayer.new()
+	layer.layer = 95
+	add_child(layer)
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_color_override("font_color", Color(0.6, 1.0, 0.6))
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.position.y = -60
+	layer.add_child(label)
+	var tw := create_tween()
+	tw.tween_interval(2.2)
+	tw.tween_property(label, "modulate:a", 0.0, 0.8)
+	tw.tween_callback(layer.queue_free)

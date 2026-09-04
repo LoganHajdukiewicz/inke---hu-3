@@ -28,22 +28,26 @@ Controls while flying:
 | `Shift` | fly fast |
 | Mouse | look |
 | Scroll wheel | change fly speed |
-| **`P`** | **print the current pose to the Output panel** |
+| **`P`** | **SAVE the current pose as a shot** (see below) |
 | `F10` / `F6` | exit back to gameplay |
 
 The player is frozen while you fly, so nothing wanders off.
 
-`P` prints something like:
+### What P actually does (three things at once)
 
-```
-=== CutsceneCamera pose ===
-  position = Vector3(24.1, 6.3, -18.7)
-  rotation_degrees = Vector3(-12.5, 141.0, 0.0)
-  fov = 62.0
-```
+1. **Saves the shot into `res://cinematic_shots/shots.tscn`** - a
+   library scene of posed CutsceneCameras, named like
+   `greybox_Shot1`, `greybox_Shot2`... Open that scene in the editor
+   and **copy/paste the shot nodes into your levels** (or drag them
+   into `custom_camera_angles`). This is the pre-scripting workflow:
+   fly, press P, done - the pose is on disk.
+2. **Copies an Inspector-ready snippet to the clipboard** - paste it
+   into any Node3D's transform properties if you prefer that route.
+3. **Shows a green "SHOT SAVED" toast** at the bottom of the screen so
+   you know it worked (it also prints to the Output panel).
 
-Copy those numbers into any node's Inspector (see below) and you've
-saved the shot forever.
+Note: saving to `res://` works when running from the editor (the
+normal case). In an exported build only the clipboard/print happen.
 
 ---
 
