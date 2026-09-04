@@ -3,10 +3,10 @@ extends Area3D
 class_name Key
 ## A collectable key. Place it ANYWHERE in the world - on a shelf, at the
 ## end of a platforming run, or as the loot of a GroundPoundMound (set the
-## mound's collectable_scene to key.tscn). Opens LockedDoors that share
+## mound's collectable_scene to key.tscn). Opens locked Doors that share
 ## its key_id.
 
-## Which locks this opens. A LockedDoor with the same id unlocks.
+## Which locks this opens. A locked Door with the same id unlocks.
 @export var key_id: String = "key"
 ## Key color (also tints the pickup flash). Match the door for readability.
 @export var key_color: Color = Color(1.0, 0.82, 0.25):

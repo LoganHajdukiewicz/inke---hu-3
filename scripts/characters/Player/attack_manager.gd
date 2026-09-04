@@ -82,6 +82,7 @@ func setup_attack_hitbox():
 	vis_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	vis_mat.no_depth_test = true          # Readable even inside walls/enemies
 	_hitbox_vis.material_override = vis_mat
+	_hitbox_vis.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_hitbox_vis.visible = false
 	attack_hitbox.add_child(_hitbox_vis)
 	

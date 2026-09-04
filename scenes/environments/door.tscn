@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://lockeddoor001"]
+
+[ext_resource type="Script" path="res://scripts/environments/door.gd" id="1"]
+
+[node name="Door" type="StaticBody3D"]
+script = ExtResource("1")

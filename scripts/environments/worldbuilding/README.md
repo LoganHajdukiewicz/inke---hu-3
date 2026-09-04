@@ -56,14 +56,22 @@ there's a hole.
 - the cut auto-rotates toward the nearest wall; rotate the Doorway
   node yourself to override (e.g. diagonal walls)
 
-### LockedDoor + Key
-Drop a **LockedDoor** (scenes/environments/locked_door.tscn) into any
-doorway — it blocks until the player brings a **Key**
-(scenes/items/Collectibles/key.tscn) with a matching `key_id`. Keys
-are placeable anywhere in the world, including as GroundPoundMound
-loot (set the mound's `collectable_scene` to key.tscn). Doors can
-slide up/down or vanish, and `consume_key` controls reusability.
-HU-3 never picks up keys.
+### Doors, locks and keys
+Every Doorway spawns an interactable **Door** by default (`has_door`
+untick = open archway; windows never get doors). Walk up and press
+**E** to open/close. Doors are **unlocked by default** — tick
+`door_locked` on the Doorway (or `locked` on a hand-placed Door) to
+require a **Key** (scenes/items/Collectibles/key.tscn) with a
+matching `key_id`. Keys are placeable anywhere, including as
+GroundPoundMound loot (set the mound's `collectable_scene` to
+key.tscn). Open styles: swing (default), slide up/down, vanish;
+`consume_key` controls reusability. HU-3 never picks up keys.
+
+### Ceiling lights
+Rooms spawn ceiling lights automatically (`has_lights`, default on;
+`light_count` for how many). New lights are laid out in a grid, but
+drag any **RoomLight** wherever you want — they never get
+repositioned. Color/energy/range/shadows per light or room-wide.
 
 ### Buildings
 Drag Rooms next to each other (they snap + auto-doorway by default).

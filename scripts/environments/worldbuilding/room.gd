@@ -58,6 +58,25 @@ enum RoomMode {
 @export var ceiling_color: Color = Color(0.85, 0.83, 0.78):
 	set(v): ceiling_color = v; _request_rebuild()
 
+@export_group("Lights")
+## Spawn ceiling lights automatically. Drag them anywhere afterwards -
+## they keep their position (only NEW lights get auto-placed).
+@export var has_lights: bool = true:
+	set(v): has_lights = v; _refresh_lights()
+## How many auto lights to keep in this room.
+@export_range(1, 24, 1) var light_count: int = 2:
+	set(v): light_count = v; _refresh_lights()
+@export var light_color: Color = Color(1.0, 0.95, 0.85):
+	set(v):
+		light_color = v
+		for l in _auto_lights():
+			l.light_color = v
+@export var light_energy: float = 1.6:
+	set(v):
+		light_energy = v
+		for l in _auto_lights():
+			l.light_energy = v
+
 var _csg: CSGCombiner3D
 var _rebuild_queued := false
 var _snapping := false   # Re-entry guard while we move ourselves
@@ -66,8 +85,51 @@ var _snapping := false   # Re-entry guard while we move ourselves
 func _ready():
 	set_notify_transform(true)
 	_rebuild()
+	_refresh_lights()
 	# Existing rooms must re-cut their side of shared doorways / merges
 	_poke_sibling_rooms()
+
+
+# ---------------------------------------------------------------------------
+# Ceiling lights
+# ---------------------------------------------------------------------------
+
+func _auto_lights() -> Array:
+	var out: Array = []
+	for c in get_children():
+		if c is RoomLight and c.has_meta("auto_light"):
+			out.append(c)
+	return out
+
+
+func _refresh_lights() -> void:
+	if not is_inside_tree():
+		return
+	var lights := _auto_lights()
+	var wanted: int = light_count if has_lights else 0
+	# Too many: remove from the end (hand-added RoomLights are never touched)
+	while lights.size() > wanted:
+		var l = lights.pop_back()
+		l.queue_free()
+	# Too few: spawn new ones spread across the ceiling in a grid. Existing
+	# lights are NEVER repositioned - wherever you dragged them, they stay.
+	if lights.size() < wanted:
+		var cols := int(ceilf(sqrt(float(wanted))))
+		var rows := int(ceilf(float(wanted) / cols))
+		for i in range(lights.size(), wanted):
+			var l := RoomLight.new()
+			l.name = "RoomLight%d" % (i + 1)
+			l.set_meta("auto_light", true)
+			l.light_color = light_color
+			l.light_energy = light_energy
+			var col := i % cols
+			var row := i / cols
+			var fx := (col + 1.0) / (cols + 1.0) - 0.5
+			var fz := (row + 1.0) / (rows + 1.0) - 0.5
+			l.position = Vector3(fx * interior_size.x, interior_size.y - 0.05, fz * interior_size.z)
+			add_child(l)
+			if Engine.is_editor_hint() and get_tree() and get_tree().edited_scene_root:
+				l.owner = get_tree().edited_scene_root
 
 
 func _notification(what: int) -> void:
@@ -180,6 +242,9 @@ func _rebuild():
 		_add_doorway_cuts(r)
 	for r in group:
 		_add_auto_doorways(r, group)
+	# Colored floor/ceiling faces go in LAST so no cut erases them
+	for r in group:
+		_add_interior_liners(r)
 
 
 func _find_merge_host() -> Room:
@@ -229,7 +294,38 @@ func _add_interior_cut(r: Room) -> void:
 	var bottom: float = 0.0 if r.has_floor else -r.floor_thickness - 1.0
 	cut.size = Vector3(w, top - bottom, d)
 	cut.position = off + Vector3(0, (top + bottom) * 0.5, 0)
+	# CSG rule: faces exposed by a subtraction take the SUBTRACTING brush's
+	# material - leaving this unset is why interiors rendered plain grey.
+	cut.material = _mat(r.wall_color)
 	_csg.add_child(cut)
+
+
+func _add_interior_liners(r: Room) -> void:
+	"""Thin colored panels laid over the interior floor and under the
+	ceiling so floor_color / ceiling_color show INSIDE the room (the
+	interior cut paints everything wall_color otherwise). Added after all
+	subtractions so they survive them."""
+	var w: float = r.interior_size.x; var h: float = r.interior_size.y; var d: float = r.interior_size.z
+	var off := _room_offset(r)
+	if r.has_floor:
+		var fl := CSGBox3D.new()
+		fl.size = Vector3(w, 0.04, d)
+		fl.position = off + Vector3(0, 0.02, 0)
+		fl.material = _mat(r.floor_color)
+		_csg.add_child(fl)
+	if r.has_ceiling:
+		var cl := CSGBox3D.new()
+		cl.size = Vector3(w, 0.04, d)
+		cl.position = off + Vector3(0, h - 0.02, 0)
+		cl.material = _mat(r.ceiling_color)
+		_csg.add_child(cl)
+
+
+func _mat(c: Color) -> StandardMaterial3D:
+	var m := StandardMaterial3D.new()
+	m.albedo_color = c
+	m.roughness = 0.95
+	return m
 
 
 func _add_doorway_cuts(r: Room) -> void:
@@ -248,6 +344,7 @@ func _add_doorway_cuts(r: Room) -> void:
 			cut.size = Vector3(c.width, c.height, depth)
 			cut.position = off + Vector3(c.position.x, c.sill_height + c.height * 0.5, c.position.z)
 			cut.rotation.y = rot
+			cut.material = _mat(r.wall_color)   # Colored jambs, not grey
 			_csg.add_child(cut)
 
 
@@ -288,4 +385,5 @@ func _add_auto_doorways(r: Room, group: Array) -> void:
 		if cut:
 			cut.operation = CSGShape3D.OPERATION_SUBTRACTION
 			cut.position += _room_offset(r)
+			cut.material = _mat(r.wall_color)   # Colored jambs, not grey
 			_csg.add_child(cut)

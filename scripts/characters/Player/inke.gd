@@ -227,6 +227,10 @@ func _ready():
 	checkpoint_manager = get_node("/root/CheckpointManager")
 	paint_manager = get_node("/root/PaintManager")
 	
+	# Inke casts NO regular shadow - her only shadow is the round jump
+	# shadow decal under her (JumpShadowManager), which reads much better.
+	_disable_mesh_shadows(self)
+	
 	$CameraController.initialize_camera()
 	if DialogueManager:
 		DialogueManager.dialogue_ended.connect(_on_dialogue_ended)
@@ -340,6 +344,12 @@ func setup_damage_area():
 	# Connect signals
 	damage_area.body_entered.connect(_on_damage_body_entered)
 	damage_area.area_entered.connect(_on_damage_area_entered)
+
+func _disable_mesh_shadows(node: Node) -> void:
+	if node is GeometryInstance3D:
+		node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for child in node.get_children():
+		_disable_mesh_shadows(child)
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint() or state_machine == null:
