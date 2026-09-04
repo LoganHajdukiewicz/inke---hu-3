@@ -113,6 +113,31 @@ func _block_hit():
 	if blocks_taken >= block_stagger_hits:
 		_guard_break()
 
+func strip_shield():
+	"""The grapple hook rips the shield away entirely: the plate goes
+	flying and this enemy fights unshielded from now on. Called by
+	GrappleHookState when the player hooks us."""
+	if shield_mesh == null or not is_instance_valid(shield_mesh):
+		return
+	is_staggered = true            # No blocking anymore
+	stagger_timer = 999999.0       # Permanent: shield never comes back
+	blocks_taken = 0
+	# The plate tears off and tumbles away
+	var plate = shield_mesh
+	shield_mesh = null
+	var fly_dir = global_transform.basis.z + Vector3(randf_range(-0.4, 0.4), 1.2, 0)
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(plate, "global_position", plate.global_position + fly_dir.normalized() * 4.0, 0.6)\
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(plate, "rotation", Vector3(randf_range(2, 5), randf_range(2, 5), randf_range(2, 5)), 0.6)
+	tween.tween_property(plate, "scale", Vector3.ONE * 0.05, 0.6).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.chain().tween_callback(plate.queue_free)
+	# Startled hop
+	var hop = create_tween()
+	hop.tween_property(self, "scale", Vector3(0.9, 1.15, 0.9), 0.1)
+	hop.tween_property(self, "scale", Vector3.ONE, 0.15)
+
 func _guard_break():
 	"""Too many blocks: stagger, shield drops, enemy is vulnerable."""
 	is_staggered = true

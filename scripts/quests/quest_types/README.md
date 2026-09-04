@@ -58,3 +58,21 @@ variables on the handler are also safe.
 - `reach_location.gd` — instant-complete-if-already-done + one-shot event
 - `fetch_item.gd` — two-phase quest with a `try_turn_in` step
 - `_template.gd` — commented starter (survive N seconds)
+
+## Newer hooks
+
+- `tick(entry, delta)` — called every frame while the quest is active.
+  Use for custom clocks (see `defeat_timed.gd`'s streak window).
+- `notify_breakable_destroyed(entry, breakable)` — a crate/barrel was
+  smashed by the player (see `break_boxes.gd`).
+
+## Built-in types
+
+| file | what it does |
+|---|---|
+| collect_gears.gd | collect N gears (baseline snapshot) |
+| defeat_enemy.gd | kill N enemies, filtered by scene/boss/id |
+| defeat_timed.gd | kill N in one streak; clock starts on first kill, streak resets on timeout |
+| break_boxes.gd | smash N breakables; target_id filters by scene name ("barrel"...) |
+| reach_location.gd | touch a LocationFlag |
+| fetch_item.gd | grab a QuestItem, return to the giver |

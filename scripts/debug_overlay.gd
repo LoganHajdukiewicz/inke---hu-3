@@ -134,7 +134,7 @@ var current_friction_label    : String = "—"
 var frames_in_air             : int   = 0
 var frames_on_ground          : int   = 0
 
-# ── HU-3 tracking ─────────────────────────────────────────────
+# ── HU3 tracking ─────────────────────────────────────────────
 var hu3_distance_history: Array[float] = []
 const HU3_GRAPH_SAMPLES : int = 40
 
@@ -202,7 +202,7 @@ func _build_ui() -> void:
 	bg_panel.add_child(accent)
 
 	var title := Label.new()
-	title.text = "  ◈ INKE & HU-3 DEBUG  v5  [` toggle | wheel / D-pad ↑↓ scroll]"
+	title.text = "  ◈ INKE & HU3 DEBUG  v5  [` toggle | wheel / D-pad ↑↓ scroll]"
 	title.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
 	title.add_theme_font_size_override("font_size", 12)
 	title.position = Vector2(4, 6)
@@ -1135,7 +1135,7 @@ func _update_mid() -> void:
 	label_mid.text = txt
 
 # ═════════════════════════════════════════════════════════════
-#  RIGHT COLUMN — Player state · Upgrades · HU-3 · Paint · Economy · Checkpoint · Session · Anomalies
+#  RIGHT COLUMN — Player state · Upgrades · HU3 · Paint · Economy · Checkpoint · Session · Anomalies
 # ═════════════════════════════════════════════════════════════
 func _update_right() -> void:
 	var txt := ""
@@ -1185,7 +1185,7 @@ func _update_right() -> void:
 		txt += _row("Total",        C_VAL + "%d / 6" % game_manager.get_purchased_upgrades().size() + C_RESET)
 	txt += "\n"
 
-	txt += _header("◆ HU-3 COMPANION")
+	txt += _header("◆ HU3 COMPANION")
 	if hu3 and is_instance_valid(hu3):
 		var h3_pos  := hu3.global_position
 		var h3_vel  := hu3.velocity
@@ -1211,7 +1211,7 @@ func _update_right() -> void:
 		var is_grinding := last_state_name == "RailGrindingState"
 		txt += _row("Speed mult",   (C_WARN + "2.0x  (grind!)" if is_grinding else C_DIM + "1.0x") + C_RESET)
 	else:
-		txt += C_DANGER + "  HU-3 not in scene\n" + C_RESET
+		txt += C_DANGER + "  HU3 not in scene\n" + C_RESET
 	txt += "\n"
 
 	txt += _header("◆ PAINT SYSTEM")

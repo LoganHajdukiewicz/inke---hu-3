@@ -302,11 +302,11 @@ dialogue_file = "Congrats"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -378.734)
 spin_direction = 1
 
-[node name="HU-3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("3_e5bud")]
+[node name="HU3Intro" parent="Tutorial/Floors/Floor20" instance=ExtResource("3_e5bud")]
 transform = Transform3D(-4.37114e-08, 0, 1, -0.0269795, 0.999636, -1.17931e-09, -0.999636, -0.0269795, -4.36955e-08, -1.83482, -0.133738, -3.50394)
 
-[node name="DialogueTrigger" parent="Tutorial/Floors/Floor20/HU-3Intro" instance=ExtResource("11_dtrig")]
-dialogue_file = "HU-3-Intro"
+[node name="DialogueTrigger" parent="Tutorial/Floors/Floor20/HU3Intro" instance=ExtResource("11_dtrig")]
+dialogue_file = "HU3-Intro"
 
 [node name="Floor21" parent="Tutorial/Floors" instance=ExtResource("1_122qs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.60629, -402.151)

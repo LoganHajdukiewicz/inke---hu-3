@@ -181,10 +181,10 @@ target_position = Vector3(1.06, 0, 1.06)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 target_position = Vector3(-1.06, 0, 1.06)
 
-[node name="HU-3Boundary" type="Area3D" parent="." unique_id=957896764]
+[node name="HU3Boundary" type="Area3D" parent="." unique_id=957896764]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98123, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="HU-3Boundary" unique_id=1632300590]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HU3Boundary" unique_id=1632300590]
 shape = SubResource("SphereShape3D_04s0v")
 
 [node name="RailGrindArea" type="Area3D" parent="." unique_id=680159255]

@@ -30,7 +30,7 @@ var gear_collection_distance: float = 8.0
 var gear_collection_speed: float = 15.0
 var collected_gears: Array[Node] = []
 
-# === NAVIGATION / ANTI-STUCK (HU-3 is a FLYING robot - act like one) ===
+# === NAVIGATION / ANTI-STUCK (HU3 is a FLYING robot - act like one) ===
 var avoid_probe_distance: float = 2.2      # How far ahead to look for obstacles
 var avoid_lift_speed: float = 8.0          # Climb rate when something is in the way
 var stuck_time: float = 0.0                # How long we've been blocked while trying to move
@@ -85,7 +85,7 @@ func find_player():
 			smooth_follow_position = global_position
 			smooth_follow_velocity = Vector3.ZERO
 	else:
-		print("HU-3: No player found in scene!")
+		print("HU3: No player found in scene!")
 
 func _physics_process(delta: float):
 	if not player:
@@ -137,12 +137,12 @@ func _physics_process(delta: float):
 	_update_stuck_recovery(delta)
 
 func _apply_obstacle_avoidance(_delta: float):
-	"""HU-3 flies - when the path ahead is blocked, climb over it and slide
+	"""HU3 flies - when the path ahead is blocked, climb over it and slide
 	along the wall instead of face-planting into it.
 	
 	IMPORTANT: the whisker only probes HORIZONTALLY. Probing along the full
 	velocity meant that diving toward a gear on the ground "detected" the
-	floor as an obstacle and fired the climb boost - HU-3 would shake above
+	floor as an obstacle and fired the climb boost - HU3 would shake above
 	the gear forever and could never collect anything below head height.
 	Floors are not obstacles for a descending flyer; walls are."""
 	if velocity.length() < 0.5:
@@ -151,11 +151,11 @@ func _apply_obstacle_avoidance(_delta: float):
 	# ============================= README =================================
 	# THE WALL-SLIDE VIBRATION BUG (and how it was fixed)
 	#
-	# SYMPTOM: while the player wall slides (or climbs/hangs), HU-3
+	# SYMPTOM: while the player wall slides (or climbs/hangs), HU3
 	# vibrates violently up and down next to the wall.
 	#
 	# ROOT CAUSE - RUNAWAY MOMENTUM ON A VIRTUAL ANCHOR:
-	# HU-3 doesn't steer at the player directly; it chases a virtual point
+	# HU3 doesn't steer at the player directly; it chases a virtual point
 	# (smooth_follow_position) that integrates its own momentum
 	# (smooth_follow_velocity) with NO collision detection. The body is
 	# moved by move_and_slide, which walls DO stop. So next to a wall:
@@ -178,7 +178,7 @@ func _apply_obstacle_avoidance(_delta: float):
 	#      can never run away again.
 	#   b) This whisker is SKIPPED while the player is wall-attached
 	#      (_is_player_wall_attached: slide/climb/hang) - those states
-	#      already park HU-3 at a calm anchor 1.6m off the wall, and the
+	#      already park HU3 at a calm anchor 1.6m off the wall, and the
 	#      wall itself must not count as an obstacle to climb.
 	#
 	# RULE OF THUMB for any future vertical jitter: it's almost always two
@@ -319,13 +319,13 @@ func follow_player_smooth(delta: float):
 	
 	# Step 2: Calculate offsets using player's CURRENT world orientation.
 	# YAW ONLY: ignore the player's roll/pitch (shimmy wobble, climb lean,
-	# swing tilt...) - otherwise HU-3 jitters when the player's body tilts.
+	# swing tilt...) - otherwise HU3 jitters when the player's body tilts.
 	var yaw: float = player.rotation.y
 	var player_right = Vector3(cos(yaw), 0, -sin(yaw))
 	var player_forward = Vector3(-sin(yaw), 0, -cos(yaw))
 	
 	# While hanging/climbing the player is glued to a wall and repositioned
-	# directly every frame - park HU-3 OFF the wall (behind the player's back)
+	# directly every frame - park HU3 OFF the wall (behind the player's back)
 	# instead of chasing the twitchy side offset into the geometry.
 	if _is_player_wall_attached():
 		target_pos = player.global_position - player_forward * 1.6
@@ -382,7 +382,7 @@ func follow_player_smooth(delta: float):
 	# Update smooth follow position using velocity
 	smooth_follow_position += smooth_follow_velocity * delta
 	
-	# Set HU-3's actual velocity to move towards smooth_follow_position
+	# Set HU3's actual velocity to move towards smooth_follow_position
 	var to_smooth_pos = smooth_follow_position - global_position
 	var distance_to_smooth = to_smooth_pos.length()
 	
@@ -409,7 +409,7 @@ func follow_player_smooth(delta: float):
 
 func _is_player_wall_attached() -> bool:
 	"""True while the player is glued to geometry (ledge hang / wall climb):
-	these states reposition the player directly, so HU-3 uses a calmer
+	these states reposition the player directly, so HU3 uses a calmer
 	follow anchor to avoid jitter and wall clipping."""
 	if not player or not player.has_node("StateMachine"):
 		return false
@@ -447,7 +447,7 @@ func _steer_toward(target_pos: Vector3, delta: float) -> void:
 	else:
 		velocity = smooth_follow_velocity
 	
-	# Face the player while they climb/hang (HU-3 watches, doesn't spin)
+	# Face the player while they climb/hang (HU3 watches, doesn't spin)
 	var to_player = player.global_position - global_position
 	to_player.y = 0
 	if to_player.length() > 0.5:
@@ -479,8 +479,8 @@ func find_nearest_gear():
 			continue
 		
 		# Loot that just exploded out of a patch/box is locked - let the player
-		# SEE it before HU-3 vacuums it up. hu3_locked is the longer, separate
-		# HU-3-only timer (Inspector: GroundPoundMound.hu3_ignore_time).
+		# SEE it before HU3 vacuums it up. hu3_locked is the longer, separate
+		# HU3-only timer (Inspector: GroundPoundMound.hu3_ignore_time).
 		if gear.get("pickup_locked") or gear.get("hu3_locked"):
 			continue
 			
@@ -520,7 +520,7 @@ func move_to_gear(delta: float):
 		var target_basis = Basis.looking_at(flat_dir.normalized(), Vector3.UP)
 		global_transform.basis = global_transform.basis.orthonormalized().slerp(target_basis, delta * 5.0).orthonormalized()
 	
-	# Check if close enough to collect. HU-3's body physically can't reach
+	# Check if close enough to collect. HU3's body physically can't reach
 	# ground-level gear centers (its collider keeps its center ~0.5m up), so
 	# be generous vertically: close horizontally + within grabbing reach
 	# vertically counts as collected.
@@ -586,7 +586,7 @@ func _on_player_health_changed(_new_health: int, _max_health: int):
 	update_mouth_color()
 
 func setup_mouth_shader():
-	"""Setup wobbling line shader for HU-3's mouth"""
+	"""Setup wobbling line shader for HU3's mouth"""
 	if not mouth:
 		return
 	

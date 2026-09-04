@@ -16,6 +16,20 @@ class_name ClimbingEnemy
 @export var crawl_speed: float = 2.5
 ## Seconds between picking a new crawl direction.
 @export var crawl_interval: float = 2.0
+
+@export_group("Patrol Path")
+## Waypoints (in WALL-SURFACE space: x = along the wall, y = up the wall)
+## relative to where the crawler starts. Edit freely in the Inspector.
+## Default: 10 units left, then 10 right - a classic sentry sweep.
+@export var patrol_points: Array[Vector2] = [Vector2(-10, 0), Vector2(10, 0)]
+## Follow patrol_points instead of wandering randomly.
+@export var use_patrol: bool = true
+## Pause at each waypoint for this long.
+@export var patrol_wait: float = 0.4
+
+var _patrol_index: int = 0
+var _patrol_wait_left: float = 0.0
+var _patrol_origin: Vector2 = Vector2.ZERO
 ## How far from the wall's surface the body sits.
 @export var surface_offset: float = 0.55
 ## Chase the player along the wall when they're climbing near us?
@@ -71,6 +85,7 @@ func _snap_to_wall():
 	var rel = global_position - wall.global_position
 	_local_x = clampf(rel.dot(_wall_right), -_half_w, _half_w)
 	_local_y = clampf(rel.dot(_wall_up), -_half_h, _half_h)
+	_patrol_origin = Vector2(_local_x, _local_y)   # Patrol is relative to spawn
 	_apply_wall_position()
 
 func _apply_wall_position():
@@ -110,6 +125,26 @@ func _physics_process(delta: float) -> void:
 				speed = crawl_speed * 1.6
 			else:
 				target_dir = Vector2.ZERO
+	elif use_patrol and patrol_points.size() > 0:
+		# PATROL: walk the waypoint loop (wall-surface space, relative to
+		# the spawn point). Ping-pongs A->B->...->A forever.
+		if _patrol_wait_left > 0.0:
+			_patrol_wait_left -= delta
+			target_dir = Vector2.ZERO
+		else:
+			var goal = _patrol_origin + patrol_points[_patrol_index]
+			# Clamp to the wall face so waypoints bigger than the wall still
+			# work (the crawler patrols to the edge instead of pinning there)
+			goal.x = clampf(goal.x, -_half_w, _half_w)
+			goal.y = clampf(goal.y, -_half_h, _half_h)
+			var to_goal = goal - Vector2(_local_x, _local_y)
+			if to_goal.length() < 0.25:
+				_patrol_index = (_patrol_index + 1) % patrol_points.size()
+				_patrol_wait_left = patrol_wait
+				target_dir = Vector2.ZERO
+			else:
+				target_dir = to_goal.normalized()
+				_crawl_dir = target_dir
 	else:
 		_crawl_timer -= delta
 		if _crawl_timer <= 0.0:

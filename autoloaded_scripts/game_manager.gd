@@ -33,8 +33,8 @@ var player_max_health: int = BASE_MAX_HEALTH
 var player: CharacterBody3D = null
 var hu3_companion: CharacterBody3D = null
 
-# HU-3 Companion Scene
-var hu3_scene = preload("res://scenes/characters/Player/HU-3.tscn")
+# HU3 Companion Scene
+var hu3_scene = preload("res://scenes/characters/Player/HU3.tscn")
 
 # Quit Input
 var f1_held_time: float = 0.0
@@ -110,13 +110,13 @@ func apply_purchased_upgrades():
 		player_health = clamp(player_health, 0, player_max_health)
 		health_changed.emit(player_health, player_max_health)
 
-# === HU-3 COMPANION MANAGEMENT ===
+# === HU3 COMPANION MANAGEMENT ===
 
 func spawn_hu3_companion():
-	"""Spawn HU-3 companion robot"""
+	"""Spawn HU3 companion robot"""
 	# FIXED: Add safety checks to ensure player is valid and in scene tree
 	if not player or not is_instance_valid(player):
-		print("GameManager: Cannot spawn HU-3 - invalid player reference")
+		print("GameManager: Cannot spawn HU3 - invalid player reference")
 		return
 	
 	if not player.is_inside_tree():
@@ -133,7 +133,7 @@ func spawn_hu3_companion():
 		await get_tree().process_frame
 		
 		if not player or not is_instance_valid(player) or not player.is_inside_tree():
-			print("GameManager: Player became invalid during HU-3 spawn")
+			print("GameManager: Player became invalid during HU3 spawn")
 			if hu3_companion:
 				hu3_companion.queue_free()
 			hu3_companion = null
@@ -142,19 +142,28 @@ func spawn_hu3_companion():
 		# Add to scene FIRST, then position (global_position requires being inside the tree)
 		player.get_parent().add_child(hu3_companion)
 		
-		# Position HU-3 to the right and above player
-		hu3_companion.global_position = player.global_position + Vector3(1.5, 1.5, 1.0)
+		# Spawn just BEHIND the camera's view so HU3 appears to fly in from
+		# behind the player - much nicer than popping into existence on screen.
+		var spawn_pos = player.global_position + Vector3(0, 1.5, 0)
+		var cam := get_viewport().get_camera_3d()
+		if cam:
+			# 2.5m behind the camera position, along its backward axis
+			spawn_pos = cam.global_position + cam.global_transform.basis.z * 2.5
+		else:
+			# No camera yet: behind the player's back instead
+			spawn_pos = player.global_position + player.global_transform.basis.z * 3.0 + Vector3(0, 1.5, 0)
+		hu3_companion.global_position = spawn_pos
 		
-		# Set up HU-3's reference to player
+		# Set up HU3's reference to player
 		if hu3_companion.has_method("set_player_reference"):
 			hu3_companion.set_player_reference(player)
 		
 		hu3_spawned.emit(hu3_companion)
 	else:
-		print("GameManager: Could not load HU-3 scene!")
+		print("GameManager: Could not load HU3 scene!")
 
 func get_hu3_companion() -> CharacterBody3D:
-	"""Get reference to HU-3 companion"""
+	"""Get reference to HU3 companion"""
 	return hu3_companion
 
 # === GEAR MANAGEMENT ===
@@ -505,7 +514,7 @@ func register_player(player_node: CharacterBody3D):
 	initialize_player()
 
 func register_hu3(hu3_node: CharacterBody3D):
-	"""Register HU-3 companion with GameManager"""
+	"""Register HU3 companion with GameManager"""
 	hu3_companion = hu3_node
 
 func get_player() -> CharacterBody3D:

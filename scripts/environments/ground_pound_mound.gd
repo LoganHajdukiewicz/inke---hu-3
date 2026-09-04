@@ -13,7 +13,7 @@ class_name GroundPoundMound
 @export var scatter_radius: float = 3.2      # How far the loot explodes outward
 @export var scatter_duration: float = 0.7
 @export var pickup_lock_time: float = 1.0    # Loot can't be collected while flying out
-## How long HU-3 keeps IGNORING the popped loot (on top of the scatter
+## How long HU3 keeps IGNORING the popped loot (on top of the scatter
 ## time), so the buddy robot doesn't vacuum it up before you even see it.
 @export var hu3_ignore_time: float = 4.0
 @export var one_shot: bool = true            # Can it only be slammed open once?

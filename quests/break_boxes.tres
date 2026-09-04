@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3 uid="uid://qbreakboxes01"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "default_break_boxes"
+title = "Demolition Duty"
+description = "Smash 4 crates or barrels. Anything breakable counts."
+quest_type = "break_boxes"
+target_count = 4
+target_id = ""
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 10
+repeatable = false

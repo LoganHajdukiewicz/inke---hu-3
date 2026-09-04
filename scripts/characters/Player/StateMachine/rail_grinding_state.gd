@@ -18,15 +18,28 @@ var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 ## to pitch the model into the rail ("shishkabab"). ~35 degrees feels right.
 @export var max_visual_pitch: float = 0.6
 
+@export_category("Grind Sparks")
+## Spark trail while grinding. Three looks - try them all:
+##   CLASSIC: orange metal-grinding sparks kicked back and down (skate game)
+##   EMBER FOUNTAIN: red-hot embers spraying UP and back, big and showy
+##   ELECTRIC: cyan-blue crackle, tight and buzzy - fits HU3's tech vibe
+@export_enum("Classic Sparks", "Ember Fountain", "Electric Crackle") var spark_style: int = 0
+@export var sparks_enabled: bool = true
+
+var _sparks: GPUParticles3D = null
+
 func enter():
 	
 	# Restore double jump and air dash abilities when starting rail grinding
 	player.can_double_jump = true
 	player.has_double_jumped = false
+	if sparks_enabled:
+		_create_sparks()
 	player.can_air_dash = true
 	player.has_air_dashed = false
 
 func physics_update(delta: float):
+	_update_sparks()
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
 		return
@@ -179,6 +192,7 @@ func enable_rail_detection():
 		player.rail_grind_area.monitorable = true
 
 func exit():
+	_kill_sparks()
 	# Straighten the body: only yaw survives leaving the rail, so no leftover
 	# pitch/roll from the grind pose leaks into other states
 	if player:
@@ -197,6 +211,101 @@ func exit():
 	start_grind_timer = false
 	
 	disable_rail_detection()
+
+func _create_sparks():
+	_kill_sparks()
+	_sparks = GPUParticles3D.new()
+	var mat := ParticleProcessMaterial.new()
+	var mesh := QuadMesh.new()
+	var draw_mat := StandardMaterial3D.new()
+	draw_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	draw_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	draw_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	draw_mat.vertex_color_use_as_albedo = true
+	mat.direction = Vector3(0, 0.3, 1)   # Backwards relative to travel (set each frame)
+	mat.spread = 25.0
+	mat.gravity = Vector3(0, -14, 0)
+	
+	match spark_style:
+		0:   # CLASSIC: orange grinding sparks, kicked back low and fast
+			_sparks.amount = 40
+			_sparks.lifetime = 0.35
+			mesh.size = Vector2(0.07, 0.07)
+			mat.initial_velocity_min = 5.0
+			mat.initial_velocity_max = 9.0
+			mat.spread = 20.0
+			mat.gravity = Vector3(0, -18, 0)
+			mat.scale_min = 0.5
+			mat.scale_max = 1.1
+			var g0 := Gradient.new()
+			g0.colors = PackedColorArray([Color(1.0, 0.9, 0.4, 1.0), Color(1.0, 0.45, 0.1, 0.9), Color(0.6, 0.1, 0.0, 0.0)])
+			var gt0 := GradientTexture1D.new(); gt0.gradient = g0
+			mat.color_ramp = gt0
+		1:   # EMBER FOUNTAIN: big glowing embers spraying up and back
+			_sparks.amount = 56
+			_sparks.lifetime = 0.8
+			mesh.size = Vector2(0.12, 0.12)
+			mat.direction = Vector3(0, 1.0, 0.7)
+			mat.initial_velocity_min = 3.0
+			mat.initial_velocity_max = 7.0
+			mat.spread = 40.0
+			mat.gravity = Vector3(0, -9, 0)
+			mat.scale_min = 0.6
+			mat.scale_max = 1.6
+			mat.angular_velocity_min = -180.0
+			mat.angular_velocity_max = 180.0
+			var g1 := Gradient.new()
+			g1.colors = PackedColorArray([Color(1.0, 0.7, 0.2, 1.0), Color(1.0, 0.25, 0.05, 0.8), Color(0.3, 0.05, 0.0, 0.0)])
+			var gt1 := GradientTexture1D.new(); gt1.gradient = g1
+			mat.color_ramp = gt1
+		2:   # ELECTRIC CRACKLE: tight cyan buzz around the contact point
+			_sparks.amount = 64
+			_sparks.lifetime = 0.22
+			mesh.size = Vector2(0.05, 0.16)   # Stretched = little arcs
+			mat.initial_velocity_min = 2.0
+			mat.initial_velocity_max = 5.0
+			mat.spread = 70.0
+			mat.gravity = Vector3.ZERO
+			mat.scale_min = 0.4
+			mat.scale_max = 1.0
+			var g2 := Gradient.new()
+			g2.colors = PackedColorArray([Color(0.8, 1.0, 1.0, 1.0), Color(0.2, 0.7, 1.0, 0.9), Color(0.1, 0.2, 0.8, 0.0)])
+			var gt2 := GradientTexture1D.new(); gt2.gradient = g2
+			mat.color_ramp = gt2
+	
+	_sparks.process_material = mat
+	_sparks.draw_pass_1 = mesh
+	_sparks.local_coords = false
+	_sparks.emitting = true
+	player.get_tree().current_scene.add_child(_sparks)
+
+
+func _update_sparks():
+	if not _sparks or not is_instance_valid(_sparks):
+		return
+	# Pin to the player's feet (rail contact) and aim backwards along travel
+	_sparks.global_position = player.global_position + Vector3(0, 0.1, 0)
+	var flat_vel = Vector3(player.velocity.x, 0, player.velocity.z)
+	if flat_vel.length() > 0.5:
+		var back = -flat_vel.normalized()
+		var pm: ParticleProcessMaterial = _sparks.process_material
+		if spark_style == 1:
+			pm.direction = (back * 0.7 + Vector3.UP).normalized()
+		else:
+			pm.direction = (back + Vector3(0, 0.25, 0)).normalized()
+
+
+func _kill_sparks():
+	if _sparks and is_instance_valid(_sparks):
+		# Let live particles finish, then free
+		_sparks.emitting = false
+		var s = _sparks
+		player.get_tree().create_timer(1.0).timeout.connect(func():
+			if is_instance_valid(s):
+				s.queue_free()
+		)
+		_sparks = null
+
 
 func detach_from_rail():
 	player.velocity.y = jump_velocity

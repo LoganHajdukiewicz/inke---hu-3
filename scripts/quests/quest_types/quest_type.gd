@@ -49,8 +49,19 @@ func on_accepted(_entry: Dictionary) -> void:
 	pass
 
 
+## Called every frame while the quest is active (delta seconds). Use for
+## custom clocks/streak windows. Most types don't need it.
+func tick(_entry: Dictionary, _delta: float) -> void:
+	pass
+
+
 ## An enemy died. Call progress()/complete() if your quest cares.
 func notify_enemy_defeated(_entry: Dictionary, _enemy: Node) -> void:
+	pass
+
+
+## A breakable (crate/barrel) was destroyed by the player.
+func notify_breakable_destroyed(_entry: Dictionary, _breakable: Node) -> void:
 	pass
 
 

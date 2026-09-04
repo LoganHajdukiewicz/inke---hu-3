@@ -383,6 +383,11 @@ func break_crate():
 	
 	is_broken = true
 	
+	# Report to the quest system (break_boxes quest type)
+	var qm = get_node_or_null("/root/QuestManager")
+	if qm and qm.has_method("notify_breakable_destroyed"):
+		qm.notify_breakable_destroyed(self)
+	
 	# Spawn particles
 	if particles:
 		particles.emitting = true

@@ -32,6 +32,16 @@ extends Path3D
 ## Tick this to round off the corners of hand-placed curve points
 @export var smooth_existing_points: bool = false : set = _set_smooth_points
 
+@export_group("End Kicks")
+## Curve the LAST bit of the rail upward - reads as "ride it out, it
+## launches you" so players know not to jump early. Applied to both ends
+## (rails are grindable both ways).
+@export var end_kick_enabled: bool = true
+## How far up the tip rises.
+@export var end_kick_height: float = 0.9
+## How much rail length the kick occupies.
+@export var end_kick_length: float = 2.5
+
 var hasSpawnedPoints = false
 var pointCount: float = 0.0
 
@@ -128,6 +138,34 @@ func _generate_preset_curve() -> void:
 	for p in pts:
 		curve.add_point(p)
 	_smooth_all_points()
+	_apply_end_kicks()
+
+func _apply_end_kicks() -> void:
+	"""Bend the very ends of the rail upward (like a skate quarter-lip) so
+	players can SEE the launch coming and ride it out instead of jumping."""
+	if not end_kick_enabled or curve == null or curve.point_count < 2:
+		return
+	for endi in [0, curve.point_count - 1]:
+		var inner := 1 if endi == 0 else curve.point_count - 2
+		var tip := curve.get_point_position(endi)
+		var neighbor := curve.get_point_position(inner)
+		var along := (tip - neighbor)
+		along.y = 0.0
+		if along.length() < 0.01:
+			continue
+		var dir := along.normalized()
+		# Pull the tip in to kick length, then raise it
+		var base := tip - dir * minf(end_kick_length, along.length())
+		var kicked := base + dir * end_kick_length + Vector3(0, end_kick_height, 0)
+		curve.set_point_position(endi, kicked)
+		# Handles: leave the neighbor, aim the tip's inward handle down-slope
+		var handle := (base - kicked) * 0.45
+		if endi == 0:
+			curve.set_point_out(endi, handle)
+			curve.set_point_in(endi, -handle)
+		else:
+			curve.set_point_in(endi, handle)
+			curve.set_point_out(endi, -handle)
 
 func _smooth_all_points() -> void:
 	"""Give every point catmull-rom style in/out handles so the whole rail

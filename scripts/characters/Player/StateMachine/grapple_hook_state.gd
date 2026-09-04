@@ -38,6 +38,11 @@ var rope_line: ImmediateMesh = null
 var rope_mesh_instance: MeshInstance3D = null
 
 func enter():
+	# Grappling refreshes your double jump (same as rails/bars/ropes) -
+	# air traversal chains stay alive through a grapple.
+	player.can_double_jump = true
+	player.has_double_jumped = false
+	
 	# Reset enemy grapple state
 	has_attacked_enemy = false
 	grapple_target_enemy = null
@@ -105,6 +110,11 @@ func setup_enemy_grapple(enemy: Node3D):
 	grapple_point = enemy.global_position
 	is_grappling = true
 	has_attacked_enemy = false
+	
+	# Grappling a SHIELD enemy yanks its shield away - the hook rips the
+	# guard open, so the follow-up hit lands. (Counterplay for turtling.)
+	if enemy.has_method("strip_shield"):
+		enemy.strip_shield()
 	
 	# Make player invulnerable during enemy grapple (no flash)
 	if player.has_method("set_invulnerable_without_flash"):

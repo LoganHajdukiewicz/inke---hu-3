@@ -12,6 +12,10 @@ class_name AttackManager
 @export var light_attack_range: float = 1.1
 ## Radius of the swing pocket. Total reach = range + radius (~2.5m).
 @export var light_attack_radius: float = 1.4
+## Extra WIDTH of the swing (side to side). The hitbox is a sideways
+## capsule: total arc width = 2*radius + arc_width. Bigger = more
+## forgiving sweeps that catch enemies off to your sides.
+@export var light_attack_arc_width: float = 1.6
 @export var light_attack_cooldown: float = 0.3
 @export var light_knockback_force: float = 12.0
 @export var light_knockback_upward: float = 3.0
@@ -61,20 +65,25 @@ func setup_attack_hitbox():
 	
 	player.add_child(attack_hitbox)
 	
-	# Create collision shape for the hitbox
+	# Collision shape: a SIDEWAYS CAPSULE, not a sphere - it sweeps a wide
+	# arc left-to-right in front of Inke (much more forgiving than a ball,
+	# still zero reach behind her).
 	var collision_shape = CollisionShape3D.new()
-	var sphere_shape = SphereShape3D.new()
-	sphere_shape.radius = light_attack_radius  # Start with light attack radius
-	collision_shape.shape = sphere_shape
+	var capsule_shape = CapsuleShape3D.new()
+	capsule_shape.radius = light_attack_radius
+	capsule_shape.height = light_attack_radius * 2.0 + light_attack_arc_width
+	collision_shape.shape = capsule_shape
 	collision_shape.position = Vector3(0, 0, 0)
+	collision_shape.rotation_degrees.z = 90.0   # Lie the capsule on its side
 	attack_hitbox.add_child(collision_shape)
 	
-	# Debug visualization (toggled by show_hitbox)
+	# Debug visualization (toggled by show_hitbox) - matches the capsule
 	_hitbox_vis = MeshInstance3D.new()
-	var vis_mesh = SphereMesh.new()
+	var vis_mesh = CapsuleMesh.new()
 	vis_mesh.radius = light_attack_radius
-	vis_mesh.height = light_attack_radius * 2.0
+	vis_mesh.height = light_attack_radius * 2.0 + light_attack_arc_width
 	_hitbox_vis.mesh = vis_mesh
+	_hitbox_vis.rotation_degrees.z = 90.0
 	var vis_mat = StandardMaterial3D.new()
 	vis_mat.albedo_color = Color(1.0, 0.15, 0.1, 0.28)
 	vis_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -170,11 +179,13 @@ func perform_attack(_is_heavy: bool):
 	var snd = attack_sound if attack_sound else Sfx.attack_whoosh()
 	Sfx.play_3d(player, snd, player.global_position, attack_volume_db)
 	
-	# Update hitbox size for this attack
+	# Update hitbox size for this attack (sideways capsule = wide arc)
 	var collision_shape = attack_hitbox.get_child(0) as CollisionShape3D
 	if collision_shape:
-		var sphere_shape = collision_shape.shape as SphereShape3D
-		sphere_shape.radius = attack_radius
+		var cap = collision_shape.shape as CapsuleShape3D
+		if cap:
+			cap.radius = attack_radius
+			cap.height = attack_radius * 2.0 + light_attack_arc_width
 	
 	# Position hitbox in front of player
 	update_hitbox_position(attack_range)
@@ -183,7 +194,7 @@ func perform_attack(_is_heavy: bool):
 	if show_hitbox and _hitbox_vis:
 		if _hitbox_vis.mesh.radius != attack_radius:
 			_hitbox_vis.mesh.radius = attack_radius
-			_hitbox_vis.mesh.height = attack_radius * 2.0
+			_hitbox_vis.mesh.height = attack_radius * 2.0 + light_attack_arc_width
 		_hitbox_vis.visible = true
 	
 	# Enable hitbox detection

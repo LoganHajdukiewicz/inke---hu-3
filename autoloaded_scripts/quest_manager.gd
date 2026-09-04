@@ -68,6 +68,10 @@ func _process(delta: float) -> void:
 	for entry in failed:
 		_fail_quest(entry)
 	
+	# Per-frame handler ticks (custom clocks, streak windows...)
+	for entry in active_quests.duplicate():
+		entry.handler.tick(entry, delta)
+	
 	_update_tracker()
 	
 	# CRED bar auto-hide
@@ -182,6 +186,14 @@ func notify_enemy_defeated(enemy: Node) -> void:
 		return
 	for entry in active_quests.duplicate():
 		entry.handler.notify_enemy_defeated(entry, enemy)
+
+
+func notify_breakable_destroyed(breakable: Node) -> void:
+	"""Called by breakables (crates/barrels) when the player smashes them."""
+	if breakable == null:
+		return
+	for entry in active_quests.duplicate():
+		entry.handler.notify_breakable_destroyed(entry, breakable)
 
 
 func notify_item_grabbed(item_id: String) -> void:

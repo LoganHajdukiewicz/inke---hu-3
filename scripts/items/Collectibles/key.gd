@@ -18,7 +18,7 @@ class_name Key
 
 var collected := false
 var pickup_locked := false
-var hu3_locked := true      # HU-3 never steals keys - they're for the player
+var hu3_locked := true      # HU3 never steals keys - they're for the player
 var is_scattering := false
 var _base_y := 0.0
 var _time := 0.0

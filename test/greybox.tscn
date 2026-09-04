@@ -55,7 +55,7 @@ point_count = 3
 script = ExtResource("22_quest")
 quest_id = "gb_collect_gears"
 title = "Gear Grab"
-description = "HU-3 is hungry. Collect 5 GEARs - the gear line by the items plaza is a good start."
+description = "HU3 is hungry. Collect 5 GEARs - the gear line by the items plaza is a good start."
 target_count = 5
 quest_type = "collect_gears"
 

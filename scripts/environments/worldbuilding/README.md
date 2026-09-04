@@ -65,7 +65,7 @@ require a **Key** (scenes/items/Collectibles/key.tscn) with a
 matching `key_id`. Keys are placeable anywhere, including as
 GroundPoundMound loot (set the mound's `collectable_scene` to
 key.tscn). Open styles: swing (default), slide up/down, vanish;
-`consume_key` controls reusability. HU-3 never picks up keys.
+`consume_key` controls reusability. HU3 never picks up keys.
 
 ### Ceiling lights
 Rooms spawn ceiling lights automatically (`has_lights`, default on;

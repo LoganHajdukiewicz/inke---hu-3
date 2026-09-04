@@ -78,7 +78,7 @@ func notify_enemy_defeated(entry: Dictionary, enemy: Node) -> void:
 
 
 func notify_gears_changed(entry: Dictionary, total_gears: int) -> void:
-	# The player's gear total changed (pickup by player OR HU-3).
+	# The player's gear total changed (pickup by player OR HU3).
 	# collect_gears.gd does: set_progress(entry, total_gears - baseline)
 	#
 	# For this survive template we hijack the event as a cheap tick to

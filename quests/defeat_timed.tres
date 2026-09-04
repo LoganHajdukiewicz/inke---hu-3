@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3 uid="uid://qdefeattimed1"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "default_defeat_timed"
+title = "Hot Streak"
+description = "Defeat 5 enemies in one streak - the clock starts on your first kill. 45 seconds!"
+quest_type = "defeat_timed"
+target_count = 5
+target_id = ""
+require_boss = false
+has_time_limit = false
+time_limit_seconds = 45.0
+cred_reward = 25
+repeatable = true
