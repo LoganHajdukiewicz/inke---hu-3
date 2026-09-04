@@ -44,6 +44,21 @@ ceiling from one node. `interior_size` is the inside space.
   (L-shapes, T-shapes). Shared walls vanish automatically; pull the
   room back out and they split apart again.
 
+### Hallway — corridors and stairs between rooms
+Add a **Hallway** node and point `door_a` / `door_b` at two Doorways
+(on different rooms). A corridor builds itself between them, always
+leaving each door straight out of its wall.
+
+- Rooms at the SAME height → a flat hallway.
+- Rooms at DIFFERENT heights → the connecting run becomes a STAIRWAY
+  (real steps + an invisible smooth ramp so walking is smooth).
+- Add **HallwayPoint** children and drag them to shape the route — the
+  corridor threads through them in child order. Points at different
+  heights turn just those segments into stairs, so one Hallway can be
+  hall → stairs → hall.
+- Same exports as Room: width/height, wall/floor thickness, ceiling,
+  colors, lights; plus `step_height` and `stub_length`.
+
 ### Doorway — doors and windows
 Add a **Doorway** as a CHILD of the Room and drag it INTO a wall —
 the opening is carved right where the marker sits (CSG subtraction),

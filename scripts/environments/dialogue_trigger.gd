@@ -27,6 +27,15 @@ enum TriggerType {
 @export var trigger_once: bool = false  # Only trigger dialogue once
 @export var pause_game: bool = true  # Pause game during dialogue (only for PROXIMITY_BOX)
 
+@export_group("Dynamic Camera")
+## Cut between cinematic camera angles during this dialogue (starts from
+## the current camera and glides into the shots; glides back at the end).
+@export var dynamic_camera: bool = true
+## Optional: YOUR angles instead of the auto film shots. Pose Node3Ds or
+## CutsceneCameras (fly with F10, press P to print a pose) and list them
+## here - the camera cycles through them, one per dialogue line.
+@export var custom_camera_angles: Array[Node3D] = []
+
 @export var show_debug_visualization: bool = false:
 	set(value):
 		show_debug_visualization = value
@@ -287,6 +296,9 @@ func start_dialogue() -> void:
 	
 	# Set pause state based on trigger type and setting
 	var should_pause = (trigger_type == TriggerType.PROXIMITY_BOX) and pause_game
+	# Wall triggers play while the player runs past - no camera hijack there.
+	if dynamic_camera and trigger_type == TriggerType.PROXIMITY_BOX:
+		DialogueManager.request_dynamic_camera(self, custom_camera_angles)
 	DialogueManager.start_dialogue(dialogue_file, self, should_pause)
 
 func end_dialogue() -> void:

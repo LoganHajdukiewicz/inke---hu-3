@@ -35,6 +35,30 @@ signal choice_made(accepted: bool)
 ## switches from "advance on accept" to "X = yes / O = no" handling.
 var awaiting_choice: bool = false
 
+# --- Dynamic dialogue cameras -------------------------------------------
+# Speakers (DialogueTrigger / QuestGiver / Merchant) call
+# request_dynamic_camera(speaker_node, custom_angles) right before starting
+# their dialogue; the next start_dialogue*() consumes it and the director
+# cuts between cinematic angles for every line, then glides back.
+var camera_director: DialogueCameraDirector = null
+var _pending_camera_focus: Node3D = null
+var _pending_camera_angles: Array = []
+
+func request_dynamic_camera(focus: Node3D, custom_angles: Array = []) -> void:
+	_pending_camera_focus = focus
+	_pending_camera_angles = custom_angles
+
+func _consume_dynamic_camera() -> void:
+	if _pending_camera_focus == null:
+		return
+	if camera_director == null:
+		camera_director = DialogueCameraDirector.new()
+		camera_director.name = "DialogueCameraDirector"
+		add_child(camera_director)
+	camera_director.begin(_pending_camera_focus, _pending_camera_angles)
+	_pending_camera_focus = null
+	_pending_camera_angles = []
+
 func _ready() -> void:
 	update_scene_name()
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -77,6 +101,7 @@ func start_dialogue(dialogue_name: String, trigger: DialogueTrigger = null, shou
 	current_index = 0
 	
 	if dialogue_ui:
+		_consume_dynamic_camera()
 		dialogue_ui.show_dialogue(should_pause)
 		show_current_line()
 		dialogue_started.emit()
@@ -97,6 +122,7 @@ func start_dialogue_lines(lines: Array, should_pause: bool = true) -> void:
 	current_index = 0
 	
 	if dialogue_ui:
+		_consume_dynamic_camera()
 		dialogue_ui.show_dialogue(should_pause)
 		show_current_line()
 		dialogue_started.emit()
@@ -158,6 +184,10 @@ func show_current_line() -> void:
 	var speaker = line.get("speaker", "")
 	var text = line.get("text", "")
 	var portrait = line.get("portrait", "")
+	
+	# New line -> new cinematic angle (if the director is running)
+	if camera_director and camera_director.active and current_index > 0:
+		camera_director.next_shot()
 	var voiced = line.get("voiced", false)
 	awaiting_choice = bool(line.get("choice", false))
 	
@@ -236,6 +266,10 @@ func _find_line_by_id(line_id: String) -> int:
 
 func end_dialogue() -> void:
 	awaiting_choice = false
+	_pending_camera_focus = null
+	_pending_camera_angles = []
+	if camera_director and camera_director.active:
+		camera_director.finish()
 	if voice_player and voice_player.playing:
 		voice_player.stop()
 	if dialogue_ui:

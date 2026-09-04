@@ -34,6 +34,10 @@ enum PowerupType {
 @export var greeting_text: String = "Whaddya buyin'?"
 ## Portrait name for the dialogue box (assets/portraits/{name}.png), optional.
 @export var portrait: String = ""
+## Cut between cinematic camera angles during the intro dialogue.
+@export var dynamic_camera: bool = true
+## Optional posed Node3Ds/CutsceneCameras used instead of the auto shots.
+@export var custom_camera_angles: Array[Node3D] = []
 
 @export_group("Intro Dialogue")
 ## Played through the dialogue box BEFORE the coat opens, one message per
@@ -600,6 +604,8 @@ func _start_interaction():
 			lines.append({"speaker": merchant_name, "text": text, "portrait": portrait})
 		if not dm.dialogue_ended.is_connected(_on_intro_ended):
 			dm.dialogue_ended.connect(_on_intro_ended, CONNECT_ONE_SHOT)
+		if dynamic_camera:
+			dm.request_dynamic_camera(self, custom_camera_angles)
 		dm.start_dialogue_lines(lines)
 	else:
 		_open_coat_then_shop()

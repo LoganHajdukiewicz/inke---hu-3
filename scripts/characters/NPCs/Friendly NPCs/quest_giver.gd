@@ -71,6 +71,13 @@ func get_quest() -> Quest:
 ## Portrait name (assets/portraits/{name}.png), optional.
 @export var portrait: String = ""
 
+@export_group("Dynamic Camera")
+## Cut between cinematic camera angles while talking to this NPC.
+@export var dynamic_camera: bool = true
+## Optional posed Node3Ds/CutsceneCameras to use instead of auto shots
+## (one per line, cycling). Pose with F10 free roam + P.
+@export var custom_camera_angles: Array[Node3D] = []
+
 @export_group("Dialogue Lines")
 ## Small talk before the first-time quest ask, one message per entry.
 @export_multiline var small_talk: Array[String] = [
@@ -323,6 +330,8 @@ func _interact() -> void:
 func _speak(lines: Array) -> void:
 	_in_conversation = true
 	prompt_label.visible = false
+	if dynamic_camera:
+		DialogueManager.request_dynamic_camera(self, custom_camera_angles)
 	DialogueManager.dialogue_ended.connect(_on_dialogue_ended, CONNECT_ONE_SHOT)
 	if _pending_offer:
 		DialogueManager.choice_made.connect(_on_choice_made, CONNECT_ONE_SHOT)
