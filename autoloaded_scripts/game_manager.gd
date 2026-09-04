@@ -159,6 +159,27 @@ func get_hu3_companion() -> CharacterBody3D:
 
 # === GEAR MANAGEMENT ===
 
+# --- Keys (for LockedDoors) ------------------------------------------------
+signal key_collected(key_id: String)
+signal key_used(key_id: String)
+var keys: Dictionary = {}   # key_id -> count
+
+func collect_key(key_id: String) -> void:
+	keys[key_id] = keys.get(key_id, 0) + 1
+	key_collected.emit(key_id)
+
+func has_key(key_id: String) -> bool:
+	return keys.get(key_id, 0) > 0
+
+func use_key(key_id: String) -> bool:
+	if not has_key(key_id):
+		return false
+	keys[key_id] -= 1
+	if keys[key_id] <= 0:
+		keys.erase(key_id)
+	key_used.emit(key_id)
+	return true
+
 func add_gear(amount: int = 1):
 	"""Add gears to the player's collection - unified for all collectors"""
 	gear_count += amount

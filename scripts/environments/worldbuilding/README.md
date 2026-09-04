@@ -31,6 +31,19 @@ the editor. Use one per building/arena/spawn clearing.
 Add a **Room** node (or instance `room.tscn`): floor + 4 walls +
 ceiling from one node. `interior_size` is the inside space.
 
+### Room modes (`room_mode`)
+- **Snap With Doorway** (default, the main flow): drag a room near
+  another and it snaps flush against it — and a doorway is cut through
+  the shared wall automatically. Chain rooms into whole buildings by
+  just dragging them next to each other. `auto_doorway_width/height`
+  and `snap_distance` tune it.
+- **Merge**: drag the room so it OVERLAPS another room — it merges into
+  it, becoming one large irregular space (L-shapes, T-shapes). The
+  shared walls vanish; the merged room contributes its footprint to the
+  host room's geometry.
+- **Snap Only**: snaps flush like the default but keeps the shared wall
+  solid — for when two rooms should touch without a connecting door.
+
 ### Doorway — doors and windows
 Add a **Doorway** as a CHILD of the Room and drag it INTO a wall —
 the opening is carved right where the marker sits (CSG subtraction),
@@ -43,10 +56,18 @@ there's a hole.
 - the cut auto-rotates toward the nearest wall; rotate the Doorway
   node yourself to override (e.g. diagonal walls)
 
+### LockedDoor + Key
+Drop a **LockedDoor** (scenes/environments/locked_door.tscn) into any
+doorway — it blocks until the player brings a **Key**
+(scenes/items/Collectibles/key.tscn) with a matching `key_id`. Keys
+are placeable anywhere in the world, including as GroundPoundMound
+loot (set the mound's `collectable_scene` to key.tscn). Doors can
+slide up/down or vanish, and `consume_key` controls reusability.
+HU-3 never picks up keys.
+
 ### Buildings
-Butt Rooms up against each other and put a Doorway through the shared
-wall of each room to connect them. Outside, drop a FlattenPad on the
-Terrain under the building. Set `has_floor = false` when a room sits
+Drag Rooms next to each other (they snap + auto-doorway by default).
+Outside, drop a FlattenPad on the Terrain under the building. Set `has_floor = false` when a room sits
 directly on a Floor/Terrain. Stack rooms for multiple storeys
 (`has_ceiling` off + a Room above with `has_floor` on).
 

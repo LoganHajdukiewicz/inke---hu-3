@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="6_wall"]
 [ext_resource type="PackedScene" uid="uid://cladderwall01" path="res://scenes/environments/ladder.tscn" id="7_ladder"]
 [ext_resource type="PackedScene" uid="uid://balbeam000001" path="res://scenes/environments/balance_beam.tscn" id="8_beam"]
-[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/ground_pound_area.tscn" id="9_patch"]
+[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/ground_pound_mound.tscn" id="9_patch"]
 [ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/environments/rope.tscn" id="10_rope"]
 [ext_resource type="PackedScene" uid="uid://diup37v2ws5aa" path="res://scenes/environments/heal_patch.tscn" id="11_heal"]
 [ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="12_box"]
@@ -221,7 +221,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 9, 30)
 [node name="Rope2" parent="Gym" unique_id=1214945211 instance=ExtResource("10_rope")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 9, 30)
 
-[node name="GroundPoundArea" parent="Gym" unique_id=849260139 instance=ExtResource("9_patch")]
+[node name="GroundPoundMound" parent="Gym" unique_id=849260139 instance=ExtResource("9_patch")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, -0.2702334, 20)
 
 [node name="GrapplePoint" parent="Gym" unique_id=1185890579 instance=ExtResource("5_ba0e1")]

@@ -52,8 +52,10 @@ enum SpinDirection {
 @export var spring_cooldown: float = 0.5
 @export var spring_tween_duration: float = 0.1
 @export var use_directional_bounce: bool = true  # If true, bounces in the direction the floor is facing
-@onready var spring_area: Area3D = $SpringArea
-@onready var spring_collision: CollisionShape3D = $SpringArea/CollisionShape3D
+# Assigned by _ensure_nodes_exist (created on demand so a Floor added
+# straight from the Add Node dialog works without the .tscn children)
+var spring_area: Area3D
+var spring_collision: CollisionShape3D
 
 @export_group("Sliding Floor Settings")
 @export var slide_max_speed: float = 30.0  # Maximum downhill slide speed
@@ -110,9 +112,9 @@ enum SpinDirection {
 @export var momentum_transfer_strength: float = 0.6 : set = _set_momentum_transfer_strength
 @export var enable_momentum_transfer: bool = true
 
-# General Variables
-@onready var mesh_instance: MeshInstance3D = $MeshInstance3D
-@onready var collision_shape: CollisionShape3D = $CollisionShape3D
+# General Variables (see _ensure_nodes_exist)
+var mesh_instance: MeshInstance3D
+var collision_shape: CollisionShape3D
 
 # Texture Variables
 var default_texture: Texture2D
@@ -207,7 +209,9 @@ func _set_momentum_transfer_strength(value: float):
 	momentum_transfer_strength = clamp(value, 0.0, 2.0)
 
 func _ensure_nodes_exist():
-	"""Ensure required nodes exist for editor preview"""
+	"""Create any missing child nodes. Makes Floor fully self-building, so
+	adding it from the Add Node dialog (a bare node with just this script)
+	works exactly like instancing floor.tscn."""
 	if not mesh_instance:
 		mesh_instance = get_node_or_null("MeshInstance3D")
 		if not mesh_instance:
@@ -221,6 +225,21 @@ func _ensure_nodes_exist():
 			collision_shape = CollisionShape3D.new()
 			collision_shape.name = "CollisionShape3D"
 			add_child(collision_shape)
+	
+	if not spring_area:
+		spring_area = get_node_or_null("SpringArea")
+		if not spring_area:
+			spring_area = Area3D.new()
+			spring_area.name = "SpringArea"
+			spring_area.monitoring = false
+			add_child(spring_area)
+	
+	if not spring_collision:
+		spring_collision = spring_area.get_node_or_null("CollisionShape3D")
+		if not spring_collision:
+			spring_collision = CollisionShape3D.new()
+			spring_collision.name = "CollisionShape3D"
+			spring_area.add_child(spring_collision)
 
 # ---------------------------------------------------------------------------
 # Textures / materials (shared by handlers via create_textured_material)
@@ -328,8 +347,8 @@ func _update_editor_preview():
 # ---------------------------------------------------------------------------
 
 func _ready():
+	_ensure_nodes_exist()
 	if Engine.is_editor_hint():
-		_ensure_nodes_exist()
 		setup_floor_geometry()
 		_update_editor_preview()
 		return

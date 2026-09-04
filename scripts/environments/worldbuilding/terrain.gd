@@ -137,8 +137,10 @@ func _rebuild():
 			var b := a + 1
 			var c := a + (n + 1)
 			var d := c + 1
-			st.add_index(a); st.add_index(d); st.add_index(b)
-			st.add_index(a); st.add_index(c); st.add_index(d)
+			# Godot front faces wind CLOCKWISE - CCW here made the whole
+			# ground render as backfaces (invisible from above)
+			st.add_index(a); st.add_index(b); st.add_index(d)
+			st.add_index(a); st.add_index(d); st.add_index(c)
 	st.generate_normals()
 	var mesh := st.commit()
 	
@@ -152,6 +154,7 @@ func _rebuild():
 	var mat := StandardMaterial3D.new()
 	mat.vertex_color_use_as_albedo = true
 	mat.roughness = 1.0
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED   # Visible from every angle, always
 	_mesh_instance.material_override = mat
 	
 	# --- Collision: HeightMapShape3D, NOT a trimesh -----------------------
@@ -222,12 +225,13 @@ func _add_skirt(mesh: ArrayMesh, n: int, step: Vector2, half: Vector2) -> ArrayM
 			var p1 := Vector3(-half.x + g1.x * step.x, _grid_h(g1.x, g1.y), -half.y + g1.y * step.y)
 			var b0 := Vector3(p0.x, bottom, p0.z)
 			var b1 := Vector3(p1.x, bottom, p1.z)
+			# (clockwise = front in Godot; e[2] picks the outward side)
 			if e[2] == 0:
-				st.add_vertex(p0); st.add_vertex(p1); st.add_vertex(b0)
-				st.add_vertex(p1); st.add_vertex(b1); st.add_vertex(b0)
-			else:
 				st.add_vertex(p0); st.add_vertex(b0); st.add_vertex(p1)
 				st.add_vertex(p1); st.add_vertex(b0); st.add_vertex(b1)
+			else:
+				st.add_vertex(p0); st.add_vertex(p1); st.add_vertex(b0)
+				st.add_vertex(p1); st.add_vertex(b1); st.add_vertex(b0)
 	st.generate_normals()
 	return st.commit(mesh)   # Append as second surface
 

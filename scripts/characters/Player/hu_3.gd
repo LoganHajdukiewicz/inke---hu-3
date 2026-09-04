@@ -422,7 +422,7 @@ func find_nearest_gear():
 		
 		# Loot that just exploded out of a patch/box is locked - let the player
 		# SEE it before HU-3 vacuums it up. hu3_locked is the longer, separate
-		# HU-3-only timer (Inspector: GroundPoundArea.hu3_ignore_time).
+		# HU-3-only timer (Inspector: GroundPoundMound.hu3_ignore_time).
 		if gear.get("pickup_locked") or gear.get("hu3_locked"):
 			continue
 			

@@ -102,7 +102,7 @@ func _impact():
 					box.take_damage(99)
 	
 	# Ground pound areas: pop open buried loot
-	for patch in get_tree().get_nodes_in_group("GroundPoundArea"):
+	for patch in get_tree().get_nodes_in_group("GroundPoundMound"):
 		if patch is Node3D and is_instance_valid(patch):
 			var flat_dist = Vector2(patch.global_position.x - player.global_position.x, patch.global_position.z - player.global_position.z).length()
 			if flat_dist <= max(impact_radius * 0.6, 2.0) and patch.has_method("on_ground_slammed"):

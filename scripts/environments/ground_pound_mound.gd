@@ -1,6 +1,6 @@
 @tool
 extends StaticBody3D
-class_name GroundPoundArea
+class_name GroundPoundMound
 
 ## A bumpy patch of ground that pops open when GROUND SLAMMED on top of it.
 ## The ground visibly warps upward in a small bump (something's buried!).
@@ -29,7 +29,7 @@ var bump_mesh: MeshInstance3D = null
 
 func _ready():
 	if not Engine.is_editor_hint():
-		add_to_group("GroundPoundArea")
+		add_to_group("GroundPoundMound")
 	_build_visual()
 
 func _build_visual():

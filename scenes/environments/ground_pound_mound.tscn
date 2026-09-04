@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://slampatch0001"]
+
+[ext_resource type="Script" path="res://scripts/environments/ground_pound_mound.gd" id="1_slampatch"]
+
+[node name="GroundPoundMound" type="StaticBody3D" groups=["GroundPoundMound"]]
+script = ExtResource("1_slampatch")

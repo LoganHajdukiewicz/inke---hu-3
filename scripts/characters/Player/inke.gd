@@ -1,4 +1,9 @@
+@tool
 extends CharacterBody3D
+class_name Inke
+# @tool + class_name so "Inke" shows up in the editor's Add Node dialog.
+# A bare Inke node added that way instantly swaps itself for the full
+# inke.tscn scene (see _enter_tree) - no more dragging from the FileSystem.
 
 # ══════════════════════════════════════════════════════════════════════════
 # MOVEMENT TUNING — every core movement number, editable on Inke's Inspector.
@@ -176,7 +181,7 @@ var speed_effects_manager: SpeedEffectsManager
 
 # References
 @onready var player = self
-@onready var state_machine: StateMachine = $StateMachine
+@onready var state_machine: StateMachine = get_node_or_null("StateMachine")
 var game_manager 
 var checkpoint_manager
 var paint_manager
@@ -185,7 +190,38 @@ var paint_manager
 @export var wall_jump_rays: Node3D
 @export var rail_grind_area: Area3D 
 
+const INKE_SCENE_PATH := "res://scenes/characters/Player/inke.tscn"
+
+func _enter_tree():
+	# A "bare" Inke (added from the Add Node dialog: script but no children)
+	# replaces itself with the real player scene, in editor AND at runtime.
+	if not has_node("StateMachine"):
+		call_deferred("_swap_to_full_scene")
+
+func _swap_to_full_scene():
+	if has_node("StateMachine") or not is_inside_tree():
+		return
+	var parent = get_parent()
+	if parent == null:
+		return
+	var packed = load(INKE_SCENE_PATH)
+	if packed == null:
+		return
+	var wanted_name := String(name)
+	name = wanted_name + "_replacing"
+	var inst = packed.instantiate()
+	inst.name = wanted_name
+	inst.transform = transform
+	parent.add_child(inst)
+	if Engine.is_editor_hint() and get_tree() and get_tree().edited_scene_root:
+		inst.owner = get_tree().edited_scene_root
+	queue_free()
+
 func _ready():
+	if Engine.is_editor_hint():
+		return
+	if not has_node("StateMachine"):
+		return   # Bare node - _swap_to_full_scene is about to replace it
 	# FIX: Get autoload references in _ready instead of @onready
 	game_manager = get_node("/root/GameManager")
 	checkpoint_manager = get_node("/root/CheckpointManager")
@@ -306,6 +342,8 @@ func setup_damage_area():
 	damage_area.area_entered.connect(_on_damage_area_entered)
 
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint() or state_machine == null:
+		return   # Editor preview or bare node awaiting scene swap
 	if is_dead:
 		return
 	
