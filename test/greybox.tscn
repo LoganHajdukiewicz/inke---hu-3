@@ -43,7 +43,7 @@ sky = SubResource("Sky_sdd4f")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Curve3D" id="Curve3D_2uvoh"]
+[sub_resource type="Curve3D" id="Curve3D_kcf50"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 108.91814, 13.674346, -0.07700789, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
@@ -57,36 +57,37 @@ quest_id = "gb_collect_gears"
 title = "Gear Grab"
 description = "HU-3 is hungry. Collect 5 GEARs - the gear line by the items plaza is a good start."
 target_count = 5
+quest_type = "collect_gears"
 
 [sub_resource type="Resource" id="Quest_defeat"]
 script = ExtResource("22_quest")
 quest_id = "gb_defeat_bully"
 title = "Pest Control"
 description = "Inklings are loose around the plaza. Squash 3 of them - the button arena spawners have plenty."
-quest_type = "defeat_enemy"
 target_count = 3
 target_enemy_scene = ExtResource("23_enemy")
 cred_reward = 15
+quest_type = "defeat_enemy"
 
 [sub_resource type="Resource" id="Quest_reach"]
 script = ExtResource("22_quest")
 quest_id = "gb_reach_summit"
 title = "The Summit"
 description = "Get to the top of the tall block west of spawn. Wall jump, ledge grab - however you can."
-quest_type = "reach_location"
 target_id = "gb_tall_block_summit"
 cred_reward = 15
+quest_type = "reach_location"
 
 [sub_resource type="Resource" id="Quest_fetch"]
 script = ExtResource("22_quest")
 quest_id = "gb_fetch_gem"
 title = "Lost Gizmo"
 description = "I dropped my favorite gizmo on the platform on top of the climbable wall. Bring it back, will you?"
-quest_type = "fetch_item"
 target_id = "gb_lost_gizmo"
 has_time_limit = true
 time_limit_seconds = 90.0
 cred_reward = 20
+quest_type = "fetch_item"
 
 [node name="Greybox" type="Node3D" unique_id=2063258851]
 
@@ -228,7 +229,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
 
 [node name="Rail" parent="Gym" unique_id=60611775 instance=ExtResource("2_k7grp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 2.6968927, -0.23347282)
-curve = SubResource("Curve3D_2uvoh")
+curve = SubResource("Curve3D_kcf50")
+
+[node name="WallCrawler" parent="Gym" unique_id=126311147 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 14)
 
 [node name="Items" type="Node3D" parent="." unique_id=325595334]
 
@@ -489,6 +493,12 @@ text = "PAINT DROPLET "
 font_size = 36
 outline_size = 14
 
+[node name="MerchantLabel" type="Label3D" parent="Labels" unique_id=1732758361]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.23761, 3.2, 8)
+pixel_size = 0.012
+billboard = 1
+text = "MERCHANT - press E."
+
 [node name="QuestHub" type="Node3D" parent="." unique_id=1489415191]
 
 [node name="GizmoGears" parent="QuestHub" unique_id=1363694966 instance=ExtResource("19_giver")]
@@ -500,6 +510,7 @@ quest_ask = "Say... you look quick. Could you round up some gears for me?"
 reminder = "Those gears won't collect themselves, friend."
 retry_line = "Bah, gears are slippery little things. Dust yourself off - another go?"
 thanks = "My workbench is saved! You're a lifesaver."
+quest_file = ""
 
 [node name="BruiserBetty" parent="QuestHub" unique_id=503681364 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1909103, 0.5, 8)
@@ -511,6 +522,7 @@ quest_ask = "Would you rough it up on my behalf?"
 reminder = "That bully is still out there strutting around. You'll hear it before you see it."
 retry_line = "It got the better of you, huh? Shake it off, champ. Round two?"
 thanks = "HA! I heard the thud from here. You're my hero."
+quest_file = ""
 
 [node name="PeakPete" parent="QuestHub" unique_id=1758887687 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.022829, 0.5, 8)
@@ -522,6 +534,7 @@ quest_ask = "Would you climb it for me? Just to know someone still can."
 reminder = "The tall block, west of spawn. The view's worth it, I promise."
 retry_line = "Gravity wins sometimes. Dust yourself off and climb again, friend."
 thanks = "You made it! I can almost see the view through your eyes."
+quest_file = ""
 
 [node name="ForgetfulFern" parent="QuestHub" unique_id=735298719 instance=ExtResource("19_giver")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.538837, 0.5, 8)
@@ -533,6 +546,7 @@ quest_ask = "Could you fetch it before something eats it? You're on the clock!"
 reminder = "My gizmo! Top of the climbing wall! Tick tock!"
 retry_line = "Time got away from you? Happens to me constantly. Dust off - try again?"
 thanks = "MY GIZMO! Oh thank you thank you thank you!"
+quest_file = ""
 
 [node name="SummitFlag" parent="QuestHub" unique_id=1618863247 instance=ExtResource("20_flag")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 5, -20)
@@ -676,14 +690,5 @@ billboard = 1
 text = "SWING BARS
 "
 
-[node name="WallCrawler" parent="Gym" instance=ExtResource("28_climber")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 14)
-
-[node name="Merchant" parent="." instance=ExtResource("29_merchant")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0.05, 8)
-
-[node name="MerchantLabel" type="Label3D" parent="Labels"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 3.2, 8)
-pixel_size = 0.012
-billboard = 1
-text = "MERCHANT - press E.\nIntro dialogue, then the coat opens..."
+[node name="Merchant" parent="." unique_id=1877003554 instance=ExtResource("29_merchant")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.273151, 1.3379748, 8)
