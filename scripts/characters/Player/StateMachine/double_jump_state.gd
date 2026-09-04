@@ -52,17 +52,8 @@ func physics_update(delta: float):
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():
 			change_to("DodgeDashState")
 		
-	# Check for wall jump input first
-	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
-		var wall_normal = player.get_wall_jump_direction()
-		if wall_normal.length() > 0:
-			cleanup_tween()
-			var wall_jump_state = player.state_machine.states.get("walljumpingstate")
-			if wall_jump_state:
-				wall_jump_state.setup_wall_jump(wall_normal)
-				change_to("WallJumpingState")
-				player.wall_jump_cooldown = player.wall_jump_cooldown_time
-				return
+	# NOTE: wall jumps fire centrally from WallJumpDetector (input-buffered,
+	# so presses are never dropped). This state is in its eligible list.
 
 	# Very limited air control for double jump - focus on vertical movement
 	handle_minimal_air_movement(delta)

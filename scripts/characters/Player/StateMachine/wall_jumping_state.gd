@@ -60,38 +60,9 @@ func physics_update(delta: float):
 			change_to("WallSlidingState")
 			return
 	
-	# Check for wall jump input first (highest priority)
-	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
-		var wall_normal = player.get_wall_jump_direction()
-		if wall_normal.length() > 0:
-			# Check if this is a different wall
-			var wall_angle_difference = wall_direction.angle_to(wall_normal)
-			if wall_angle_difference > 0.5:  # Different wall
-				
-				# Cancel momentum going into the new wall
-				var velocity_into_wall = player.velocity.dot(-wall_normal)
-				if velocity_into_wall > 0:
-					player.velocity -= wall_normal * velocity_into_wall
-				
-				# Set up for new wall jump
-				setup_wall_jump(wall_normal)
-				wall_jump_timer = 0.0  # Reset timer for new wall jump
-				
-				# Apply new wall jump forces
-				player.velocity.y = wall_jump_velocity + wall_jump_upward_boost
-				
-				# Apply horizontal force away from the new wall
-				var horizontal_force = wall_normal.normalized() * wall_jump_horizontal_force
-				player.velocity.x = horizontal_force.x
-				player.velocity.z = horizontal_force.z
-				
-				# Rotate player to face away from new wall
-				var target_rotation = atan2(-wall_normal.x, -wall_normal.z)
-				player.rotation.y = target_rotation
-				
-				# Keep wall jump cooldown at 0 for infinite wall jumping
-				player.wall_jump_cooldown = 0.0
-				return
+	# NOTE: chaining to the NEXT wall mid-air is handled by WallJumpDetector
+	# (with an input buffer so presses are never dropped). It re-enters this
+	# state via change_state, which re-runs enter() with the new wall.
 	
 	# === NEW: Progressive Control System ===
 	# This is where we fix the player input issue

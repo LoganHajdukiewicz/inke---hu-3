@@ -44,41 +44,32 @@ func physics_update(delta: float):
 	if player.velocity.y < max_fall_speed:
 		player.velocity.y = max_fall_speed
 	
-	# Check for wall jump input first (highest priority)
-	if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
-		var wall_normal = player.get_wall_jump_direction()
-		if wall_normal.length() > 0:
-			var wall_jump_state = player.state_machine.states.get("walljumpingstate")
-			if wall_jump_state:
-				wall_jump_state.setup_wall_jump(wall_normal)
-				change_to("WallJumpingState")
-				player.wall_jump_cooldown = player.wall_jump_cooldown_time
-				return
+	# NOTE: wall jumps are handled centrally by WallJumpDetector (with an
+	# input buffer so presses are never dropped) - no duplicate check here.
+	
+	# Wall jump wins over coyote/double jump: if a wall is in reach, leave
+	# the press to WallJumpDetector instead of burning the double jump.
+	var wall_jump_ready = player.can_perform_wall_jump() and player.get_wall_jump_direction().length() > 0.1
 	
 	# Check for coyote time jump
-	if Input.is_action_just_pressed("jump") and player.can_coyote_jump():
+	if Input.is_action_just_pressed("jump") and not wall_jump_ready and player.can_coyote_jump():
 		player.consume_coyote_time()
 		change_to("JumpingState")
 		return
 	
 	# Check for double jump input
-	if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
+	if Input.is_action_just_pressed("jump") and not wall_jump_ready and player.can_perform_double_jump():
 		player.perform_double_jump()
 		change_to("DoubleJumpState")
 		return
 	
-	# Wall slide: falling while pushing INTO a wall -> grab on and slide.
-	# (Without this, wall sliding was only reachable after a wall jump, so
-	# normal falls against walls stayed at full falling speed with no dust.)
+	# AUTO WALL SLIDE: falling near ANY wall = grab it and slide. No input
+	# required - if you're airborne next to a wall, you're wall sliding.
 	if fall_time > 0.08 and player.velocity.y < -1.5:
-		var slide_input = Input.get_vector("left", "right", "forward", "back")
-		if slide_input.length() > 0.3:
-			var cam_basis = player.get_node("CameraController").transform.basis
-			var wish = (cam_basis * Vector3(slide_input.x, 0, slide_input.y)).normalized()
-			var wall_hit = _check_slideable_wall(wish)
-			if wall_hit:
-				change_to("WallSlidingState")
-				return
+		var wall_n = _find_nearby_wall()
+		if wall_n != Vector3.ZERO:
+			change_to("WallSlidingState")
+			return
 	
 	# Very limited air control while falling
 	handle_falling_movement(delta)
@@ -95,24 +86,37 @@ func physics_update(delta: float):
 	
 	player.move_and_slide()
 
-func _check_slideable_wall(direction: Vector3) -> bool:
-	"""Is there a wall in this direction that we're pressing into?
-	Climbable walls and ladders are excluded - climbing wins there."""
+func _find_nearby_wall() -> Vector3:
+	"""Scan all around the player for a slideable wall (input-free).
+	Climbable walls and ladders are excluded - climbing wins there.
+	Returns the wall normal, or ZERO if no wall is in reach."""
 	var space_state = player.get_world_3d().direct_space_state
+	var dirs := [
+		Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT,
+		Vector3(1, 0, 1).normalized(), Vector3(1, 0, -1).normalized(),
+		Vector3(-1, 0, 1).normalized(), Vector3(-1, 0, -1).normalized(),
+	]
+	var best_normal := Vector3.ZERO
+	var best_dist := INF
 	for height in [0.5, 1.2]:
 		var ray_start = player.global_position + Vector3(0, height, 0)
-		var query = PhysicsRayQueryParameters3D.create(ray_start, ray_start + direction * 0.9)
-		query.collision_mask = 1
-		query.exclude = [player]
-		var result = space_state.intersect_ray(query)
-		if result:
+		for direction in dirs:
+			var query = PhysicsRayQueryParameters3D.create(ray_start, ray_start + direction * 1.0)
+			query.collision_mask = 1
+			query.exclude = [player]
+			var result = space_state.intersect_ray(query)
+			if not result:
+				continue
 			var collider = result.collider
 			if collider and (collider.is_in_group("ClimbableWall") or collider.is_in_group("Ladder")):
-				return false
-			# Must be a real wall (near-vertical) and we must be pressing into it
-			if absf(result.normal.y) < 0.35 and direction.dot(result.normal) < -0.5:
-				return true
-	return false
+				continue
+			if absf(result.normal.y) >= 0.35:
+				continue   # Not a wall (slope/ceiling)
+			var dist = ray_start.distance_to(result.position)
+			if dist < best_dist:
+				best_dist = dist
+				best_normal = result.normal
+	return best_normal
 
 func get_fall_gravity_multiplier() -> float:
 	# Progressive gravity increase for faster falling

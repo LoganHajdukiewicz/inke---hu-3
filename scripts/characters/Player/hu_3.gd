@@ -23,6 +23,7 @@ var smooth_follow_velocity: Vector3 = Vector3.ZERO
 var follow_acceleration: float = 25.0  # How fast to accelerate towards target
 var follow_max_speed: float = 35.0  # Maximum speed when following
 var follow_damping: float = 0.92  # Velocity damping (0.0 = instant stop, 1.0 = no damping)
+var anchor_max_drift: float = 1.5  # Virtual follow anchor can never be further than this from the body
 
 # Gear collection
 var gear_collection_distance: float = 8.0
@@ -117,6 +118,22 @@ func _physics_process(delta: float):
 	# Apply movement
 	move_and_slide()
 	
+	# MOMENTUM SYNC - see the README in _apply_obstacle_avoidance.
+	# smooth_follow_position is a VIRTUAL anchor that integrates momentum
+	# with no collision. When a wall stops the body, the anchor keeps
+	# going PAST it; velocity = (anchor - body)/delta then rams the wall
+	# at full speed forever (and vibrates against the climb boost). So:
+	# after every slide, (a) kill anchor momentum along any surface we
+	# actually hit, and (b) leash the anchor to the body.
+	for i in range(get_slide_collision_count()):
+		var n = get_slide_collision(i).get_normal()
+		var into = smooth_follow_velocity.dot(-n)
+		if into > 0.0:
+			smooth_follow_velocity += n * into   # Wall absorbed this momentum
+	var drift = smooth_follow_position - global_position
+	if drift.length() > anchor_max_drift:
+		smooth_follow_position = global_position + drift.normalized() * anchor_max_drift
+	
 	_update_stuck_recovery(delta)
 
 func _apply_obstacle_avoidance(_delta: float):
@@ -129,6 +146,47 @@ func _apply_obstacle_avoidance(_delta: float):
 	the gear forever and could never collect anything below head height.
 	Floors are not obstacles for a descending flyer; walls are."""
 	if velocity.length() < 0.5:
+		return
+	
+	# ============================= README =================================
+	# THE WALL-SLIDE VIBRATION BUG (and how it was fixed)
+	#
+	# SYMPTOM: while the player wall slides (or climbs/hangs), HU-3
+	# vibrates violently up and down next to the wall.
+	#
+	# ROOT CAUSE - RUNAWAY MOMENTUM ON A VIRTUAL ANCHOR:
+	# HU-3 doesn't steer at the player directly; it chases a virtual point
+	# (smooth_follow_position) that integrates its own momentum
+	# (smooth_follow_velocity) with NO collision detection. The body is
+	# moved by move_and_slide, which walls DO stop. So next to a wall:
+	#   1. The wall stops the MESH, but the anchor's momentum carries it
+	#      past where we see - into/through/below the wall.
+	#   2. velocity = (anchor - body) / delta now points at the wall at
+	#      max speed, every frame, forever - the body pins and grinds.
+	#   3. The obstacle whisker sees the wall and fires the climb boost
+	#      (velocity.y = +8); steering yanks back down toward the runaway
+	#      anchor; boost fires again... up 8 / down 10 = the vibration.
+	#   A jump only "fixed" it because the anchor finally re-converged on
+	#   the body once it left the wall.
+	#
+	# THE FIX (two layers, both required):
+	#   a) MOMENTUM SYNC (in _physics_process, right after move_and_slide):
+	#      for every surface the body actually collided with, delete the
+	#      anchor-velocity component pointing into it (the wall absorbed
+	#      that momentum - the anchor doesn't get to keep it), and leash
+	#      the anchor to within anchor_max_drift of the real body so it
+	#      can never run away again.
+	#   b) This whisker is SKIPPED while the player is wall-attached
+	#      (_is_player_wall_attached: slide/climb/hang) - those states
+	#      already park HU-3 at a calm anchor 1.6m off the wall, and the
+	#      wall itself must not count as an obstacle to climb.
+	#
+	# RULE OF THUMB for any future vertical jitter: it's almost always two
+	# systems writing velocity.y with opposite signs on alternating frames,
+	# usually because some proxy target diverged from the physical body.
+	# Don't tune the numbers - find the second writer / the diverged proxy.
+	# ======================================================================
+	if _is_player_wall_attached():
 		return
 	
 	# Only the horizontal component matters for wall avoidance

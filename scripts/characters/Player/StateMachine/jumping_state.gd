@@ -120,19 +120,13 @@ func physics_update(delta: float):
 	
 	# Don't allow jump input if being sprung (spring floor handles this)
 	if not player.is_being_sprung:
-		# Check for wall jump input first (highest priority)
-		if Input.is_action_just_pressed("jump") and player.can_perform_wall_jump():
-			var wall_normal = player.get_wall_jump_direction()
-			if wall_normal.length() > 0:
-				var wall_jump_state = player.state_machine.states.get("walljumpingstate")
-				if wall_jump_state:
-					wall_jump_state.setup_wall_jump(wall_normal)
-					change_to("WallJumpingState")
-					player.wall_jump_cooldown = player.wall_jump_cooldown_time
-					return
+		# NOTE: wall jumps fire centrally from WallJumpDetector (input-
+		# buffered, so presses are never dropped). Guard below keeps a
+		# press near a wall from burning the double jump instead.
+		var wall_jump_ready = player.can_perform_wall_jump() and player.get_wall_jump_direction().length() > 0.1
 		
 		# Check for double jump input
-		if Input.is_action_just_pressed("jump") and player.can_perform_double_jump():
+		if Input.is_action_just_pressed("jump") and not wall_jump_ready and player.can_perform_double_jump():
 			player.perform_double_jump()
 			change_to("DoubleJumpState")
 			return
