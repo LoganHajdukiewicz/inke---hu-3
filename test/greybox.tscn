@@ -30,6 +30,16 @@
 [ext_resource type="PackedScene" uid="uid://dgu522lrq7iyy" path="res://scenes/environments/swing_bar.tscn" id="27_swingbar"]
 [ext_resource type="PackedScene" uid="uid://climbenemy001" path="res://scenes/characters/NPCs/Enemies/climbing_enemy.tscn" id="28_climber"]
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="29_merchant"]
+[ext_resource type="PackedScene" uid="uid://cowardenemy01" path="res://scenes/characters/NPCs/Enemies/coward_enemy.tscn" id="30_coward"]
+[ext_resource type="PackedScene" uid="uid://bomberenemy01" path="res://scenes/characters/NPCs/Enemies/bomber_enemy.tscn" id="31_bomber"]
+[ext_resource type="PackedScene" uid="uid://turretenemy01" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="32_turret"]
+[ext_resource type="PackedScene" uid="uid://chargerenmy01" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="33_charger"]
+[ext_resource type="PackedScene" uid="uid://hopperenemy1" path="res://scenes/characters/NPCs/Enemies/hopper_enemy.tscn" id="34_hopper"]
+[ext_resource type="PackedScene" uid="uid://splitterenm1" path="res://scenes/characters/NPCs/Enemies/splitter_enemy.tscn" id="35_splitter"]
+[ext_resource type="PackedScene" uid="uid://roombuild0001" path="res://scenes/environments/worldbuilding/room.tscn" id="36_room"]
+[ext_resource type="PackedScene" uid="uid://hallwaybld001" path="res://scenes/environments/worldbuilding/hallway.tscn" id="37_hall"]
+[ext_resource type="PackedScene" uid="uid://keyitem000001" path="res://scenes/items/Collectibles/key.tscn" id="38_key"]
+[ext_resource type="Script" path="res://scripts/environments/worldbuilding/doorway.gd" id="39_doorway"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -653,6 +663,101 @@ label_text = "BOSS"
 button_color = Color(0.7, 0.2, 0.9, 1)
 spawner_path = NodePath("../BossSpawner")
 
+
+[node name="CowardSpawner" parent="ButtonArena" unique_id=1198583000 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 62)
+enemy_scene = ExtResource("30_coward")
+enemy_label = "COWARD SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_coward"
+
+[node name="CowardButton" parent="ButtonArena" unique_id=931409942 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 70)
+label_text = "COWARD"
+button_color = Color(0.9, 0.75, 0.2, 1)
+spawner_path = NodePath("../CowardSpawner")
+
+[node name="BomberSpawner" parent="ButtonArena" unique_id=732739371 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 62)
+enemy_scene = ExtResource("31_bomber")
+enemy_label = "BOMBER SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_bomber"
+
+[node name="BomberButton" parent="ButtonArena" unique_id=1434520649 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 70)
+label_text = "BOMBER"
+button_color = Color(1, 0.45, 0.1, 1)
+spawner_path = NodePath("../BomberSpawner")
+
+[node name="TurretSpawner" parent="ButtonArena" unique_id=781824479 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 62)
+enemy_scene = ExtResource("32_turret")
+enemy_label = "TURRET SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_turret"
+
+[node name="TurretButton" parent="ButtonArena" unique_id=1672714296 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 70)
+label_text = "TURRET"
+button_color = Color(0.5, 0.55, 0.65, 1)
+spawner_path = NodePath("../TurretSpawner")
+
+[node name="ChargerSpawner" parent="ButtonArena" unique_id=876940755 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 76)
+enemy_scene = ExtResource("33_charger")
+enemy_label = "CHARGER SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_charger"
+
+[node name="ChargerButton" parent="ButtonArena" unique_id=1525502431 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 84)
+label_text = "CHARGER
+(dodge the rush!)"
+button_color = Color(0.75, 0.25, 0.15, 1)
+spawner_path = NodePath("../ChargerSpawner")
+
+[node name="HopperSpawner" parent="ButtonArena" unique_id=290578918 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 76)
+enemy_scene = ExtResource("34_hopper")
+enemy_label = "HOPPER SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_hopper"
+
+[node name="HopperButton" parent="ButtonArena" unique_id=843837265 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 0.25, 84)
+label_text = "HOPPER
+(sidestep the landing!)"
+button_color = Color(0.3, 0.8, 0.4, 1)
+spawner_path = NodePath("../HopperSpawner")
+
+[node name="SplitterSpawner" parent="ButtonArena" unique_id=688455942 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 76)
+enemy_scene = ExtResource("35_splitter")
+enemy_label = "SPLITTER SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_splitter"
+
+[node name="SplitterButton" parent="ButtonArena" unique_id=1258954216 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 84)
+label_text = "SPLITTER
+(it multiplies!)"
+button_color = Color(0.5, 0.25, 0.75, 1)
+spawner_path = NodePath("../SplitterSpawner")
+
+[node name="ClimberSpawner" parent="ButtonArena" unique_id=220726353 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 0.25, 76)
+enemy_scene = ExtResource("28_climber")
+enemy_label = "CLIMBER SPAWNER"
+spawn_direction = Vector3(0, 0, 4)
+spawned_enemy_id = "gb_button_climber"
+
+[node name="ClimberButton" parent="ButtonArena" unique_id=1216074066 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 86, 0.25, 84)
+label_text = "WALL CRAWLER"
+button_color = Color(0.2, 0.7, 0.7, 1)
+spawner_path = NodePath("../ClimberSpawner")
+
 [node name="WallJumpTower" type="Node3D" parent="." unique_id=1177389306]
 
 [node name="TowerWallA" parent="WallJumpTower" unique_id=594239786 instance=ExtResource("1_v8rb7")]
@@ -705,6 +810,68 @@ pixel_size = 0.012
 billboard = 1
 text = "SWING BARS
 "
+
+
+[node name="KeyCompound" type="Node3D" parent="." unique_id=1669014858]
+
+[node name="CompoundLabel" type="Label3D" parent="KeyCompound" unique_id=901610150]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 8, 60)
+pixel_size = 0.012
+billboard = 1
+text = "KEY & LOCKED DOOR
+(find the key, climb the stairs)"
+font_size = 36
+outline_size = 14
+
+[node name="KeyRoom" parent="KeyCompound" unique_id=1397694503 instance=ExtResource("36_room")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0.5, 60)
+interior_size = Vector3(10, 5, 10)
+auto_doorway = false
+light_count = 1
+
+[node name="FrontDoorway" type="Marker3D" parent="KeyCompound/KeyRoom" unique_id=1511651793]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.0)
+script = ExtResource("39_doorway")
+width = 2.0
+height = 2.8
+has_door = false
+
+[node name="HallDoorway" type="Marker3D" parent="KeyCompound/KeyRoom" unique_id=286542720]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0, 0, 0)
+script = ExtResource("39_doorway")
+width = 2.0
+height = 2.8
+has_door = false
+
+[node name="Key" parent="KeyCompound" unique_id=1429010732 instance=ExtResource("38_key")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 1.3, 57)
+key_id = "gb_compound_key"
+
+[node name="LockedRoom" parent="KeyCompound" unique_id=162116830 instance=ExtResource("36_room")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 3.5, 60)
+interior_size = Vector3(8, 5, 8)
+auto_doorway = false
+light_count = 1
+wall_color = Color(0.6, 0.55, 0.7, 1)
+
+[node name="LockedDoorway" type="Marker3D" parent="KeyCompound/LockedRoom" unique_id=921506589]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 0, 0)
+script = ExtResource("39_doorway")
+width = 2.0
+height = 2.8
+has_door = true
+door_locked = true
+door_key_id = "gb_compound_key"
+
+[node name="StairHall" parent="KeyCompound" unique_id=222113605 node_paths=PackedStringArray("door_a", "door_b") instance=ExtResource("37_hall")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0.5, 60)
+door_a = NodePath("../KeyRoom/HallDoorway")
+door_b = NodePath("../LockedRoom/LockedDoorway")
+width = 2.6
+height = 3.2
+
+[node name="LockedRoomPrize" parent="KeyCompound" unique_id=498949032 instance=ExtResource("15_cred")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 4.5, 60)
 
 [node name="Merchant" parent="." unique_id=1877003554 instance=ExtResource("29_merchant")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.273151, 1.3379748, 8)

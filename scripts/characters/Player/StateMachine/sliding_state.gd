@@ -293,6 +293,10 @@ func _get_sliding_floor():
 		var collider = result.collider
 		if collider is Floor and collider.has_floor_type(Floor.FloorType.SLIDING):
 			return collider
+		# CurvedFloor: the body's PARENT owns the floor type (duck-typed)
+		var parent = collider.get_parent() if collider else null
+		if parent and parent.has_method("has_floor_type") and parent.has_floor_type(Floor.FloorType.SLIDING):
+			return parent
 	return null
 
 func _is_on_frozen_floor() -> bool:
@@ -310,6 +314,9 @@ func _is_on_frozen_floor() -> bool:
 		var collider = result.collider
 		if collider is Floor:
 			return collider.has_floor_type(Floor.FloorType.FROZEN)
+		var parent = collider.get_parent() if collider else null
+		if parent and parent.has_method("has_floor_type"):
+			return parent.has_floor_type(Floor.FloorType.FROZEN)
 	return false
 
 func get_speed() -> float:

@@ -422,6 +422,17 @@ func update_ice_detection():
 				var downhill = Vector3.DOWN - n * Vector3.DOWN.dot(n)
 				downhill.y = 0
 				slide_floor_downhill = downhill.normalized() if downhill.length() > 0.01 else Vector3.ZERO
+		elif collider and collider.get_parent() and collider.get_parent().has_method("has_floor_type"):
+			# CurvedFloor etc: the body's parent owns the floor type
+			var cf = collider.get_parent()
+			if cf.has_floor_type(Floor.FloorType.FROZEN):
+				is_on_ice = true
+			if cf.has_floor_type(Floor.FloorType.SLIDING):
+				is_on_slide_floor = true
+				var n2 = collision.get_normal()
+				var dh = Vector3.DOWN - n2 * Vector3.DOWN.dot(n2)
+				dh.y = 0
+				slide_floor_downhill = dh.normalized() if dh.length() > 0.01 else Vector3.ZERO
 		elif collider and collider.has_method("get"):
 			var floor_type = collider.get("floor_type")
 			if floor_type != null and floor_type == 6:  # FloorType.FROZEN
