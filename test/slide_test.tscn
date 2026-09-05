@@ -1,0 +1,43 @@
+[gd_scene format=3 uid="uid://dq16cjlk1xiuo"]
+
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="1_bntui"]
+[ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="1_mg37e"]
+[ext_resource type="Script" uid="uid://ejbw8fubfr73" path="res://scripts/environments/floor.gd" id="2_bntui"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bntui"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_fiybl"]
+sky_material = SubResource("ProceduralSkyMaterial_bntui")
+
+[sub_resource type="Environment" id="Environment_rfdoc"]
+background_mode = 2
+sky = SubResource("Sky_fiybl")
+glow_enabled = true
+
+[node name="Node3D" type="Node3D" unique_id=754792244]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1835433080]
+environment = SubResource("Environment_rfdoc")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1406371918]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Inke" type="CharacterBody3D" parent="." unique_id=2088239389 node_paths=PackedStringArray("wall_jump_rays", "rail_grind_area") groups=["Player"] instance=ExtResource("1_bntui")]
+script = ExtResource("1_mg37e")
+wall_jump_rays = NodePath("WallJumpRays")
+rail_grind_area = NodePath("RailGrindArea")
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1772200479]
+script = ExtResource("2_bntui")
+floor_size = Vector3(5, 0.5, 5)
+metadata/_custom_type_script = "uid://ejbw8fubfr73"
+
+[node name="Floor2" type="StaticBody3D" parent="." unique_id=949328144]
+transform = Transform3D(1, 0, 0, 0, 0.9396926, 0.34202012, 0, -0.34202012, 0.9396926, 0, -19.136955, -54.333893)
+script = ExtResource("2_bntui")
+floor_type = 7
+floor_size = Vector3(5, 0.5, 100)
+metadata/_custom_type_script = "uid://ejbw8fubfr73"
