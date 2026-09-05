@@ -1,0 +1,95 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/cutscenes/cutscene_camera.gd" id="1_y4h0s"]
+
+[node name="CinematicShots" type="Node3D" unique_id=1363796882]
+
+[node name="Greybox_Shot1" type="Camera3D" parent="." unique_id=170382733]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot2" type="Camera3D" parent="." unique_id=2016052863]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot3" type="Camera3D" parent="." unique_id=1353645858]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot4" type="Camera3D" parent="." unique_id=1369889207]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot5" type="Camera3D" parent="." unique_id=389789715]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot6" type="Camera3D" parent="." unique_id=1048742008]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot7" type="Camera3D" parent="." unique_id=184627295]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot8" type="Camera3D" parent="." unique_id=1611648706]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot9" type="Camera3D" parent="." unique_id=2045432827]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot10" type="Camera3D" parent="." unique_id=1096863879]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot11" type="Camera3D" parent="." unique_id=960616746]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot12" type="Camera3D" parent="." unique_id=1862105712]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot13" type="Camera3D" parent="." unique_id=163874311]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot14" type="Camera3D" parent="." unique_id=957383191]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot15" type="Camera3D" parent="." unique_id=1096535576]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot16" type="Camera3D" parent="." unique_id=2040295608]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot17" type="Camera3D" parent="." unique_id=1205425238]
+transform = Transform3D(-0.7343534, 0.2840604, -0.61646956, 0, 0.90821934, 0.41849452, 0.67876726, 0.3073229, -0.666954, -0.9162879, 4.872643, 2.0500944)
+fov = 50.0
+script = ExtResource("1_y4h0s")
+
+[node name="Greybox_Shot18" type="Camera3D" parent="." unique_id=1820600969]
+transform = Transform3D(-0.44548303, 0.27003384, -0.85359627, 0, 0.9534295, 0.30161592, 0.8952904, 0.13436477, -0.42473668, -0.3052088, 2.6737165, 6.5633554)
+fov = 50.0
+script = ExtResource("1_y4h0s")
