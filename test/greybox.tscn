@@ -32,14 +32,15 @@
 [ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="29_merchant"]
 [ext_resource type="PackedScene" uid="uid://cowardenemy01" path="res://scenes/characters/NPCs/Enemies/coward_enemy.tscn" id="30_coward"]
 [ext_resource type="PackedScene" uid="uid://bomberenemy01" path="res://scenes/characters/NPCs/Enemies/bomber_enemy.tscn" id="31_bomber"]
-[ext_resource type="PackedScene" uid="uid://turretenemy01" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="32_turret"]
+[ext_resource type="PackedScene" uid="uid://jqfgjsekml77" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="32_turret"]
 [ext_resource type="PackedScene" uid="uid://chargerenmy01" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="33_charger"]
 [ext_resource type="PackedScene" uid="uid://hopperenemy1" path="res://scenes/characters/NPCs/Enemies/hopper_enemy.tscn" id="34_hopper"]
 [ext_resource type="PackedScene" uid="uid://splitterenm1" path="res://scenes/characters/NPCs/Enemies/splitter_enemy.tscn" id="35_splitter"]
-[ext_resource type="PackedScene" uid="uid://roombuild0001" path="res://scenes/environments/worldbuilding/room.tscn" id="36_room"]
-[ext_resource type="PackedScene" uid="uid://hallwaybld001" path="res://scenes/environments/worldbuilding/hallway.tscn" id="37_hall"]
-[ext_resource type="PackedScene" uid="uid://keyitem000001" path="res://scenes/items/Collectibles/key.tscn" id="38_key"]
-[ext_resource type="Script" path="res://scripts/environments/worldbuilding/doorway.gd" id="39_doorway"]
+[ext_resource type="PackedScene" uid="uid://b714xmtk37iyy" path="res://scenes/environments/worldbuilding/room.tscn" id="36_room"]
+[ext_resource type="PackedScene" uid="uid://de6qb711055aa" path="res://scenes/environments/worldbuilding/hallway.tscn" id="37_hall"]
+[ext_resource type="PackedScene" uid="uid://cn5rnasivmaii" path="res://scenes/items/Collectibles/key.tscn" id="38_key"]
+[ext_resource type="Script" uid="uid://mxsxelxwlgyl" path="res://scripts/environments/worldbuilding/room_light.gd" id="38_noppb"]
+[ext_resource type="Script" uid="uid://blhb3rpipv48s" path="res://scripts/environments/worldbuilding/doorway.gd" id="39_doorway"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -54,7 +55,7 @@ sky = SubResource("Sky_sdd4f")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Curve3D" id="Curve3D_mmawt"]
+[sub_resource type="Curve3D" id="Curve3D_noppb"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 108.91814, 13.674346, -0.07700789, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
@@ -205,10 +206,11 @@ floor_size = Vector3(10, 10, 10)
 [node name="Gym" type="Node3D" parent="." unique_id=512516654]
 
 [node name="ClimbWall" parent="Gym" unique_id=22532542 instance=ExtResource("6_wall")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 24.127628, 10)
+wall_size = Vector3(8, 50, 0.5)
 
 [node name="ClimbTopPlatform" parent="Gym" unique_id=954092001 instance=ExtResource("1_v8rb7")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 5.7, 14.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 50, 14.5)
 floor_size = Vector3(8, 0.5, 8)
 
 [node name="Ladder" parent="Gym" unique_id=1797152046 instance=ExtResource("7_ladder")]
@@ -240,10 +242,37 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
 
 [node name="Rail" parent="Gym" unique_id=60611775 instance=ExtResource("2_k7grp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 2.6968927, -0.23347282)
-curve = SubResource("Curve3D_mmawt")
+curve = SubResource("Curve3D_noppb")
 
-[node name="WallCrawler" parent="Gym" unique_id=126311147 instance=ExtResource("28_climber")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 14)
+[node name="WallCrawler3" parent="Gym" unique_id=1844873975 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 16.587555, 10.695618)
+
+[node name="WallCrawler4" parent="Gym" unique_id=700983352 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 23.497562, 10.695618)
+
+[node name="WallCrawler5" parent="Gym" unique_id=585938991 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 32.209606, 10.695618)
+
+[node name="WallCrawler6" parent="Gym" unique_id=2118911748 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 40.93874, 10.695618)
+
+[node name="WallCrawler7" parent="Gym" unique_id=647019765 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 40.93874, 10.695618)
+
+[node name="WallCrawler8" parent="Gym" unique_id=1682163669 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 20.60093, 9.254874)
+
+[node name="WallCrawler9" parent="Gym" unique_id=1655116917 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 27.510937, 9.254874)
+
+[node name="WallCrawler10" parent="Gym" unique_id=68992693 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 36.22298, 9.254874)
+
+[node name="WallCrawler11" parent="Gym" unique_id=303403975 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 44.952114, 9.254874)
+
+[node name="WallCrawler12" parent="Gym" unique_id=1966257721 instance=ExtResource("28_climber")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 44.952114, 9.254874)
 
 [node name="Items" type="Node3D" parent="." unique_id=325595334]
 
@@ -569,7 +598,7 @@ visible_in_game = true
 discovery_text = "SUMMIT REACHED!"
 
 [node name="LostGizmo" parent="QuestHub" unique_id=1242573672 instance=ExtResource("21_item")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 6, 14.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 50.82238, 14.5)
 item_id = "gb_lost_gizmo"
 
 [node name="QuestGiverLabel" type="Label3D" parent="QuestHub" unique_id=771848633]
@@ -662,7 +691,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85.65282, 0.25, 54)
 label_text = "BOSS"
 button_color = Color(0.7, 0.2, 0.9, 1)
 spawner_path = NodePath("../BossSpawner")
-
 
 [node name="CowardSpawner" parent="ButtonArena" unique_id=1198583000 instance=ExtResource("25_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 62, 0.25, 62)
@@ -811,57 +839,57 @@ billboard = 1
 text = "SWING BARS
 "
 
-
 [node name="KeyCompound" type="Node3D" parent="." unique_id=1669014858]
 
-[node name="CompoundLabel" type="Label3D" parent="KeyCompound" unique_id=901610150]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 8, 60)
-pixel_size = 0.012
-billboard = 1
-text = "KEY & LOCKED DOOR
-(find the key, climb the stairs)"
-font_size = 36
-outline_size = 14
-
 [node name="KeyRoom" parent="KeyCompound" unique_id=1397694503 instance=ExtResource("36_room")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0.5, 60)
-interior_size = Vector3(10, 5, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -79.36545, 0.5, 1.3348427)
 auto_doorway = false
+interior_size = Vector3(10, 5, 10)
 light_count = 1
 
 [node name="FrontDoorway" type="Marker3D" parent="KeyCompound/KeyRoom" unique_id=1511651793]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35581613, 5)
 script = ExtResource("39_doorway")
 width = 2.0
-height = 2.8
+height = 3.5
+sill_height = -0.75
 has_door = false
 
 [node name="HallDoorway" type="Marker3D" parent="KeyCompound/KeyRoom" unique_id=286542720]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, 0)
 script = ExtResource("39_doorway")
 width = 2.0
 height = 2.8
 has_door = false
 
+[node name="RoomLight1" type="Marker3D" parent="KeyCompound/KeyRoom" unique_id=213342993]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.95, 0)
+script = ExtResource("38_noppb")
+metadata/auto_light = true
+
 [node name="Key" parent="KeyCompound" unique_id=1429010732 instance=ExtResource("38_key")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -43, 1.3, 57)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80.76425, 1.3, 10.506212)
 key_id = "gb_compound_key"
 
 [node name="LockedRoom" parent="KeyCompound" unique_id=162116830 instance=ExtResource("36_room")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 3.5, 60)
-interior_size = Vector3(8, 5, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.365448, 3.5, 1.3348427)
 auto_doorway = false
-light_count = 1
+interior_size = Vector3(8, 5, 8)
 wall_color = Color(0.6, 0.55, 0.7, 1)
+light_count = 1
 
 [node name="LockedDoorway" type="Marker3D" parent="KeyCompound/LockedRoom" unique_id=921506589]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
 script = ExtResource("39_doorway")
 width = 2.0
 height = 2.8
-has_door = true
 door_locked = true
 door_key_id = "gb_compound_key"
+
+[node name="RoomLight1" type="Marker3D" parent="KeyCompound/LockedRoom" unique_id=657760003]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.95, 0)
+script = ExtResource("38_noppb")
+metadata/auto_light = true
 
 [node name="StairHall" parent="KeyCompound" unique_id=222113605 node_paths=PackedStringArray("door_a", "door_b") instance=ExtResource("37_hall")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0.5, 60)
@@ -871,7 +899,8 @@ width = 2.6
 height = 3.2
 
 [node name="LockedRoomPrize" parent="KeyCompound" unique_id=498949032 instance=ExtResource("15_cred")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 4.5, 60)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.365448, 4.5, 1.3348427)
 
 [node name="Merchant" parent="." unique_id=1877003554 instance=ExtResource("29_merchant")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.273151, 1.3379748, 8)
+available_upgrades = Array[int]([0, 1, 2, 4, 5, 3])

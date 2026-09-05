@@ -15,7 +15,7 @@ class_name GroundPoundMound
 @export var pickup_lock_time: float = 1.0    # Loot can't be collected while flying out
 ## How long HU3 keeps IGNORING the popped loot (on top of the scatter
 ## time), so the buddy robot doesn't vacuum it up before you even see it.
-@export var hu3_ignore_time: float = 0.75
+@export var hu3_ignore_time: float = 0.15
 @export var one_shot: bool = true            # Can it only be slammed open once?
 
 @export_group("Appearance")
