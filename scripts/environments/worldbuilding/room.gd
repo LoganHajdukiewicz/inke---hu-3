@@ -24,7 +24,12 @@ class_name Room
 @export_group("Shape")
 ## Interior space: width (X), wall height (Y), depth (Z).
 @export var interior_size: Vector3 = Vector3(50, 30, 50):
-	set(v): interior_size = v; _request_rebuild(); _poke_sibling_rooms()
+	set(v):
+		var old := interior_size
+		interior_size = v
+		_rescale_lights(old, v)
+		_request_rebuild()
+		_poke_sibling_rooms()
 @export var wall_thickness: float = 0.3:
 	set(v): wall_thickness = v; _request_rebuild()
 @export var floor_thickness: float = 0.3:
@@ -81,6 +86,7 @@ class_name Room
 var _csg: CSGCombiner3D
 var _rebuild_queued := false
 var _snapping := false   # Re-entry guard while we move ourselves
+var _snap_timer: SceneTreeTimer = null   # Drag-settle debounce (editor)
 
 
 func _ready():
@@ -101,6 +107,21 @@ func _auto_lights() -> Array:
 		if c is RoomLight and c.has_meta("auto_light"):
 			out.append(c)
 	return out
+
+
+func _rescale_lights(old_size: Vector3, new_size: Vector3) -> void:
+	"""Room resized: keep every auto light INSIDE the room. Positions scale
+	proportionally (a light at 30% across stays at 30% across) and clamp to
+	the new interior - lights were floating outside after resizes."""
+	if old_size.x <= 0 or old_size.y <= 0 or old_size.z <= 0:
+		return
+	var ratio := Vector3(new_size.x / old_size.x, new_size.y / old_size.y, new_size.z / old_size.z)
+	for l in _auto_lights():
+		var p: Vector3 = l.position * ratio
+		p.x = clampf(p.x, -new_size.x * 0.5 + 0.3, new_size.x * 0.5 - 0.3)
+		p.z = clampf(p.z, -new_size.z * 0.5 + 0.3, new_size.z * 0.5 - 0.3)
+		p.y = new_size.y - 0.05   # Always on the (new) ceiling
+		l.position = p
 
 
 func _refresh_lights() -> void:
@@ -135,9 +156,29 @@ func _refresh_lights() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSFORM_CHANGED and Engine.is_editor_hint() and not _snapping:
+		# Rebuild live while dragging, but DON'T snap yet: snapping teleports
+		# the node mid-drag, which fights the editor's mouse transform and
+		# makes the room jump around / 'break'. Snap fires only after the
+		# room has been still for a beat (drag settled).
+		_request_rebuild()
+		_poke_sibling_rooms()
+		_schedule_snap()
+
+
+func _schedule_snap() -> void:
+	if not is_inside_tree():
+		return
+	_snap_timer = get_tree().create_timer(0.35)
+	var my_timer := _snap_timer
+	_snap_timer.timeout.connect(func():
+		# Only the LATEST scheduled snap runs (earlier ones were superseded
+		# by continued dragging).
+		if _snap_timer != my_timer or not is_inside_tree():
+			return
 		_try_snap()
 		_request_rebuild()
 		_poke_sibling_rooms()
+	)
 
 
 func _request_rebuild():

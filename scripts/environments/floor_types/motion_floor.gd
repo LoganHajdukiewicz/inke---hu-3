@@ -125,6 +125,14 @@ func move_players_with_floor() -> void:
 			if player and is_instance_valid(player):
 				if player.is_on_floor() or player.velocity.y <= 0.1:
 					player.global_position += floor_delta
+					# DOWNWARD-moving floor: keep the rider stuck to it. The
+					# platform dropping out from underfoot made is_on_floor()
+					# flicker (bounce/bump) - pin vertical velocity down and
+					# re-snap so only a JUMP can leave the platform.
+					if floor_delta.y < -0.001 and player.velocity.y <= 0.1:
+						player.velocity.y = minf(player.velocity.y, floor_delta.y * 60.0)
+						if player.has_method("apply_floor_snap"):
+							player.apply_floor_snap()
 				else:
 					players_to_remove.append(player)
 		

@@ -23,9 +23,16 @@ var slide_velocity: Vector3 = Vector3.ZERO
 var slide_direction: Vector3 = Vector3.ZERO
 var initial_slide_speed: float = 10.0
 var was_on_sliding_floor: bool = false
+var _air_grace: float = 0.0            # Seconds tolerated off the ground
+var _saved_snap_length: float = 0.1
 
 func enter():
 	was_on_sliding_floor = false
+	_air_grace = 0.0
+	# GROUND LOCK: long floor snap glues the player over bumps/seams so
+	# sliding down never pops her airborne without a jump.
+	_saved_snap_length = player.floor_snap_length
+	player.floor_snap_length = 1.5
 	# Get the player's current horizontal velocity
 	var current_horizontal_velocity = Vector3(player.velocity.x, 0, player.velocity.z)
 	var current_speed = current_horizontal_velocity.length()
@@ -76,11 +83,22 @@ func physics_update(delta: float):
 			change_to("DodgeDashState")
 			return
 	
-	# Handle gravity / leaving the ground
+	# Leaving the ground: GRACE window instead of instant exit. Bumps and
+	# floor seams used to pop the player airborne mid-slide - now we shove
+	# her back onto the slope for up to 0.25s; only a real drop-off exits.
+	# (Jumping exits through the jump branch below, never through here.)
 	if not player.is_on_floor():
-		player.velocity += player.get_gravity() * delta
-		change_to("FallingState")
+		_air_grace += delta
+		if _air_grace > 0.25:
+			player.velocity += player.get_gravity() * delta
+			change_to("FallingState")
+			return
+		# Hard downward shove + snap to re-stick on the slope
+		player.velocity.y = minf(player.velocity.y, -8.0)
+		player.move_and_slide()
+		player.apply_floor_snap()
 		return
+	_air_grace = 0.0
 	
 	# Allow jump exit. Jumping off a SLIDING floor arms the anti-climb block:
 	# for a short window, air control cannot add uphill velocity, so spamming
@@ -97,6 +115,7 @@ func physics_update(delta: float):
 		was_on_sliding_floor = true
 		_apply_downhill_slide(delta, sliding_floor)
 		player.move_and_slide()
+		player.apply_floor_snap()   # Glued to the slope (ground lock)
 		return
 	
 	# ---- EJECT: the slide ended (crossed onto a normal floor) --------------
@@ -233,18 +252,25 @@ func _apply_downhill_slide(delta: float, floor_node) -> void:
 		player.velocity.y = 0
 	player.velocity.y -= 20.0 * delta
 	
-	# Face the slide direction - and NEVER face uphill. The facing target is
-	# clamped to at most ~85 degrees off downhill, so the player can angle
-	# left/right across the slope but can't visually turn around against it.
-	if vel.length() > 1.0 and not is_flat:
-		var face := vel.normalized()
+	# Face the slide direction - and NEVER face uphill. Clamping only the
+	# lerp TARGET still let the CURRENT rotation point uphill while the
+	# lerp caught up (the 'single frame turn'). Now the actual rotation is
+	# HARD-clamped to downhill +/- 85 degrees every frame after the lerp -
+	# there is no frame where the player faces up the slide.
+	if not is_flat:
 		var downhill_face := Vector3(downhill.x, 0, downhill.z).normalized()
-		var target_rotation := atan2(-face.x, -face.z)
 		var downhill_rotation := atan2(-downhill_face.x, -downhill_face.z)
-		var off_downhill := angle_difference(downhill_rotation, target_rotation)
 		var max_off := deg_to_rad(85.0)
-		target_rotation = downhill_rotation + clampf(off_downhill, -max_off, max_off)
-		player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+		if vel.length() > 1.0:
+			var face := vel.normalized()
+			var target_rotation := atan2(-face.x, -face.z)
+			var off_downhill := angle_difference(downhill_rotation, target_rotation)
+			target_rotation = downhill_rotation + clampf(off_downhill, -max_off, max_off)
+			player.rotation.y = lerp_angle(player.rotation.y, target_rotation, ROTATION_SPEED * delta)
+		# HARD clamp the actual rotation (not just the target)
+		var cur_off := angle_difference(downhill_rotation, player.rotation.y)
+		if absf(cur_off) > max_off:
+			player.rotation.y = downhill_rotation + clampf(cur_off, -max_off, max_off)
 	elif vel.length() > 1.0:
 		var face := vel.normalized()
 		var target_rotation := atan2(-face.x, -face.z)
@@ -290,5 +316,6 @@ func get_speed() -> float:
 	return slide_velocity.length()
 
 func exit():
-	pass
+	# Restore normal floor snapping (ground lock off)
+	player.floor_snap_length = _saved_snap_length
 	# DON'T clear slide velocity - preserve momentum!
