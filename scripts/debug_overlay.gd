@@ -2,7 +2,7 @@ extends CanvasLayer
 class_name DebugOverlay
 
 # ──────────────────────────────────────────────────────────────
-#  GREYBOX DEBUG OVERLAY  (v5 – air control · friction · jump distances · anomaly log)
+#  GREYBOX DEBUG OVERLAY  (v6 – game feel timers · perf load · combat proximity · wall climb)
 #  Toggle with: ` (backtick — "display" action)
 #  Scroll:      Mouse wheel  OR  D-pad Up/Down while overlay open
 # ──────────────────────────────────────────────────────────────
@@ -151,6 +151,35 @@ var _sprung_latch: bool = false   # BUG FIX: latch so display catches it
 var _sprung_latch_timer: float = 0.0
 const SPRUNG_LATCH_DURATION: float = 0.4  # show "sprung" for at least this long
 
+# ── GAME FEEL TIMERS (v6) ─────────────────────────────────────
+# Measured, not theoretical: these answer "how does it FEEL" questions.
+var gf_input_latency_frames : int   = -1     # frames from stick press → movement
+var _gf_input_started       : bool  = false
+var _gf_input_frames        : int   = 0
+var gf_time_to_top_speed    : float = -1.0   # 0→95% run speed, measured
+var _gf_accel_started       : bool  = false
+var _gf_accel_timer         : float = 0.0
+var gf_stop_time            : float = -1.0   # input release → stopped, measured
+var _gf_stop_started        : bool  = false
+var _gf_stop_timer          : float = 0.0
+var gf_turnaround_time      : float = -1.0   # 180° input flip → moving new way
+var _gf_turn_started        : bool  = false
+var _gf_turn_timer          : float = 0.0
+var gf_landing_recovery     : float = -1.0   # land → back at 90% of pre-land speed
+var _gf_land_started        : bool  = false
+var _gf_land_timer          : float = 0.0
+var _gf_preland_speed       : float = 0.0
+var gf_jump_cadence         : float = -1.0   # time between the last two jumps
+var _gf_last_jump_time      : float = -1.0
+var _gf_prev_jump_count     : int   = 0
+var _gf_was_airborne        : bool  = false
+
+# ── COMBAT PROXIMITY ──────────────────────────────────────────
+var combat_enemies_alive    : int   = 0
+var combat_nearest_dist     : float = -1.0
+var combat_nearest_name     : String = "—"
+var _combat_scan_timer      : float = 0.0
+
 # ── Internal ──────────────────────────────────────────────────
 var _tick: float = 0.0
 
@@ -202,7 +231,7 @@ func _build_ui() -> void:
 	bg_panel.add_child(accent)
 
 	var title := Label.new()
-	title.text = "  ◈ INKE & HU3 DEBUG  v5  [` toggle | wheel / D-pad ↑↓ scroll]"
+	title.text = "  ◈ INKE & HU3 DEBUG  v6  [` toggle | wheel / D-pad ↑↓ scroll]"
 	title.add_theme_color_override("font_color", Color(0.0, 1.0, 0.8))
 	title.add_theme_font_size_override("font_size", 12)
 	title.position = Vector2(4, 6)
@@ -322,6 +351,8 @@ func _process(delta: float) -> void:
 	_track_air_ground_time(delta)
 	_track_air_control_and_friction()
 	_track_anomalies()         # NEW
+	_track_game_feel(delta)    # v6
+	_track_combat(delta)       # v6
 
 	if not visible_overlay:
 		_prev_velocity = player.velocity
@@ -613,6 +644,113 @@ func _push_anomaly(label: String, value: float, always: bool = false) -> void:
 	if anomaly_log.size() > ANOMALY_LOG_MAX:
 		anomaly_log.pop_back()
 
+# ── v6: GAME FEEL measurement ─────────────────────────────────
+func _track_game_feel(delta: float) -> void:
+	var h_speed := Vector2(player.velocity.x, player.velocity.z).length()
+	var input_dir := Input.get_vector("left", "right", "forward", "back")
+	var on_floor := player.is_on_floor()
+	var has_input := input_dir.length() > 0.15
+
+	# 1) INPUT LATENCY: stick pressed while standing still → frames until moving
+	if has_input and not _gf_input_started and h_speed < 0.3 and on_floor:
+		_gf_input_started = true
+		_gf_input_frames = 0
+	if _gf_input_started:
+		_gf_input_frames += 1
+		if h_speed > 0.8:
+			gf_input_latency_frames = _gf_input_frames
+			_gf_input_started = false
+		elif not has_input or _gf_input_frames > 60:
+			_gf_input_started = false
+
+	# 2) TIME TO TOP SPEED: 0 → 95% of run speed (19 u/s) with input held
+	if has_input and on_floor and not _gf_accel_started and h_speed < 0.5:
+		_gf_accel_started = true
+		_gf_accel_timer = 0.0
+	if _gf_accel_started:
+		_gf_accel_timer += delta
+		if h_speed >= 19.0:
+			gf_time_to_top_speed = _gf_accel_timer
+			_gf_accel_started = false
+		elif not has_input or not on_floor or _gf_accel_timer > 5.0:
+			_gf_accel_started = false
+
+	# 3) STOP TIME: input released at speed → time until stopped
+	if not has_input and not _gf_stop_started and h_speed > 5.0 and on_floor:
+		_gf_stop_started = true
+		_gf_stop_timer = 0.0
+	if _gf_stop_started:
+		_gf_stop_timer += delta
+		if h_speed < 0.4:
+			gf_stop_time = _gf_stop_timer
+			_gf_stop_started = false
+		elif has_input or not on_floor or _gf_stop_timer > 3.0:
+			_gf_stop_started = false
+
+	# 4) TURNAROUND: input opposing velocity → time until moving the new way
+	if has_input and on_floor and h_speed > 4.0 and not _gf_turn_started:
+		var cam_fwd := _get_camera_forward()
+		if cam_fwd != Vector3.ZERO:
+			var cam_x = cam_fwd.cross(Vector3.UP).normalized()
+			var wish = (cam_fwd * -input_dir.y + cam_x * input_dir.x).normalized()
+			var vel_dir = Vector3(player.velocity.x, 0, player.velocity.z).normalized()
+			if wish.dot(vel_dir) < -0.6:
+				_gf_turn_started = true
+				_gf_turn_timer = 0.0
+	if _gf_turn_started:
+		_gf_turn_timer += delta
+		var cam_fwd2 := _get_camera_forward()
+		if cam_fwd2 != Vector3.ZERO and h_speed > 2.0:
+			var cam_x2 = cam_fwd2.cross(Vector3.UP).normalized()
+			var wish2 = (cam_fwd2 * -input_dir.y + cam_x2 * input_dir.x)
+			var vel_dir2 = Vector3(player.velocity.x, 0, player.velocity.z).normalized()
+			if wish2.length() > 0.15 and wish2.normalized().dot(vel_dir2) > 0.7:
+				gf_turnaround_time = _gf_turn_timer
+				_gf_turn_started = false
+		if _gf_turn_timer > 2.0 or not has_input:
+			_gf_turn_started = false
+
+	# 5) LANDING RECOVERY: land → back at 90% of pre-land h-speed
+	if not on_floor:
+		_gf_preland_speed = maxf(_gf_preland_speed, h_speed) if _gf_was_airborne else h_speed
+	if on_floor and _gf_was_airborne and _gf_preland_speed > 5.0:
+		_gf_land_started = true
+		_gf_land_timer = 0.0
+	if _gf_land_started:
+		_gf_land_timer += delta
+		if h_speed >= _gf_preland_speed * 0.9:
+			gf_landing_recovery = _gf_land_timer
+			_gf_land_started = false
+			_gf_preland_speed = 0.0
+		elif _gf_land_timer > 2.0 or not on_floor:
+			_gf_land_started = false
+			_gf_preland_speed = 0.0
+	_gf_was_airborne = not on_floor
+
+	# 6) JUMP CADENCE: seconds between consecutive jumps (bunny-hop rhythm)
+	if session_jump_count > _gf_prev_jump_count:
+		if _gf_last_jump_time >= 0.0:
+			gf_jump_cadence = _tick - _gf_last_jump_time
+		_gf_last_jump_time = _tick
+		_gf_prev_jump_count = session_jump_count
+
+# ── v6: COMBAT PROXIMITY (scanned 4×/s, groups are cheap but not free) ──
+func _track_combat(delta: float) -> void:
+	_combat_scan_timer -= delta
+	if _combat_scan_timer > 0.0: return
+	_combat_scan_timer = 0.25
+	var enemies := get_tree().get_nodes_in_group("Enemy")
+	combat_enemies_alive = 0
+	combat_nearest_dist = -1.0
+	combat_nearest_name = "—"
+	for e in enemies:
+		if not is_instance_valid(e) or not (e is Node3D): continue
+		combat_enemies_alive += 1
+		var d: float = player.global_position.distance_to(e.global_position)
+		if combat_nearest_dist < 0.0 or d < combat_nearest_dist:
+			combat_nearest_dist = d
+			combat_nearest_name = e.name
+
 func _current_state_name() -> String:
 	if not state_machine: return ""
 	var cs = state_machine.get("current_state")
@@ -633,6 +771,13 @@ func _update_left(delta: float) -> void:
 	txt += _row("δ frame",      C_DIM + "%.4f s" % delta + C_RESET)
 	txt += _row("Physics δ",    C_DIM + "%.4f s" % (1.0 / Engine.physics_ticks_per_second) + C_RESET)
 	txt += _row("Uptime",       C_DIM + "%.1f s" % _tick + C_RESET)
+	# v6: renderer + physics load (prototyping: catch runaway spawns early)
+	txt += _row("Draw calls",   C_VAL + str(int(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))) + C_RESET)
+	txt += _row("Objects",      C_DIM + str(int(Performance.get_monitor(Performance.OBJECT_COUNT))) + C_RESET)
+	txt += _row("Nodes",        C_DIM + str(int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT))) + C_RESET)
+	txt += _row("Orphan nodes", (C_WARN if Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT) > 50 else C_DIM) + str(int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))) + C_RESET)
+	txt += _row("3D active",    C_DIM + str(int(Performance.get_monitor(Performance.PHYSICS_3D_ACTIVE_OBJECTS))) + C_RESET)
+	txt += _row("Static mem",   C_DIM + "%.1f MB" % (Performance.get_monitor(Performance.MEMORY_STATIC) / 1048576.0) + C_RESET)
 	txt += "\n"
 
 	if not player or not is_instance_valid(player):
@@ -854,6 +999,35 @@ func _update_mid() -> void:
 	txt += _mini_bar_row("Air/Gnd", air_pct)
 	txt += "\n"
 
+	# ── v6: GAME FEEL TIMERS (measured live - the numbers that decide
+	#        whether movement feels crisp or muddy) ───────────────
+	txt += _header("◆ GAME FEEL TIMERS (measured)")
+	var lat_col := C_DIM
+	if gf_input_latency_frames >= 0:
+		lat_col = C_GOOD if gf_input_latency_frames <= 3 else (C_WARN if gf_input_latency_frames <= 8 else C_DANGER)
+	txt += _row("Input→move",   (lat_col + str(gf_input_latency_frames) + " frames" if gf_input_latency_frames >= 0 else C_DIM + "— (stand still, press stick)") + C_RESET)
+	var tts_col := C_DIM
+	if gf_time_to_top_speed >= 0.0:
+		tts_col = C_GOOD if gf_time_to_top_speed < 0.5 else (C_WARN if gf_time_to_top_speed < 1.2 else C_DANGER)
+	txt += _row("0→top speed",  (tts_col + "%.3f s" % gf_time_to_top_speed if gf_time_to_top_speed >= 0.0 else C_DIM + "—") + C_RESET)
+	var stop_col := C_DIM
+	if gf_stop_time >= 0.0:
+		stop_col = C_GOOD if gf_stop_time < 0.25 else (C_WARN if gf_stop_time < 0.6 else C_DANGER)
+	txt += _row("Stop time",    (stop_col + "%.3f s" % gf_stop_time if gf_stop_time >= 0.0 else C_DIM + "—") + C_RESET)
+	var turn_col := C_DIM
+	if gf_turnaround_time >= 0.0:
+		turn_col = C_GOOD if gf_turnaround_time < 0.35 else (C_WARN if gf_turnaround_time < 0.8 else C_DANGER)
+	txt += _row("Turnaround",   (turn_col + "%.3f s" % gf_turnaround_time if gf_turnaround_time >= 0.0 else C_DIM + "— (flip the stick at speed)") + C_RESET)
+	var land_col := C_DIM
+	if gf_landing_recovery >= 0.0:
+		land_col = C_GOOD if gf_landing_recovery < 0.2 else (C_WARN if gf_landing_recovery < 0.5 else C_DANGER)
+	txt += _row("Land recovery",(land_col + "%.3f s" % gf_landing_recovery if gf_landing_recovery >= 0.0 else C_DIM + "—") + C_RESET)
+	txt += _row("Jump cadence", (C_VAL + "%.3f s" % gf_jump_cadence if gf_jump_cadence >= 0.0 else C_DIM + "—") + C_RESET)
+	txt += C_DIM + "  ── feel targets ──\n" + C_RESET
+	txt += C_DIM + "    input→move ≤3f · 0→top <0.5s\n" + C_RESET
+	txt += C_DIM + "    stop <0.25s · turn <0.35s · land <0.2s\n" + C_RESET
+	txt += "\n"
+
 	txt += _header("◆ ACTIVE STATE INTERNALS")
 	if state_machine and state_machine.get("current_state") != null:
 		var cs = state_machine.current_state
@@ -1064,6 +1238,22 @@ func _update_mid() -> void:
 				txt += _row("Radius",       C_DIM + "%.2f u" % pr + C_RESET)
 				txt += _row("Damage",       C_VAL + str(dmg) + C_RESET)
 
+			"WallClimbingState":
+				var wcn: Variant = cs.get("wall_normal")
+				var lad: bool    = _prop(cs, "is_ladder", false)
+				var hspd: float  = _prop(cs, "climb_speed", 4.0)
+				var hopt: float  = _prop(cs, "_hop_timer", 0.0)
+				var hopd: float  = _prop(cs, "hop_duration", 0.35)
+				txt += _row("Ladder mode",  _bool(lad))
+				txt += _row("Climb speed",  C_VAL + "%.2f u/s" % hspd + C_RESET)
+				txt += _row("Hop active",   _bool(hopt > 0.0))
+				if hopt > 0.0:
+					txt += _mini_bar_row("Hop", hopt / maxf(hopd, 0.001))
+				if wcn is Vector3:
+					var wcn3 := wcn as Vector3
+					txt += _row("Wall normal", C_DIM + "(%.2f,%.2f,%.2f)" % [wcn3.x, wcn3.y, wcn3.z] + C_RESET)
+				txt += _row("Regrab lock",  C_DIM + "%.2f s" % (_prop(player, "climb_regrab_timer", 0.0) as float) + C_RESET)
+
 			"LedgeHangingState":
 				var climbing: bool = _prop(cs, "is_climbing", false)
 				var lp: Variant    = cs.get("ledge_position")
@@ -1212,6 +1402,17 @@ func _update_right() -> void:
 		txt += _row("Speed mult",   (C_WARN + "2.0x  (grind!)" if is_grinding else C_DIM + "1.0x") + C_RESET)
 	else:
 		txt += C_DANGER + "  HU3 not in scene\n" + C_RESET
+	txt += "\n"
+
+	# ── v6: COMBAT PROXIMITY ──────────────────────────────────
+	txt += _header("◆ COMBAT PROXIMITY")
+	txt += _row("Enemies alive", (C_WARN if combat_enemies_alive > 8 else C_VAL) + str(combat_enemies_alive) + C_RESET)
+	if combat_nearest_dist >= 0.0:
+		var near_col := C_DANGER if combat_nearest_dist < 3.0 else (C_WARN if combat_nearest_dist < 10.0 else C_GOOD)
+		txt += _row("Nearest",      C_DIM + combat_nearest_name + C_RESET)
+		txt += _row("Distance",     near_col + "%.2f u" % combat_nearest_dist + C_RESET)
+	else:
+		txt += _row("Nearest",      C_DIM + "—" + C_RESET)
 	txt += "\n"
 
 	txt += _header("◆ PAINT SYSTEM")

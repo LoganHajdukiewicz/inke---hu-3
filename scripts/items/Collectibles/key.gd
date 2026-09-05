@@ -162,5 +162,9 @@ func _on_body_entered(body: Node3D):
 	tween.set_parallel(true)
 	tween.tween_property(_model, "scale", Vector3.ONE * 1.6, 0.12)
 	tween.tween_property(self, "position:y", position.y + 1.0, 0.3)
-	tween.chain().tween_property(_model, "scale", Vector3.ZERO, 0.15)
+	# NEVER tween scale to Vector3.ZERO: a zero-scale visual transform can't
+	# be inverted by the renderer -> 'invert: det == 0' error spam. Shrink to
+	# tiny-but-nonzero, then hide.
+	tween.chain().tween_property(_model, "scale", Vector3.ONE * 0.02, 0.15)
+	tween.chain().tween_callback(func(): _model.visible = false)
 	tween.chain().tween_callback(queue_free)

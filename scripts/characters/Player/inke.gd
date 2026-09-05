@@ -779,8 +779,19 @@ func take_damage(amount: int, knockback_dir: Vector3 = Vector3.ZERO):
 	if game_manager:
 		game_manager.damage_player(amount)
 	
-	# Apply knockback with provided direction
-	apply_damage_knockback(knockback_dir)
+	# HIT WHILE WALL CLIMBING: knocked clean off the wall - you fall all the
+	# way back down (regrab locked long enough that you can't catch yourself).
+	var cs = state_machine.current_state if state_machine else null
+	if cs and cs.get_script() and cs.get_script().get_global_name() == "WallClimbingState":
+		var away: Vector3 = cs.wall_normal if cs.wall_normal != Vector3.ZERO else -global_transform.basis.z
+		velocity = away * 6.0
+		velocity.y = 3.0
+		climb_regrab_timer = 1.4   # Long lock: no mid-fall regrabs, ride it to the bottom
+		rotation.y = atan2(-away.x, -away.z) + PI  # Face the wall as you fall
+		state_machine.change_state("FallingState")
+	else:
+		# Apply knockback with provided direction
+		apply_damage_knockback(knockback_dir)
 	
 	# Start invulnerability WITH flashing
 	is_invulnerable = true

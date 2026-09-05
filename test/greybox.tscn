@@ -41,6 +41,7 @@
 [ext_resource type="PackedScene" uid="uid://cn5rnasivmaii" path="res://scenes/items/Collectibles/key.tscn" id="38_key"]
 [ext_resource type="Script" uid="uid://mxsxelxwlgyl" path="res://scripts/environments/worldbuilding/room_light.gd" id="38_noppb"]
 [ext_resource type="Script" uid="uid://blhb3rpipv48s" path="res://scripts/environments/worldbuilding/doorway.gd" id="39_doorway"]
+[ext_resource type="PackedScene" uid="uid://healthpickup1" path="res://scenes/items/Collectibles/health_pickup.tscn" id="40_health"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_84upl"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -278,6 +279,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 44.952114, 9.254874)
 
 [node name="HealPatch" parent="Items" unique_id=591988934 instance=ExtResource("11_heal")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.25, 50)
+
+[node name="HealthPickup" parent="Items" unique_id=1787960088 instance=ExtResource("40_health")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 1.2, 50)
+
+[node name="HealthPickup2" parent="Items" unique_id=1987433154 instance=ExtResource("40_health")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 1.2, 58)
 
 [node name="BoxA" parent="Items" unique_id=469889661 instance=ExtResource("12_box")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.29774, 0.8, 50)

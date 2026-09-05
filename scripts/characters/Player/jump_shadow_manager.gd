@@ -171,7 +171,12 @@ func update_jump_shadow(delta: float = 1.0 / 60.0):
 			if drop < closest_distance:
 				closest_distance = drop
 				closest_point = hit_point
-				closest_normal = raycast.get_collision_normal()
+				# GUARD: a ray that STARTS inside a collider reports a ZERO
+				# normal. Building the decal basis from that produces a
+				# singular (non-invertible) transform -> 'invert: det == 0'
+				# spam from the renderer. Fall back to straight up.
+				var n := raycast.get_collision_normal()
+				closest_normal = n if n.length_squared() > 0.5 else Vector3.UP
 				found_ground = true
 	
 	# Fallback to single raycast below if no circle raycasts hit
@@ -241,7 +246,9 @@ func update_jump_shadow(delta: float = 1.0 / 60.0):
 		
 		# Create basis with -Z pointing along normal (for decal projection)
 		# X = right, Y = up (normal), Z = -forward (projection direction)
-		jump_shadow_decal.basis = Basis(right_vector, up_vector, -forward_vector)
+		# Orthonormalized: guarantees an invertible basis (det != 0) even if
+		# the vectors degenerate on weird geometry.
+		jump_shadow_decal.basis = Basis(right_vector, up_vector, -forward_vector).orthonormalized()
 		
 		jump_shadow_decal.visible = true
 	else:

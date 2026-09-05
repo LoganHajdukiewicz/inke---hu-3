@@ -14,10 +14,14 @@ class_name WallClimbingState
 @export var jump_off_speed: float = 8.0     # Push-off speed when jumping from the wall
 @export var jump_off_up_speed: float = 6.0  # Upward speed when jumping from the wall
 @export var vault_up_boost: float = 6.5     # Upward pop when climbing over the top edge
+@export var hop_speed: float = 9.0          # Wall-hop burst speed (jump while climbing)
+@export var hop_duration: float = 0.35      # How long a wall-hop burst lasts
 
 var wall_normal: Vector3 = Vector3.ZERO
 var wall_point: Vector3 = Vector3.ZERO
 var is_ladder: bool = false            # "Ladder" group: up/down only
+var _hop_vel: Vector3 = Vector3.ZERO   # Active wall-hop burst (decays)
+var _hop_timer: float = 0.0
 
 func setup(normal: Vector3, point: Vector3):
 	wall_normal = Vector3(normal.x, 0, normal.z).normalized()
@@ -25,6 +29,8 @@ func setup(normal: Vector3, point: Vector3):
 
 func enter():
 	player.velocity = Vector3.ZERO
+	_hop_vel = Vector3.ZERO
+	_hop_timer = 0.0
 	
 	# Face into the wall
 	var face = -wall_normal
@@ -43,14 +49,46 @@ func enter():
 	tween.tween_property(player, "scale", Vector3.ONE, 0.1)
 
 func physics_update(delta: float):
-	# Jump: leap off the wall, away from it
+	# JUMP on a climbable wall = WALL HOP: a quick burst ACROSS the wall in
+	# the stick direction (up if neutral) to climb faster. Stick DOWN =
+	# treated like a real jump: let go and drop off the wall.
+	# Ladders keep the classic leap-away jump.
 	if Input.is_action_just_pressed("jump"):
-		player.velocity = wall_normal * jump_off_speed
-		player.velocity.y = jump_off_up_speed
-		player.climb_regrab_timer = player.climb_regrab_delay
-		# Face away from the wall for the leap
-		player.rotation.y = atan2(-wall_normal.x, -wall_normal.z) + PI
-		change_to("JumpingState")
+		var jump_input := Input.get_vector("left", "right", "forward", "back")
+		if is_ladder:
+			# Ladder: classic leap off, away from the wall
+			player.velocity = wall_normal * jump_off_speed
+			player.velocity.y = jump_off_up_speed
+			player.climb_regrab_timer = player.climb_regrab_delay
+			player.rotation.y = atan2(-wall_normal.x, -wall_normal.z) + PI
+			change_to("JumpingState")
+			return
+		if jump_input.y > 0.4:
+			# Stick DOWN + jump: drop off the wall like a jump
+			player.velocity = wall_normal * jump_off_speed * 0.6
+			player.velocity.y = 2.0
+			player.climb_regrab_timer = player.climb_regrab_delay
+			player.rotation.y = atan2(-wall_normal.x, -wall_normal.z) + PI
+			# Eat the buffered press: without this, WallJumpDetector turns
+			# the same press into a wall jump off the wall we just dropped.
+			if player.wall_jump_detector:
+				player.wall_jump_detector._jump_buffer = 0.0
+				player.wall_jump_detector.wall_jump_cooldown = 0.35
+			change_to("FallingState")
+			return
+		# Wall hop: burst in the stick direction on the wall plane (up if neutral)
+		var side_ax := wall_normal.cross(Vector3.UP).normalized()
+		var hop_dir: Vector3
+		if jump_input.length() > 0.2:
+			hop_dir = (side_ax * -jump_input.x + Vector3.UP * -jump_input.y).normalized()
+		else:
+			hop_dir = Vector3.UP
+		_hop_vel = hop_dir * hop_speed
+		_hop_timer = hop_duration
+		# Hop feedback: little stretch
+		var tw = create_tween()
+		tw.tween_property(player, "scale", Vector3(0.9, 1.12, 0.9), 0.07)
+		tw.tween_property(player, "scale", Vector3.ONE, 0.1)
 		return
 	
 	# Crouch: let go and drop
@@ -60,6 +98,29 @@ func physics_update(delta: float):
 		player.climb_regrab_timer = player.climb_regrab_delay
 		change_to("FallingState")
 		return
+	
+	# ACTIVE WALL HOP: burst movement overrides normal climbing until it decays
+	if _hop_timer > 0.0:
+		_hop_timer -= delta
+		var fade: float = clampf(_hop_timer / hop_duration, 0.0, 1.0)
+		var hop_step: Vector3 = _hop_vel * (0.35 + 0.65 * fade)
+		var next_hop_pos: Vector3 = player.global_position + hop_step * delta
+		var hop_probe := _probe_wall(next_hop_pos)
+		if not hop_probe.is_empty():
+			wall_normal = Vector3(hop_probe.normal.x, 0, hop_probe.normal.z).normalized()
+			var hface = -wall_normal
+			player.rotation.y = lerp_angle(player.rotation.y, atan2(-hface.x, -hface.z), 10.0 * delta)
+			player.velocity = hop_step - wall_normal * 2.0
+			player.move_and_slide()
+			return
+		elif hop_step.y > 0.5:
+			# Hopped past the top edge -> vault over
+			_vault_over_top()
+			return
+		else:
+			# Hopped off a side/bottom edge: stop the burst, resume climbing
+			_hop_timer = 0.0
+			_hop_vel = Vector3.ZERO
 	
 	# Movement across the wall face:
 	# left/right = along the wall, forward/back = up/down the wall

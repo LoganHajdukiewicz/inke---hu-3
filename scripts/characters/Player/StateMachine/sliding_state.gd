@@ -76,10 +76,13 @@ func physics_update(delta: float):
 		change_to("GrappleHookState")
 		return
 	
-	# Allow dash exit
+	# Allow dash exit - but you can NOT dash your way up the slide. Arm the
+	# uphill block first so the dash (which strips uphill velocity every
+	# frame via apply_slide_uphill_block) can only go sideways/downhill.
 	if Input.is_action_just_pressed("dash"):
 		var dodge_dash_state = player.state_machine.states.get("dodgedashstate")
 		if dodge_dash_state and dodge_dash_state.can_perform_dash():
+			player.arm_slide_uphill_block(0.9)
 			change_to("DodgeDashState")
 			return
 	
