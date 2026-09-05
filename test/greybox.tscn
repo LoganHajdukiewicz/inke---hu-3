@@ -240,13 +240,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 14)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0.25, 50)
 
 [node name="BoxA" parent="Items" unique_id=469889661 instance=ExtResource("12_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0.8, 50)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.29774, 0.8, 50)
 
 [node name="BoxB" parent="Items" unique_id=2085031882 instance=ExtResource("12_box")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.835, 0.8, 50)
 
 [node name="BoxC" parent="Items" unique_id=1819001631 instance=ExtResource("12_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.977955, 1.8174396, 50)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 33.135147, 1.8174396, 50)
 
 [node name="Barrel1" parent="Items" unique_id=2010980807 instance=ExtResource("13_barrel")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0.8, 50)
@@ -481,7 +481,7 @@ outline_size = 14
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3.4, 62)
 pixel_size = 0.012
 billboard = 1
-text = "INK WISP"
+text = "SPRAY PAINT"
 font_size = 36
 outline_size = 14
 
