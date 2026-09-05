@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="23_enemy"]
 [ext_resource type="PackedScene" uid="uid://brcf25nq7iyy" path="res://scenes/environments/button.tscn" id="24_btn"]
 [ext_resource type="PackedScene" uid="uid://ryreqr1dg5aa" path="res://scenes/environments/enemy_spawner.tscn" id="25_spawn"]
+[ext_resource type="PackedScene" uid="uid://c0uv74pm4thyy" path="res://scenes/characters/NPCs/Enemies/shield_enemy.tscn" id="26_bw1xk"]
 [ext_resource type="PackedScene" uid="uid://djy07jj4umaii" path="res://scenes/characters/NPCs/Enemies/laser_enemy.tscn" id="26_laser"]
 [ext_resource type="PackedScene" uid="uid://dgu522lrq7iyy" path="res://scenes/environments/swing_bar.tscn" id="27_swingbar"]
 [ext_resource type="PackedScene" uid="uid://climbenemy001" path="res://scenes/characters/NPCs/Enemies/climbing_enemy.tscn" id="28_climber"]
@@ -43,7 +44,7 @@ sky = SubResource("Sky_sdd4f")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="Curve3D" id="Curve3D_kcf50"]
+[sub_resource type="Curve3D" id="Curve3D_mmawt"]
 resource_local_to_scene = true
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, -0.00175963, -0.00133805, 0.00205678, 0, 0, 0, 0, 0, 0, 108.91814, 13.674346, -0.07700789, 0, 0, 0, 0, 0, 0, 131.06717, 0.1715008, -0.113824606),
@@ -229,7 +230,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 25, -35)
 
 [node name="Rail" parent="Gym" unique_id=60611775 instance=ExtResource("2_k7grp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2590914, 2.6968927, -0.23347282)
-curve = SubResource("Curve3D_kcf50")
+curve = SubResource("Curve3D_mmawt")
 
 [node name="WallCrawler" parent="Gym" unique_id=126311147 instance=ExtResource("28_climber")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 3, 14)
@@ -619,8 +620,24 @@ text = "BUTTON ARENA"
 font_size = 36
 outline_size = 14
 
-[node name="BossSpawner" parent="ButtonArena" unique_id=1763020842 instance=ExtResource("25_spawn")]
+[node name="ShieldSpawner" parent="ButtonArena" unique_id=1763020842 instance=ExtResource("25_spawn")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 45)
+enemy_scene = ExtResource("26_bw1xk")
+enemy_label = "SHIELD SPAWNER"
+max_alive = 1
+spawn_direction = Vector3(0, 0, 4)
+boss_name = "DEBORA"
+boss_health = 3
+boss_bar_color = Color(0.7, 0.2, 0.9, 1)
+
+[node name="ShieldButton" parent="ButtonArena" unique_id=656783583 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 54)
+label_text = "SHIELD BUTTON"
+button_color = Color(0.7, 0.2, 0.9, 1)
+spawner_path = NodePath("../ShieldSpawner")
+
+[node name="BossSpawner" parent="ButtonArena" unique_id=1125031036 instance=ExtResource("25_spawn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85.65282, 0.25, 45)
 enemy_scene = ExtResource("23_enemy")
 enemy_label = "BOSS SPAWNER"
 max_alive = 1
@@ -630,10 +647,9 @@ boss_name = "DEBORA"
 boss_health = 3
 boss_bar_color = Color(0.7, 0.2, 0.9, 1)
 
-[node name="BossButton" parent="ButtonArena" unique_id=656783583 instance=ExtResource("24_btn")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 0.25, 54)
-label_text = "
-SPAWNS A BOSS (health bar demo)"
+[node name="BossButton" parent="ButtonArena" unique_id=1735577637 instance=ExtResource("24_btn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85.65282, 0.25, 54)
+label_text = "BOSS"
 button_color = Color(0.7, 0.2, 0.9, 1)
 spawner_path = NodePath("../BossSpawner")
 
