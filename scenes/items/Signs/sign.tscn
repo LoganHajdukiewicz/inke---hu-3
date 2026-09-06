@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://d0ixvyxxmslor"]
+[gd_scene load_steps=3 format=3 uid="uid://d0ixvyxxmslor"]
 
 [ext_resource type="Script" uid="uid://b0esh8d4poopu" path="res://scripts/items/Signs/sign.gd" id="1_tmua1"]
 
@@ -6,23 +6,7 @@
 radius = 2.58695
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_uto80"]
-size = Vector3(0.0418701, 0.953613, 1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tmua1"]
-albedo_color = Color(0.588235, 0.294118, 0, 1)
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_3sypb"]
-material = SubResource("StandardMaterial3D_tmua1")
-top_radius = 0.02
-bottom_radius = 0.02
-height = 1.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_acx8r"]
-albedo_color = Color(0.588235, 0.294118, 0, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_chikx"]
-material = SubResource("StandardMaterial3D_acx8r")
-size = Vector3(0.05, 1, 1)
+size = Vector3(0.12, 1.9, 1.05)
 
 [node name="Sign" type="StaticBody3D" unique_id=1120073632]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0)
@@ -35,13 +19,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.750902, 0)
 shape = SubResource("SphereShape3D_uto80")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1746347065]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00201416, 1.04648, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
 shape = SubResource("BoxShape3D_uto80")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1237275526]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00232863, 0.503562, -0.00133872)
-mesh = SubResource("CylinderMesh_3sypb")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D" unique_id=1901574003]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.00462568, 0.564982, 0.00190604)
-mesh = SubResource("BoxMesh_chikx")

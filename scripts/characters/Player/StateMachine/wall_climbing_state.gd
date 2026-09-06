@@ -83,7 +83,7 @@ func physics_update(delta: float):
 			hop_dir = (side_ax * -jump_input.x + Vector3.UP * -jump_input.y).normalized()
 		else:
 			hop_dir = Vector3.UP
-		_hop_vel = hop_dir * hop_speed
+		_hop_vel = hop_dir * hop_speed * _climb_kit_mult()
 		_hop_timer = hop_duration
 		# Hop feedback: little stretch
 		var tw = create_tween()
@@ -138,7 +138,7 @@ func physics_update(delta: float):
 	
 	if move.length() > 0.1:
 		move = move.normalized()
-		var next_pos = player.global_position + move * climb_speed * delta
+		var next_pos = player.global_position + move * climb_speed * _climb_kit_mult() * delta
 		
 		# Is there still climbable wall at the next position?
 		var probe = _probe_wall(next_pos)
@@ -148,7 +148,7 @@ func physics_update(delta: float):
 			var face = -wall_normal
 			player.rotation.y = lerp_angle(player.rotation.y, atan2(-face.x, -face.z), 10.0 * delta)
 			
-			player.velocity = move * climb_speed
+			player.velocity = move * climb_speed * _climb_kit_mult()
 		elif move.y > 0.3 and _probe_wall(player.global_position).is_empty() == false:
 			# Moving up but no wall above -> we've reached the top edge. Vault!
 			_vault_over_top()
@@ -220,8 +220,13 @@ func _probe_wall(at_position: Vector3) -> Dictionary:
 		return result
 	return {}
 
+func _climb_kit_mult() -> float:
+	"""Climb Kit merchant upgrade: +50% climb and wall-hop speed."""
+	var gm = player.get_node_or_null("/root/GameManager")
+	return 1.5 if (gm and gm.climb_kit_purchased) else 1.0
+
 func get_speed() -> float:
-	return climb_speed
+	return climb_speed * _climb_kit_mult()
 
 func exit():
 	player.scale = Vector3.ONE

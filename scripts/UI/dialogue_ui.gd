@@ -332,4 +332,11 @@ func finish_typing() -> void:
 		# Choice lines show the X/O prompt instead of the continue arrow
 		if DialogueManager.awaiting_choice:
 			continue_indicator.visible = false
-			text_label.text = current_text + "\n\n[X] Accept        [O] Not now"
+			# Choice prompts follow the live input map + device
+			var im = get_node_or_null("/root/InputManager")
+			var p_yes := "[X]"
+			var p_no := "[O]"
+			if im:
+				p_yes = im.prompt("jump")
+				p_no = im.prompt("dash")
+			text_label.text = current_text + "\n\n" + p_yes + " Accept        " + p_no + " Not now"

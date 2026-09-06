@@ -910,4 +910,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.365448, 4.5, 1.3348427)
 
 [node name="Merchant" parent="." unique_id=1877003554 instance=ExtResource("29_merchant")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.273151, 1.3379748, 8)
-available_upgrades = Array[int]([0, 1, 2, 4, 5, 3])
+available_upgrades = Array[int]([0, 1, 2, 4, 5, 3, 6, 7, 8, 9])

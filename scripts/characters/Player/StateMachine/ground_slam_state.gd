@@ -63,6 +63,11 @@ func physics_update(delta: float):
 
 func _impact():
 	"""Landing: AOE damage, screen shake, squash effect"""
+	# Shockwave Slam merchant upgrade: bigger radius, +1 damage
+	var gm = player.get_node_or_null("/root/GameManager")
+	var shockwave: bool = gm != null and gm.shockwave_purchased
+	var aoe_radius := impact_radius * (1.5 if shockwave else 1.0)
+	var aoe_damage := impact_damage + (1 if shockwave else 0)
 	# BOOM (Inspector slot overrides the built-in default)
 	var snd = slam_sound if slam_sound else Sfx.slam_boom()
 	Sfx.play_3d(player, snd, player.global_position, slam_volume_db)
@@ -88,16 +93,16 @@ func _impact():
 		if not enemy is CharacterBody3D:
 			continue
 		var to_enemy = enemy.global_position - player.global_position
-		if to_enemy.length() > impact_radius:
+		if to_enemy.length() > aoe_radius:
 			continue
 		if enemy.has_method("take_damage"):
 			var knock_dir = to_enemy.normalized()
 			knock_dir.y = 0.4
-			enemy.take_damage(impact_damage, knock_dir.normalized() * impact_knockback + Vector3(0, 5, 0))
+			enemy.take_damage(aoe_damage, knock_dir.normalized() * impact_knockback + Vector3(0, 5, 0))
 	
 	for box in get_tree().get_nodes_in_group("Breakables"):
 		if box is Node3D and is_instance_valid(box):
-			if box.global_position.distance_to(player.global_position) <= impact_radius:
+			if box.global_position.distance_to(player.global_position) <= aoe_radius:
 				if box.has_method("take_damage"):
 					box.take_damage(99)
 	

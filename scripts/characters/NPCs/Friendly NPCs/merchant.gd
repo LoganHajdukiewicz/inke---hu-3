@@ -18,7 +18,11 @@ enum PowerupType {
 	DASH,
 	SPEED_UPGRADE,
 	HEALTH_UPGRADE,
-	DAMAGE_UPGRADE
+	DAMAGE_UPGRADE,
+	GEAR_MAGNET,
+	PAINT_TANK,
+	CLIMB_KIT,
+	SHOCKWAVE,
 }
 
 @export_group("Available Upgrades")
@@ -78,19 +82,23 @@ var greeting_label: Label
 var gear_count_label: Label
 var upgrade_description_label: Label
 var status_label: Label
+var controls_label: Label
 var item_cards: Array = []         # [{panel, name_label, cost_label, status_label}]
+var card_scroll: ScrollContainer
+var card_grid: GridContainer
+const GRID_COLS := 4               # Cards per row - any upgrade count wraps + scrolls
 
 # Model references
 var _model: Node3D
 var _coat_pivot: Node3D    # Single hinge at the shoulder - one flap, one hand
 var _wares_root: Node3D
 
-# UI Colors
-const COLOR_PURCHASED := Color(0.35, 0.85, 0.4)
-const COLOR_AFFORDABLE := Color(0.95, 0.85, 0.3)
-const COLOR_EXPENSIVE := Color(0.85, 0.35, 0.3)
-const COLOR_SELECTED_BG := Color(0.16, 0.22, 0.32, 1.0)
-const COLOR_UNSELECTED_BG := Color(0.1, 0.11, 0.14, 1.0)
+# UI Colors (graffiti palette - see PunkTheme)
+const COLOR_PURCHASED := PunkTheme.GREEN
+const COLOR_AFFORDABLE := PunkTheme.YELLOW
+const COLOR_EXPENSIVE := PunkTheme.RED
+const COLOR_SELECTED_BG := PunkTheme.CONCRETE
+const COLOR_UNSELECTED_BG := PunkTheme.ASPHALT_LIGHT
 
 var input_cooldown: float = 0.0
 var input_cooldown_time: float = 0.18
@@ -160,6 +168,10 @@ func get_upgrade_key(powerup_type: PowerupType) -> String:
 		PowerupType.SPEED_UPGRADE: return "speed_upgrade"
 		PowerupType.HEALTH_UPGRADE: return "health_upgrade"
 		PowerupType.DAMAGE_UPGRADE: return "damage_upgrade"
+		PowerupType.GEAR_MAGNET: return "gear_magnet"
+		PowerupType.PAINT_TANK: return "paint_tank"
+		PowerupType.CLIMB_KIT: return "climb_kit"
+		PowerupType.SHOCKWAVE: return "shockwave"
 		_: return ""
 
 
@@ -383,10 +395,10 @@ func setup_ui():
 	
 	# Interaction prompt (anchored bottom-center - works on any resolution)
 	interaction_label = Label.new()
-	interaction_label.text = "[E] Talk to " + merchant_name
 	interaction_label.add_theme_font_size_override("font_size", 24)
 	interaction_label.add_theme_constant_override("outline_size", 8)
 	interaction_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
+	interaction_label.add_theme_color_override("font_color", PunkTheme.YELLOW)
 	interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	interaction_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	interaction_label.offset_top = -130
@@ -396,142 +408,171 @@ func setup_ui():
 	interaction_label.visible = false
 	canvas_layer.add_child(interaction_label)
 	
+	# Live prompt glyphs: swap [E] <-> [□] when the device or bindings change
+	var im = get_node_or_null("/root/InputManager")
+	if im:
+		im.device_changed.connect(func(_d): _refresh_prompts())
+		im.bindings_changed.connect(_refresh_prompts)
+	
 	# Full-screen dim behind the shop
 	dim_rect = ColorRect.new()
-	dim_rect.color = Color(0, 0, 0, 0.55)
+	dim_rect.color = Color(0.02, 0.01, 0.04, 0.72)
 	dim_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
 	dim_rect.visible = false
 	canvas_layer.add_child(dim_rect)
 	
-	# Main shop panel - centered
+	# Main shop panel - centered, graffiti sticker style
 	shop_panel = Panel.new()
 	shop_panel.set_anchors_preset(Control.PRESET_CENTER)
 	shop_panel.offset_left = -480
 	shop_panel.offset_right = 480
-	shop_panel.offset_top = -300
-	shop_panel.offset_bottom = 300
+	shop_panel.offset_top = -310
+	shop_panel.offset_bottom = 310
 	shop_panel.visible = false
-	
-	var panel_style = StyleBoxFlat.new()
-	panel_style.bg_color = Color(0.08, 0.08, 0.11, 0.97)
-	panel_style.border_color = Color(0.75, 0.6, 0.3)
-	panel_style.set_border_width_all(3)
-	panel_style.set_corner_radius_all(14)
-	panel_style.shadow_size = 24
-	panel_style.shadow_color = Color(0, 0, 0, 0.5)
-	shop_panel.add_theme_stylebox_override("panel", panel_style)
+	shop_panel.add_theme_stylebox_override("panel", PunkTheme.panel(PunkTheme.PINK))
 	canvas_layer.add_child(shop_panel)
 	
-	# Title
+	# Title - stencil caps with spray shadow
 	title_label = Label.new()
-	title_label.text = merchant_name.to_upper()
-	title_label.add_theme_font_size_override("font_size", 40)
-	title_label.add_theme_color_override("font_color", Color(0.95, 0.8, 0.45))
+	title_label.text = merchant_name
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.position = Vector2(0, 18)
+	title_label.position = Vector2(0, 14)
 	title_label.size = Vector2(960, 48)
+	PunkTheme.style_headline(title_label, PunkTheme.PINK, 42)
 	shop_panel.add_child(title_label)
 	
 	# Greeting ("Whaddya buyin'?")
 	greeting_label = Label.new()
 	greeting_label.text = "\"" + greeting_text + "\""
 	greeting_label.add_theme_font_size_override("font_size", 20)
-	greeting_label.add_theme_color_override("font_color", Color(0.7, 0.65, 0.55))
+	greeting_label.add_theme_color_override("font_color", PunkTheme.DIM)
 	greeting_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	greeting_label.position = Vector2(0, 66)
+	greeting_label.position = Vector2(0, 64)
 	greeting_label.size = Vector2(960, 28)
 	shop_panel.add_child(greeting_label)
 	
 	# Gear count - top right corner chip
 	gear_count_label = Label.new()
 	gear_count_label.add_theme_font_size_override("font_size", 26)
-	gear_count_label.add_theme_color_override("font_color", Color(1.0, 0.9, 0.35))
+	gear_count_label.add_theme_color_override("font_color", PunkTheme.YELLOW)
+	gear_count_label.add_theme_constant_override("outline_size", 6)
+	gear_count_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.9))
 	gear_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	gear_count_label.position = Vector2(660, 24)
-	gear_count_label.size = Vector2(270, 36)
+	gear_count_label.position = Vector2(640, 22)
+	gear_count_label.size = Vector2(280, 36)
 	shop_panel.add_child(gear_count_label)
 	
 	_build_item_cards()
 	
 	# Description strip under the cards
 	upgrade_description_label = Label.new()
-	upgrade_description_label.add_theme_font_size_override("font_size", 21)
-	upgrade_description_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.95))
+	upgrade_description_label.add_theme_font_size_override("font_size", 20)
+	upgrade_description_label.add_theme_color_override("font_color", PunkTheme.CYAN)
 	upgrade_description_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	upgrade_description_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	upgrade_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	upgrade_description_label.position = Vector2(60, 420)
-	upgrade_description_label.size = Vector2(840, 70)
+	upgrade_description_label.position = Vector2(60, 462)
+	upgrade_description_label.size = Vector2(840, 56)
 	shop_panel.add_child(upgrade_description_label)
 	
 	# Status / purchase prompt
 	status_label = Label.new()
-	status_label.add_theme_font_size_override("font_size", 26)
+	status_label.add_theme_font_size_override("font_size", 25)
 	status_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status_label.position = Vector2(0, 495)
-	status_label.size = Vector2(960, 40)
+	status_label.position = Vector2(0, 522)
+	status_label.size = Vector2(960, 38)
 	shop_panel.add_child(status_label)
 	
-	# Controls hint
-	var controls = Label.new()
-	controls.text = "◀ ▶ Browse      [SPACE/X] Buy      [ESC/C] Leave"
-	controls.add_theme_font_size_override("font_size", 18)
-	controls.add_theme_color_override("font_color", Color(0.55, 0.55, 0.62))
-	controls.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	controls.position = Vector2(0, 555)
-	controls.size = Vector2(960, 28)
-	shop_panel.add_child(controls)
+	# Controls hint (refreshed per-device by _refresh_prompts)
+	controls_label = Label.new()
+	controls_label.add_theme_font_size_override("font_size", 17)
+	controls_label.add_theme_color_override("font_color", PunkTheme.DIM)
+	controls_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	controls_label.position = Vector2(0, 578)
+	controls_label.size = Vector2(960, 28)
+	shop_panel.add_child(controls_label)
+	_refresh_prompts()
+
+
+func _refresh_prompts():
+	"""All button hints follow the live input map + active device."""
+	var im = get_node_or_null("/root/InputManager")
+	var p_interact := "[E]"
+	var p_buy := "[SPACE]"
+	var p_leave := "[O]"
+	if im:
+		p_interact = im.prompt("interact")
+		p_buy = im.prompt("jump") if im.is_using_controller() else "[SPACE]"
+		p_leave = im.prompt("dash")
+	if interaction_label:
+		interaction_label.text = p_interact + " Talk to " + merchant_name
+	if controls_label:
+		controls_label.text = "◀ ▶ ▲ ▼ BROWSE      " + p_buy + " BUY      " + p_leave + " LEAVE"
+	if shop_open:
+		update_selection()
 
 
 func _build_item_cards():
+	"""Scrollable grid - handles ANY number of upgrades. GRID_COLS per row,
+	rows wrap, the strip scrolls to keep the selected card in view."""
 	item_cards.clear()
+	if card_scroll and is_instance_valid(card_scroll):
+		card_scroll.queue_free()
 	var count = upgrade_data.size()
 	if count == 0:
 		return
 	
-	var card_w = 200
-	var card_h = 240
-	var spacing = 24
-	var total_w = card_w * count + spacing * (count - 1)
-	var start_x = (960 - total_w) / 2.0
-	var y = 115
+	var card_w = 210
+	var card_h = 158
+	var spacing = 16
+	
+	card_scroll = ScrollContainer.new()
+	card_scroll.position = Vector2(28, 100)
+	card_scroll.size = Vector2(904, 355)
+	card_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	card_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	shop_panel.add_child(card_scroll)
+	
+	card_grid = GridContainer.new()
+	card_grid.columns = GRID_COLS
+	card_grid.add_theme_constant_override("h_separation", spacing)
+	card_grid.add_theme_constant_override("v_separation", spacing)
+	card_scroll.add_child(card_grid)
 	
 	for i in range(count):
 		var upgrade = upgrade_data[i]
 		
 		var card = Panel.new()
-		card.position = Vector2(start_x + i * (card_w + spacing), y)
-		card.size = Vector2(card_w, card_h)
-		var style = StyleBoxFlat.new()
-		style.bg_color = COLOR_UNSELECTED_BG
-		style.border_color = Color(0.3, 0.3, 0.38)
-		style.set_border_width_all(2)
-		style.set_corner_radius_all(10)
-		card.add_theme_stylebox_override("panel", style)
-		shop_panel.add_child(card)
+		card.custom_minimum_size = Vector2(card_w, card_h)
+		card.add_theme_stylebox_override("panel", PunkTheme.card(false))
+		card_grid.add_child(card)
 		
 		var name_label = Label.new()
-		name_label.text = upgrade.name
-		name_label.add_theme_font_size_override("font_size", 21)
+		name_label.text = upgrade.name.to_upper()
+		name_label.add_theme_font_size_override("font_size", 18)
+		name_label.add_theme_color_override("font_color", Color(0.95, 0.94, 0.98))
+		name_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+		name_label.add_theme_constant_override("shadow_offset_x", 2)
+		name_label.add_theme_constant_override("shadow_offset_y", 2)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		name_label.position = Vector2(8, 14)
-		name_label.size = Vector2(card_w - 16, 64)
+		name_label.position = Vector2(10, 10)
+		name_label.size = Vector2(card_w - 20, 52)
 		card.add_child(name_label)
 		
 		var cost_label = Label.new()
 		cost_label.text = str(upgrade.cost) + " ⚙"
-		cost_label.add_theme_font_size_override("font_size", 30)
+		cost_label.add_theme_font_size_override("font_size", 26)
 		cost_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		cost_label.position = Vector2(0, 130)
-		cost_label.size = Vector2(card_w, 40)
+		cost_label.position = Vector2(0, 74)
+		cost_label.size = Vector2(card_w, 34)
 		card.add_child(cost_label)
 		
 		var st = Label.new()
-		st.add_theme_font_size_override("font_size", 17)
+		st.add_theme_font_size_override("font_size", 15)
 		st.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		st.position = Vector2(0, 195)
-		st.size = Vector2(card_w, 28)
+		st.position = Vector2(0, 122)
+		st.size = Vector2(card_w, 26)
 		card.add_child(st)
 		
 		item_cards.append({"panel": card, "name": name_label, "cost": cost_label, "status": st})
@@ -562,6 +603,19 @@ func handle_shop_input():
 	if Input.is_action_just_pressed("right") or Input.is_action_just_pressed("d_pad_right"):
 		current_upgrade_index = mini(upgrade_data.size() - 1, current_upgrade_index + 1)
 		update_selection()
+		input_cooldown = input_cooldown_time
+	
+	# Grid rows: up/down jumps a whole row
+	if Input.is_action_just_pressed("forward") or Input.is_action_just_pressed("d_pad_up"):
+		if current_upgrade_index - GRID_COLS >= 0:
+			current_upgrade_index -= GRID_COLS
+			update_selection()
+		input_cooldown = input_cooldown_time
+	
+	if Input.is_action_just_pressed("back") or Input.is_action_just_pressed("d_pad_down"):
+		if current_upgrade_index + GRID_COLS < upgrade_data.size():
+			current_upgrade_index += GRID_COLS
+			update_selection()
 		input_cooldown = input_cooldown_time
 	
 	if Input.is_action_just_pressed("ui_accept"):
@@ -723,40 +777,43 @@ func update_selection():
 	
 	for i in range(item_cards.size()):
 		var card = item_cards[i]
-		var style = card.panel.get_theme_stylebox("panel") as StyleBoxFlat
 		var upgrade = upgrade_data[i]
 		var owned = GameManager.is_upgrade_purchased(upgrade.key)
 		
-		if i == current_upgrade_index:
-			style.bg_color = COLOR_SELECTED_BG
-			style.border_color = Color(0.95, 0.8, 0.45)
-			style.set_border_width_all(3)
-		else:
-			style.bg_color = COLOR_UNSELECTED_BG
-			style.border_color = Color(0.3, 0.3, 0.38)
-			style.set_border_width_all(2)
+		# Accent stripe: green when owned, pink otherwise
+		var accent: Color = COLOR_PURCHASED if owned else PunkTheme.PINK
+		card.panel.add_theme_stylebox_override("panel", PunkTheme.card(i == current_upgrade_index, accent))
 		
 		if owned:
-			card.status.text = "✓ OWNED"
+			card.status.text = "OWNED"
 			card.status.add_theme_color_override("font_color", COLOR_PURCHASED)
 			card.cost.add_theme_color_override("font_color", Color(0.5, 0.5, 0.55))
 		elif player_gears >= upgrade.cost:
-			card.status.text = "Available"
+			card.status.text = "AVAILABLE"
 			card.status.add_theme_color_override("font_color", COLOR_AFFORDABLE)
 			card.cost.add_theme_color_override("font_color", COLOR_AFFORDABLE)
 		else:
-			card.status.text = "Too pricey"
+			card.status.text = "TOO PRICEY"
 			card.status.add_theme_color_override("font_color", COLOR_EXPENSIVE)
 			card.cost.add_theme_color_override("font_color", COLOR_EXPENSIVE)
+	
+	# Keep the selected card in view (scrollable grid)
+	if card_scroll and is_instance_valid(card_scroll) and current_upgrade_index < item_cards.size():
+		var sel_panel: Panel = item_cards[current_upgrade_index].panel
+		card_scroll.ensure_control_visible.call_deferred(sel_panel)
 	
 	var selected = upgrade_data[current_upgrade_index]
 	upgrade_description_label.text = selected.description
 	
+	var im = get_node_or_null("/root/InputManager")
+	var buy_prompt := "[SPACE]"
+	if im:
+		buy_prompt = im.prompt("jump") if im.is_using_controller() else "[SPACE]"
 	if GameManager.is_upgrade_purchased(selected.key):
-		status_label.text = "✓ Already yours, stranger."
+		status_label.text = "Already yours, stranger."
 		status_label.add_theme_color_override("font_color", COLOR_PURCHASED)
 	elif player_gears >= selected.cost:
-		status_label.text = "[SPACE/X]  Buy for " + str(selected.cost) + " ⚙"
+		status_label.text = buy_prompt + "  Buy for " + str(selected.cost) + " ⚙"
 		status_label.add_theme_color_override("font_color", COLOR_AFFORDABLE)
 	else:
 		status_label.text = "Not enough gears... come back later. (" + str(selected.cost - player_gears) + " short)"

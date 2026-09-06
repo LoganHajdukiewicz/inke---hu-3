@@ -96,9 +96,10 @@ func create_floating_button():
 	# Position it above the trigger center
 	floating_button.position = Vector3(0, 2.5, 0)
 	
-	# Create the 3D label for 'X' with bold white text and black outline
+	# Create the 3D label with bold white text and black outline. The glyph
+	# follows the live input map: 'X' on a DualShock, 'SPACE'/'ENTER' on KB.
 	button_label = Label3D.new()
-	button_label.text = "X"
+	button_label.text = _prompt_glyph()
 	button_label.font_size = 64
 	button_label.modulate = Color.WHITE
 	button_label.outline_size = 16  # Thicker black outline
@@ -110,6 +111,18 @@ func create_floating_button():
 	
 	# Hide the button initially
 	floating_button.visible = false
+	
+	# Live-swap the glyph when the device or bindings change
+	var im = get_node_or_null("/root/InputManager")
+	if im:
+		im.device_changed.connect(func(_d): if button_label: button_label.text = _prompt_glyph())
+		im.bindings_changed.connect(func(): if button_label: button_label.text = _prompt_glyph())
+
+func _prompt_glyph() -> String:
+	var im = get_node_or_null("/root/InputManager")
+	if im:
+		return im.button_label("ui_accept")
+	return "X"
 
 func start_bobbing_animation():
 	# Kill any existing tween

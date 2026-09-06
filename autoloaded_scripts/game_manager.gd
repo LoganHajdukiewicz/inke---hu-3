@@ -19,6 +19,10 @@ var player_max_health: int = BASE_MAX_HEALTH
 @export var speed_upgrade_purchased: bool = false
 @export var health_upgrade_purchased: bool = false
 @export var damage_upgrade_purchased: bool = false
+@export var gear_magnet_purchased: bool = false
+@export var paint_tank_purchased: bool = false
+@export var climb_kit_purchased: bool = false
+@export var shockwave_purchased: bool = false
 
 # Upgrade Costs
 @export_group("Upgrade Costs")
@@ -28,6 +32,19 @@ var player_max_health: int = BASE_MAX_HEALTH
 @export var speed_upgrade_cost: int = 50
 @export var health_upgrade_cost: int = 50
 @export var damage_upgrade_cost: int = 50
+@export var gear_magnet_cost: int = 40
+@export var paint_tank_cost: int = 45
+@export var climb_kit_cost: int = 55
+@export var shockwave_cost: int = 60
+
+## Canonical upgrade registry - THE list. The merchant, pause menu and any
+## future shop UI iterate this instead of hardcoding; add an entry here (plus
+## the purchased/cost vars and match arms below) and every UI picks it up.
+const ALL_UPGRADE_KEYS: Array[String] = [
+	"double_jump", "wall_jump", "dash",
+	"speed_upgrade", "health_upgrade", "damage_upgrade",
+	"gear_magnet", "paint_tank", "climb_kit", "shockwave",
+]
 
 # Player Reference
 var player: CharacterBody3D = null
@@ -186,6 +203,14 @@ func apply_purchased_upgrades():
 		player_max_health = new_max
 		player_health = clamp(player_health, 0, player_max_health)
 		health_changed.emit(player_health, player_max_health)
+	# Paint Tank upgrade: +50% max paint
+	var pm = get_node_or_null("/root/PaintManager")
+	if pm and "max_paint_amount" in pm:
+		var want: int = 150 if paint_tank_purchased else 100
+		if pm.max_paint_amount != want:
+			pm.max_paint_amount = want
+			if pm.has_signal("paint_amount_changed"):
+				pm.paint_amount_changed.emit(pm.current_paint_amount, pm.max_paint_amount)
 
 # === HU3 COMPANION MANAGEMENT ===
 
@@ -374,6 +399,15 @@ func purchase_upgrade(upgrade_type: String) -> bool:
 			set_player_health(player_max_health)
 		"damage_upgrade":
 			damage_upgrade_purchased = true
+		"gear_magnet":
+			gear_magnet_purchased = true
+		"paint_tank":
+			paint_tank_purchased = true
+			apply_purchased_upgrades()
+		"climb_kit":
+			climb_kit_purchased = true
+		"shockwave":
+			shockwave_purchased = true
 	
 	upgrade_purchased.emit(upgrade_type)
 	return true
@@ -393,6 +427,14 @@ func is_upgrade_purchased(upgrade_type: String) -> bool:
 			return health_upgrade_purchased
 		"damage_upgrade":
 			return damage_upgrade_purchased
+		"gear_magnet":
+			return gear_magnet_purchased
+		"paint_tank":
+			return paint_tank_purchased
+		"climb_kit":
+			return climb_kit_purchased
+		"shockwave":
+			return shockwave_purchased
 		_:
 			return false
 
@@ -411,6 +453,14 @@ func get_upgrade_cost(upgrade_type: String) -> int:
 			return health_upgrade_cost
 		"damage_upgrade":
 			return damage_upgrade_cost
+		"gear_magnet":
+			return gear_magnet_cost
+		"paint_tank":
+			return paint_tank_cost
+		"climb_kit":
+			return climb_kit_cost
+		"shockwave":
+			return shockwave_cost
 		_:
 			return -1
 
@@ -429,6 +479,14 @@ func get_upgrade_description(upgrade_type: String) -> String:
 			return "Allows you to take a harder hit"
 		"damage_upgrade":
 			return "Allows you to hit those evil robots harder"
+		"gear_magnet":
+			return "Magnetized soles - nearby gears fly straight to you"
+		"paint_tank":
+			return "A bigger tank: +50% max spray paint"
+		"climb_kit":
+			return "Grip gloves - climb and wall-hop 50% faster"
+		"shockwave":
+			return "Ground slams hit harder and reach further"
 		_:
 			return "Unknown upgrade"
 
@@ -447,6 +505,14 @@ func get_upgrade_name(upgrade_type: String) -> String:
 			return "Health Upgrade"
 		"damage_upgrade":
 			return "Damage Upgrade"
+		"gear_magnet":
+			return "Gear Magnet"
+		"paint_tank":
+			return "Paint Tank"
+		"climb_kit":
+			return "Climb Kit"
+		"shockwave":
+			return "Shockwave Slam"
 		_:
 			return "Unknown Upgrade"
 

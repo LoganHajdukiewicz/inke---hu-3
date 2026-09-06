@@ -125,7 +125,10 @@ func _update_hint():
 		_hint.text = "Locked"
 		_hint.modulate = lock_color
 	else:
-		_hint.text = "[E] Open" if not is_open else "[E] Close"
+		# Prompt follows the live input map + active device ([E] vs [□])
+		var im = get_node_or_null("/root/InputManager")
+		var p: String = im.prompt("interact") if im else "[E]"
+		_hint.text = p + " Open" if not is_open else p + " Close"
 		_hint.modulate = Color(0.9, 0.9, 0.9)
 
 

@@ -8,6 +8,11 @@ extends Area3D
 @export var bob_speed: float = 2.0
 @export var ground_offset: float = 0.3  # How high above ground to float
 
+# Gear Magnet upgrade (merchant): gears inside this radius fly to the player
+@export var magnet_radius: float = 6.0
+@export var magnet_speed: float = 14.0
+var _magnet_active: bool = false
+
 var initial_position: Vector3
 var ground_level: float = 0.0
 var time_passed: float = 0.0
@@ -116,6 +121,19 @@ func _process(delta):
 	
 	# Rotate the gear around the Y axis
 	rotation_degrees.y += rotation_speed * delta
+	
+	# GEAR MAGNET upgrade: fly to the player once they're in range
+	if not is_scattering and not pickup_locked:
+		var gm = get_node_or_null("/root/GameManager")
+		if gm and gm.gear_magnet_purchased and gm.player and is_instance_valid(gm.player):
+			var to_p: Vector3 = gm.player.global_position + Vector3.UP * 0.8 - global_position
+			var d := to_p.length()
+			if _magnet_active or d < magnet_radius:
+				_magnet_active = true   # Once latched, never lets go
+				# Accelerating pull - snappier the closer it gets
+				var pull := magnet_speed * clampf(2.5 - d / magnet_radius, 1.0, 2.5)
+				global_position += to_p.normalized() * minf(pull * delta, d)
+				return   # Skip bobbing while being pulled
 	
 	# Bobbing motion (stays above ground) - not while scattering out of a box
 	if enable_bobbing and not is_scattering:

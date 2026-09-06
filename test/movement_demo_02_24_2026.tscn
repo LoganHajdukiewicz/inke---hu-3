@@ -841,7 +841,6 @@ frozen_enable_visual_effects = false
 
 [node name="Sign1" parent="Dialogue Triggers" unique_id=1333488699 instance=ExtResource("7_ch5mm")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.8973751, 4.7683716e-07, -1.693975)
-script = null
 
 [node name="DialogueTrigger" parent="Dialogue Triggers/Sign1" unique_id=1568396047 instance=ExtResource("8_rtagd")]
 dialogue_file = "Sign1"

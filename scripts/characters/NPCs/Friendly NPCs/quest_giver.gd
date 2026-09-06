@@ -417,7 +417,8 @@ func _on_area_entered(body: Node3D) -> void:
 	if body.is_in_group("Player"):
 		player_in_range = true
 		current_player = body
-		prompt_label.text = "[E] Talk to " + npc_name
+		var im = get_node_or_null("/root/InputManager")
+		prompt_label.text = (im.prompt("interact") if im else "[E]") + " Talk to " + npc_name
 		if not DialogueManager.is_dialogue_active():
 			prompt_label.visible = true
 
