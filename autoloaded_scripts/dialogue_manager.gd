@@ -296,3 +296,11 @@ func end_dialogue() -> void:
 
 func is_dialogue_active() -> bool:
 	return not current_dialogue.is_empty()
+
+func bark(speaker: String, text: String, duration: float = 1.6) -> void:
+	"""Quick one-shot line in the SIDE textbox (the compact wall-dialogue box
+	on the right). No pausing, no input, auto-dismisses. Used for NPC hit
+	reactions and similar flavor. Safe to call anytime - it never disturbs a
+	running dialogue."""
+	if dialogue_ui and is_instance_valid(dialogue_ui) and dialogue_ui.has_method("show_bark"):
+		dialogue_ui.show_bark(speaker, text, duration)

@@ -52,6 +52,12 @@ enum PowerupType {
 ]
 ## Play the intro every single time (off = only the first visit).
 @export var intro_every_time: bool = false
+## Said in the SIDE textbox when the player hits him. Random pick per hit.
+@export_multiline var hit_reactions: Array[String] = [
+	"Ow! No refunds for THAT.",
+	"Careful with the merchandise, stranger!",
+	"Heh heh... that one's going on your tab.",
+]
 
 @export_group("Coat")
 @export var coat_color: Color = Color(0.16, 0.13, 0.11)     # Grimy long coat
@@ -378,6 +384,9 @@ func on_hit() -> void:
 	"""NPC hit reaction: clutch the coat shut and glare."""
 	if _busy or shop_open:
 		return
+	# Complain in the side textbox (configurable in the Inspector)
+	if hit_reactions.size() > 0:
+		DialogueManager.bark(merchant_name, hit_reactions.pick_random())
 	var tween = create_tween()
 	tween.tween_property(_model, "scale", Vector3(1.08, 0.9, 1.08), 0.06)
 	tween.tween_property(_model, "scale", Vector3.ONE, 0.14).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

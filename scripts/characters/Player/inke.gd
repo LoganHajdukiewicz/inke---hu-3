@@ -33,6 +33,12 @@ class_name Inke
 @export var ice_max_speed_multiplier: float = 1.15  # can slightly exceed run speed when sliding
 @export var ice_friction_multiplier: float = 0.01   # legacy control multiplier on ice
 
+@export_group("Companion")
+## OFF = no HU3 companion spawns for this Inke (tutorial sections before
+## you meet HU3). GameManager checks this flag before spawning; turning it
+## off also despawns an already-flying HU3 on scene load.
+@export var spawn_hu3: bool = true
+
 @export_group("Damage & Death")
 @export var invulnerability_duration: float = 1.5
 @export var death_y_threshold: float = -50.0   # Fall death threshold

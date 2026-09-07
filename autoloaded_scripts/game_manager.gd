@@ -188,8 +188,26 @@ func initialize_player():
 	if player.has_method("set_health"):
 		player.set_health(player_health)
 	
-	if not hu3_companion:
-		call_deferred("spawn_hu3_companion")
+	if _player_wants_hu3():
+		if not hu3_companion:
+			call_deferred("spawn_hu3_companion")
+	else:
+		# Tutorial Inke (spawn_hu3 = false): make sure no HU3 tags along
+		despawn_hu3_companion()
+
+func _player_wants_hu3() -> bool:
+	"""The player scene decides whether HU3 exists (inke.gd: spawn_hu3).
+	Defaults to true for players without the flag."""
+	if not player or not is_instance_valid(player):
+		return true
+	var flag = player.get("spawn_hu3")
+	return flag == null or flag == true
+
+func despawn_hu3_companion():
+	"""Remove HU3 from the scene (tutorial sections, cutscenes)."""
+	if hu3_companion and is_instance_valid(hu3_companion):
+		hu3_companion.queue_free()
+	hu3_companion = null
 
 func apply_purchased_upgrades():
 	"""Apply purchased upgrades that affect GameManager-owned state.
@@ -219,6 +237,10 @@ func spawn_hu3_companion():
 	# FIXED: Add safety checks to ensure player is valid and in scene tree
 	if not player or not is_instance_valid(player):
 		print("GameManager: Cannot spawn HU3 - invalid player reference")
+		return
+	
+	# Tutorial Inke: no HU3 for this player scene
+	if not _player_wants_hu3():
 		return
 	
 	if not player.is_inside_tree():

@@ -34,6 +34,11 @@ var _plain_style_wall: StyleBox = null
 @onready var wall_speaker_label = $WallDialogueContainer/WallDialogueBox/MarginContainer/VBoxContainer/SpeakerName
 @export var wall_display_duration: float = 1.5  # Time to show wall dialogue
 
+# BARK: one-shot side-box message (NPC "Ow!" etc). Reuses the compact wall
+# dialogue box on the right; independent from the dialogue line flow.
+var _bark_timer: float = 0.0
+var _bark_active: bool = false
+
 var is_typing: bool = false
 var current_text: String = ""
 var displayed_text: String = ""
@@ -225,6 +230,14 @@ func hide_dialogue() -> void:
 	wall_timer = 0.0
 	
 func _process(delta: float) -> void:
+	# Bark auto-dismiss (side box, no dialogue state involved)
+	if _bark_active:
+		_bark_timer -= delta
+		if _bark_timer <= 0.0:
+			_bark_active = false
+			if wall_dialogue_container and not is_wall_trigger:
+				wall_dialogue_container.visible = false
+	
 	if is_typing:
 		typing_timer += delta
 		
@@ -243,9 +256,30 @@ func _process(delta: float) -> void:
 				DialogueManager.next_line()
 				wall_timer = 0.0
 
+func show_bark(speaker: String, text: String, duration: float = 1.6) -> void:
+	"""One-shot message in the SIDE textbox (wall dialogue box) - used for NPC
+	hit reactions (\"Ow!\") and other quick barks. Does NOT touch the dialogue
+	state, doesn't pause, doesn't need dismissing. A real wall-trigger dialogue
+	always wins over a bark."""
+	if wall_dialogue_container == null:
+		return
+	# Never stomp on an actual dialogue using the wall box
+	if is_wall_trigger and DialogueManager.is_dialogue_active():
+		return
+	if wall_speaker_label:
+		wall_speaker_label.text = speaker
+	if wall_text_label:
+		wall_text_label.text = text
+	wall_dialogue_container.visible = true
+	_bark_active = true
+	_bark_timer = duration
+
 func show_dialogue(should_pause: bool = true) -> void:
 	# Determine if this is a wall trigger based on pause state
 	is_wall_trigger = not should_pause
+	
+	# A real dialogue always evicts any bark using the side box
+	_bark_active = false
 	
 	if is_wall_trigger:
 		# Show wall trigger UI (right side, compact)

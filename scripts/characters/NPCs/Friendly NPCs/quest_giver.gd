@@ -90,6 +90,13 @@ func get_quest() -> Quest:
 @export_multiline var reminder: String = "How's that job coming along? Here's what I remember:"
 ## After a failure, before re-offering.
 @export_multiline var retry_line: String = "Hey, don't sweat it. Dust yourself off - want another shot?"
+## Said in the SIDE textbox when the player hits this NPC. One is picked at
+## random per hit - add as many as you like.
+@export_multiline var hit_reactions: Array[String] = [
+	"Ow!",
+	"Hey! Watch the yo-yo!",
+	"Real mature.",
+]
 ## After completion.
 @export_multiline var thanks: String = "You really came through. Thank you!"
 ## If the player declines the offer.
@@ -504,6 +511,10 @@ func on_hit() -> void:
 	if Engine.is_editor_hint() or _flashing or not _mesh_root:
 		return
 	_flashing = true
+	
+	# Complain in the side textbox (configurable in the Inspector)
+	if hit_reactions.size() > 0:
+		DialogueManager.bark(npc_name, hit_reactions.pick_random())
 	
 	# Collect flashable materials once (torso, head, eyes)
 	if _flash_mats.is_empty():
