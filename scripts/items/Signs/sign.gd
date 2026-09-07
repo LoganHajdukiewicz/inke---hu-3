@@ -41,6 +41,10 @@ func _rebuild():
 	
 	_model = Node3D.new()
 	_model.name = "SignModel"
+	# FLIP: the panel face is built along +X, but every placed sign was
+	# showing players its back. Rotate the whole model 180 so the painted
+	# face points the way the sign is actually facing in the level.
+	_model.rotation_degrees.y = 180.0
 	add_child(_model)
 	
 	# ── Pole: galvanized steel, slightly bent (been hit by a truck) ──────

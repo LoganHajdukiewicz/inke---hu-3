@@ -25,8 +25,23 @@ var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 ##   ELECTRIC: cyan-blue crackle, tight and buzzy - fits HU3's tech vibe
 @export_enum("Classic Sparks", "Ember Fountain", "Electric Crackle") var spark_style: int = 0
 @export var sparks_enabled: bool = true
+## Jet Set Radio style low-poly fire burst pinned at the feet while grinding:
+## a jagged filled star in layered yellow/orange/red that flickers into a new
+## random shape every few frames.
+@export var feet_burst_enabled: bool = true
 
 var _sparks: GPUParticles3D = null
+var _burst: MeshInstance3D = null
+var _burst_timer: float = 0.0
+
+# JSR burst layers, drawn big-to-small: yellow rim -> orange -> red -> hot core
+const BURST_COLORS: Array[Color] = [
+	Color(1.0, 0.92, 0.15),   # yellow (outer)
+	Color(1.0, 0.55, 0.05),   # orange
+	Color(0.95, 0.12, 0.03),  # red
+	Color(1.0, 0.97, 0.72),   # white-hot core
+]
+const BURST_SCALES: Array[float] = [1.0, 0.76, 0.55, 0.28]
 
 func enter():
 	
@@ -35,11 +50,14 @@ func enter():
 	player.has_double_jumped = false
 	if sparks_enabled:
 		_create_sparks()
+	if feet_burst_enabled:
+		_create_feet_burst()
 	player.can_air_dash = true
 	player.has_air_dashed = false
 
 func physics_update(delta: float):
 	_update_sparks()
+	_update_feet_burst(delta)
 	if Input.is_action_just_pressed("yoyo"):
 		change_to("GrappleHookState")
 		return
@@ -193,6 +211,7 @@ func enable_rail_detection():
 
 func exit():
 	_kill_sparks()
+	_kill_feet_burst()
 	# Straighten the body: only yaw survives leaving the rail, so no leftover
 	# pitch/roll from the grind pose leaks into other states
 	if player:
@@ -238,7 +257,8 @@ func _create_sparks():
 			mat.scale_min = 0.5
 			mat.scale_max = 1.1
 			var g0 := Gradient.new()
-			g0.colors = PackedColorArray([Color(1.0, 0.9, 0.4, 1.0), Color(1.0, 0.45, 0.1, 0.9), Color(0.6, 0.1, 0.0, 0.0)])
+			# Fire ramp: yellow -> orange -> red
+			g0.colors = PackedColorArray([Color(1.0, 0.95, 0.2, 1.0), Color(1.0, 0.5, 0.05, 0.95), Color(0.9, 0.1, 0.02, 0.0)])
 			var gt0 := GradientTexture1D.new(); gt0.gradient = g0
 			mat.color_ramp = gt0
 		1:   # EMBER FOUNTAIN: big glowing embers spraying up and back
@@ -255,7 +275,8 @@ func _create_sparks():
 			mat.angular_velocity_min = -180.0
 			mat.angular_velocity_max = 180.0
 			var g1 := Gradient.new()
-			g1.colors = PackedColorArray([Color(1.0, 0.7, 0.2, 1.0), Color(1.0, 0.25, 0.05, 0.8), Color(0.3, 0.05, 0.0, 0.0)])
+			# Fire ramp: yellow -> orange -> red
+			g1.colors = PackedColorArray([Color(1.0, 0.9, 0.15, 1.0), Color(1.0, 0.45, 0.05, 0.85), Color(0.8, 0.08, 0.02, 0.0)])
 			var gt1 := GradientTexture1D.new(); gt1.gradient = g1
 			mat.color_ramp = gt1
 		2:   # ELECTRIC CRACKLE: tight cyan buzz around the contact point
@@ -294,6 +315,85 @@ func _update_sparks():
 		else:
 			pm.direction = (back + Vector3(0, 0.25, 0)).normalized()
 
+
+# === JSR FEET BURST ==========================================================
+# A flat, jagged, FILLED star of layered yellow/orange/red (like the classic
+# Jet Set Radio grind spark), billboarded at the rail contact point. Low poly
+# on purpose: ~90 tris, hard color steps, no gradients, no transparency.
+# It re-rolls its spike shape every few frames so it crackles.
+
+func _create_feet_burst():
+	_kill_feet_burst()
+	_burst = MeshInstance3D.new()
+	_burst.name = "GrindFeetBurst"
+	var m := StandardMaterial3D.new()
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.vertex_color_use_as_albedo = true
+	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_burst.material_override = m
+	_burst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_burst.mesh = _gen_burst_mesh()
+	_burst_timer = 0.0
+	player.get_tree().current_scene.add_child(_burst)
+
+func _gen_burst_mesh() -> ArrayMesh:
+	"""Build a jagged star polygon (random every call) filled in 4 hard-color
+	layers: yellow rim, orange, red, white-hot core - stacked with tiny Z
+	offsets so the smaller layers draw on top."""
+	var spikes := 7
+	var pts := PackedVector2Array()
+	for i in spikes:
+		var a := TAU * float(i) / spikes + randf_range(-0.22, 0.22)
+		var r_out := randf_range(0.3, 0.55)
+		if randf() < 0.4:
+			r_out *= randf_range(1.5, 2.1)   # occasional dramatic long spike
+		var a2 := TAU * (float(i) + 0.5) / spikes + randf_range(-0.18, 0.18)
+		var r_in := randf_range(0.07, 0.15)
+		pts.append(Vector2(cos(a), sin(a)) * r_out)
+		pts.append(Vector2(cos(a2), sin(a2)) * r_in)
+	
+	var verts := PackedVector3Array()
+	var cols := PackedColorArray()
+	var n := pts.size()
+	for li in BURST_SCALES.size():
+		var s: float = BURST_SCALES[li]
+		var c: Color = BURST_COLORS[li]
+		var z := 0.004 * (li + 1)   # billboard +Z faces the camera: core on top
+		for i in n:
+			var v0: Vector2 = pts[i] * s
+			var v1: Vector2 = pts[(i + 1) % n] * s
+			verts.append(Vector3(0, 0, z))
+			cols.append(c)
+			verts.append(Vector3(v0.x, v0.y, z))
+			cols.append(c)
+			verts.append(Vector3(v1.x, v1.y, z))
+			cols.append(c)
+	
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_COLOR] = cols
+	var mesh := ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+func _update_feet_burst(delta: float):
+	if not _burst or not is_instance_valid(_burst):
+		return
+	# Pin to the rail contact point (feet)
+	_burst.global_position = player.global_position + Vector3(0, 0.12, 0)
+	# Flicker: re-roll the spike shape + size every few frames, JSR style
+	_burst_timer -= delta
+	if _burst_timer <= 0.0:
+		_burst_timer = randf_range(0.04, 0.09)
+		_burst.mesh = _gen_burst_mesh()
+		_burst.scale = Vector3.ONE * randf_range(0.85, 1.3)
+
+func _kill_feet_burst():
+	if _burst and is_instance_valid(_burst):
+		_burst.queue_free()
+	_burst = null
 
 func _kill_sparks():
 	if _sparks and is_instance_valid(_sparks):
