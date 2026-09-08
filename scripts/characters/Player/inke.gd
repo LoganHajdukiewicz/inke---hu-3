@@ -230,6 +230,11 @@ func _ready():
 		return
 	if not has_node("StateMachine"):
 		return   # Bare node - _swap_to_full_scene is about to replace it
+	# STEEP SLOPES ARE FLOORS: raise the walkable-floor angle so steep
+	# terrain registers as ground (is_on_floor) instead of a wall - then
+	# update_terrain_slide() forces SlidingState on it. Without this,
+	# slopes past 45deg read as walls and the slide capture never fires.
+	floor_max_angle = deg_to_rad(75.0)
 	# FIX: Get autoload references in _ready instead of @onready
 	game_manager = get_node("/root/GameManager")
 	checkpoint_manager = get_node("/root/CheckpointManager")
@@ -391,6 +396,7 @@ func _physics_process(delta: float) -> void:
 	update_landing_puff()
 	update_climb_grab(delta, current_state_name)
 	update_water_entry(current_state_name)
+	update_terrain_slide(current_state_name)
 	check_fall_death()
 	
 	# Sync wall jump cooldown from detector to player (for state compatibility)
@@ -458,6 +464,30 @@ func update_ice_detection():
 			var floor_type = collider.get("floor_type")
 			if floor_type != null and floor_type == 6:  # FloorType.FROZEN
 				is_on_ice = true
+
+func update_terrain_slide(current_state_name: String):
+	"""TERRAIN RULE: steep terrain (steeper than the Terrain's
+	max_slope_degrees) is a forced SLIDING floor, not a wall. Standing on
+	such a slope captures the player into SlidingState so they slide back
+	down - mountains lock you in without invisible walls. Analytic height
+	grid sampling: zero raycasts."""
+	if not is_on_floor() or controls_disabled or is_dead:
+		return
+	if current_state_name in ["SlidingState", "SwimmingState", "RailGrindingState",
+			"GrappleHookState", "LedgeHangingState", "WallClimbingState",
+			"BalanceBeamState", "RopeSwingState", "SwingBarState", "GroundSlamState"]:
+		return
+	for t in get_tree().get_nodes_in_group("Terrain"):
+		if t.has_method("is_slide_at") and t.contains_xz(global_position) \
+				and absf(t.get_height(global_position) - global_position.y) < 1.5 \
+				and t.is_slide_at(global_position):
+			is_on_slide_floor = true
+			var dh: Vector3 = t.get_downhill_at(global_position)
+			if dh != Vector3.ZERO:
+				slide_floor_downhill = dh
+			state_machine.change_state("SlidingState")
+			return
+
 
 func arm_slide_uphill_block(duration: float = 0.9):
 	"""Called when jumping off a SLIDING floor: air control can't push the

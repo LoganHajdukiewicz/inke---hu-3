@@ -41,6 +41,10 @@ window/size/mode=4
 
 version_control/autoload_on_startup=true
 
+[rendering]
+
+occlusion_culling/use_occlusion_culling=true
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/terrain_painter/plugin.cfg")

@@ -52,6 +52,11 @@ class_name Terrain
 ## that would be steeper get shaved down. 0 = off (raw noise).
 @export_range(0.0, 60.0, 1.0) var max_slope_degrees: float = 38.0:
 	set(v): max_slope_degrees = v; _request_rebuild()
+## TERRAIN RULE: slopes steeper than max_slope_degrees act as SLIDING
+## floors (Mario 64 style) instead of invisible walls - the player is
+## forced into a downhill slide and can't climb them. This is the
+## "mountains lock the player in" behavior: steep = you slide back down.
+@export var steep_slides: bool = true
 
 @export_group("Noise")
 ## Reroll for different hills.
@@ -121,6 +126,7 @@ var _path_col: PackedColorArray = []     # per-vertex path surface color
 func _ready():
 	# Terrain lips/cliffs are ledge-grabbable
 	add_to_group("LedgeGrabbable")
+	add_to_group("Terrain")   # Sampled analytically by water/slide systems
 	# Deferred so WaterZones are in the tree before the first sand-band pass
 	call_deferred("_rebuild")
 
@@ -623,3 +629,35 @@ func get_height(world_pos: Vector3) -> float:
 	"""Terrain height (world Y) at any world XZ - handy for placing props."""
 	var local = to_local(world_pos)
 	return to_global(Vector3(0, _sample_local_height(local.x, local.z), 0)).y
+
+
+func contains_xz(world_pos: Vector3) -> bool:
+	"""Is this world XZ over the terrain rectangle at all?"""
+	var local = to_local(world_pos)
+	return absf(local.x) <= size.x * 0.5 and absf(local.z) <= size.y * 0.5
+
+
+func is_slide_at(world_pos: Vector3) -> bool:
+	"""True when the terrain surface at world_pos is steeper than
+	max_slope_degrees (+small tolerance) - i.e. a forced-slide slope.
+	Sampled analytically from the height grid, no physics involved."""
+	if not steep_slides or max_slope_degrees <= 0.0 or _heights.is_empty():
+		return false
+	var local = to_local(world_pos)
+	var e := maxf(size.x / resolution, size.y / resolution) * 0.75
+	var gx := (_sample_local_height(local.x + e, local.z) - _sample_local_height(local.x - e, local.z)) / (2.0 * e)
+	var gz := (_sample_local_height(local.x, local.z + e) - _sample_local_height(local.x, local.z - e)) / (2.0 * e)
+	var slope_deg := rad_to_deg(atan(Vector2(gx, gz).length()))
+	return slope_deg > max_slope_degrees + 3.0
+
+
+func get_downhill_at(world_pos: Vector3) -> Vector3:
+	"""Flat downhill direction of the surface at world_pos (world space)."""
+	if _heights.is_empty():
+		return Vector3.ZERO
+	var local = to_local(world_pos)
+	var e := maxf(size.x / resolution, size.y / resolution) * 0.75
+	var gx := (_sample_local_height(local.x + e, local.z) - _sample_local_height(local.x - e, local.z)) / (2.0 * e)
+	var gz := (_sample_local_height(local.x, local.z + e) - _sample_local_height(local.x, local.z - e)) / (2.0 * e)
+	var dh := Vector3(-gx, 0, -gz)
+	return (global_transform.basis * dh).normalized() if dh.length() > 0.001 else Vector3.ZERO

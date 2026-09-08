@@ -73,6 +73,15 @@ class_name Room
 @export_enum("East (+X)", "West (-X)", "South (+Z)", "North (-Z)") var roof_ladder_side: int = 0:
 	set(v): roof_ladder_side = v; _refresh_roof_ladder()
 
+@export_group("Performance")
+## OCCLUSION CULLING: put invisible occluder planes inside this room's
+## walls/floor/ceiling so the engine skips rendering everything they hide
+## (needs rendering/occlusion_culling/use_occlusion_culling, enabled in
+## project settings). Turn on for big buildings that block lots of scenery;
+## leave off for small sheds where the bookkeeping costs more than it saves.
+@export var occlusion_culling: bool = false:
+	set(v): occlusion_culling = v; _request_rebuild()
+
 @export_group("Placement")
 ## After a drag settles, drop the room so its floor sits on the Terrain
 ## (sibling Terrain node) under it. Buildings-on-hills without eyeballing Y.
@@ -331,6 +340,45 @@ func _rebuild():
 	for r in group:
 		if r.roof_parapet and r.has_ceiling:
 			_add_parapet(r)
+	# Occluders: box occluder inside each solid wall slab (opt-in)
+	for r in group:
+		if r.occlusion_culling:
+			_add_occluders(r)
+
+
+func _add_occluders(r: Room) -> void:
+	"""BoxOccluder3D per wall/floor/ceiling, slightly INSET so doorway and
+	merge cuts never end up occluded by a wall that visually has a hole.
+	Occluders are cheap proxies - they don't need to match the CSG exactly,
+	just sit fully inside solid geometry."""
+	var w: float = r.interior_size.x; var h: float = r.interior_size.y; var d: float = r.interior_size.z
+	var t: float = r.wall_thickness
+	var off := _room_offset(r)
+	var inset := 0.05   # Occluder sits this far inside the slab faces
+	# Wall slabs above door height only: doors/passages punch holes low in
+	# walls, so the safe always-solid band is the strip above door height.
+	var door_top: float = maxf(r.auto_doorway_height, 4.2) + 0.3
+	var slabs: Array = []
+	if h > door_top + 0.5:
+		var band_h: float = h - door_top
+		var band_y: float = door_top + band_h * 0.5
+		slabs.append([Vector3(w * 0.5 + t * 0.5, band_y, 0), Vector3(t - inset, band_h - inset, d - inset)])
+		slabs.append([Vector3(-w * 0.5 - t * 0.5, band_y, 0), Vector3(t - inset, band_h - inset, d - inset)])
+		slabs.append([Vector3(0, band_y, d * 0.5 + t * 0.5), Vector3(w - inset, band_h - inset, t - inset)])
+		slabs.append([Vector3(0, band_y, -d * 0.5 - t * 0.5), Vector3(w - inset, band_h - inset, t - inset)])
+	if r.has_floor:
+		slabs.append([Vector3(0, -r.floor_thickness * 0.5, 0), Vector3(w - inset, r.floor_thickness - inset, d - inset)])
+	if r.has_ceiling:
+		slabs.append([Vector3(0, h + t * 0.5, 0), Vector3(w - inset, t - inset, d - inset)])
+	for s in slabs:
+		if s[1].x <= 0.01 or s[1].y <= 0.01 or s[1].z <= 0.01:
+			continue
+		var oc := OccluderInstance3D.new()
+		var box := BoxOccluder3D.new()
+		box.size = s[1]
+		oc.occluder = box
+		oc.position = off + s[0]
+		_csg.add_child(oc)
 
 
 func _add_parapet(r: Room) -> void:

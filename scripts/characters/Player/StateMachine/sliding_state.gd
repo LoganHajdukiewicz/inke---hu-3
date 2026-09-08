@@ -282,7 +282,16 @@ func _apply_downhill_slide(delta: float, floor_node) -> void:
 	slide_velocity = vel
 
 func _get_sliding_floor():
-	"""Return the SLIDING floor under the player, or null"""
+	"""Return the SLIDING floor under the player, or null. Steep TERRAIN
+	(steeper than its max_slope_degrees) counts as a sliding floor too -
+	checked analytically from the height grid, no extra raycast."""
+	# Terrain steep-slope slides first (cheap, no physics)
+	for t in player.get_tree().get_nodes_in_group("Terrain"):
+		if t.has_method("is_slide_at") and t.contains_xz(player.global_position) \
+				and absf(t.get_height(player.global_position) - player.global_position.y) < 1.5 \
+				and t.is_slide_at(player.global_position):
+			return t
+	
 	var space_state = player.get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(
 		player.global_position + Vector3(0, 0.1, 0),

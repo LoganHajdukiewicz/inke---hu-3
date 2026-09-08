@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dockwood0001"]
+
+[ext_resource type="Script" path="res://scripts/environments/dock.gd" id="1_dock"]
+
+[node name="Dock" type="StaticBody3D"]
+script = ExtResource("1_dock")
