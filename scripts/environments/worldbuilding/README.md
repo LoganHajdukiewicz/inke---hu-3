@@ -57,6 +57,35 @@ any extra setup.
 Add a **Room** node (or instance `room.tscn`): floor + 4 walls +
 ceiling from one node. `interior_size` is the inside space.
 
+### INTERIOR SCALE RULES (third-person camera — Psychonauts 2 proportions)
+The camera sits ~12m behind Inke, so interiors must be much bigger than
+"realistic" architecture or everything feels cramped and claustrophobic.
+Build to the CAMERA, not to real-world buildings:
+
+| Space              | Minimum          | Comfortable       |
+|--------------------|------------------|-------------------|
+| Hallway (small)    | 5w × 4.2h        | 6–8w × 4.5–5h     |
+| Main route hallway | 6w × 4.5h        | 8–10w × 5–6h      |
+| Small room         | 12 × 5 × 12      | 15 × 6 × 15       |
+| Standard room      | 15 × 6 × 15      | 20 × 7 × 20       |
+| Hub/lobby          | 25 × 8 × 25      | 30+ × 10 × 30+    |
+| Doorway            | 3w × 3.6h        | 4w × 4h           |
+
+Rules of thumb (all sized off Inke ≈ 1.5m):
+- **Hallway width ≥ 3× character height**, ceiling ≥ 2.8×. Any less and
+  the SpringArm camera pulls in against walls/ceiling and it stops
+  being fun to walk down.
+- **Doorways read as generous double doors** (2× character wide,
+  2.3× tall) so passing through never pinches the camera, and you can
+  see INTO the next room before entering (P2's dentist-office trick:
+  long sightlines through aligned doorways).
+- **Furniture stays real-world sized** (desk 0.7m, vending machine
+  1.8m) — the SPACE is oversized, the props are not. That contrast is
+  what makes it feel airy instead of empty. Fill wall space with
+  posters/graffiti at 1.5–3m height so big walls don't read bare.
+- Keep the CENTER of rooms walkable — push furniture to the walls;
+  the camera needs the middle corridor clear.
+
 ### Composing rooms — no modes, the drag decides
 - **Drag a room NEAR another**: it snaps flush against it. If both
   rooms have `auto_doorway` on (the default), a doorway is cut through
@@ -84,6 +113,8 @@ leaving each door straight out of its wall.
   hall → stairs → hall.
 - Same exports as Room: width/height, wall/floor thickness, ceiling,
   colors, lights; plus `step_height` and `stub_length`.
+- Defaults are the SMALL third-person hallway (5w × 4.2h). Never go
+  below them — widen for main routes (see Interior Scale Rules above).
 
 ### Doorway — doors and windows
 Add a **Doorway** as a CHILD of the Room and drag it INTO a wall —

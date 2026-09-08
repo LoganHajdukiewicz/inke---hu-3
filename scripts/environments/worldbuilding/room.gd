@@ -42,10 +42,12 @@ class_name Room
 
 @export_group("Auto Doorways")
 ## Width of the doorway cut into a shared wall when rooms snap together.
-@export var auto_doorway_width: float = 2.0:
+## Matches the Doorway default: generous double-door width so the camera
+## never pinches passing between rooms.
+@export var auto_doorway_width: float = 3.0:
 	set(v): auto_doorway_width = v; _request_rebuild(); _poke_sibling_rooms()
 ## Height of that doorway.
-@export var auto_doorway_height: float = 2.8:
+@export var auto_doorway_height: float = 3.6:
 	set(v): auto_doorway_height = v; _request_rebuild(); _poke_sibling_rooms()
 ## How close (in meters) a dragged room has to get before it snaps flush.
 @export var snap_distance: float = 3.0

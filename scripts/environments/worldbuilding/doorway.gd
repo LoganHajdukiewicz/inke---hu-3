@@ -7,15 +7,18 @@ class_name Doorway
 ## The cut auto-rotates toward the nearest wall; rotate the node
 ## yourself to override.
 
-## Opening width along the wall.
-@export var width: float = 1.6:
+## Opening width along the wall. Sized for third-person play (Psychonauts 2
+## proportions): doorways read like generous double-doors, ~2x the
+## character wide minimum, so walking through never pinches the camera.
+@export var width: float = 3.0:
 	set(v):
 		width = v
 		_poke_room()
 		if _door and is_instance_valid(_door):
 			_door.door_size = Vector3(width, height, 0.15)
-## Opening height (from the sill up).
-@export var height: float = 2.6:
+## Opening height (from the sill up). Tall openings (~2.3x character
+## height) keep sightlines open through rooms, like the P2 dentist office.
+@export var height: float = 3.6:
 	set(v):
 		height = v
 		_poke_room()
