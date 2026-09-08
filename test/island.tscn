@@ -16,7 +16,7 @@ background_mode = 2
 sky = SubResource("Sky_4qu1v")
 glow_enabled = true
 
-[node name="Node3D" type="Node3D" unique_id=1888861855]
+[node name="Island" type="Node3D" unique_id=1888861855]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1050678348]
 environment = SubResource("Environment_od51x")

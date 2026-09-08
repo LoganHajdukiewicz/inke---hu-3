@@ -11,8 +11,10 @@ class_name Terrain
 ##      where you want, set its radius - the ground flattens under it
 ##      at the pad's height.
 ##   4. BEACHES: when the terrain touches a WaterZone, the ground within
-##      sand_distance meters (default 30) of the water automatically gets
-##      sand coloring. No setup - it finds the water on its own.
+##      sand_distance meters (default 30) of the SHORELINE (where the
+##      terrain actually dips under the water surface) gets sand coloring.
+##      Interior ground that never touches the water stays green, even on
+##      an island completely surrounded by one big water rectangle.
 ##
 ## The generated mesh/collision are runtime-only children (not saved
 ## into your scene file), so scenes stay tiny.
@@ -150,12 +152,13 @@ func _rebuild():
 		if c is TerrainPath and c.curve and c.curve.point_count >= 2:
 			_apply_path(c, n, step, half)
 	
-	# WaterZones bordering this terrain (for the beach sand band)
-	var waters: Array = []
+	# Beach sand band: distance (meters) from each vertex to the SHORELINE -
+	# the nearest point where this terrain actually dips under a WaterZone's
+	# surface. Interior ground that never touches water stays green even if
+	# a huge water rectangle surrounds the whole island.
+	var sand_dist := PackedFloat32Array()
 	if sand_distance > 0.0:
-		for w in get_tree().get_nodes_in_group("WaterZone"):
-			if w is Area3D and "water_size" in w:
-				waters.append(w)
+		sand_dist = _shoreline_distance_field(n, step, half)
 	
 	# --- Mesh with slope-based vertex colors ------------------------------
 	var st := SurfaceTool.new()
@@ -175,10 +178,10 @@ func _rebuild():
 			col = col.lerp(dirt_color, clampf(1.0 - h / maxf(hill_height * 0.35, 0.01), 0.0, 0.6) * 0.35)
 			col = col.darkened((noise.get_noise_2d(x * 7.0, z * 7.0)) * 0.06)
 			# TERRAIN RULE: sand band near touching water (beach). Vertices
-			# within sand_distance meters of a WaterZone go sand colored,
+			# within sand_distance meters of the shoreline go sand colored,
 			# blending back into grass over the last few meters.
-			if not waters.is_empty():
-				var wd := _water_distance(to_global(Vector3(x, h, z)), waters)
+			if not sand_dist.is_empty():
+				var wd := sand_dist[iz * (n + 1) + ix]
 				if wd < sand_distance:
 					var sand_t := 1.0 - smoothstep(sand_distance * 0.85, sand_distance, wd)
 					var sc := sand_color.darkened((noise.get_noise_2d(x * 9.0, z * 9.0)) * 0.05)
@@ -315,20 +318,66 @@ func _apply_path(path: TerrainPath, n: int, step: Vector2, half: Vector2) -> voi
 			_path_col[i] = path.path_color
 
 
-func _water_distance(world_pos: Vector3, waters: Array) -> float:
-	"""Horizontal meters from world_pos to the nearest WaterZone rectangle
-	(0 when over the water). Ignores water whose surface is far below this
-	point of terrain - a beach only forms where water actually touches."""
-	var best := 1e9
-	for w in waters:
-		# Water more than ~8m below this ground point doesn't make a beach
-		if world_pos.y - w.global_position.y > 8.0:
-			continue
-		var local: Vector3 = w.to_local(world_pos)
-		var dx := maxf(absf(local.x) - w.water_size.x * 0.5, 0.0)
-		var dz := maxf(absf(local.z) - w.water_size.y * 0.5, 0.0)
-		best = minf(best, Vector2(dx, dz).length())
-	return best
+func _shoreline_distance_field(n: int, step: Vector2, half: Vector2) -> PackedFloat32Array:
+	"""Per-vertex meters to the nearest SHORELINE vertex: a grid point that
+	sits under a WaterZone's surface (horizontally inside its rectangle AND
+	at/below its surface height). Empty array when no terrain touches water."""
+	var waters: Array = []
+	if is_inside_tree():
+		for w in get_tree().get_nodes_in_group("WaterZone"):
+			if w is Area3D and "water_size" in w:
+				waters.append(w)
+	if waters.is_empty():
+		return PackedFloat32Array()
+	
+	var count := (n + 1) * (n + 1)
+	var field := PackedFloat32Array()
+	field.resize(count)
+	var big := 1e9
+	var any_wet := false
+	for iz in range(n + 1):
+		for ix in range(n + 1):
+			var x := -half.x + ix * step.x
+			var z := -half.y + iz * step.y
+			var wp := to_global(Vector3(x, _heights[iz * (n + 1) + ix], z))
+			var wet := false
+			for w in waters:
+				var local: Vector3 = w.to_local(wp)
+				if absf(local.x) <= w.water_size.x * 0.5 \
+						and absf(local.z) <= w.water_size.y * 0.5 \
+						and wp.y <= w.global_position.y + 0.15:
+					wet = true
+					break
+			field[iz * (n + 1) + ix] = 0.0 if wet else big
+			if wet:
+				any_wet = true
+	if not any_wet:
+		return PackedFloat32Array()
+	
+	# Two-pass chamfer distance transform (with diagonals), in meters
+	var d1x := step.x
+	var d1z := step.y
+	var d2 := Vector2(step.x, step.y).length()
+	var w1 := n + 1
+	for iz in range(n + 1):
+		for ix in range(n + 1):
+			var i := iz * w1 + ix
+			var d := field[i]
+			if ix > 0: d = minf(d, field[i - 1] + d1x)
+			if iz > 0: d = minf(d, field[i - w1] + d1z)
+			if ix > 0 and iz > 0: d = minf(d, field[i - w1 - 1] + d2)
+			if ix < n and iz > 0: d = minf(d, field[i - w1 + 1] + d2)
+			field[i] = d
+	for iz in range(n, -1, -1):
+		for ix in range(n, -1, -1):
+			var i := iz * w1 + ix
+			var d := field[i]
+			if ix < n: d = minf(d, field[i + 1] + d1x)
+			if iz < n: d = minf(d, field[i + w1] + d1z)
+			if ix < n and iz < n: d = minf(d, field[i + w1 + 1] + d2)
+			if ix > 0 and iz < n: d = minf(d, field[i + w1 - 1] + d2)
+			field[i] = d
+	return field
 
 
 func _sample_local_height(lx: float, lz: float) -> float:
