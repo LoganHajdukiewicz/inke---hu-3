@@ -15,6 +15,11 @@ class_name Terrain
 ##      terrain actually dips under the water surface) gets sand coloring.
 ##      Interior ground that never touches the water stays green, even on
 ##      an island completely surrounded by one big water rectangle.
+##   5. PAINTING: turn on paint_mode and left-click in the 3D viewport to
+##      raise the ground under the cursor (hold Shift to lower it). Brush
+##      radius/strength live in the Inspector. Sculpt ridges, valleys and
+##      topographical islands by hand - painted height saves with the
+##      scene and stacks on top of the noise hills.
 ##
 ## The generated mesh/collision are runtime-only children (not saved
 ## into your scene file), so scenes stay tiny.
@@ -70,6 +75,25 @@ class_name Terrain
 @export var sand_distance: float = 30.0:
 	set(v): sand_distance = maxf(v, 0.0); _request_rebuild()
 
+@export_group("Painting (editor)")
+## PAINT MODE: with this ON and the Terrain selected, left-click in the 3D
+## viewport to raise the ground under the cursor. Hold Shift to lower it.
+## Drag to keep sculpting. Painted height is saved into the scene.
+@export var paint_mode: bool = false
+## Brush radius in meters.
+@export_range(1.0, 100.0, 0.5, "or_greater") var brush_radius: float = 8.0
+## Sculpt speed: meters of height added per second while the mouse is held.
+@export var brush_strength: float = 8.0
+## Tick to erase ALL painted height (back to pure noise terrain).
+@export var clear_painted: bool = false:
+	set(_v):
+		clear_painted = false
+		paint_data.fill(0.0)
+		_request_rebuild()
+## Painted height layer (meters per vertex). Managed by the brush - hands off.
+@export_storage var paint_data: PackedFloat32Array = PackedFloat32Array()
+@export_storage var paint_res: int = 0
+
 var _mesh_instance: MeshInstance3D
 var _collision: CollisionShape3D
 var _rebuild_queued := false
@@ -114,11 +138,14 @@ func _rebuild():
 	# --- Height grid ------------------------------------------------------
 	var count := (n + 1) * (n + 1)
 	_heights.resize(count)
+	_ensure_paint_grid()
 	for iz in range(n + 1):
 		for ix in range(n + 1):
 			var x := -half.x + ix * step.x
 			var z := -half.y + iz * step.y
 			var h := (noise.get_noise_2d(x, z) * 0.5 + 0.5) * hill_height
+			# Painted (sculpted) height stacks on top of the noise
+			h += paint_data[iz * (n + 1) + ix]
 			# Border falloff
 			if edge_falloff > 0.0:
 				var fx = minf(ix, n - ix) / float(n)
@@ -248,6 +275,58 @@ func _rebuild():
 	hshape.map_data = cdata
 	_collision.shape = hshape
 	_collision.position = Vector3.ZERO
+
+
+func paint_at(world_pos: Vector3, delta_height: float) -> void:
+	"""Raise (negative = lower) the ground in a smooth bump of brush_radius
+	meters centered on world_pos. Used by the Terrain Painter editor plugin,
+	but safe to call from gameplay scripts too (explosions, dig spots...)."""
+	_ensure_paint_grid()
+	var n := resolution
+	var step := Vector2(size.x / n, size.y / n)
+	var local := to_local(world_pos)
+	var cx := (local.x + size.x * 0.5) / step.x
+	var cz := (local.z + size.y * 0.5) / step.y
+	var rx := int(ceilf(brush_radius / step.x)) + 1
+	var rz := int(ceilf(brush_radius / step.y)) + 1
+	var touched := false
+	for iz in range(maxi(int(cz) - rz, 0), mini(int(cz) + rz, n) + 1):
+		for ix in range(maxi(int(cx) - rx, 0), mini(int(cx) + rx, n) + 1):
+			var d := Vector2((ix - cx) * step.x, (iz - cz) * step.y).length()
+			if d < brush_radius:
+				# Cosine falloff: soft dome, no hard brush edge
+				var t := 0.5 + 0.5 * cos(PI * d / brush_radius)
+				paint_data[iz * (n + 1) + ix] += delta_height * t
+				touched = true
+	if touched:
+		_request_rebuild()
+
+
+func _ensure_paint_grid() -> void:
+	"""Keep the paint layer sized to the current resolution, resampling the
+	old sculpt bilinearly when resolution changes so nothing is lost."""
+	var n := resolution
+	var want := (n + 1) * (n + 1)
+	if paint_res == n and paint_data.size() == want:
+		return
+	var old := paint_data
+	var old_n := paint_res
+	paint_data = PackedFloat32Array()
+	paint_data.resize(want)
+	if old_n > 0 and old.size() == (old_n + 1) * (old_n + 1):
+		for iz in range(n + 1):
+			for ix in range(n + 1):
+				var fx := float(ix) / n * old_n
+				var fz := float(iz) / n * old_n
+				var ox := mini(int(fx), old_n - 1)
+				var oz := mini(int(fz), old_n - 1)
+				var tx := fx - ox
+				var tz := fz - oz
+				var w1 := old_n + 1
+				paint_data[iz * (n + 1) + ix] = lerpf(
+					lerpf(old[oz * w1 + ox], old[oz * w1 + ox + 1], tx),
+					lerpf(old[(oz + 1) * w1 + ox], old[(oz + 1) * w1 + ox + 1], tx), tz)
+	paint_res = n
 
 
 func _apply_slope_limit(step: Vector2) -> void:

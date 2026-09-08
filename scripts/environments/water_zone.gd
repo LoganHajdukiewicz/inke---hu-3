@@ -395,8 +395,8 @@ func _process(delta: float):
 		_warn_timer = 0.0
 		return
 	# Danger is judged HORIZONTALLY over the water: jumping out of the
-	# water volume doesn't pause the clock or shake the shark. Only being
-	# over land / inside the buoy line counts as safe.
+	# water volume doesn't pause or reset the clock. Anywhere outside the
+	# buoy line the timer runs - land or safe water are the only outs.
 	if _player_in_danger():
 		# Hidden grace period - no countdown on screen, the buoys ARE the
 		# warning. Outstay it and the shark charges.
@@ -410,16 +410,15 @@ func _process(delta: float):
 
 func _player_in_danger() -> bool:
 	"""True when the player is past the buoy line, horizontally over this
-	water - swimming, diving OR airborne above it. Land (shore distance 0)
-	and water inside the line are safe."""
+	water - swimming, diving OR airborne above it. Jumping does not pause
+	the timer. Land and water inside the line are safe. (Bridges/platforms
+	above the surface register as land in the shore scan, so standing on
+	them is safe through the shore-distance check, not a height check.)"""
 	if _player == null or not is_instance_valid(_player):
 		return false
 	var local := to_local(_player.global_position)
 	if absf(local.x) > water_size.x * 0.5 or absf(local.z) > water_size.y * 0.5:
 		return false   # Not over this water at all
-	if not _player_inside and local.y > 4.0:
-		# Well above the surface and not in the water (bridge, high platform...)
-		return false
 	return _shore_distance(_player.global_position) > boundary_distance
 
 
@@ -436,7 +435,9 @@ func _on_body_exited(body: Node) -> void:
 		_player_inside = false
 		if "current_water" in body and body.current_water == self:
 			body.current_water = null
-		_warn_timer = 0.0
+		# NOTE: the warn timer is NOT reset here - hopping out of the water
+		# volume (jump spam) must not shake the shark. The timer only resets
+		# when _player_in_danger() goes false (back inside the line / on land).
 
 
 # --- The shark ---------------------------------------------------------------
