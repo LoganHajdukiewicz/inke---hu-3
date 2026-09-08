@@ -2,20 +2,25 @@
 extends Area3D
 class_name WaterZone
 ## WATER. Not a gameplay focus - it's the soft edge of the world. Swim on
-## the surface, dive under (oxygen drains, drown at zero), and DON'T cross
-## the buoy line: past the boundary you get warning_time seconds to turn
-## back before a shark eats you.
+## the surface, dive under (oxygen drains, drown at zero), and don't stray
+## too far from land: past the buoy line a shark comes for you.
 ##
 ## HOW TO USE:
 ##   1. Add a WaterZone where the world should end (beach, harbor, docks).
 ##      The node's Y is the water surface height.
 ##   2. Size the water with water_size / water_depth.
-##   3. boundary_distance (default 20m out from the node) is where the
-##      line of buoys floats. All configurable, all live in the editor.
+##   3. The zone scans for LAND around it (terrain, floors, platforms -
+##      any physics body that sticks up above the surface) and floats the
+##      buoy line boundary_distance meters (default 20) out from the
+##      nearest land edge. Swim past the buoys and after a short hidden
+##      grace period the shark charges. Make it back inside the line (or
+##      onto land) before it reaches you and it breaks off the attack.
 ##
 ## The player is detected automatically (Area3D). SwimmingState handles
 ## the actual swimming; this node owns water visuals, buoys, the boundary
-## countdown and the shark.
+## and the shark.
+
+const SHORE_CELL := 2.0   # Meters per cell of the land-distance scan grid
 
 @export_group("Water")
 ## Water rectangle in meters (X by Z). The node's origin is the center.
@@ -28,12 +33,16 @@ class_name WaterZone
 	set(v): water_color = v; _request_rebuild()
 
 @export_group("Boundary")
-## Swimmers past this distance (meters, from this node's origin) are in
-## shark territory. Marked by the buoy line.
+## Shark territory starts this many meters out from the EDGE OF LAND
+## (terrain, floors - anything solid above the surface). The buoy line
+## floats here. If no land borders the water, falls back to a ring this
+## far from the node's origin.
 @export var boundary_distance: float = 20.0:
 	set(v): boundary_distance = maxf(v, 3.0); _request_rebuild()
-## Seconds past the buoys before the shark takes you.
+## Hidden grace period (seconds) past the buoys before the shark charges.
 @export var warning_time: float = 2.0
+## Shark charge speed in m/s.
+@export var shark_speed: float = 18.1
 ## Meters between buoys along the line.
 @export var buoy_spacing: float = 4.0:
 	set(v): buoy_spacing = maxf(v, 1.0); _request_rebuild()
@@ -50,14 +59,25 @@ var _col: CollisionShape3D = null
 var _player: CharacterBody3D = null
 var _player_inside := false
 var _warn_timer := 0.0
-var _warning_active := false
-var _shark_busy := false
-var _warn_ui: CanvasLayer = null
-var _warn_label: Label = null
 var _time := 0.0
+
+# Land-distance field (built from a raycast scan of the water rectangle)
+var _shore_dirty := true
+var _shore_nx := 0
+var _shore_nz := 0
+var _shore_dist: PackedFloat32Array = []   # Meters to nearest land, per cell
+var _shore_has_land := false
+
+# Shark
+enum SharkPhase { NONE, CHARGE, LEAVE }
+var _shark: Node3D = null
+var _shark_phase := SharkPhase.NONE
+var _shark_leave_dir := Vector3.FORWARD
+var _shark_leave_t := 0.0
 
 
 func _ready():
+	add_to_group("WaterZone")
 	monitoring = true
 	monitorable = false
 	collision_layer = 0
@@ -80,6 +100,7 @@ func _rebuild():
 	_visuals = Node3D.new()
 	add_child(_visuals)
 	_buoys.clear()
+	_shore_dirty = true   # Buoys spawn after the next land scan
 	
 	# --- Detection volume (surface down to depth) --------------------------
 	if _col == null or not is_instance_valid(_col):
@@ -118,15 +139,106 @@ func _rebuild():
 	murk.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	murk.position.y = -water_depth * 0.5
 	_visuals.add_child(murk)
-	
-	# --- Buoy line ----------------------------------------------------------
-	if boundary_enabled:
-		_spawn_buoys()
 
+
+# --- Land scan -----------------------------------------------------------
+# Raycast a grid over the water rectangle to find LAND: any physics body
+# whose surface pokes up to (or above) the water level. Terrain, floors,
+# docks - anything solid counts. Then a distance transform gives "meters
+# to nearest land" for every cell, which drives buoys and shark territory.
+
+func _physics_process(_delta: float):
+	if _shore_dirty and is_inside_tree():
+		_shore_dirty = false
+		_scan_shore()
+		if boundary_enabled:
+			_spawn_buoys()
+
+
+func _scan_shore():
+	_shore_has_land = false
+	_shore_dist = PackedFloat32Array()
+	var world := get_world_3d()
+	if world == null:
+		return
+	var space := world.direct_space_state
+	if space == null:
+		return
+	_shore_nx = int(ceilf(water_size.x / SHORE_CELL)) + 1
+	_shore_nz = int(ceilf(water_size.y / SHORE_CELL)) + 1
+	var count := _shore_nx * _shore_nz
+	_shore_dist.resize(count)
+	
+	# Don't let the player (or the shark) register as land
+	var exclude: Array[RID] = []
+	if not Engine.is_editor_hint():
+		var p := get_tree().get_first_node_in_group("Player")
+		if p is CollisionObject3D:
+			exclude.append(p.get_rid())
+	
+	var surface_y := global_position.y
+	var big := 1e9
+	for iz in range(_shore_nz):
+		for ix in range(_shore_nx):
+			var lx := -water_size.x * 0.5 + ix * SHORE_CELL
+			var lz := -water_size.y * 0.5 + iz * SHORE_CELL
+			var wp := to_global(Vector3(lx, 0, lz))
+			var params := PhysicsRayQueryParameters3D.create(
+				Vector3(wp.x, surface_y + 60.0, wp.z),
+				Vector3(wp.x, surface_y - 0.6, wp.z))
+			params.exclude = exclude
+			var hit := space.intersect_ray(params)
+			var is_land: bool = not hit.is_empty() and hit.position.y >= surface_y - 0.35
+			_shore_dist[iz * _shore_nx + ix] = 0.0 if is_land else big
+			if is_land:
+				_shore_has_land = true
+	
+	if not _shore_has_land:
+		return
+	
+	# Two-pass chamfer distance transform (with diagonals)
+	var d1 := SHORE_CELL
+	var d2 := SHORE_CELL * 1.41421
+	for iz in range(_shore_nz):
+		for ix in range(_shore_nx):
+			var i := iz * _shore_nx + ix
+			var d := _shore_dist[i]
+			if ix > 0: d = minf(d, _shore_dist[i - 1] + d1)
+			if iz > 0: d = minf(d, _shore_dist[i - _shore_nx] + d1)
+			if ix > 0 and iz > 0: d = minf(d, _shore_dist[i - _shore_nx - 1] + d2)
+			if ix < _shore_nx - 1 and iz > 0: d = minf(d, _shore_dist[i - _shore_nx + 1] + d2)
+			_shore_dist[i] = d
+	for iz in range(_shore_nz - 1, -1, -1):
+		for ix in range(_shore_nx - 1, -1, -1):
+			var i := iz * _shore_nx + ix
+			var d := _shore_dist[i]
+			if ix < _shore_nx - 1: d = minf(d, _shore_dist[i + 1] + d1)
+			if iz < _shore_nz - 1: d = minf(d, _shore_dist[i + _shore_nx] + d1)
+			if ix < _shore_nx - 1 and iz < _shore_nz - 1: d = minf(d, _shore_dist[i + _shore_nx + 1] + d2)
+			if ix > 0 and iz < _shore_nz - 1: d = minf(d, _shore_dist[i + _shore_nx - 1] + d2)
+			_shore_dist[i] = d
+
+
+func _shore_distance(world_pos: Vector3) -> float:
+	"""Meters from world_pos to the nearest land edge. Falls back to the
+	radial distance from the node origin when no land was found."""
+	if not _shore_has_land or _shore_dist.is_empty():
+		return Vector2(world_pos.x - global_position.x,
+				world_pos.z - global_position.z).length()
+	var local := to_local(world_pos)
+	var fx := clampf((local.x + water_size.x * 0.5) / SHORE_CELL, 0.0, _shore_nx - 1.001)
+	var fz := clampf((local.z + water_size.y * 0.5) / SHORE_CELL, 0.0, _shore_nz - 1.001)
+	var ix := int(fx); var iz := int(fz)
+	var tx := fx - ix; var tz := fz - iz
+	var i := iz * _shore_nx + ix
+	return lerpf(
+		lerpf(_shore_dist[i], _shore_dist[i + 1], tx),
+		lerpf(_shore_dist[i + _shore_nx], _shore_dist[i + _shore_nx + 1], tx), tz)
+
+
+# --- Buoys -----------------------------------------------------------------
 
 func _spawn_buoys():
-	var r := boundary_distance
-	var n := maxi(int(TAU * r / buoy_spacing), 8)
 	var red := StandardMaterial3D.new()
 	red.albedo_color = Color(0.85, 0.1, 0.1)
 	red.emission_enabled = true
@@ -134,13 +246,39 @@ func _spawn_buoys():
 	red.emission_energy_multiplier = 0.35
 	var white := StandardMaterial3D.new()
 	white.albedo_color = Color(0.92, 0.92, 0.9)
-	for i in n:
-		var ang := TAU * float(i) / n
-		var lx := cos(ang) * r
-		var lz := sin(ang) * r
-		# Only where there's water
-		if absf(lx) > water_size.x * 0.5 or absf(lz) > water_size.y * 0.5:
-			continue
+	
+	# Buoy positions: the boundary_distance iso-line of the land-distance
+	# field, thinned to roughly buoy_spacing apart. Fallback: radial ring.
+	var points: Array[Vector2] = []
+	if _shore_has_land and not _shore_dist.is_empty():
+		var band := SHORE_CELL * 0.8
+		var candidates: Array[Vector2] = []
+		for iz in range(_shore_nz):
+			for ix in range(_shore_nx):
+				if absf(_shore_dist[iz * _shore_nx + ix] - boundary_distance) <= band:
+					candidates.append(Vector2(
+						-water_size.x * 0.5 + ix * SHORE_CELL,
+						-water_size.y * 0.5 + iz * SHORE_CELL))
+		for c in candidates:
+			var ok := true
+			for p in points:
+				if c.distance_to(p) < buoy_spacing:
+					ok = false
+					break
+			if ok:
+				points.append(c)
+	else:
+		var r := boundary_distance
+		var n := maxi(int(TAU * r / buoy_spacing), 8)
+		for i in n:
+			var ang := TAU * float(i) / n
+			var lx := cos(ang) * r
+			var lz := sin(ang) * r
+			if absf(lx) > water_size.x * 0.5 or absf(lz) > water_size.y * 0.5:
+				continue
+			points.append(Vector2(lx, lz))
+	
+	for pt in points:
 		var buoy := MeshInstance3D.new()
 		# Low-poly buoy: red cone bottom + white band + red tip
 		var body := CylinderMesh.new()
@@ -150,16 +288,16 @@ func _spawn_buoys():
 		body.radial_segments = 6
 		buoy.mesh = body
 		buoy.material_override = red
-		var band := MeshInstance3D.new()
+		var band_mi := MeshInstance3D.new()
 		var band_mesh := CylinderMesh.new()
 		band_mesh.top_radius = 0.14
 		band_mesh.bottom_radius = 0.18
 		band_mesh.height = 0.22
 		band_mesh.radial_segments = 6
-		band.mesh = band_mesh
-		band.material_override = white
-		band.position.y = 0.36
-		buoy.add_child(band)
+		band_mi.mesh = band_mesh
+		band_mi.material_override = white
+		band_mi.position.y = 0.36
+		buoy.add_child(band_mi)
 		var tip := MeshInstance3D.new()
 		var tip_mesh := CylinderMesh.new()
 		tip_mesh.top_radius = 0.0
@@ -170,7 +308,8 @@ func _spawn_buoys():
 		tip.material_override = red
 		tip.position.y = 0.58
 		buoy.add_child(tip)
-		buoy.position = Vector3(lx, 0.05, lz)
+		buoy.scale = Vector3.ONE * 1.2   # Chunky enough to read from shore
+		buoy.position = Vector3(pt.x, 0.05, pt.y)
 		_visuals.add_child(buoy)
 		_buoys.append([buoy, randf() * TAU])
 
@@ -186,31 +325,26 @@ func _process(delta: float):
 	if Engine.is_editor_hint():
 		return
 	
+	# --- Shark update -------------------------------------------------------
+	if _shark_phase != SharkPhase.NONE:
+		_update_shark(delta)
+		return
+	
 	# --- Boundary enforcement ----------------------------------------------
-	if not boundary_enabled or _shark_busy:
+	if not boundary_enabled:
 		return
 	if not _player_inside or _player == null or not is_instance_valid(_player):
-		_cancel_warning()
+		_warn_timer = 0.0
 		return
-	var d := Vector2(_player.global_position.x - global_position.x,
-			_player.global_position.z - global_position.z).length()
-	if d > boundary_distance:
-		if not _warning_active:
-			_warning_active = true
-			_warn_timer = warning_time
-			_show_warning()
-			var dm = get_node_or_null("/root/DialogueManager")
-			if dm and dm.has_method("bark"):
-				dm.bark("HU3", "TURN BACK! Shark territory!", warning_time)
-		_warn_timer -= delta
-		if _warn_label:
-			_warn_label.text = "TURN BACK!  %.1f" % maxf(_warn_timer, 0.0)
-			_warn_label.visible = fmod(_time, 0.4) < 0.28
-		if _warn_timer <= 0.0:
-			_cancel_warning()
-			_shark_attack()
+	if _shore_distance(_player.global_position) > boundary_distance:
+		# Hidden grace period - no countdown on screen, the buoys ARE the
+		# warning. Outstay it and the shark charges.
+		_warn_timer += delta
+		if _warn_timer >= warning_time:
+			_warn_timer = 0.0
+			_start_shark_charge()
 	else:
-		_cancel_warning()
+		_warn_timer = 0.0
 
 
 func _on_body_entered(body: Node) -> void:
@@ -226,78 +360,87 @@ func _on_body_exited(body: Node) -> void:
 		_player_inside = false
 		if "current_water" in body and body.current_water == self:
 			body.current_water = null
-		_cancel_warning()
-
-
-# --- Warning UI --------------------------------------------------------------
-
-func _show_warning():
-	if _warn_ui and is_instance_valid(_warn_ui):
-		_warn_ui.visible = true
-		return
-	_warn_ui = CanvasLayer.new()
-	_warn_ui.layer = 90
-	_warn_label = Label.new()
-	_warn_label.text = "TURN BACK!"
-	_warn_label.add_theme_font_size_override("font_size", 52)
-	_warn_label.add_theme_color_override("font_color", Color(1.0, 0.15, 0.1))
-	_warn_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
-	_warn_label.add_theme_constant_override("shadow_offset_x", 4)
-	_warn_label.add_theme_constant_override("shadow_offset_y", 4)
-	_warn_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_warn_label.position.y = 90
-	_warn_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_warn_ui.add_child(_warn_label)
-	add_child(_warn_ui)
-
-
-func _cancel_warning():
-	_warning_active = false
-	if _warn_ui and is_instance_valid(_warn_ui):
-		_warn_ui.visible = false
+		_warn_timer = 0.0
 
 
 # --- The shark ---------------------------------------------------------------
 
-func _shark_attack():
-	if _shark_busy or _player == null or not is_instance_valid(_player):
+func _start_shark_charge():
+	if _player == null or not is_instance_valid(_player):
 		return
-	_shark_busy = true
-	var shark := _build_shark()
-	add_child(shark)
+	_shark = _build_shark()
+	add_child(_shark)
 	
-	# Start 14m past the player, directly away from the island, fin up
+	# Start 14m past the player, directly away from land, fin up
 	var out_dir := Vector3(_player.global_position.x - global_position.x, 0,
 			_player.global_position.z - global_position.z).normalized()
 	if out_dir.length() < 0.5:
 		out_dir = Vector3.FORWARD
 	var surface_y := global_position.y
-	shark.global_position = _player.global_position + out_dir * 14.0
-	shark.global_position.y = surface_y - 0.55
-	shark.look_at(Vector3(_player.global_position.x, surface_y - 0.55, _player.global_position.z), Vector3.UP)
+	_shark.global_position = _player.global_position + out_dir * 14.0
+	_shark.global_position.y = surface_y - 0.55
+	_shark_phase = SharkPhase.CHARGE
+
+
+func _update_shark(delta: float):
+	if _shark == null or not is_instance_valid(_shark):
+		_shark_phase = SharkPhase.NONE
+		return
+	var surface_y := global_position.y
 	
-	var tw := create_tween()
-	# Race in
-	var target := _player.global_position
-	target.y = surface_y - 0.4
-	tw.tween_property(shark, "global_position", target, 0.85).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	tw.tween_callback(func():
-		# CHOMP
-		if _player and is_instance_valid(_player):
+	if _shark_phase == SharkPhase.CHARGE:
+		if _player == null or not is_instance_valid(_player):
+			_shark_break_off()
+			return
+		# MERCY RULE: make it back over the line (or onto land) before the
+		# shark touches you and it breaks off the attack.
+		var player_safe: bool = (not _player_inside) \
+				or _shore_distance(_player.global_position) <= boundary_distance
+		if player_safe:
+			_shark_break_off()
+			return
+		var target := _player.global_position
+		target.y = surface_y - 0.4
+		var to_target := target - _shark.global_position
+		var dist := to_target.length()
+		if dist < 1.2:
+			# CHOMP
 			_player.velocity = Vector3.ZERO
 			if _player.has_method("die"):
 				_player.die()
-		var dm = get_node_or_null("/root/DialogueManager")
-		if dm and dm.has_method("bark"):
-			dm.bark("HU3", "Told you. Sharks.", 2.5)
-	)
-	# Dive away with the meal
-	tw.tween_property(shark, "global_position", target + out_dir * 8.0 + Vector3(0, -water_depth * 0.7, 0), 1.2).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tw.tween_callback(func():
-		if is_instance_valid(shark):
-			shark.queue_free()
-		_shark_busy = false
-	)
+			var dm = get_node_or_null("/root/DialogueManager")
+			if dm and dm.has_method("bark"):
+				dm.bark("HU3", "Told you. Sharks.", 2.5)
+			_shark_leave_dir = to_target.normalized() if dist > 0.01 else Vector3.FORWARD
+			_shark_phase = SharkPhase.LEAVE
+			_shark_leave_t = 0.0
+			return
+		var step := to_target.normalized() * shark_speed * delta
+		_shark.global_position += step
+		_shark.look_at(target, Vector3.UP)
+	
+	elif _shark_phase == SharkPhase.LEAVE:
+		# Dive away (with or without the meal)
+		_shark_leave_t += delta
+		_shark.global_position += _shark_leave_dir * shark_speed * 0.5 * delta
+		_shark.global_position.y -= water_depth * 0.6 * delta
+		if _shark_leave_t >= 1.4:
+			_shark.queue_free()
+			_shark = null
+			_shark_phase = SharkPhase.NONE
+
+
+func _shark_break_off():
+	if _shark and is_instance_valid(_shark):
+		_shark_leave_dir = -_shark.global_transform.basis.z
+		_shark_leave_dir.y = 0.0
+		if _shark_leave_dir.length() < 0.1:
+			_shark_leave_dir = Vector3.FORWARD
+		_shark_leave_dir = _shark_leave_dir.normalized()
+		_shark_phase = SharkPhase.LEAVE
+		_shark_leave_t = 0.0
+	else:
+		_shark_phase = SharkPhase.NONE
 
 
 func _build_shark() -> Node3D:

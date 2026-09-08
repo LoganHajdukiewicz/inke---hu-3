@@ -10,6 +10,9 @@ class_name Terrain
 ##   3. Need a flat spot for a building? Add a FlattenPad child, move it
 ##      where you want, set its radius - the ground flattens under it
 ##      at the pad's height.
+##   4. BEACHES: when the terrain touches a WaterZone, the ground within
+##      sand_distance meters (default 30) of the water automatically gets
+##      sand coloring. No setup - it finds the water on its own.
 ##
 ## The generated mesh/collision are runtime-only children (not saved
 ## into your scene file), so scenes stay tiny.
@@ -58,6 +61,12 @@ class_name Terrain
 ## How steep a slope has to be before it turns to rock (0-1, ~0.5 = 45deg).
 @export_range(0.1, 1.0, 0.05) var rock_steepness: float = 0.55:
 	set(v): rock_steepness = v; _request_rebuild()
+@export var sand_color: Color = Color(0.82, 0.72, 0.5):
+	set(v): sand_color = v; _request_rebuild()
+## TERRAIN RULE: ground within this many meters of a touching WaterZone
+## is sand colored (beach band). 0 disables.
+@export var sand_distance: float = 30.0:
+	set(v): sand_distance = maxf(v, 0.0); _request_rebuild()
 
 var _mesh_instance: MeshInstance3D
 var _collision: CollisionShape3D
@@ -70,7 +79,8 @@ var _path_col: PackedColorArray = []     # per-vertex path surface color
 func _ready():
 	# Terrain lips/cliffs are ledge-grabbable
 	add_to_group("LedgeGrabbable")
-	_rebuild()
+	# Deferred so WaterZones are in the tree before the first sand-band pass
+	call_deferred("_rebuild")
 
 
 func _request_rebuild():
@@ -140,6 +150,13 @@ func _rebuild():
 		if c is TerrainPath and c.curve and c.curve.point_count >= 2:
 			_apply_path(c, n, step, half)
 	
+	# WaterZones bordering this terrain (for the beach sand band)
+	var waters: Array = []
+	if sand_distance > 0.0:
+		for w in get_tree().get_nodes_in_group("WaterZone"):
+			if w is Area3D and "water_size" in w:
+				waters.append(w)
+	
 	# --- Mesh with slope-based vertex colors ------------------------------
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -157,6 +174,15 @@ func _rebuild():
 			# Low ground gets a dirt tint, plus subtle noise variation
 			col = col.lerp(dirt_color, clampf(1.0 - h / maxf(hill_height * 0.35, 0.01), 0.0, 0.6) * 0.35)
 			col = col.darkened((noise.get_noise_2d(x * 7.0, z * 7.0)) * 0.06)
+			# TERRAIN RULE: sand band near touching water (beach). Vertices
+			# within sand_distance meters of a WaterZone go sand colored,
+			# blending back into grass over the last few meters.
+			if not waters.is_empty():
+				var wd := _water_distance(to_global(Vector3(x, h, z)), waters)
+				if wd < sand_distance:
+					var sand_t := 1.0 - smoothstep(sand_distance * 0.85, sand_distance, wd)
+					var sc := sand_color.darkened((noise.get_noise_2d(x * 9.0, z * 9.0)) * 0.05)
+					col = col.lerp(sc, sand_t)
 			# Paths paint their own surface color
 			var pi := iz * (n + 1) + ix
 			if _path_mask[pi] > 0.0:
@@ -287,6 +313,22 @@ func _apply_path(path: TerrainPath, n: int, step: Vector2, half: Vector2) -> voi
 		if cmask > _path_mask[i]:
 			_path_mask[i] = cmask
 			_path_col[i] = path.path_color
+
+
+func _water_distance(world_pos: Vector3, waters: Array) -> float:
+	"""Horizontal meters from world_pos to the nearest WaterZone rectangle
+	(0 when over the water). Ignores water whose surface is far below this
+	point of terrain - a beach only forms where water actually touches."""
+	var best := 1e9
+	for w in waters:
+		# Water more than ~8m below this ground point doesn't make a beach
+		if world_pos.y - w.global_position.y > 8.0:
+			continue
+		var local: Vector3 = w.to_local(world_pos)
+		var dx := maxf(absf(local.x) - w.water_size.x * 0.5, 0.0)
+		var dz := maxf(absf(local.z) - w.water_size.y * 0.5, 0.0)
+		best = minf(best, Vector2(dx, dz).length())
+	return best
 
 
 func _sample_local_height(lx: float, lz: float) -> float:
