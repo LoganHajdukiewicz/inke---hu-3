@@ -20,11 +20,37 @@ collision, all rebuilt live as you tweak the Inspector:
 `get_height(world_pos)` returns the ground height at any point —
 useful for scattering props from scripts.
 
+**Walkability guarantee**: `max_slope_degrees` (default 38°) shaves any
+slope steeper than the limit, so the whole terrain is traversable out of
+the box (Godot's walk limit is 45°). Set 0 for raw noise (cliffy).
+
+### TerrainPath — flat walkable roads
+Add a **TerrainPath** as a CHILD of the Terrain and draw its curve with
+the Path3D toolbar tools: the ground flattens into a smooth road of
+`width` meters along the whole curve, blending back into the hills over
+`blend` meters, painted `path_color`. Curve point heights matter — drag
+a point uphill and the road ramps smoothly to it. Quick Shapes
+(straight / S-curve) bootstrap a curve in one tick.
+
 ### FlattenPad — building sites
 Add a **FlattenPad** as a CHILD of the Terrain, drag it where a
 building should go: the ground flattens to the pad's height in
 `radius`, blending back into the hills over `blend` meters. Live in
 the editor. Use one per building/arena/spawn clearing.
+
+### Traversal (free with every build)
+Terrain, Rooms and Hallways are all in the **LedgeGrabbable** group:
+Inke can ledge-grab terrain lips, rooftops and corridor edges without
+any extra setup.
+
+### Room roof access & placement
+- `roof_parapet` — low wall around the roof edge: safe rooftop
+  platforming space with a clean grab lip. `parapet_height` tunes it.
+- `roof_ladder` + `roof_ladder_side` — spawns a climbable exterior
+  ladder from the ground to the roof on the chosen wall.
+- `snap_to_ground` — after you drop a dragged room, it sits its floor
+  on the sibling Terrain under it. Buildings-on-hills without
+  eyeballing Y.
 
 ## Room — instant interiors
 

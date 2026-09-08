@@ -31,6 +31,11 @@ class_name Terrain
 ## Height the faded border settles at.
 @export var edge_height: float = 0.0:
 	set(v): edge_height = v; _request_rebuild()
+## TRAVERSABILITY GUARANTEE: no slope anywhere exceeds this angle, so the
+## whole terrain is walkable (Godot's default walk limit is 45deg). Peaks
+## that would be steeper get shaved down. 0 = off (raw noise).
+@export_range(0.0, 60.0, 1.0) var max_slope_degrees: float = 38.0:
+	set(v): max_slope_degrees = v; _request_rebuild()
 
 @export_group("Noise")
 ## Reroll for different hills.
@@ -58,9 +63,13 @@ var _mesh_instance: MeshInstance3D
 var _collision: CollisionShape3D
 var _rebuild_queued := false
 var _heights: PackedFloat32Array = []   # (resolution+1)^2 grid, row-major
+var _path_mask: PackedFloat32Array = []  # 0-1 per vertex: path color strength
+var _path_col: PackedColorArray = []     # per-vertex path surface color
 
 
 func _ready():
+	# Terrain lips/cliffs are ledge-grabbable
+	add_to_group("LedgeGrabbable")
 	_rebuild()
 
 
@@ -91,7 +100,8 @@ func _rebuild():
 			pads.append(c)
 	
 	# --- Height grid ------------------------------------------------------
-	_heights.resize((n + 1) * (n + 1))
+	var count := (n + 1) * (n + 1)
+	_heights.resize(count)
 	for iz in range(n + 1):
 		for ix in range(n + 1):
 			var x := -half.x + ix * step.x
@@ -103,13 +113,32 @@ func _rebuild():
 				var fz = minf(iz, n - iz) / float(n)
 				var f = clampf(minf(fx, fz) / edge_falloff, 0.0, 1.0)
 				h = lerpf(edge_height, h, smoothstep(0.0, 1.0, f))
-			# Flatten pads pull the ground to their own height
+			_heights[iz * (n + 1) + ix] = h
+	
+	# Walkability clamp: shave any slope steeper than max_slope_degrees
+	if max_slope_degrees > 0.0:
+		_apply_slope_limit(step)
+	
+	# Flatten pads pull the ground to their own height (after the clamp so
+	# pads stay perfectly flat)
+	for iz in range(n + 1):
+		for ix in range(n + 1):
+			var x := -half.x + ix * step.x
+			var z := -half.y + iz * step.y
+			var h := _heights[iz * (n + 1) + ix]
 			for pad in pads:
 				var d = Vector2(x - pad.position.x, z - pad.position.z).length()
 				if d < pad.radius + pad.blend:
 					var t = 1.0 - smoothstep(pad.radius, pad.radius + pad.blend, d)
 					h = lerpf(h, pad.position.y, t)
 			_heights[iz * (n + 1) + ix] = h
+	
+	# TerrainPath children carve flat walkable roads along their curves
+	_path_mask.resize(count); _path_mask.fill(0.0)
+	_path_col.resize(count)
+	for c in get_children():
+		if c is TerrainPath and c.curve and c.curve.point_count >= 2:
+			_apply_path(c, n, step, half)
 	
 	# --- Mesh with slope-based vertex colors ------------------------------
 	var st := SurfaceTool.new()
@@ -128,6 +157,10 @@ func _rebuild():
 			# Low ground gets a dirt tint, plus subtle noise variation
 			col = col.lerp(dirt_color, clampf(1.0 - h / maxf(hill_height * 0.35, 0.01), 0.0, 0.6) * 0.35)
 			col = col.darkened((noise.get_noise_2d(x * 7.0, z * 7.0)) * 0.06)
+			# Paths paint their own surface color
+			var pi := iz * (n + 1) + ix
+			if _path_mask[pi] > 0.0:
+				col = col.lerp(_path_col[pi], _path_mask[pi])
 			st.set_color(col)
 			st.set_uv(Vector2(ix / float(n), iz / float(n)))
 			st.add_vertex(Vector3(x, h, z))
@@ -186,6 +219,74 @@ func _rebuild():
 	hshape.map_data = cdata
 	_collision.shape = hshape
 	_collision.position = Vector3.ZERO
+
+
+func _apply_slope_limit(step: Vector2) -> void:
+	"""Iteratively shave peaks until no neighbor pair exceeds the max slope.
+	Only ever LOWERS vertices, so pads/valleys keep their floors."""
+	var n := resolution
+	var max_dh := tan(deg_to_rad(max_slope_degrees)) * minf(step.x, step.y)
+	for _pass in range(24):
+		var changed := false
+		for iz in range(n + 1):
+			for ix in range(n + 1):
+				var i := iz * (n + 1) + ix
+				var h := _heights[i]
+				# Against the 2 forward neighbors (each pair checked once)
+				if ix < n:
+					var j := i + 1
+					var hj := _heights[j]
+					if h - hj > max_dh:
+						_heights[i] = hj + max_dh; h = _heights[i]; changed = true
+					elif hj - h > max_dh:
+						_heights[j] = h + max_dh; changed = true
+				if iz < n:
+					var j2 := i + (n + 1)
+					var hj2 := _heights[j2]
+					if h - hj2 > max_dh:
+						_heights[i] = hj2 + max_dh; changed = true
+					elif hj2 - h > max_dh:
+						_heights[j2] = h + max_dh; changed = true
+		if not changed:
+			break
+
+
+func _apply_path(path: TerrainPath, n: int, step: Vector2, half: Vector2) -> void:
+	"""Carve a flat walkable strip along the path's curve: terrain height is
+	pulled to the curve's height within width/2, blending back into the hills
+	over blend meters. Also paints the strip with the path's color."""
+	var count := (n + 1) * (n + 1)
+	var pdist := PackedFloat32Array(); pdist.resize(count); pdist.fill(1e9)
+	var py := PackedFloat32Array(); py.resize(count)
+	var r: float = path.width * 0.5 + path.blend
+	var rx := int(ceilf(r / step.x)) + 1
+	var rz := int(ceilf(r / step.y)) + 1
+	var xform: Transform3D = path.transform
+	# Nearest-sample distance per vertex (dense baked points ~= true distance)
+	for bp in path.curve.get_baked_points():
+		var p: Vector3 = xform * bp   # Terrain-local
+		var cx := int((p.x + half.x) / step.x)
+		var cz := int((p.z + half.y) / step.y)
+		for iz in range(maxi(cz - rz, 0), mini(cz + rz, n) + 1):
+			for ix in range(maxi(cx - rx, 0), mini(cx + rx, n) + 1):
+				var i := iz * (n + 1) + ix
+				var vx := -half.x + ix * step.x
+				var vz := -half.y + iz * step.y
+				var d := Vector2(vx - p.x, vz - p.z).length()
+				if d < pdist[i]:
+					pdist[i] = d
+					py[i] = p.y
+	# Apply flattening + color mask
+	var w2: float = path.width * 0.5
+	for i in range(count):
+		if pdist[i] >= r:
+			continue
+		var t := 1.0 - smoothstep(w2, r, pdist[i])
+		_heights[i] = lerpf(_heights[i], py[i], t)
+		var cmask := 1.0 - smoothstep(w2 * 0.85, w2 + path.blend * 0.3, pdist[i])
+		if cmask > _path_mask[i]:
+			_path_mask[i] = cmask
+			_path_col[i] = path.path_color
 
 
 func _sample_local_height(lx: float, lz: float) -> float:

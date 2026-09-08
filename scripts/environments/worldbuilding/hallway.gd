@@ -180,6 +180,7 @@ func _rebuild():
 		lp.append(to_local(p))
 	
 	_csg = CSGCombiner3D.new()
+	_csg.add_to_group("LedgeGrabbable")
 	_csg.use_collision = true
 	add_child(_csg)
 	# Steps are eye-candy ONLY. If they collide, their 2-20cm lips poke

@@ -109,6 +109,15 @@ func is_allowed_ledge_object(collider: Object) -> bool:
 	if not collider:
 		return false
 	
+	# Anything in the "LedgeGrabbable" group is grabbable regardless of scene
+	# (worldbuilding Rooms/Terrain put their collision bodies in it, and any
+	# hand-built geometry can just join the group).
+	if collider is Node and (collider as Node).is_in_group("LedgeGrabbable"):
+		return true
+	# CSG shapes host their collision on the CSG root; check its groups too
+	if collider is Node and (collider as Node).get_parent() and (collider as Node).get_parent().is_in_group("LedgeGrabbable"):
+		return true
+	
 	# Get the scene file path
 	var scene_path = collider.scene_file_path
 	

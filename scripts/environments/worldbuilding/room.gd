@@ -56,6 +56,26 @@ class_name Room
 ## walk between the rooms; the rest of both rooms stays intact.
 @export var merge_overlap: float = 0.3
 
+@export_group("Roof Access")
+## Low wall around the roof edge (needs has_ceiling). Makes rooftops safe
+## platforming space AND gives ledge grabs a clean lip to catch.
+@export var roof_parapet: bool = false:
+	set(v): roof_parapet = v; _request_rebuild()
+## Parapet height.
+@export var parapet_height: float = 0.6:
+	set(v): parapet_height = maxf(v, 0.1); _request_rebuild()
+## Spawn a climbable exterior ladder up to the roof (needs has_ceiling).
+@export var roof_ladder: bool = false:
+	set(v): roof_ladder = v; _refresh_roof_ladder()
+## Which exterior wall the ladder hangs on.
+@export_enum("East (+X)", "West (-X)", "South (+Z)", "North (-Z)") var roof_ladder_side: int = 0:
+	set(v): roof_ladder_side = v; _refresh_roof_ladder()
+
+@export_group("Placement")
+## After a drag settles, drop the room so its floor sits on the Terrain
+## (sibling Terrain node) under it. Buildings-on-hills without eyeballing Y.
+@export var snap_to_ground: bool = false
+
 @export_group("Colors")
 @export var wall_color: Color = Color(0.75, 0.7, 0.62):
 	set(v): wall_color = v; _request_rebuild()
@@ -84,6 +104,7 @@ class_name Room
 			l.light_energy = v
 
 var _csg: CSGCombiner3D
+var _roof_ladder_node: Node3D = null
 var _rebuild_queued := false
 var _snapping := false   # Re-entry guard while we move ourselves
 var _snap_timer: SceneTreeTimer = null   # Drag-settle debounce (editor)
@@ -93,6 +114,7 @@ func _ready():
 	set_notify_transform(true)
 	_rebuild()
 	_refresh_lights()
+	_refresh_roof_ladder()
 	# Existing rooms must re-cut their side of shared doorways / merges
 	_poke_sibling_rooms()
 
@@ -176,9 +198,23 @@ func _schedule_snap() -> void:
 		if _snap_timer != my_timer or not is_inside_tree():
 			return
 		_try_snap()
+		if snap_to_ground:
+			_drop_to_terrain()
 		_request_rebuild()
 		_poke_sibling_rooms()
 	)
+
+
+func _drop_to_terrain() -> void:
+	"""Sit the room's floor on the Terrain under it (sibling Terrain node)."""
+	if get_parent() == null:
+		return
+	for c in get_parent().get_children():
+		if c is Terrain:
+			_snapping = true
+			global_position.y = c.get_height(global_position) + floor_thickness
+			_snapping = false
+			return
 
 
 func _request_rebuild():
@@ -261,6 +297,8 @@ func _rebuild():
 	
 	_csg = CSGCombiner3D.new()
 	_csg.use_collision = true
+	# Building edges (rooftops!) are ledge-grabbable
+	_csg.add_to_group("LedgeGrabbable")
 	add_child(_csg)
 	
 	# Collect this room + every room deep-overlapping it (transitively)
@@ -287,6 +325,73 @@ func _rebuild():
 	# Colored floor/ceiling faces go in LAST so no cut erases them
 	for r in group:
 		_add_interior_liners(r)
+	# Rooftop parapets
+	for r in group:
+		if r.roof_parapet and r.has_ceiling:
+			_add_parapet(r)
+
+
+func _add_parapet(r: Room) -> void:
+	"""Low wall around the top rim of the roof (union boxes)."""
+	var h: float = r.interior_size.y
+	var t: float = r.wall_thickness
+	var off := _room_offset(r)
+	var roof_y: float = h + t   # Top of the ceiling slab
+	var ph: float = r.parapet_height
+	var ext_x: float = r.interior_size.x * 0.5 + t
+	var ext_z: float = r.interior_size.z * 0.5 + t
+	var m := _mat(r.wall_color.darkened(0.12))
+	for side in range(4):
+		var b := CSGBox3D.new()
+		match side:
+			0:   # +X
+				b.size = Vector3(t, ph, ext_z * 2.0)
+				b.position = off + Vector3(ext_x - t * 0.5, roof_y + ph * 0.5, 0)
+			1:   # -X
+				b.size = Vector3(t, ph, ext_z * 2.0)
+				b.position = off + Vector3(-ext_x + t * 0.5, roof_y + ph * 0.5, 0)
+			2:   # +Z
+				b.size = Vector3(ext_x * 2.0, ph, t)
+				b.position = off + Vector3(0, roof_y + ph * 0.5, ext_z - t * 0.5)
+			3:   # -Z
+				b.size = Vector3(ext_x * 2.0, ph, t)
+				b.position = off + Vector3(0, roof_y + ph * 0.5, -ext_z + t * 0.5)
+		b.material = m
+		_csg.add_child(b)
+
+
+# ---------------------------------------------------------------------------
+# Roof ladder
+# ---------------------------------------------------------------------------
+
+func _refresh_roof_ladder() -> void:
+	if not is_inside_tree():
+		return
+	if _roof_ladder_node and is_instance_valid(_roof_ladder_node):
+		_roof_ladder_node.queue_free()
+	_roof_ladder_node = null
+	if not roof_ladder or not has_ceiling:
+		return
+	var l := Ladder.new()
+	l.name = "RoofLadder"
+	# Reach from the ground to just above the roof lip (parapet included)
+	var top: float = interior_size.y + wall_thickness + (parapet_height if roof_parapet else 0.0)
+	l.wall_size = Vector3(1.0, top + 0.4, 0.15)
+	var ext_x: float = interior_size.x * 0.5 + wall_thickness
+	var ext_z: float = interior_size.z * 0.5 + wall_thickness
+	match roof_ladder_side:
+		0:
+			l.position = Vector3(ext_x + 0.09, (top + 0.4) * 0.5, 0)
+			l.rotation_degrees.y = 90.0
+		1:
+			l.position = Vector3(-ext_x - 0.09, (top + 0.4) * 0.5, 0)
+			l.rotation_degrees.y = 90.0
+		2:
+			l.position = Vector3(0, (top + 0.4) * 0.5, ext_z + 0.09)
+		3:
+			l.position = Vector3(0, (top + 0.4) * 0.5, -ext_z - 0.09)
+	add_child(l)
+	_roof_ladder_node = l
 
 
 func _overlap_depth(a: Room, b: Room) -> float:
