@@ -93,6 +93,8 @@ var should_flash: bool = false
 
 # NEW: Ice floor detection
 var is_on_ice: bool = false
+# WATER: set by the WaterZone Area3D while we're inside its volume
+var current_water = null
 
 # Balance beam detection
 var is_on_balance_beam: bool = false
@@ -388,6 +390,7 @@ func _physics_process(delta: float) -> void:
 	update_slide_uphill_block(delta)
 	update_landing_puff()
 	update_climb_grab(delta, current_state_name)
+	update_water_entry(current_state_name)
 	check_fall_death()
 	
 	# Sync wall jump cooldown from detector to player (for state compatibility)
@@ -402,6 +405,18 @@ func _physics_process(delta: float) -> void:
 		can_air_dash = true
 	
 	$CameraController.follow_character(position, velocity)
+
+func update_water_entry(current_state_name: String):
+	"""Fell/walked into a WaterZone deep enough to float? Start swimming.
+	Rail grinds and grapples above water are left alone."""
+	if current_water == null or is_dead:
+		return
+	if current_state_name in ["SwimmingState", "RailGrindingState", "GrappleHookState", "RopeSwingState", "SwingBarState"]:
+		return
+	var surface: float = current_water.get_surface_height()
+	# Enter swimming once we're properly in the drink (waist deep and sinking)
+	if global_position.y < surface - 0.9 and velocity.y <= 0.1:
+		state_machine.change_state("SwimmingState")
 
 func update_ice_detection():
 	"""Check what special floor the player is standing on (FROZEN / SLIDING)"""
