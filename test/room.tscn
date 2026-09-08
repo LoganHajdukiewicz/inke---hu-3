@@ -10,13 +10,6 @@
 
 [node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_taygr")]
 
-[node name="Hallway" type="Node3D" parent="." unique_id=550908835 node_paths=PackedStringArray("door_a", "door_b")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 109.02867, 0, 0)
-script = ExtResource("2_pdnor")
-door_a = NodePath("../Room/Doorway")
-door_b = NodePath("../Room2/Doorway2")
-metadata/_custom_type_script = "uid://nfksvxf0gipt"
-
 [node name="Room" type="Node3D" parent="." unique_id=201967878]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.055351257, 0, 0)
 script = ExtResource("1_i7fno")
@@ -88,3 +81,13 @@ metadata/auto_light = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.333333, 29.95, 0)
 script = ExtResource("3_taygr")
 metadata/auto_light = true
+
+[node name="Hallway" type="Node3D" parent="." unique_id=611689113 node_paths=PackedStringArray("door_a", "door_b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.657757, 12.809753, 0)
+script = ExtResource("2_pdnor")
+door_a = NodePath("../Room/Doorway")
+door_b = NodePath("../Room2/Doorway2")
+width = 12.0
+height = 12.0
+stub_length = 10.0
+metadata/_custom_type_script = "uid://nfksvxf0gipt"
