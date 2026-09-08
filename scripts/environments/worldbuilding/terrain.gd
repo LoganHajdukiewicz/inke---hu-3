@@ -19,7 +19,10 @@ class_name Terrain
 ##      raise the ground under the cursor (hold Shift to lower it). Brush
 ##      radius/strength live in the Inspector. Sculpt ridges, valleys and
 ##      topographical islands by hand - painted height saves with the
-##      scene and stacks on top of the noise hills.
+##      scene and stacks on top of the noise hills. Painted height is
+##      EXEMPT from the walkability slope clamp: sculpted mountains can be
+##      as tall and steep as you want, and can wall the player off.
+##      Ctrl-Z undoes paint strokes.
 ##
 ## The generated mesh/collision are runtime-only children (not saved
 ## into your scene file), so scenes stay tiny.
@@ -144,8 +147,6 @@ func _rebuild():
 			var x := -half.x + ix * step.x
 			var z := -half.y + iz * step.y
 			var h := (noise.get_noise_2d(x, z) * 0.5 + 0.5) * hill_height
-			# Painted (sculpted) height stacks on top of the noise
-			h += paint_data[iz * (n + 1) + ix]
 			# Border falloff
 			if edge_falloff > 0.0:
 				var fx = minf(ix, n - ix) / float(n)
@@ -154,9 +155,16 @@ func _rebuild():
 				h = lerpf(edge_height, h, smoothstep(0.0, 1.0, f))
 			_heights[iz * (n + 1) + ix] = h
 	
-	# Walkability clamp: shave any slope steeper than max_slope_degrees
+	# Walkability clamp: shave any slope steeper than max_slope_degrees.
+	# NOISE ONLY - the clamp runs before painted height is added, so
+	# hand-sculpted mountains can be arbitrarily tall/steep (great for
+	# walling off areas). The slope guarantee is a suggestion, not a law.
 	if max_slope_degrees > 0.0:
 		_apply_slope_limit(step)
+	
+	# Painted (sculpted) height stacks on top, uncapped and unclamped
+	for i in range(count):
+		_heights[i] += paint_data[i]
 	
 	# Flatten pads pull the ground to their own height (after the clamp so
 	# pads stay perfectly flat)
@@ -330,8 +338,9 @@ func _ensure_paint_grid() -> void:
 
 
 func _apply_slope_limit(step: Vector2) -> void:
-	"""Iteratively shave peaks until no neighbor pair exceeds the max slope.
-	Only ever LOWERS vertices, so pads/valleys keep their floors."""
+	"""Iteratively shave NOISE peaks until no neighbor pair exceeds the max
+	slope. Only ever LOWERS vertices, so pads/valleys keep their floors.
+	Runs before painted height is added - sculpted terrain is exempt."""
 	var n := resolution
 	var max_dh := tan(deg_to_rad(max_slope_degrees)) * minf(step.x, step.y)
 	for _pass in range(24):

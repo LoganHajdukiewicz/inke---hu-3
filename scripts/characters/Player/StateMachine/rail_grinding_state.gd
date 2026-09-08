@@ -25,23 +25,35 @@ var lerp_speed: float = 50.0 # Does NOT control how fast you are going
 ##   ELECTRIC: cyan-blue crackle, tight and buzzy - fits HU3's tech vibe
 @export_enum("Classic Sparks", "Ember Fountain", "Electric Crackle") var spark_style: int = 0
 @export var sparks_enabled: bool = true
-## Jet Set Radio style low-poly fire burst pinned at the feet while grinding:
-## a jagged filled star in layered yellow/orange/red that flickers into a new
-## random shape every few frames.
+## Punk/anime grind flame pinned at the feet while grinding: a jagged
+## trailing TRIANGLE of layered fire colors - front point at the feet on
+## the rail, bottom edge flat along the rail (nothing below it), top point
+## at the back. Boils by cycling through preset hand-drawn-style frames.
 @export var feet_burst_enabled: bool = true
+## Flame height in meters (top point of the triangle above the rail).
+## Default 0.5 = about 1/3 of Inke.
+@export var burst_height: float = 0.5
+## How far the flame trails behind the feet along the rail, in meters.
+@export var burst_length: float = 1.4
+## Boil speed: preset flame frames shown per second (classic anime boil ~6).
+@export var boil_fps: float = 6.0
+## How many preset flame drawings to cycle through.
+@export_range(2, 12, 1) var boil_frames: int = 6
 
 var _sparks: GPUParticles3D = null
 var _burst: MeshInstance3D = null
 var _burst_timer: float = 0.0
+var _burst_frames: Array[ArrayMesh] = []
+var _burst_frame_i: int = 0
 
-# JSR burst layers, drawn big-to-small: yellow rim -> orange -> red -> hot core
+# Flame layers, drawn big-to-small: yellow rim -> orange -> red -> hot core
 const BURST_COLORS: Array[Color] = [
 	Color(1.0, 0.92, 0.15),   # yellow (outer)
 	Color(1.0, 0.55, 0.05),   # orange
 	Color(0.95, 0.12, 0.03),  # red
 	Color(1.0, 0.97, 0.72),   # white-hot core
 ]
-const BURST_SCALES: Array[float] = [1.0, 0.76, 0.55, 0.28]
+const BURST_SCALES: Array[float] = [1.0, 0.72, 0.48, 0.24]
 
 func enter():
 	
@@ -304,11 +316,16 @@ func _create_sparks():
 func _update_sparks():
 	if not _sparks or not is_instance_valid(_sparks):
 		return
-	# Pin to the player's feet (rail contact) and aim backwards along travel
-	_sparks.global_position = player.global_position + Vector3(0, 0.1, 0)
+	# Sit at the TAIL of the feet flame so the particles read as bits
+	# falling off the back of it (at the feet they were hidden inside/behind
+	# the flame quad and invisible)
 	var flat_vel = Vector3(player.velocity.x, 0, player.velocity.z)
+	var back := Vector3.ZERO
 	if flat_vel.length() > 0.5:
-		var back = -flat_vel.normalized()
+		back = -flat_vel.normalized()
+	_sparks.global_position = player.global_position \
+			+ back * (burst_length * 0.85) + Vector3(0, 0.18, 0)
+	if back != Vector3.ZERO:
 		var pm: ParticleProcessMaterial = _sparks.process_material
 		if spark_style == 1:
 			pm.direction = (back * 0.7 + Vector3.UP).normalized()
@@ -316,11 +333,15 @@ func _update_sparks():
 			pm.direction = (back + Vector3(0, 0.25, 0)).normalized()
 
 
-# === JSR FEET BURST ==========================================================
-# A flat, jagged, FILLED star of layered yellow/orange/red (like the classic
-# Jet Set Radio grind spark), billboarded at the rail contact point. Low poly
-# on purpose: ~90 tris, hard color steps, no gradients, no transparency.
-# It re-rolls its spike shape every few frames so it crackles.
+# === GRIND FLAME (punk/anime boil) ==========================================
+# A flat, jagged TRIANGLE of fire trailing the feet along the rail:
+#   - front point pinned at the feet, ON the rail
+#   - bottom edge dead flat along the rail (nothing ever below the rail)
+#   - jagged top edge climbing to the top point at the back
+# Layered hard colors (yellow rim -> orange -> red -> white-hot core), all
+# sharing the front point, like a graffiti flame sticker. Animates as a
+# choppy BOIL: boil_frames preset drawings cycled at boil_fps - no smooth
+# interpolation, hand-drawn anime fire style on purpose.
 
 func _create_feet_burst():
 	_kill_feet_burst()
@@ -329,46 +350,55 @@ func _create_feet_burst():
 	var m := StandardMaterial3D.new()
 	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	m.vertex_color_use_as_albedo = true
-	m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED   # Visible from both sides
 	_burst.material_override = m
 	_burst.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_burst.mesh = _gen_burst_mesh()
+	# Pre-roll the boil cycle: a fixed set of flame drawings, played in order
+	_burst_frames.clear()
+	for i in maxi(boil_frames, 2):
+		_burst_frames.append(_gen_flame_frame())
+	_burst_frame_i = 0
+	_burst.mesh = _burst_frames[0]
 	_burst_timer = 0.0
 	player.get_tree().current_scene.add_child(_burst)
 
-func _gen_burst_mesh() -> ArrayMesh:
-	"""Build a jagged star polygon (random every call) filled in 4 hard-color
-	layers: yellow rim, orange, red, white-hot core - stacked with tiny Z
-	offsets so the smaller layers draw on top."""
-	var spikes := 7
-	var pts := PackedVector2Array()
-	for i in spikes:
-		var a := TAU * float(i) / spikes + randf_range(-0.22, 0.22)
-		var r_out := randf_range(0.3, 0.55)
-		if randf() < 0.4:
-			r_out *= randf_range(1.5, 2.1)   # occasional dramatic long spike
-		var a2 := TAU * (float(i) + 0.5) / spikes + randf_range(-0.18, 0.18)
-		var r_in := randf_range(0.07, 0.15)
-		pts.append(Vector2(cos(a), sin(a)) * r_out)
-		pts.append(Vector2(cos(a2), sin(a2)) * r_in)
+func _gen_flame_frame() -> ArrayMesh:
+	"""One preset flame drawing. Local space: +X = backward along the rail,
+	+Y = up. Front point at the origin (the feet), bottom edge on y=0 (the
+	rail), jagged top edge rising to the top point at the back. Filled in 4
+	hard-color layers that all share the front point."""
+	var segs := 7
+	# Jagged height profile: 0 at the feet, climbing to full height at the
+	# back, with zigzag jitter for the punk spikes
+	var profile := PackedFloat32Array()
+	profile.resize(segs + 1)
+	profile[0] = 0.0
+	for i in range(1, segs + 1):
+		var t := float(i) / segs
+		var spike := 1.0 + (0.42 if (i % 2 == 1) else -0.18) * randf_range(0.6, 1.4)
+		profile[i] = t * spike
+	profile[segs] = 1.0   # The back top point is THE point of the triangle
 	
 	var verts := PackedVector3Array()
 	var cols := PackedColorArray()
-	var n := pts.size()
 	for li in BURST_SCALES.size():
 		var s: float = BURST_SCALES[li]
 		var c: Color = BURST_COLORS[li]
-		var z := 0.004 * (li + 1)   # billboard +Z faces the camera: core on top
-		for i in n:
-			var v0: Vector2 = pts[i] * s
-			var v1: Vector2 = pts[(i + 1) % n] * s
-			verts.append(Vector3(0, 0, z))
-			cols.append(c)
-			verts.append(Vector3(v0.x, v0.y, z))
-			cols.append(c)
-			verts.append(Vector3(v1.x, v1.y, z))
-			cols.append(c)
+		var z := 0.012 * li   # Tiny offsets: core draws on top, no z-fighting
+		for i in range(segs):
+			var x0 := float(i) / segs * s
+			var x1 := float(i + 1) / segs * s
+			var h0 := profile[i] * s
+			var h1 := profile[i + 1] * s
+			# Column quad from the rail (y=0) up to the jagged profile.
+			# Both triangles, both windings covered by CULL_DISABLED.
+			verts.append(Vector3(x0, 0, z)); cols.append(c)
+			verts.append(Vector3(x1, 0, z)); cols.append(c)
+			verts.append(Vector3(x1, h1, z)); cols.append(c)
+			if h0 > 0.001:
+				verts.append(Vector3(x0, 0, z)); cols.append(c)
+				verts.append(Vector3(x1, h1, z)); cols.append(c)
+				verts.append(Vector3(x0, h0, z)); cols.append(c)
 	
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
@@ -381,14 +411,22 @@ func _gen_burst_mesh() -> ArrayMesh:
 func _update_feet_burst(delta: float):
 	if not _burst or not is_instance_valid(_burst):
 		return
-	# Pin to the rail contact point (feet)
-	_burst.global_position = player.global_position + Vector3(0, 0.12, 0)
-	# Flicker: re-roll the spike shape + size every few frames, JSR style
+	# Pin the front point to the rail contact (feet) and lay the triangle
+	# backward along the travel direction, upright. Never below the rail.
+	_burst.global_position = player.global_position + Vector3(0, 0.04, 0)
+	var flat_vel := Vector3(player.velocity.x, 0, player.velocity.z)
+	if flat_vel.length() > 0.5:
+		var back := -flat_vel.normalized()
+		var side := back.cross(Vector3.UP).normalized()
+		_burst.global_transform.basis = Basis(back, Vector3.UP, side)
+	# Boil: hard-cut to the next preset drawing at boil_fps
 	_burst_timer -= delta
-	if _burst_timer <= 0.0:
-		_burst_timer = randf_range(0.04, 0.09)
-		_burst.mesh = _gen_burst_mesh()
-		_burst.scale = Vector3.ONE * randf_range(0.85, 1.3)
+	if _burst_timer <= 0.0 and boil_fps > 0.0 and not _burst_frames.is_empty():
+		_burst_timer = 1.0 / boil_fps
+		_burst_frame_i = (_burst_frame_i + 1) % _burst_frames.size()
+		_burst.mesh = _burst_frames[_burst_frame_i]
+	# Size: length back along the rail, height up from it (configurable)
+	_burst.scale = Vector3(burst_length, burst_height, 1.0)
 
 func _kill_feet_burst():
 	if _burst and is_instance_valid(_burst):

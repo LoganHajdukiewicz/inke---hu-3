@@ -5,6 +5,7 @@ extends EditorPlugin
 ## viewport:
 ##   - Left-click / drag  = raise the ground under the cursor
 ##   - Shift + click/drag = lower it
+##   - Ctrl-Z / Ctrl-Shift-Z = undo / redo strokes (one stroke = one click)
 ##   - Brush radius & strength are on the Terrain in the Inspector
 ## A translucent brush ring under the cursor shows exactly what you'll hit.
 
@@ -15,6 +16,7 @@ var _last_hit := Vector3.ZERO
 var _has_hit := false
 var _brush_vis: MeshInstance3D = null
 var _brush_mat: StandardMaterial3D = null
+var _stroke_before: PackedFloat32Array = PackedFloat32Array()   # Undo snapshot
 
 
 func _get_plugin_name() -> String:
@@ -55,6 +57,7 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 		if event.pressed and _has_hit:
 			_painting = true
 			_lower = event.shift_pressed
+			_stroke_before = _terrain.paint_data.duplicate()   # For undo
 			_apply_stroke(0.0)   # Immediate dab on click
 			return AFTER_GUI_INPUT_STOP
 		elif not event.pressed and _painting:
@@ -82,7 +85,25 @@ func _apply_stroke(delta: float) -> void:
 
 
 func _stop_painting() -> void:
+	if not _painting:
+		return
 	_painting = false
+	# Register the whole stroke (press -> release) as ONE undo step
+	if _terrain and is_instance_valid(_terrain) \
+			and _stroke_before.size() > 0 \
+			and _stroke_before != _terrain.paint_data:
+		var after: PackedFloat32Array = _terrain.paint_data.duplicate()
+		var before: PackedFloat32Array = _stroke_before
+		var ur := get_undo_redo()
+		ur.create_action("Paint Terrain", UndoRedo.MERGE_DISABLE, _terrain)
+		ur.add_do_property(_terrain, "paint_data", after)
+		ur.add_undo_property(_terrain, "paint_data", before)
+		ur.add_do_method(_terrain, "_request_rebuild")
+		ur.add_undo_method(_terrain, "_request_rebuild")
+		# paint_data is already 'after' - commit without re-running do methods
+		ur.commit_action(false)
+		_terrain._request_rebuild()
+	_stroke_before = PackedFloat32Array()
 
 
 func _update_hit(camera: Camera3D, mouse_pos: Vector2) -> void:
