@@ -8,7 +8,7 @@ class_name SwimmingState
 ##            CROUCH (hold) = dive under.
 ##   Diving:  JUMP = rise, CROUCH = sink, oxygen drains while your head
 ##            is under. It refills in a second at the surface.
-##   Oxygen empty = drown (die + respawn at checkpoint).
+##   Oxygen empty = drowning: 1 damage per second until you surface or die.
 ##
 ## The WaterZone node handles the buoy boundary + shark separately.
 
@@ -24,6 +24,7 @@ class_name SwimmingState
 var oxygen: float = 12.0
 var oxygen_max: float = 12.0
 var is_underwater := false
+var _drown_tick := 0.0   # Seconds until the next drowning damage hit
 
 var _oxy_ui: CanvasLayer = null
 var _oxy_bar: ColorRect = null
@@ -36,6 +37,7 @@ func enter():
 	oxygen_max = wz.oxygen_seconds if wz else 12.0
 	oxygen = oxygen_max
 	is_underwater = false
+	_drown_tick = 0.0
 	player.gravity = 0.0
 	player.velocity.y = 0.0
 	# Splash: kill most of the entry momentum
@@ -127,11 +129,21 @@ func physics_update(delta: float):
 		oxygen = maxf(oxygen - delta, 0.0)
 		_show_oxygen_ui()
 		if oxygen <= 0.0:
-			_hide_oxygen_ui()
-			if player.has_method("die"):
-				player.die()
-			return
+			# DROWNING: 1 damage per second until you surface or die.
+			# take_damage handles death itself when health hits zero.
+			_drown_tick -= delta
+			if _drown_tick <= 0.0:
+				_drown_tick = 1.0
+				if player.has_method("take_damage"):
+					# Clear invulnerability first: drowning ignores mercy
+					# frames (otherwise the 1.5s hurt-invuln eats every
+					# other tick), and no knockback underwater.
+					player.is_invulnerable = false
+					var keep_vel: Vector3 = player.velocity
+					player.take_damage(1)
+					player.velocity = keep_vel   # No drowning knockback
 	else:
+		_drown_tick = 0.0
 		oxygen = minf(oxygen + delta * oxygen_max, oxygen_max)   # Fast refill
 		if oxygen >= oxygen_max:
 			_hide_oxygen_ui()

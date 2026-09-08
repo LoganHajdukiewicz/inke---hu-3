@@ -26,15 +26,14 @@ class_name Hallway
 	set(v): door_b = v; _request_rebuild()
 
 @export_group("Shape")
-## Interior width of the corridor. THIRD-PERSON RULE (Psychonauts 2
-## proportions): a "small" hallway is ~3x the character's height wide so
-## the camera can sit behind the player without wall-hugging. 5m is the
-## SMALLEST a corridor should be - go wider for main routes.
-@export var width: float = 5.0:
+## Interior width of the corridor. Tuned in-game (test/room.tscn): 12m
+## is the default hallway - the camera never wall-hugs and grinding/
+## platforming fits inside. Treat it as the baseline, not a maximum.
+@export var width: float = 12.0:
 	set(v): width = v; _request_rebuild()
-## Interior height of the corridor. ~2.8x character height minimum keeps
-## the camera from pulling in against the ceiling.
-@export var height: float = 4.2:
+## Interior height of the corridor. 12m default keeps the camera off the
+## ceiling even when jumping.
+@export var height: float = 12.0:
 	set(v): height = v; _request_rebuild()
 @export var wall_thickness: float = 0.3:
 	set(v): wall_thickness = v; _request_rebuild()
@@ -43,7 +42,7 @@ class_name Hallway
 @export var has_ceiling: bool = true:
 	set(v): has_ceiling = v; _request_rebuild()
 ## How far the corridor runs straight out of each door before turning.
-@export var stub_length: float = 2.5:
+@export var stub_length: float = 10.0:
 	set(v): stub_length = v; _request_rebuild()
 
 @export_group("Stairs")

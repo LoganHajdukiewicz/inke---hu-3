@@ -223,8 +223,19 @@ func check_paint_use_input():
 	if Input.is_action_just_pressed("spray"):
 		use_current_paint()
 
+func _player_in_water() -> bool:
+	"""True while Inke is in a WaterZone. Spray cans don't work underwater -
+	no checkpoint spraying, no paint powers of any kind in the water."""
+	if not player or not is_instance_valid(player):
+		return false
+	return "current_water" in player and player.current_water != null
+
 func use_current_paint():
 	"""Execute the action for the current paint type"""
+	# NO SPRAYING IN WATER: wet cans, wet walls, no checkpoint cheese.
+	if _player_in_water():
+		return
+	
 	var cost = paint_ability_costs.get(current_paint, 0)
 	
 	# Check if we have enough paint

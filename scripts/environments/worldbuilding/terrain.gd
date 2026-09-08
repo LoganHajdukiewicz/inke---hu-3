@@ -19,10 +19,13 @@ class_name Terrain
 ##      raise the ground under the cursor (hold Shift to lower it). Brush
 ##      radius/strength live in the Inspector. Sculpt ridges, valleys and
 ##      topographical islands by hand - painted height saves with the
-##      scene and stacks on top of the noise hills. Painted height is
-##      EXEMPT from the walkability slope clamp: sculpted mountains can be
-##      as tall and steep as you want, and can wall the player off.
-##      Ctrl-Z undoes paint strokes.
+##      scene and stacks on top of the noise hills. Ctrl-Z undoes strokes.
+##      MOUNTAIN RULE: painted peaks keep their full height (no cap) and
+##      grow a WALKABLE flank around themselves by default - the ground
+##      rises to meet them at max_slope_degrees. Where the flank CAN'T
+##      spread (terrain border, FlattenPads, TerrainPaths), the mountain
+##      silently goes steep/pointy there instead - tall enough peaks
+##      naturally become unclimbable walls.
 ##
 ## The generated mesh/collision are runtime-only children (not saved
 ## into your scene file), so scenes stay tiny.
@@ -77,6 +80,16 @@ class_name Terrain
 ## is sand colored (beach band). 0 disables.
 @export var sand_distance: float = 30.0:
 	set(v): sand_distance = maxf(v, 0.0); _request_rebuild()
+@export var snow_color: Color = Color(0.93, 0.95, 0.97):
+	set(v): snow_color = v; _request_rebuild()
+## TERRAIN RULE: ground above this height (meters above the terrain node)
+## turns white like snow, blending in over snow_blend meters. Painted
+## mountains poke into it automatically. 0 disables.
+@export var snow_height: float = 25.0:
+	set(v): snow_height = v; _request_rebuild()
+## Meters over which grass/rock fades into full snow above snow_height.
+@export var snow_blend: float = 8.0:
+	set(v): snow_blend = maxf(v, 0.1); _request_rebuild()
 
 @export_group("Painting (editor)")
 ## PAINT MODE: with this ON and the Terrain selected, left-click in the 3D
@@ -162,9 +175,15 @@ func _rebuild():
 	if max_slope_degrees > 0.0:
 		_apply_slope_limit(step)
 	
-	# Painted (sculpted) height stacks on top, uncapped and unclamped
+	# Painted (sculpted) height stacks on top, uncapped
 	for i in range(count):
 		_heights[i] += paint_data[i]
+	
+	# MOUNTAIN RULE: grow walkable flanks around painted peaks where
+	# possible (raises surrounding ground to max_slope_degrees cones);
+	# where blocked, the peak stays steep/pointy.
+	if max_slope_degrees > 0.0:
+		_grow_walkable_flanks(step)
 	
 	# Flatten pads pull the ground to their own height (after the clamp so
 	# pads stay perfectly flat)
@@ -221,6 +240,13 @@ func _rebuild():
 					var sand_t := 1.0 - smoothstep(sand_distance * 0.85, sand_distance, wd)
 					var sc := sand_color.darkened((noise.get_noise_2d(x * 9.0, z * 9.0)) * 0.05)
 					col = col.lerp(sc, sand_t)
+			# TERRAIN RULE: snow caps. High ground fades to white - painted
+			# mountains reach into the snow line automatically. Subtle noise
+			# breakup keeps the transition organic instead of a hard ring.
+			if snow_height > 0.0 and h > snow_height - snow_blend:
+				var snow_t := smoothstep(snow_height - snow_blend, snow_height, h + noise.get_noise_2d(x * 3.0, z * 3.0) * snow_blend * 0.5)
+				var snow_c := snow_color.darkened((noise.get_noise_2d(x * 11.0, z * 11.0)) * 0.04)
+				col = col.lerp(snow_c, snow_t)
 			# Paths paint their own surface color
 			var pi := iz * (n + 1) + ix
 			if _path_mask[pi] > 0.0:
@@ -335,6 +361,83 @@ func _ensure_paint_grid() -> void:
 					lerpf(old[oz * w1 + ox], old[oz * w1 + ox + 1], tx),
 					lerpf(old[(oz + 1) * w1 + ox], old[(oz + 1) * w1 + ox + 1], tx), tz)
 	paint_res = n
+
+
+func _grow_walkable_flanks(step: Vector2) -> void:
+	"""Slope-limited dilation from painted-up vertices: ground around a
+	sculpted peak is RAISED (never lowered) until the flank meets the peak
+	at max_slope_degrees - a wide, walkable mountain by default. Vertices
+	that must not move are pinned (terrain border band, FlattenPads,
+	TerrainPaths): where the flank hits a pin or the terrain edge it simply
+	stops, leaving that side steep - the silent 'pointy mode'. Carved pits
+	(negative paint) are never filled in: propagation only sources from
+	raised vertices."""
+	var n := resolution
+	var w1 := n + 1
+	var count := w1 * w1
+	var slope := tan(deg_to_rad(max_slope_degrees))
+	var dx := slope * step.x
+	var dz := slope * step.y
+	var dd := slope * Vector2(step.x, step.y).length()
+	
+	# Pinned vertices: never raised. Border band keeps island edges/beaches;
+	# pads and paths were placed deliberately flat.
+	var pinned := PackedByteArray()
+	pinned.resize(count)
+	var border := maxi(int(edge_falloff * n), 1) if edge_falloff > 0.0 else 0
+	for iz in range(w1):
+		for ix in range(w1):
+			if ix < border or iz < border or ix > n - border or iz > n - border:
+				pinned[iz * w1 + ix] = 1
+	for i in range(count):
+		if _path_mask.size() == count and _path_mask[i] > 0.05:
+			pinned[i] = 1
+	var pads: Array = []
+	for c in get_children():
+		if c is FlattenPad:
+			pads.append(c)
+	if not pads.is_empty():
+		var half := size * 0.5
+		for iz in range(w1):
+			for ix in range(w1):
+				var x := -half.x + ix * step.x
+				var z := -half.y + iz * step.y
+				for pad in pads:
+					if Vector2(x - pad.position.x, z - pad.position.z).length() < pad.radius + pad.blend:
+						pinned[iz * w1 + ix] = 1
+						break
+	
+	# Cone field seeded ONLY from painted-up vertices, spread by chamfer
+	# sweeps (forward + backward twice = converged for this kernel).
+	var f := PackedFloat32Array()
+	f.resize(count)
+	var neg := -1e9
+	for i in range(count):
+		f[i] = _heights[i] if (paint_data.size() == count and paint_data[i] > 0.01) else neg
+	for _round in range(2):
+		for iz in range(w1):
+			for ix in range(w1):
+				var i := iz * w1 + ix
+				var v := f[i]
+				if ix > 0: v = maxf(v, f[i - 1] - dx)
+				if iz > 0: v = maxf(v, f[i - w1] - dz)
+				if ix > 0 and iz > 0: v = maxf(v, f[i - w1 - 1] - dd)
+				if ix < n and iz > 0: v = maxf(v, f[i - w1 + 1] - dd)
+				f[i] = v
+		for iz in range(n, -1, -1):
+			for ix in range(n, -1, -1):
+				var i := iz * w1 + ix
+				var v := f[i]
+				if ix < n: v = maxf(v, f[i + 1] - dx)
+				if iz < n: v = maxf(v, f[i + w1] - dz)
+				if ix < n and iz < n: v = maxf(v, f[i + w1 + 1] - dd)
+				if ix > 0 and iz < n: v = maxf(v, f[i + w1 - 1] - dd)
+				f[i] = v
+	
+	# Raise unpinned ground into the walkable cones (never lower anything)
+	for i in range(count):
+		if pinned[i] == 0 and f[i] > _heights[i]:
+			_heights[i] = f[i]
 
 
 func _apply_slope_limit(step: Vector2) -> void:

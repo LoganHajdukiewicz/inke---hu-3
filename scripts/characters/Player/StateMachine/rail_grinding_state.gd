@@ -255,11 +255,11 @@ func _create_sparks():
 		0:   # CLASSIC: orange grinding sparks, kicked back low and fast
 			_sparks.amount = 40
 			_sparks.lifetime = 0.35
-			mesh.size = Vector2(0.14, 0.14)   # 2x size so they read behind the burst
+			mesh.size = Vector2(0.112, 0.112)
 			mat.initial_velocity_min = 5.0
 			mat.initial_velocity_max = 9.0
 			mat.spread = 20.0
-			mat.gravity = Vector3(0, -18, 0)
+			mat.gravity = Vector3(0, -13, 0)   # Softer fall - sparks hang/lift a touch
 			mat.scale_min = 0.5
 			mat.scale_max = 1.1
 			var g0 := Gradient.new()
@@ -270,12 +270,12 @@ func _create_sparks():
 		1:   # EMBER FOUNTAIN: big glowing embers spraying up and back
 			_sparks.amount = 56
 			_sparks.lifetime = 0.8
-			mesh.size = Vector2(0.24, 0.24)   # 2x size
+			mesh.size = Vector2(0.192, 0.192)
 			mat.direction = Vector3(0, 1.0, 0.7)
 			mat.initial_velocity_min = 3.0
 			mat.initial_velocity_max = 7.0
 			mat.spread = 40.0
-			mat.gravity = Vector3(0, -9, 0)
+			mat.gravity = Vector3(0, -6.5, 0)   # Softer fall - embers float longer
 			mat.scale_min = 0.6
 			mat.scale_max = 1.6
 			mat.angular_velocity_min = -180.0
@@ -288,7 +288,7 @@ func _create_sparks():
 		2:   # ELECTRIC CRACKLE: tight cyan buzz around the contact point
 			_sparks.amount = 64
 			_sparks.lifetime = 0.22
-			mesh.size = Vector2(0.1, 0.32)   # Stretched = little arcs (2x size)
+			mesh.size = Vector2(0.08, 0.256)   # Stretched = little arcs
 			mat.initial_velocity_min = 2.0
 			mat.initial_velocity_max = 5.0
 			mat.spread = 70.0
@@ -319,7 +319,8 @@ func _update_sparks():
 		if spark_style == 1:
 			pm.direction = (back * 0.7 + Vector3.UP).normalized()
 		else:
-			pm.direction = (back + Vector3(0, 0.25, 0)).normalized()
+			# Slightly more upward kick so sparks arc up before falling
+			pm.direction = (back + Vector3(0, 0.45, 0)).normalized()
 
 
 # === JSR FEET BURST ==========================================================
