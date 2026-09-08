@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://cno6qrngh3rk0"]
+
+[ext_resource type="Script" uid="uid://b112r7llqqap" path="res://scripts/environments/worldbuilding/terrain.gd" id="1_354oc"]
+[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_4qu1v"]
+[ext_resource type="Script" uid="uid://bi2obgc1agqyr" path="res://scripts/environments/water_zone.gd" id="4_4qu1v"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_354oc"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_4qu1v"]
+sky_material = SubResource("ProceduralSkyMaterial_354oc")
+
+[sub_resource type="Environment" id="Environment_od51x"]
+background_mode = 2
+sky = SubResource("Sky_4qu1v")
+glow_enabled = true
+
+[node name="Node3D" type="Node3D" unique_id=1888861855]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1050678348]
+environment = SubResource("Environment_od51x")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1071665786]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Terrain" type="StaticBody3D" parent="." unique_id=1604849793]
+script = ExtResource("1_354oc")
+size = Vector2(200, 200)
+metadata/_custom_type_script = "uid://b112r7llqqap"
+
+[node name="WaterZone" type="Area3D" parent="Terrain" unique_id=746838022]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5378876, 0)
+collision_layer = 0
+monitorable = false
+script = ExtResource("4_4qu1v")
+water_size = Vector2(3000, 3000)
+metadata/_custom_type_script = "uid://bi2obgc1agqyr"
+
+[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_4qu1v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11.886787, 0)
