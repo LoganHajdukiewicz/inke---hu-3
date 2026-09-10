@@ -9,17 +9,19 @@ class_name WaterZone
 ##   1. Add a WaterZone where the world should end. The node's Y is the
 ##      water surface height. Size with water_size / water_depth.
 ##   2. On first build the zone finds LAND (Terrain height sampling -
-##      cheap math, no raycasts; other solid bodies via a coarse raycast
-##      grid) and spawns a ring of BuoyPoint children boundary_distance
-##      meters (default 20) out from the land edge.
-##   3. THE BUOYS ARE THE BOUNDARY. Drag any BuoyPoint in the editor to
-##      reshape shark territory however you want - block off a lagoon,
-##      pull the line tight around a cliff, anything. Add/remove
-##      BuoyPoints freely (keep ring order in the scene tree). Buoys are
-##      only regenerated if the zone has NO BuoyPoint children, so your
-##      dragged layout is never overwritten.
-##   4. Swim outside the buoy ring and after a hidden grace period the
-##      shark charges. Get back inside the ring (or onto land) before it
+##      cheap math) and creates ONE child Path3D called "BuoyLine": a
+##      closed circle around the island, boundary_distance meters past
+##      the land edge. Buoy meshes are placed automatically along the
+##      curve every buoy_spacing meters - they are pure visuals, never
+##      saved into your scene.
+##   3. THE BUOYLINE IS THE BOUNDARY. INSIDE the loop = safe. OUTSIDE =
+##      shark territory. Edit the BuoyLine like any Path3D: drag its
+##      curve points to grow/shrink/reshape the circle, add points for
+##      odd shapes. Buoys follow the curve instantly. It's only
+##      regenerated if the BuoyLine child is missing, so your edits are
+##      never overwritten (regenerate_buoys resets it).
+##   4. Swim outside the loop and after a hidden grace period the shark
+##      charges. Get back inside the loop (or onto land) before it
 ##      reaches you and it breaks off. Jumping doesn't save you.
 ##
 ## The player is detected automatically (Area3D). SwimmingState handles
@@ -37,33 +39,38 @@ class_name WaterZone
 	set(v): water_color = v; _request_rebuild()
 
 @export_group("Boundary")
-## DEFAULT distance of the generated buoy ring from the edge of land.
-## Only used when generating buoys (zone has no BuoyPoint children yet).
+## DEFAULT distance of the generated buoy circle from the edge of land.
+## Only used when generating the BuoyLine (no BuoyLine child yet).
 @export var boundary_distance: float = 20.0
 ## Hidden grace period (seconds) past the buoys before the shark charges.
 @export var warning_time: float = 2.0
 ## Shark charge speed in m/s.
 @export var shark_speed: float = 18.1
-## Meters between generated buoys along the ring.
-@export var buoy_spacing: float = 4.0
+## Meters between buoy visuals along the line.
+@export var buoy_spacing: float = 4.0:
+	set(v): buoy_spacing = maxf(v, 1.0); _queue_buoy_refresh()
 @export var boundary_enabled: bool = true
-## Tick to DELETE all BuoyPoint children and regenerate the default ring
-## (throws away your dragged layout).
+## Tick to DELETE the BuoyLine and regenerate the default circle
+## (throws away your edits).
 @export var regenerate_buoys: bool = false:
 	set(_v):
 		regenerate_buoys = false
-		for c in get_children():
-			if c is BuoyPoint:
-				c.free()
-		_buoys_built = false
-		_shore_dirty = true
+		if _buoy_line and is_instance_valid(_buoy_line):
+			_buoy_line.free()
+		_buoy_line = null
+		_line_ready = false
+		_line_dirty = true
 		_scan_wait = 2
+		_scan_attempts = 0
 
 @export_group("Diving")
 ## Seconds of air when fully submerged. Refills fast at the surface.
 @export var oxygen_seconds: float = 12.0
 
 var _visuals: Node3D = null
+var _buoy_holder: Node3D = null
+var _buoys: Array[Node3D] = []
+var _buoy_phases: PackedFloat32Array = PackedFloat32Array()
 var _col: CollisionShape3D = null
 var _player: CharacterBody3D = null
 var _player_inside := false
@@ -71,12 +78,14 @@ var _warn_timer := 0.0
 var _time := 0.0
 
 # Boundary state
-var _buoys_built := false
-var _ring_cache: PackedVector2Array = PackedVector2Array()   # Local XZ ring
+var _buoy_line: Path3D = null
+var _line_ready := false
+var _buoy_refresh_queued := false
+var _ring_cache: PackedVector2Array = PackedVector2Array()   # Local XZ loop
 var _ring_cache_frame := -1
 
 # Land scan (generation only - runtime checks are analytic/polygon)
-var _shore_dirty := true
+var _line_dirty := true
 var _scan_wait := 3
 var _scan_attempts := 0
 
@@ -111,10 +120,18 @@ func _rebuild():
 		_visuals.free()
 	_visuals = Node3D.new()
 	add_child(_visuals)
-	# Buoys: only (re)generated when there are none (dragged layouts kept)
-	_buoys_built = _has_buoy_children()
-	if not _buoys_built:
-		_shore_dirty = true
+	_buoy_holder = null
+	_buoys.clear()
+	
+	# Adopt an existing BuoyLine (user-edited) or schedule generation
+	_buoy_line = get_node_or_null("BuoyLine") as Path3D
+	_line_ready = _buoy_line != null and _buoy_line.curve != null \
+			and _buoy_line.curve.point_count >= 3
+	if _line_ready:
+		_watch_curve()
+		_spawn_buoy_visuals()
+	else:
+		_line_dirty = true
 		_scan_wait = 3
 		_scan_attempts = 0
 	
@@ -157,18 +174,11 @@ func _rebuild():
 	_visuals.add_child(murk)
 
 
-func _has_buoy_children() -> bool:
-	for c in get_children():
-		if c is BuoyPoint:
-			return true
-	return false
-
-
 # --- Land detection --------------------------------------------------------
 # CHEAP-FIRST: Terrain nodes answer "is there land here?" with pure math
 # (height grid sampling). Raycasts are a fallback for non-Terrain solids
-# (docks, big platforms) and only run during buoy GENERATION on a coarse
-# grid - runtime boundary checks never raycast at all.
+# and only run during BuoyLine GENERATION on a coarse grid - runtime
+# boundary checks never raycast at all.
 
 func _is_land(world_pos: Vector3, space: PhysicsDirectSpaceState3D = null) -> bool:
 	var surface_y := global_position.y
@@ -186,126 +196,194 @@ func _is_land(world_pos: Vector3, space: PhysicsDirectSpaceState3D = null) -> bo
 
 
 func _physics_process(_delta: float):
-	if not _shore_dirty or not is_inside_tree() or _buoys_built:
-		_shore_dirty = false if _buoys_built else _shore_dirty
+	if not _line_dirty or not is_inside_tree() or _line_ready:
 		return
 	if _scan_wait > 0:
 		_scan_wait -= 1   # Give Terrain time to build its height grid
 		return
-	_shore_dirty = false
-	if _generate_buoys():
-		_buoys_built = true
+	_line_dirty = false
+	if _generate_buoy_line():
+		_line_ready = true
 	elif _scan_attempts < 20:
 		_scan_attempts += 1
-		_shore_dirty = true
+		_line_dirty = true
 		_scan_wait = 10
 
 
-func _generate_buoys() -> bool:
-	"""Build the DEFAULT buoy ring: a coarse land-distance field (analytic
-	terrain sampling + coarse fallback raycasts), then the boundary_distance
-	iso-line ordered by angle around the land centroid. Spawns BuoyPoint
-	children - draggable, persistent, yours to reshape."""
+func _generate_buoy_line() -> bool:
+	"""Create the default BuoyLine: ONE Path3D child with a closed CIRCLE
+	curve around the island - centered on the land centroid, radius = the
+	farthest land point + boundary_distance. Inside the circle is safe;
+	outside is shark territory. Edit the curve points to reshape it."""
+	# Coarse land scan (analytic terrain sampling; raycasts only if no Terrain)
 	var world := get_world_3d()
 	if world == null:
 		return false
-	var space := world.direct_space_state
-	
-	# Coarse scan: cell size scales with the water so huge oceans stay cheap
-	var cell := maxf(3.0, maxf(water_size.x, water_size.y) / 96.0)
+	var use_ray := get_tree().get_nodes_in_group("Terrain").is_empty()
+	var space := world.direct_space_state if use_ray else null
+	var cell := maxf(3.0, maxf(water_size.x, water_size.y) / 64.0)
 	var nx := int(ceilf(water_size.x / cell)) + 1
 	var nz := int(ceilf(water_size.y / cell)) + 1
-	var dist := PackedFloat32Array()
-	dist.resize(nx * nz)
-	var big := 1e9
-	var found := false
 	var centroid := Vector2.ZERO
-	var land_n := 0
-	var use_ray := get_tree().get_nodes_in_group("Terrain").is_empty()
+	var land_pts: Array[Vector2] = []
 	for iz in range(nz):
 		for ix in range(nx):
 			var lx := -water_size.x * 0.5 + ix * cell
 			var lz := -water_size.y * 0.5 + iz * cell
-			var wp := to_global(Vector3(lx, 0, lz))
-			var land := _is_land(wp, space if use_ray else null)
-			dist[iz * nx + ix] = 0.0 if land else big
-			if land:
-				found = true
-				centroid += Vector2(lx, lz)
-				land_n += 1
-	if not found:
+			if _is_land(to_global(Vector3(lx, 0, lz)), space):
+				var p := Vector2(lx, lz)
+				land_pts.append(p)
+				centroid += p
+	if land_pts.is_empty():
 		return false
-	centroid /= land_n
+	centroid /= land_pts.size()
+	var radius := 0.0
+	for p in land_pts:
+		radius = maxf(radius, centroid.distance_to(p))
+	radius += boundary_distance
+	# Keep the circle inside the water rect (with a small margin)
+	var max_r: float = minf(
+		minf(water_size.x * 0.5 - absf(centroid.x), water_size.x * 0.5 + absf(centroid.x)),
+		minf(water_size.y * 0.5 - absf(centroid.y), water_size.y * 0.5 + absf(centroid.y))) - 2.0
+	if max_r > 8.0:
+		radius = minf(radius, max_r)
 	
-	# Chamfer distance transform
-	var d1 := cell
-	var d2 := cell * 1.41421
-	for iz in range(nz):
-		for ix in range(nx):
-			var i := iz * nx + ix
-			var d := dist[i]
-			if ix > 0: d = minf(d, dist[i - 1] + d1)
-			if iz > 0: d = minf(d, dist[i - nx] + d1)
-			if ix > 0 and iz > 0: d = minf(d, dist[i - nx - 1] + d2)
-			if ix < nx - 1 and iz > 0: d = minf(d, dist[i - nx + 1] + d2)
-			dist[i] = d
-	for iz in range(nz - 1, -1, -1):
-		for ix in range(nx - 1, -1, -1):
-			var i := iz * nx + ix
-			var d := dist[i]
-			if ix < nx - 1: d = minf(d, dist[i + 1] + d1)
-			if iz < nz - 1: d = minf(d, dist[i + nx] + d1)
-			if ix < nx - 1 and iz < nz - 1: d = minf(d, dist[i + nx + 1] + d2)
-			if ix > 0 and iz < nz - 1: d = minf(d, dist[i + nx - 1] + d2)
-			dist[i] = d
+	# Build the closed circle curve: 8 points with bezier handles
+	var curve := Curve3D.new()
+	var n := 8
+	var handle := (4.0 / 3.0) * tan(PI / (2.0 * n)) * radius
+	for i in range(n):
+		var a := TAU * i / n
+		var pos := Vector3(centroid.x + cos(a) * radius, 0, centroid.y + sin(a) * radius)
+		var tangent := Vector3(-sin(a), 0, cos(a)) * handle
+		curve.add_point(pos, -tangent, tangent)
+	curve.closed = true
 	
-	# Iso-line candidates -> angle-sorted ring -> thin to buoy_spacing
-	var candidates: Array = []   # [angle, Vector2]
-	var band := cell * 0.75
-	for iz in range(nz):
-		for ix in range(nx):
-			if absf(dist[iz * nx + ix] - boundary_distance) <= band:
-				var p := Vector2(-water_size.x * 0.5 + ix * cell, -water_size.y * 0.5 + iz * cell)
-				candidates.append([atan2(p.y - centroid.y, p.x - centroid.x), p])
-	if candidates.is_empty():
-		return false
-	candidates.sort_custom(func(a, b): return a[0] < b[0])
-	var ring: Array[Vector2] = []
-	for c in candidates:
-		var p: Vector2 = c[1]
-		if ring.is_empty() or p.distance_to(ring[ring.size() - 1]) >= buoy_spacing:
-			ring.append(p)
-	if ring.size() >= 2 and ring[0].distance_to(ring[ring.size() - 1]) < buoy_spacing * 0.5:
-		ring.remove_at(ring.size() - 1)
-	if ring.size() < 3:
-		return false
-	
-	var scene_root := get_tree().edited_scene_root if Engine.is_editor_hint() else null
-	var idx := 0
-	for p in ring:
-		var buoy := BuoyPoint.new()
-		buoy.name = "BuoyPoint%d" % idx
-		add_child(buoy)
-		buoy.position = Vector3(p.x, 0.0, p.y)
-		if scene_root:
-			buoy.owner = scene_root   # Saves with the scene = draggable forever
-		idx += 1
+	_buoy_line = Path3D.new()
+	_buoy_line.name = "BuoyLine"
+	_buoy_line.curve = curve
+	add_child(_buoy_line)
+	if Engine.is_editor_hint() and get_tree().edited_scene_root:
+		_buoy_line.owner = get_tree().edited_scene_root   # ONE saved node
+	_watch_curve()
+	_spawn_buoy_visuals()
 	return true
 
 
-# --- Boundary: the buoy ring is a polygon --------------------------------
+func _watch_curve():
+	"""Refresh buoy visuals live while the curve is edited."""
+	if _buoy_line and _buoy_line.curve \
+			and not _buoy_line.curve.changed.is_connected(_queue_buoy_refresh):
+		_buoy_line.curve.changed.connect(_queue_buoy_refresh)
+
+
+func _queue_buoy_refresh():
+	if _buoy_refresh_queued or not is_inside_tree():
+		return
+	_buoy_refresh_queued = true
+	call_deferred("_do_buoy_refresh")
+
+
+func _do_buoy_refresh():
+	_buoy_refresh_queued = false
+	if _line_ready:
+		_spawn_buoy_visuals()
+
+
+func _spawn_buoy_visuals():
+	"""Place buoy meshes along the BuoyLine every buoy_spacing meters.
+	Pure visuals under _visuals - NEVER saved to the scene, so they can't
+	duplicate. Buoys sit on the water surface (this node's Y)."""
+	if _buoy_holder and is_instance_valid(_buoy_holder):
+		_buoy_holder.free()
+	_buoys.clear()
+	_buoy_phases = PackedFloat32Array()
+	if _visuals == null or not is_instance_valid(_visuals) \
+			or _buoy_line == null or not is_instance_valid(_buoy_line) \
+			or _buoy_line.curve == null:
+		return
+	_buoy_holder = Node3D.new()
+	_visuals.add_child(_buoy_holder)
+	var curve := _buoy_line.curve
+	var length := curve.get_baked_length()
+	if length < 1.0:
+		return
+	var count := maxi(int(length / buoy_spacing), 3)
+	for i in range(count):
+		var p := curve.sample_baked(length * float(i) / count, true)
+		p = _buoy_line.transform * p   # BuoyLine local -> WaterZone local
+		var buoy := _build_buoy_mesh()
+		_buoy_holder.add_child(buoy)
+		buoy.position = Vector3(p.x, 0.0, p.z)   # Always on the surface
+		_buoys.append(buoy)
+		_buoy_phases.append(randf() * TAU)
+
+
+func _build_buoy_mesh() -> Node3D:
+	var root := Node3D.new()
+	var red := StandardMaterial3D.new()
+	red.albedo_color = Color(0.85, 0.1, 0.1)
+	red.emission_enabled = true
+	red.emission = Color(0.85, 0.1, 0.1)
+	red.emission_energy_multiplier = 0.35
+	var white := StandardMaterial3D.new()
+	white.albedo_color = Color(0.92, 0.92, 0.9)
+	
+	var body := MeshInstance3D.new()
+	var bm := CylinderMesh.new()
+	bm.top_radius = 0.18
+	bm.bottom_radius = 0.32
+	bm.height = 0.5
+	bm.radial_segments = 6
+	body.mesh = bm
+	body.material_override = red
+	root.add_child(body)
+	
+	var band := MeshInstance3D.new()
+	var band_mesh := CylinderMesh.new()
+	band_mesh.top_radius = 0.14
+	band_mesh.bottom_radius = 0.18
+	band_mesh.height = 0.22
+	band_mesh.radial_segments = 6
+	band.mesh = band_mesh
+	band.material_override = white
+	band.position.y = 0.36
+	root.add_child(band)
+	
+	var tip := MeshInstance3D.new()
+	var tip_mesh := CylinderMesh.new()
+	tip_mesh.top_radius = 0.0
+	tip_mesh.bottom_radius = 0.12
+	tip_mesh.height = 0.25
+	tip_mesh.radial_segments = 6
+	tip.mesh = tip_mesh
+	tip.material_override = red
+	tip.position.y = 0.58
+	root.add_child(tip)
+	
+	root.scale = Vector3.ONE * 1.2
+	return root
+
+
+# --- Boundary: the BuoyLine loop is the safe zone ---------------------------
 
 func _buoy_ring() -> PackedVector2Array:
-	"""Local-space XZ polygon from BuoyPoint children (scene tree order).
-	Cached per frame - dragging buoys updates it live."""
+	"""Local-space XZ polygon sampled from the BuoyLine curve.
+	Cached per frame - editing the curve updates it live."""
 	var frame := Engine.get_process_frames()
 	if frame == _ring_cache_frame:
 		return _ring_cache
 	_ring_cache_frame = frame
 	var pts := PackedVector2Array()
-	for c in get_children():
-		if c is BuoyPoint:
-			pts.append(Vector2(c.position.x, c.position.z))
+	if _buoy_line and is_instance_valid(_buoy_line) and _buoy_line.curve:
+		var curve := _buoy_line.curve
+		var length := curve.get_baked_length()
+		if length > 1.0:
+			var n := clampi(int(length / 2.0), 12, 256)
+			for i in range(n):
+				var p := curve.sample_baked(length * float(i) / n, true)
+				p = _buoy_line.transform * p
+				pts.append(Vector2(p.x, p.z))
 	_ring_cache = pts
 	return pts
 
@@ -313,15 +391,15 @@ func _buoy_ring() -> PackedVector2Array:
 func _inside_ring(world_pos: Vector3) -> bool:
 	var ring := _buoy_ring()
 	if ring.size() < 3:
-		return true   # No usable ring: everything is safe
+		return true   # No usable loop: everything is safe
 	var local := to_local(world_pos)
 	return Geometry2D.is_point_in_polygon(Vector2(local.x, local.z), ring)
 
 
 func _player_in_danger() -> bool:
-	"""True when the player is outside the buoy ring, horizontally over
+	"""True when the player is outside the BuoyLine loop, horizontally over
 	this water - swimming, diving OR airborne above it. Jumping does not
-	pause the timer. Inside the ring or on land = safe."""
+	pause the timer. Inside the loop or on land = safe."""
 	if _player == null or not is_instance_valid(_player):
 		return false
 	var local := to_local(_player.global_position)
@@ -336,6 +414,12 @@ func _player_in_danger() -> bool:
 
 func _process(delta: float):
 	_time += delta
+	# Buoy bobbing
+	for i in range(_buoys.size()):
+		var b := _buoys[i]
+		if is_instance_valid(b):
+			b.position.y = 0.05 + sin(_time * 1.6 + _buoy_phases[i]) * 0.12
+			b.rotation.z = sin(_time * 1.2 + _buoy_phases[i]) * 0.08
 	if Engine.is_editor_hint():
 		return
 	
@@ -345,14 +429,14 @@ func _process(delta: float):
 		return
 	
 	# --- Boundary enforcement ----------------------------------------------
-	if not boundary_enabled or not _buoys_built:
+	if not boundary_enabled or not _line_ready:
 		return
 	if _player == null or not is_instance_valid(_player):
 		_warn_timer = 0.0
 		return
 	# Danger is judged HORIZONTALLY over the water: jumping out of the
 	# water volume doesn't pause or reset the clock. Anywhere outside the
-	# buoy ring the timer runs - land or safe water are the only outs.
+	# buoy loop the timer runs - land or safe water are the only outs.
 	if _player_in_danger():
 		# Hidden grace period - no countdown on screen, the buoys ARE the
 		# warning. Outstay it and the shark charges.
@@ -379,7 +463,7 @@ func _on_body_exited(body: Node) -> void:
 			body.current_water = null
 		# NOTE: the warn timer is NOT reset here - hopping out of the water
 		# volume (jump spam) must not shake the shark. The timer only resets
-		# when _player_in_danger() goes false (back inside the ring/on land).
+		# when _player_in_danger() goes false (back inside the loop/on land).
 
 
 # --- The shark ---------------------------------------------------------------
@@ -411,7 +495,7 @@ func _update_shark(delta: float):
 		if _player == null or not is_instance_valid(_player):
 			_shark_break_off()
 			return
-		# MERCY RULE: make it back inside the ring (or onto land) before the
+		# MERCY RULE: make it back inside the loop (or onto land) before the
 		# shark touches you and it breaks off. Jumping over unsafe water
 		# does NOT count as safe.
 		if not _player_in_danger():

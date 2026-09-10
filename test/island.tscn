@@ -4,6 +4,14 @@
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_4qu1v"]
 [ext_resource type="Script" uid="uid://bi2obgc1agqyr" path="res://scripts/environments/water_zone.gd" id="4_4qu1v"]
 
+[sub_resource type="Curve3D" id="Curve3D_buoy1"]
+closed = true
+_data = {
+"points": PackedVector3Array(0, 0, -31.83, 0, 0, 31.83, 120, 0, 0, 22.5, 0, -22.5, -22.5, 0, 22.5, 84.85, 0, 84.85, 31.83, 0, 0, -31.83, 0, 0, 0, 0, 120, 22.5, 0, 22.5, -22.5, 0, -22.5, -84.85, 0, 84.85, 0, 0, 31.83, 0, 0, -31.83, -120, 0, 0, -22.5, 0, 22.5, 22.5, 0, -22.5, -84.85, 0, -84.85, -31.83, 0, 0, 31.83, 0, 0, 0, 0, -120, -22.5, 0, -22.5, 22.5, 0, 22.5, 84.85, 0, -84.85),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 8
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_354oc"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
 ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -40,6 +48,9 @@ monitorable = false
 script = ExtResource("4_4qu1v")
 water_size = Vector2(3000, 3000)
 metadata/_custom_type_script = "uid://bi2obgc1agqyr"
+
+[node name="BuoyLine" type="Path3D" parent="Terrain/WaterZone" unique_id=746838023]
+curve = SubResource("Curve3D_buoy1")
 
 [node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_4qu1v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4785614, 0)
