@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- HU3's face: grey sphere bot with dark screen + green wavy voice line -->
+  <defs>
+    <radialGradient id="shine" cx="0.35" cy="0.28" r="1.0">
+      <stop offset="0" stop-color="#8a8a8a"/>
+      <stop offset="0.55" stop-color="#5c5c5c"/>
+      <stop offset="1" stop-color="#3a3a3a"/>
+    </radialGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#111214"/>
+      <stop offset="1" stop-color="#050506"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="58" fill="#26282c"/>
+  <circle cx="64" cy="64" r="54" fill="url(#shine)"/>
+  <!-- little antenna nub -->
+  <circle cx="64" cy="12" r="6" fill="#41ff00"/>
+  <rect x="61" y="12" width="6" height="10" rx="3" fill="#3a3a3a"/>
+  <!-- face screen -->
+  <rect x="26" y="42" width="76" height="46" rx="16" fill="url(#screen)"/>
+  <rect x="26" y="42" width="76" height="46" rx="16" fill="none" stroke="#1c1e22" stroke-width="3"/>
+  <!-- wavy voice-line mouth -->
+  <path d="M34 65 Q40 53 47 65 Q53 76 60 65 Q66 54 73 65 Q79 75 86 65 Q90 59 94 65"
+        stroke="#41ff00" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+  <path d="M34 65 Q40 53 47 65 Q53 76 60 65 Q66 54 73 65 Q79 75 86 65 Q90 59 94 65"
+        stroke="#41ff00" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.25"/>
+</svg>

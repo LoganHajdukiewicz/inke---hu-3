@@ -20,9 +20,45 @@ signal quest_failed(quest: Quest)
 signal location_flag_set(flag_id: String)
 signal boss_fight_ready
 
-## CRED needed to unlock the boss fight (fills the HUD bar).
+## CRED needed to unlock the boss fight (fills the HUD bar). This is the
+## FALLBACK - each level can set its own threshold by dropping a
+## CredThreshold node into the scene (see cred_threshold.gd), configured
+## in the Inspector per level.
 var cred_needed_for_boss: int = 50
 var boss_ready: bool = false
+var _threshold_scene_id: int = 0   # scene the current override belongs to
+var _threshold_override: int = -1  # -1 = use fallback
+
+
+func register_cred_threshold(threshold: int) -> void:
+	"""Called by a level's CredThreshold node in _ready(). Per-scene: the
+	override resets automatically when a different scene registers (or on
+	get_cred_needed() when the scene changed and nothing registered)."""
+	var scene = get_tree().current_scene
+	_threshold_scene_id = scene.get_instance_id() if scene else 0
+	_threshold_override = maxi(threshold, 1)
+	_refresh_boss_ready()
+
+
+func get_cred_needed() -> int:
+	"""The CRED threshold for the CURRENT level."""
+	var scene = get_tree().current_scene
+	var scene_id = scene.get_instance_id() if scene else 0
+	if _threshold_override > 0 and scene_id == _threshold_scene_id:
+		return _threshold_override
+	return cred_needed_for_boss
+
+
+func _refresh_boss_ready() -> void:
+	"""CRED is a lifetime high score - it is NEVER spent or decreased, only
+	CHECKED against thresholds. boss_ready is recomputed per level since
+	each level can demand a different total."""
+	var gm = get_node_or_null("/root/GameManager")
+	var total: int = gm.get_CRED_count() if gm else 0
+	var was := boss_ready
+	boss_ready = total >= get_cred_needed()
+	if boss_ready and not was:
+		boss_fight_ready.emit()
 
 var cred_scene: PackedScene = preload("res://scenes/items/Collectibles/cred.tscn")
 
@@ -74,10 +110,11 @@ func _process(delta: float) -> void:
 	
 	_update_tracker()
 	
-	# CRED bar auto-hide
+	# CRED bar auto-hide: ALWAYS fades like any other popup - full bar
+	# included (the buoy... er, the bar itself is not a permanent HUD element)
 	if _cred_hide_timer > 0.0:
 		_cred_hide_timer -= delta
-		if _cred_hide_timer <= 0.0 and not boss_ready:
+		if _cred_hide_timer <= 0.0:
 			var t = create_tween()
 			t.tween_property(cred_panel, "modulate:a", 0.0, 0.4)
 
@@ -272,20 +309,21 @@ func _spawn_reward_cred(reward: int) -> void:
 
 func _on_cred_collected(_amount: int, total_cred: int) -> void:
 	_show_cred_bar(total_cred)
-	if total_cred >= cred_needed_for_boss and not boss_ready:
-		boss_ready = true
-		boss_fight_ready.emit()
+	var was := boss_ready
+	_refresh_boss_ready()
+	if boss_ready and not was:
 		show_notification("CRED BAR FULL - BOSS FIGHT UNLOCKED!", Color(1.0, 0.55, 1.0))
 
 
 func _show_cred_bar(total_cred: int) -> void:
+	"""Pop the bar up for a moment. No special full-bar text, no sticking
+	around - it fades out like every other notification."""
+	var needed := get_cred_needed()
 	cred_panel.modulate.a = 1.0
 	_cred_hide_timer = 3.5
-	cred_label.text = "CRED  %d / %d" % [mini(total_cred, cred_needed_for_boss), cred_needed_for_boss]
-	if boss_ready:
-		cred_label.text = "CRED FULL - BOSS READY"
+	cred_label.text = "CRED  %d / %d" % [mini(total_cred, needed), needed]
 	var t = create_tween()
-	t.tween_property(cred_bar, "value", clampf(float(total_cred) / float(cred_needed_for_boss) * 100.0, 0.0, 100.0), 0.5) \
+	t.tween_property(cred_bar, "value", clampf(float(total_cred) / float(needed) * 100.0, 0.0, 100.0), 0.5) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 

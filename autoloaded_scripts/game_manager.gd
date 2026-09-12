@@ -3,7 +3,14 @@ extends Node
 # Game Resources
 var gear_count: int = 0
 # Renamed from CRED: shadowed the global CRED collectible class (cred.gd)
+# CRED RULE: this is a lifetime HIGH SCORE. It only ever goes UP - it is
+# checked against thresholds (boss gates, NPC minimums) but NEVER spent.
 var cred_count: int = 0
+
+# Spray-can completion reward: +this much max paint per fully-cleared level
+const PAINT_BONUS_PER_LEVEL: int = 25
+var paint_bar_bonus: int = 0
+var paint_bonus_levels: Dictionary = {}   # scene_path -> true (already awarded)
 
 # Health Stats
 const BASE_MAX_HEALTH: int = 3
@@ -221,10 +228,11 @@ func apply_purchased_upgrades():
 		player_max_health = new_max
 		player_health = clamp(player_health, 0, player_max_health)
 		health_changed.emit(player_health, player_max_health)
-	# Paint Tank upgrade: +50% max paint
+	# Paint Tank upgrade (+50%) plus spray-can completion bonuses (+25 per
+	# fully-cleared level) stack into the max paint amount
 	var pm = get_node_or_null("/root/PaintManager")
 	if pm and "max_paint_amount" in pm:
-		var want: int = 150 if paint_tank_purchased else 100
+		var want: int = (150 if paint_tank_purchased else 100) + paint_bar_bonus
 		if pm.max_paint_amount != want:
 			pm.max_paint_amount = want
 			if pm.has_signal("paint_amount_changed"):
@@ -331,7 +339,10 @@ func get_gear_count() -> int:
 # === CRED MANAGEMENT ===
 
 func add_CRED(reward: int):
-	"""Add XP/CRED to Inke"""
+	"""Add XP/CRED to Inke. CRED only ever INCREASES - negative amounts are
+	refused. It's a high score: checked for progression, never spent."""
+	if reward <= 0:
+		return
 	cred_count += reward
 	cred_collected.emit(reward, cred_count)
 	
@@ -358,6 +369,29 @@ func collect_wisp(_wisp: Node) -> void:
 	if wisps_collected >= wisps_total and wisps_total > 0:
 		all_wisps_collected.emit()
 		_spawn_wisp_reward_cred()
+		_award_paint_bar_bonus()
+
+
+func _award_paint_bar_bonus() -> void:
+	"""EXTRA TREAT for full spray-can collection: a permanently LARGER spray
+	paint bar (+PAINT_BONUS_PER_LEVEL max paint), on top of the CRED reward.
+	Once per level - replays don't stack."""
+	var scene = get_tree().current_scene
+	var scene_key: String = scene.scene_file_path if scene and scene.scene_file_path != "" else str(_wisp_scene_id)
+	if paint_bonus_levels.has(scene_key):
+		return
+	paint_bonus_levels[scene_key] = true
+	paint_bar_bonus += PAINT_BONUS_PER_LEVEL
+	apply_purchased_upgrades()   # Pushes the new max into PaintManager
+	# Fill the new tank to the brim - it's a treat
+	var pm = get_node_or_null("/root/PaintManager")
+	if pm and "current_paint_amount" in pm:
+		pm.current_paint_amount = pm.max_paint_amount
+		if pm.has_signal("paint_amount_changed"):
+			pm.paint_amount_changed.emit(pm.current_paint_amount, pm.max_paint_amount)
+	var qm = get_node_or_null("/root/QuestManager")
+	if qm and qm.has_method("show_notification"):
+		qm.show_notification("ALL SPRAY CANS! PAINT TANK UPGRADED +%d" % PAINT_BONUS_PER_LEVEL, Color(0.45, 0.95, 1.0))
 
 func get_wisp_progress() -> Dictionary:
 	return {"collected": wisps_collected, "total": wisps_total}
@@ -605,13 +639,21 @@ func save_game_state() -> Dictionary:
 		"dash_purchased": dash_purchased,
 		"speed_upgrade_purchased": speed_upgrade_purchased,
 		"health_upgrade_purchased": health_upgrade_purchased,
-		"damage_upgrade_purchased": damage_upgrade_purchased
+		"damage_upgrade_purchased": damage_upgrade_purchased,
+		"gear_magnet_purchased": gear_magnet_purchased,
+		"paint_tank_purchased": paint_tank_purchased,
+		"climb_kit_purchased": climb_kit_purchased,
+		"shockwave_purchased": shockwave_purchased,
+		"paint_bar_bonus": paint_bar_bonus,
+		"paint_bonus_levels": paint_bonus_levels,
+		"keys": keys,
 	}
 
 func load_game_state(state: Dictionary):
 	"""Load game state from a dictionary"""
 	gear_count = state.get("gear_count", 0)
-	cred_count = state.get("CRED", 0)
+	# CRED never decreases - even a stale save can't take it away
+	cred_count = maxi(cred_count, int(state.get("CRED", 0)))
 	player_health = state.get("player_health", 3)
 	player_max_health = state.get("player_max_health", 3)
 	double_jump_purchased = state.get("double_jump_purchased", false)
@@ -620,6 +662,13 @@ func load_game_state(state: Dictionary):
 	speed_upgrade_purchased = state.get("speed_upgrade_purchased", false)
 	health_upgrade_purchased = state.get("health_upgrade_purchased", false)
 	damage_upgrade_purchased = state.get("damage_upgrade_purchased", false)
+	gear_magnet_purchased = state.get("gear_magnet_purchased", false)
+	paint_tank_purchased = state.get("paint_tank_purchased", false)
+	climb_kit_purchased = state.get("climb_kit_purchased", false)
+	shockwave_purchased = state.get("shockwave_purchased", false)
+	paint_bar_bonus = int(state.get("paint_bar_bonus", 0))
+	paint_bonus_levels = state.get("paint_bonus_levels", {})
+	keys = state.get("keys", {})
 	
 	# Apply upgrades to player if they exist
 	apply_purchased_upgrades()
@@ -635,6 +684,8 @@ func reset_game_state():
 	"""Reset all game state to defaults"""
 	gear_count = 0
 	cred_count = 0
+	paint_bar_bonus = 0
+	paint_bonus_levels = {}
 	player_health = BASE_MAX_HEALTH
 	player_max_health = BASE_MAX_HEALTH
 	double_jump_purchased = false

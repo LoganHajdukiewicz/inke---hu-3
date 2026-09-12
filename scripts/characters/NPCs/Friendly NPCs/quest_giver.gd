@@ -18,6 +18,20 @@ enum GiverState { FIRST_OFFER, WAITING, RETRY, DONE }
 
 @export var npc_name: String = "Quest Giver"
 
+@export_group("CRED Gate")
+## Minimum total CRED required before this NPC will really talk to you.
+## 0 = talks to anyone. Use it to gate boss battles / pace progression:
+## under the minimum, the NPC brushes the player off with the
+## not_enough_cred_lines instead of the real conversation. CRED is only
+## CHECKED - never spent.
+@export var cred_minimum: int = 0
+## What they say when the player's CRED is below cred_minimum. "{cred}"
+## is replaced with the required amount.
+@export_multiline var not_enough_cred_lines: Array[String] = [
+	"Hmm... you're not exactly a big name around here yet.",
+	"Come back when you've got at least {cred} CRED to your name. Then we'll talk.",
+]
+
 ## THE quest this giver hands out - exactly ONE per person. Exposed to the
 ## Inspector as a dropdown via _get_property_list: it lists every quest
 ## file in res://quests/ (add .tres files there and they show up
@@ -298,6 +312,18 @@ func _interact() -> void:
 		return
 	_input_cooldown = 0.4
 	
+	# CRED GATE: below the minimum, the real conversation never happens -
+	# just the brush-off. This is how boss battles get paced: earn the CRED,
+	# then the NPC deals with you.
+	if not _has_enough_cred():
+		var gate_lines: Array = []
+		for talk in not_enough_cred_lines:
+			gate_lines.append(_line(talk.replace("{cred}", str(cred_minimum))))
+		if gate_lines.is_empty():
+			gate_lines.append(_line("Come back when you've earned %d CRED." % cred_minimum))
+		_speak(gate_lines)
+		return
+	
 	var lines: Array = []
 	_pending_offer = null
 	var q = _current_quest(qm)
@@ -332,6 +358,13 @@ func _interact() -> void:
 			lines = [_line(thanks)]
 	
 	_speak(lines)
+
+
+func _has_enough_cred() -> bool:
+	if cred_minimum <= 0:
+		return true
+	var gm = get_node_or_null("/root/GameManager")
+	return gm != null and gm.get_CRED_count() >= cred_minimum
 
 
 func _speak(lines: Array) -> void:

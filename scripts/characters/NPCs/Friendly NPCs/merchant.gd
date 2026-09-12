@@ -34,6 +34,16 @@ enum PowerupType {
 
 @export_group("Merchant Settings")
 @export var merchant_name: String = "Merchant"
+## Minimum total CRED before the merchant does business (0 = anyone).
+## Below it, he brushes the player off with not_enough_cred_lines. CRED
+## is only CHECKED, never spent - this gates access, not purchases.
+@export var cred_minimum: int = 0
+## Said instead of the shop when CRED is below the minimum. "{cred}" is
+## replaced with the required amount.
+@export_multiline var not_enough_cred_lines: Array[String] = [
+	"Heh heh... sorry, stranger. I only deal with names people KNOW.",
+	"Make some noise out there - {cred} CRED's worth - then we'll do business.",
+]
 ## Shown at the top of the shop menu.
 @export var greeting_text: String = "Whaddya buyin'?"
 ## Portrait name for the dialogue box (assets/portraits/{name}.png), optional.
@@ -643,6 +653,22 @@ func handle_shop_input():
 func _start_interaction():
 	input_cooldown = 0.4
 	
+	# CRED GATE: not famous enough? No shop for you.
+	var gm_cred = get_node_or_null("/root/GameManager")
+	if cred_minimum > 0 and (gm_cred == null or gm_cred.get_CRED_count() < cred_minimum):
+		var dm_gate = get_node_or_null("/root/DialogueManager")
+		if dm_gate:
+			_busy = true
+			var gate_lines: Array = []
+			for text in not_enough_cred_lines:
+				gate_lines.append({"speaker": merchant_name, "text": text.replace("{cred}", str(cred_minimum)), "portrait": portrait})
+			if not dm_gate.dialogue_ended.is_connected(_on_gate_ended):
+				dm_gate.dialogue_ended.connect(_on_gate_ended, CONNECT_ONE_SHOT)
+			if dynamic_camera:
+				dm_gate.request_dynamic_camera(self, custom_camera_angles)
+			dm_gate.start_dialogue_lines(gate_lines)
+		return
+	
 	# Face the player
 	if current_player and is_instance_valid(current_player) and _model:
 		var to_p = current_player.global_position - global_position
@@ -672,6 +698,11 @@ func _start_interaction():
 		dm.start_dialogue_lines(lines)
 	else:
 		_open_coat_then_shop()
+
+
+func _on_gate_ended():
+	_busy = false
+	input_cooldown = 0.4
 
 
 func _on_intro_ended():
