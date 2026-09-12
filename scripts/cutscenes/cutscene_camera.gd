@@ -47,6 +47,12 @@ class_name CutsceneCamera
 @export var fly_mouse_sensitivity: float = 0.0022
 
 var is_flying: bool = false            # runtime fly-control active
+
+# Camera take recording (R in fly mode)
+var _recording: bool = false
+var _rec_frames: Array = []            # [x,y,z, rx,ry,rz, fov] per frame
+var _rec_accum: float = 0.0
+const REC_FPS := 20.0
 var _prev_camera: Camera3D = null      # camera to restore on deactivate()
 var _blend_tween: Tween = null
 var _yaw: float = 0.0
@@ -249,6 +255,14 @@ func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_Q): dir -= Vector3.UP
 	if dir.length_squared() > 0.001:
 		global_position += dir.normalized() * speed * delta
+	
+	# Camera take recording: sample the flight at REC_FPS
+	if _recording:
+		_rec_accum += delta
+		while _rec_accum >= 1.0 / REC_FPS:
+			_rec_accum -= 1.0 / REC_FPS
+			_rec_frames.append([global_position.x, global_position.y, global_position.z,
+					rotation.x, rotation.y, rotation.z, fov])
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -269,6 +283,44 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_P:
 		save_shot()
 		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
+		toggle_recording()
+		get_viewport().set_input_as_handled()
+
+
+# ---------------------------------------------------------------------------
+# Camera take recording (R in fly mode)
+# ---------------------------------------------------------------------------
+func toggle_recording() -> void:
+	"""R in fly mode: start/stop RECORDING the camera flight. On stop, the
+	take is saved to res://cinematic_shots/rec_{scene}_{n}.camrec - play it
+	in a cutscene with:
+	    await CutsceneManager.play_camera_recording(path)"""
+	if not _recording:
+		_recording = true
+		_rec_frames = []
+		_rec_accum = 0.0
+		_toast("\u25cf REC - fly your move, press R again to stop & save")
+		return
+	_recording = false
+	if _rec_frames.size() < 4:
+		_toast("RECORDING TOO SHORT - discarded")
+		return
+	var dir_path := "res://cinematic_shots"
+	DirAccess.make_dir_recursive_absolute(dir_path)
+	var level: String = String(get_tree().current_scene.name).to_lower() if get_tree().current_scene else "scene"
+	var n := 1
+	while FileAccess.file_exists("%s/rec_%s_%d.camrec" % [dir_path, level, n]):
+		n += 1
+	var path := "%s/rec_%s_%d.camrec" % [dir_path, level, n]
+	var f = FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		_toast("COULDN'T SAVE RECORDING (exported build?) ")
+		return
+	f.store_string(JSON.stringify({"fps": REC_FPS, "frames": _rec_frames}))
+	f.close()
+	DisplayServer.clipboard_set('await CutsceneManager.play_camera_recording("%s")' % path)
+	_toast("TAKE SAVED: %s  (%.1fs, playback line copied to clipboard)" % [path, _rec_frames.size() / REC_FPS])
 
 
 func print_pose() -> void:

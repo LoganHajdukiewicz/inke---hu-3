@@ -12,8 +12,10 @@ var root_panel: Panel = null
 # Tabs
 var stats_page: Control
 var controls_page: Control
+var saves_page: Control
 var tab_stats_btn: Button
 var tab_controls_btn: Button
+var tab_saves_btn: Button
 var current_tab: String = "stats"
 
 # Dynamic labels refreshed on open
@@ -107,6 +109,7 @@ func open_menu():
 	get_tree().paused = true
 	_refresh_stats()
 	_refresh_bindings()
+	_refresh_saves()
 	_show_tab("stats")
 	canvas_layer.visible = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
@@ -178,6 +181,11 @@ func _build_ui():
 	PunkTheme.style_button(tab_controls_btn, PunkTheme.GREEN, 20)
 	tab_controls_btn.pressed.connect(func(): _show_tab("controls"))
 	tabs.add_child(tab_controls_btn)
+	tab_saves_btn = Button.new()
+	tab_saves_btn.text = "SAVES"
+	PunkTheme.style_button(tab_saves_btn, PunkTheme.YELLOW, 20)
+	tab_saves_btn.pressed.connect(func(): _show_tab("saves"))
+	tabs.add_child(tab_saves_btn)
 	
 	# ── STATS PAGE ─────────────────────────────────────────────────────
 	stats_page = VBoxContainer.new()
@@ -271,6 +279,13 @@ func _build_ui():
 			
 			rebind_rows.append({"action": action, "name": name_lbl, "kb": kb_btn, "pad": pad_btn})
 	
+	# ── SAVES PAGE (slots: save / load / delete) ───────────────────────
+	saves_page = VBoxContainer.new()
+	saves_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	(saves_page as VBoxContainer).add_theme_constant_override("separation", 10)
+	saves_page.visible = false
+	vbox.add_child(saves_page)
+	
 	var reset_btn = Button.new()
 	reset_btn.text = "RESET TO DEFAULTS"
 	reset_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -302,9 +317,116 @@ func _show_tab(tab: String):
 	current_tab = tab
 	stats_page.visible = tab == "stats"
 	controls_page.visible = tab == "controls"
+	saves_page.visible = tab == "saves"
+	if tab == "saves":
+		_refresh_saves()
 	# Active tab pops
 	tab_stats_btn.modulate = Color.WHITE if tab == "stats" else Color(0.55, 0.55, 0.6)
 	tab_controls_btn.modulate = Color.WHITE if tab == "controls" else Color(0.55, 0.55, 0.6)
+	tab_saves_btn.modulate = Color.WHITE if tab == "saves" else Color(0.55, 0.55, 0.6)
+
+
+# ---------------------------------------------------------------------------
+# SAVES tab - slot rows with SAVE / LOAD / DELETE
+# ---------------------------------------------------------------------------
+
+func _refresh_saves():
+	if saves_page == null:
+		return
+	for c in saves_page.get_children():
+		c.queue_free()
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm == null:
+		var missing = Label.new()
+		missing.text = "SaveManager not loaded."
+		saves_page.add_child(missing)
+		return
+	
+	var info_lbl = Label.new()
+	info_lbl.text = "AUTOSAVES GO TO THE ACTIVE SLOT (marked \u25b6). SAVE = manual save now."
+	info_lbl.add_theme_font_size_override("font_size", 14)
+	info_lbl.add_theme_color_override("font_color", PunkTheme.DIM)
+	info_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	saves_page.add_child(info_lbl)
+	
+	for slot in range(1, sm.max_slots + 1):
+		var info: Dictionary = sm.get_slot_info(slot)
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		saves_page.add_child(row)
+		
+		var name_lbl = Label.new()
+		var marker = "\u25b6 " if slot == sm.active_slot else "   "
+		var desc: String
+		if info.exists:
+			var dt = Time.get_datetime_dict_from_unix_time(info.timestamp)
+			var scene_name = str(info.scene).get_file().get_basename().replace("_", " ").to_upper()
+			desc = "%sSLOT %d  -  %s  |  \u2726 %d  \u2699 %d  |  %02d/%02d %02d:%02d" % [
+				marker, slot, scene_name if scene_name != "" else "?",
+				info.cred, info.gears, dt.month, dt.day, dt.hour, dt.minute]
+		else:
+			desc = "%sSLOT %d  -  EMPTY" % [marker, slot]
+		name_lbl.text = desc
+		name_lbl.custom_minimum_size.x = 430
+		name_lbl.add_theme_font_size_override("font_size", 17)
+		name_lbl.add_theme_color_override("font_color", COLOR_TEXT if info.exists else PunkTheme.DIM)
+		row.add_child(name_lbl)
+		
+		var save_btn = Button.new()
+		save_btn.text = "SAVE"
+		save_btn.custom_minimum_size = Vector2(84, 34)
+		PunkTheme.style_button(save_btn, PunkTheme.GREEN, 15)
+		save_btn.pressed.connect(func():
+			sm.save_to_slot(slot)
+			_refresh_saves())
+		row.add_child(save_btn)
+		
+		var load_btn = Button.new()
+		load_btn.text = "LOAD"
+		load_btn.custom_minimum_size = Vector2(84, 34)
+		PunkTheme.style_button(load_btn, PunkTheme.CYAN, 15)
+		load_btn.disabled = not info.exists
+		load_btn.pressed.connect(func():
+			close_menu()
+			sm.load_slot(slot, true))
+		row.add_child(load_btn)
+		
+		var del_btn = Button.new()
+		del_btn.text = "DELETE"
+		del_btn.custom_minimum_size = Vector2(96, 34)
+		PunkTheme.style_button(del_btn, PunkTheme.RED, 15)
+		del_btn.disabled = not info.exists
+		del_btn.pressed.connect(func():
+			_confirm_delete(slot))
+		row.add_child(del_btn)
+
+
+func _confirm_delete(slot: int):
+	"""Two-step delete: replace the row area with a confirm strip."""
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm == null:
+		return
+	var confirm = HBoxContainer.new()
+	confirm.alignment = BoxContainer.ALIGNMENT_CENTER
+	confirm.add_theme_constant_override("separation", 14)
+	saves_page.add_child(confirm)
+	var q = Label.new()
+	q.text = "REALLY DELETE SLOT %d?" % slot
+	q.add_theme_font_size_override("font_size", 18)
+	q.add_theme_color_override("font_color", PunkTheme.RED)
+	confirm.add_child(q)
+	var yes = Button.new()
+	yes.text = "DELETE IT"
+	PunkTheme.style_button(yes, PunkTheme.RED, 15)
+	yes.pressed.connect(func():
+		sm.delete_slot(slot)
+		_refresh_saves())
+	confirm.add_child(yes)
+	var no = Button.new()
+	no.text = "KEEP"
+	PunkTheme.style_button(no, PunkTheme.GREEN, 15)
+	no.pressed.connect(func(): _refresh_saves())
+	confirm.add_child(no)
 
 func _start_listening(action: String, device: String, btn: Button):
 	if listening_btn and is_instance_valid(listening_btn):

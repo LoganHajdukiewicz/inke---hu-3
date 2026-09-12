@@ -31,6 +31,7 @@ PaintUiManager="*uid://b8qhf4vxh06wg"
 PauseMenuManager="*res://autoloaded_scripts/pause_menu_manager.gd"
 QuestManager="*res://autoloaded_scripts/quest_manager.gd"
 SaveManager="*res://autoloaded_scripts/save_manager.gd"
+GhostRecorder="*res://autoloaded_scripts/ghost_recorder.gd"
 
 [display]
 
@@ -49,6 +50,10 @@ occlusion_culling/use_occlusion_culling=true
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/terrain_painter/plugin.cfg")
+
+[game]
+
+saves/max_slots=3
 
 [global_group]
 

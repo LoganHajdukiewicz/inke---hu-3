@@ -152,7 +152,7 @@ func toggle_free_roam_camera() -> void:
 	# Freeze the player so nothing walks off while you're framing shots
 	if player:
 		player.process_mode = Node.PROCESS_MODE_DISABLED
-	print("GameManager: free roam ON - WASD/QE fly, Shift fast, scroll speed, P prints pose, F10/F6 exits")
+	print("GameManager: free roam ON - WASD/QE fly, Shift fast, scroll speed, P saves shot, R records take, F10/F6 exits")
 	_show_free_roam_hint()
 
 
@@ -163,7 +163,7 @@ func _show_free_roam_hint() -> void:
 	layer.layer = 90
 	_free_roam_cam.add_child(layer)
 	var label := Label.new()
-	label.text = "  FREE ROAM  -  WASD/QE fly | Shift fast | scroll speed | P print pose | F10/F6 exit  "
+	label.text = "  FREE ROAM  -  WASD/QE fly | Shift fast | scroll speed | P save shot | R record take | F10/F6 exit  "
 	label.add_theme_font_size_override("font_size", 16)
 	label.add_theme_color_override("font_color", Color(1, 1, 1))
 	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))

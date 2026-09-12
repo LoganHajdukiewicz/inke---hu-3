@@ -6,6 +6,10 @@ extends CharacterBody3D
 @onready var mouth: MeshInstance3D = $Mesh/Mouth
 
 # Following behavior
+## Set by CutsceneManager (hu3_goto/hu3_release): while true, HU3 stops
+## following the player so cutscenes can fly him around freely.
+var cutscene_override: bool = false
+
 var follow_distance: float = 2.0
 var base_follow_speed: float = 20.0
 var max_follow_speed: float = 50.0
@@ -94,6 +98,14 @@ func _physics_process(delta: float):
 	
 	# Update hover animation
 	hover_time += delta
+	
+	# CUTSCENE: something else is driving HU3 (CutsceneManager.hu3_goto) -
+	# no following, no gear chasing, no avoidance. Just hover in place.
+	if cutscene_override:
+		velocity = Vector3.ZERO
+		smooth_follow_position = global_position
+		smooth_follow_velocity = Vector3.ZERO
+		return
 	
 	# Update collection timer
 	if is_collecting_gear:
