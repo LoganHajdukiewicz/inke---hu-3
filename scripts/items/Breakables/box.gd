@@ -243,9 +243,16 @@ func _on_bounce_area_body_entered(body: Node3D):
 		return
 	
 	
-	# CRITICAL: Only bounce if player is falling downward
-	# This prevents bouncing when the player hits the side of the box
-	if player.velocity.y >= -1.0:
+	# Only bounce on a STOMP, not a side-bump. Two accepted cases:
+	#   a) clearly falling (velocity.y < -1)
+	#   b) feet ABOVE the box top with no upward motion - move_and_slide's
+	#      floor snap can zero velocity.y BEFORE this Area3D reports the
+	#      overlap, which used to eat soft landings (barrels "sometimes
+	#      didn't explode when jumped on"). Position doesn't lie.
+	var falling: bool = player.velocity.y < -1.0
+	var top_y: float = global_position.y + _collider_half_height()
+	var from_above: bool = player.global_position.y >= top_y - 0.15 and player.velocity.y <= 0.1
+	if not falling and not from_above:
 		return
 	
 	

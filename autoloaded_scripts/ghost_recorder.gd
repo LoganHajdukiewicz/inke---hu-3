@@ -36,6 +36,11 @@ func _ready() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_EXIT_TREE:
+		# Stop listening the moment shutdown starts - node_removed fires for
+		# EVERY node during teardown and the tree reference goes stale.
+		var tree := get_tree() if is_inside_tree() else null
+		if tree and tree.node_removed.is_connected(_on_node_removed):
+			tree.node_removed.disconnect(_on_node_removed)
 		_flush_recording()
 
 
@@ -120,8 +125,16 @@ func _scene_key(scene: Node) -> String:
 
 
 func _on_node_removed(node: Node) -> void:
-	# Scene root being removed = scene change; save the session's path
-	if node == get_tree().current_scene:
+	# Scene root being removed = scene change; save the session's path.
+	# HARD GUARDS: during app quit this fires for every node while the
+	# tree is being torn down - get_tree() can be null (we may already be
+	# outside the tree ourselves). Bailing silently keeps F1-quit clean.
+	if not is_inside_tree():
+		return
+	var tree := get_tree()
+	if tree == null or tree.current_scene == null:
+		return
+	if node == tree.current_scene:
 		_flush_recording()
 		stop_ghost()
 

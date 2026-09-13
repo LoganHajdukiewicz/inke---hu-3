@@ -24,6 +24,15 @@ var light: OmniLight3D = null
 signal wisp_collected(wisp: SprayCan)
 
 func _ready():
+	# FINITE PICKUP: spray cans never respawn once collected - otherwise
+	# reloading a save could re-farm the same cans for CRED/paint bonuses.
+	# Vanishing BEFORE register_wisp keeps the level counter honest: only
+	# still-standing cans count toward 'collect them all'.
+	var gm_check = get_node_or_null("/root/GameManager")
+	if gm_check and gm_check.has_method("is_item_collected") and gm_check.is_item_collected(self):
+		queue_free()
+		return
+	
 	add_to_group("SprayCan")
 	add_to_group("InkWisp")        # legacy group, kept for old lookups
 	add_to_group("Collectible")
@@ -171,6 +180,8 @@ func _on_body_entered(body: Node3D):
 	wisp_collected.emit(self)
 	
 	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("mark_item_collected"):
+		gm.mark_item_collected(self)   # Never respawns - ever
 	if gm and gm.has_method("collect_wisp"):
 		gm.collect_wisp(self)
 	

@@ -144,6 +144,9 @@ func load_slot(slot: int, travel: bool = true) -> bool:
 		var qdata: Dictionary = data["quests"]
 		qm.completed_quest_ids = PackedStringArray(qdata.get("completed", []))
 		qm.location_flags = qdata.get("location_flags", {})
+		# In-hand fetch items: quest items never respawn, so a mid-fetch
+		# save must restore the item to Inke's hands
+		qm.carried_items = qdata.get("carried", {})
 	
 	if travel:
 		var scene_path := str(data.get("scene", ""))
@@ -194,6 +197,7 @@ func _write_save(slot: int) -> void:
 		data["quests"] = {
 			"completed": Array(qm.completed_quest_ids),
 			"location_flags": qm.location_flags,
+			"carried": qm.carried_items,
 		}
 	
 	var f = FileAccess.open(SLOT_PATH % slot, FileAccess.WRITE)

@@ -44,6 +44,14 @@ signal cutscene_started(cred_node: CRED)
 signal cutscene_finished(cred_node: CRED)
 
 func _ready():
+	# FINITE PICKUP: CRED is progression currency - once collected it is
+	# gone FOREVER, across saves and reloads. If the registry says this
+	# placed medallion was already taken, it never spawns again.
+	var gm_check = get_node_or_null("/root/GameManager")
+	if gm_check and gm_check.has_method("is_item_collected") and gm_check.is_item_collected(self):
+		queue_free()
+		return
+	
 	add_to_group("CRED")
 	add_to_group("Collectible")
 	
@@ -318,6 +326,8 @@ func collect_cred():
 	
 	collected = true
 	
+	if game_manager and game_manager.has_method("mark_item_collected"):
+		game_manager.mark_item_collected(self)   # Never respawns - ever
 	if game_manager and game_manager.has_method("add_CRED"):
 		game_manager.add_CRED(cred_value)
 	else:

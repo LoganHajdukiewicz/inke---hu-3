@@ -317,11 +317,14 @@ func _on_cred_collected(_amount: int, total_cred: int) -> void:
 
 func _show_cred_bar(total_cred: int) -> void:
 	"""Pop the bar up for a moment. No special full-bar text, no sticking
-	around - it fades out like every other notification."""
+	around - it fades out like every other notification. OVERFLOW is shown
+	honestly (e.g. 'CRED 73 / 50'): collecting past the threshold still
+	counts, still pops the bar - it just means the player did more than
+	progression required. The fill simply pegs at 100%."""
 	var needed := get_cred_needed()
 	cred_panel.modulate.a = 1.0
 	_cred_hide_timer = 3.5
-	cred_label.text = "CRED  %d / %d" % [mini(total_cred, needed), needed]
+	cred_label.text = "CRED  %d / %d" % [total_cred, needed]
 	var t = create_tween()
 	t.tween_property(cred_bar, "value", clampf(float(total_cred) / float(needed) * 100.0, 0.0, 100.0), 0.5) \
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)

@@ -46,6 +46,20 @@ func enter():
 		# Dash forward if no input
 		dash_direction = -player.global_transform.basis.z.normalized()
 	
+	# ANTI SLIDE-CLIMB: dashing on/over a sliding floor can't point uphill.
+	# Without this, dash-spam inched the player up non-traversable slopes.
+	# Strip the uphill component of the dash direction AND arm the uphill
+	# block for the whole dash so no frame of it pushes up the slope.
+	if player.is_on_slide_floor and player.slide_floor_downhill != Vector3.ZERO:
+		var uphill: Vector3 = -player.slide_floor_downhill
+		var up_amount := dash_direction.dot(uphill)
+		if up_amount > 0.0:
+			dash_direction -= uphill * up_amount
+			if dash_direction.length() < 0.1:
+				dash_direction = player.slide_floor_downhill  # Pure-uphill dash turns downhill
+			dash_direction = dash_direction.normalized()
+		player.arm_slide_uphill_block(dash_duration + 0.4)
+	
 	# FIXED: Set dash velocity - COMPLETELY OVERRIDE previous velocity to prevent accumulation
 	player.velocity.x = dash_direction.x * dash_speed
 	player.velocity.z = dash_direction.z * dash_speed

@@ -7,6 +7,14 @@ var gear_count: int = 0
 # checked against thresholds (boss gates, NPC minimums) but NEVER spent.
 var cred_count: int = 0
 
+# FINITE PICKUPS: CRED medallions, spray cans and quest items are
+# one-time-only, FOREVER. Each placed pickup registers its scene+node
+# path here when collected; on scene load the pickup checks the registry
+# and deletes itself if it was ever collected. Saved with the game so
+# reloading can never be used to re-farm progression currency.
+# (Breakables/gears/health/paint droplets deliberately DO respawn.)
+var collected_items: Dictionary = {}   # uid -> true
+
 # Spray-can completion reward: +this much max paint per fully-cleared level
 const PAINT_BONUS_PER_LEVEL: int = 25
 var paint_bar_bonus: int = 0
@@ -336,6 +344,30 @@ func spend_gears(amount: int) -> bool:
 func get_gear_count() -> int:
 	return gear_count
 
+# === FINITE PICKUP REGISTRY (CRED / spray cans / quest items) ===
+
+func item_uid(node: Node) -> String:
+	"""Stable identity for a PLACED pickup: scene file + node path."""
+	var scene = get_tree().current_scene
+	var sp: String = scene.scene_file_path if scene else ""
+	return sp + "|" + str(node.get_path())
+
+func mark_item_collected(node: Node) -> void:
+	"""Permanently record a one-time pickup as collected (and autosave).
+	Runtime-spawned nodes (quest rewards etc.) have '@' generated names -
+	no stable identity, so they're skipped; they don't respawn anyway
+	because whatever spawned them (quest completion) is itself saved."""
+	var uid := item_uid(node)
+	if uid.contains("@"):
+		return
+	collected_items[uid] = true
+	var sm = get_node_or_null("/root/SaveManager")
+	if sm and sm.has_method("request_save"):
+		sm.request_save()
+
+func is_item_collected(node: Node) -> bool:
+	return collected_items.has(item_uid(node))
+
 # === CRED MANAGEMENT ===
 
 func add_CRED(reward: int):
@@ -647,6 +679,7 @@ func save_game_state() -> Dictionary:
 		"paint_bar_bonus": paint_bar_bonus,
 		"paint_bonus_levels": paint_bonus_levels,
 		"keys": keys,
+		"collected_items": collected_items,
 	}
 
 func load_game_state(state: Dictionary):
@@ -669,6 +702,10 @@ func load_game_state(state: Dictionary):
 	paint_bar_bonus = int(state.get("paint_bar_bonus", 0))
 	paint_bonus_levels = state.get("paint_bonus_levels", {})
 	keys = state.get("keys", {})
+	# Collected one-timers MERGE (union) - a stale save can't resurrect
+	# an already-collected CRED any more than it can lower the count
+	for uid in state.get("collected_items", {}):
+		collected_items[uid] = true
 	
 	# Apply upgrades to player if they exist
 	apply_purchased_upgrades()
@@ -686,6 +723,7 @@ func reset_game_state():
 	cred_count = 0
 	paint_bar_bonus = 0
 	paint_bonus_levels = {}
+	collected_items = {}
 	player_health = BASE_MAX_HEALTH
 	player_max_health = BASE_MAX_HEALTH
 	double_jump_purchased = false

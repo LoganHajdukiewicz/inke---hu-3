@@ -22,6 +22,14 @@ var _mesh_root: Node3D
 
 
 func _ready() -> void:
+	# FINITE PICKUP: once grabbed, this item never reappears on load -
+	# the quest state (carried/completed) is saved alongside, so the
+	# player can't re-grab it to farm or break fetch quests.
+	var gm_check = get_node_or_null("/root/GameManager")
+	if gm_check and gm_check.has_method("is_item_collected") and gm_check.is_item_collected(self):
+		queue_free()
+		return
+	
 	collision_layer = 0
 	collision_mask = 1
 	monitoring = true
@@ -98,6 +106,10 @@ func _on_body_entered(body: Node3D) -> void:
 		push_warning("QuestItem at %s has no item_id" % str(global_position))
 		return
 	_grabbed = true
+	
+	var gm = get_node_or_null("/root/GameManager")
+	if gm and gm.has_method("mark_item_collected"):
+		gm.mark_item_collected(self)   # Never respawns on load
 	
 	var qm = get_node_or_null("/root/QuestManager")
 	if qm:
