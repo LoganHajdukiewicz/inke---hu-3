@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3 uid="uid://qowfetch0001"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "ow_fetch"
+title = "The Lost Gizmo"
+description = "A precious gizmo rolled up into the north hills. Rope, hoppers and all. Bring it back."
+quest_type = "fetch_item"
+target_count = 1
+target_id = "ow_gizmo"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 15
+repeatable = false

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3 uid="uid://qowsummit001"]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "ow_summit"
+title = "Touch the Sky"
+description = "Climb the western mountain: chain fence, ladder, swing bars, the beam, then grapple to the summit."
+quest_type = "reach_location"
+target_count = 1
+target_id = "ow_summit"
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 20
+repeatable = false

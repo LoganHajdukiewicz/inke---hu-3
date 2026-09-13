@@ -53,11 +53,45 @@ func enter():
 	fx.tween_property(player, "scale", Vector3.ONE, 0.12)
 
 func _hang_position_for(lip_point: Vector3) -> Vector3:
-	"""Where the player's origin (feet) goes for a hang at this lip point."""
+	"""Where the player's origin (feet) goes for a hang at this lip point.
+	TERRAIN FIX: cliff faces are SLOPES, not vertical walls - below the lip
+	the face bulges outward, so the naive hang spot can be INSIDE the hill
+	(physics then squeezed Inke through the heightmap = 'slips under
+	terrain'). Probe the actual face at hang height and hang off THAT."""
 	var pos = lip_point
 	pos.y = lip_point.y - hang_depth
 	pos += ledge_normal * hang_offset
+	
+	var space_state = player.get_world_3d().direct_space_state
+	var probe_from = pos + ledge_normal * 2.5
+	probe_from.y = lip_point.y - hang_depth * 0.5   # Chest height on the face
+	var q = PhysicsRayQueryParameters3D.create(probe_from, probe_from - ledge_normal * 4.0)
+	q.collision_mask = 1
+	q.exclude = [player]
+	var hit = space_state.intersect_ray(q)
+	if hit:
+		# How far out the REAL face sits at this height vs. the lip's face
+		var out_dist = (Vector3(hit.position.x, 0, hit.position.z)
+				- Vector3(lip_point.x, 0, lip_point.z)).dot(ledge_normal)
+		if out_dist + hang_offset > (pos - Vector3(lip_point.x, pos.y, lip_point.z)).dot(ledge_normal):
+			pos.x = hit.position.x + ledge_normal.x * hang_offset
+			pos.z = hit.position.z + ledge_normal.z * hang_offset
 	return pos
+
+
+func _surface_height_at(point: Vector3, fallback_y: float) -> float:
+	"""Raycast down to find the walkable surface at an XZ position. On
+	sloped terrain the ground above the lip keeps RISING - landing targets
+	must sit ON the surface, never below it (below = under the heightmap)."""
+	var space_state = player.get_world_3d().direct_space_state
+	var q = PhysicsRayQueryParameters3D.create(
+		point + Vector3(0, 3.0, 0), point + Vector3(0, -3.0, 0))
+	q.collision_mask = 1
+	q.exclude = [player]
+	var hit = space_state.intersect_ray(q)
+	if hit and hit.normal.dot(Vector3.UP) > 0.4:
+		return hit.position.y
+	return fallback_y
 
 func physics_update(delta: float):
 	if is_climbing or is_settling:
@@ -230,6 +264,11 @@ func climb_up_ledge():
 	up_target.y = ledge_position.y + 0.05
 	
 	var forward_target = up_target - ledge_normal * (hang_offset + 0.55)
+	# TERRAIN FIX: on a sloped top the ground above the lip keeps rising -
+	# tweening to lip height would put Inke UNDER the surface (and through
+	# the heightmap). Snap both stages onto the real surface.
+	forward_target.y = _surface_height_at(forward_target, forward_target.y) + 0.1
+	up_target.y = maxf(up_target.y, forward_target.y)
 	
 	var tween = create_tween()
 	# Stage 1: pull the body straight up
