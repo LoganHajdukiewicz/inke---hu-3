@@ -3,62 +3,34 @@
 [ext_resource type="Script" uid="uid://b112r7llqqap" path="res://scripts/environments/worldbuilding/terrain.gd" id="1_71cx2"]
 [ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="2_4c02r"]
 [ext_resource type="Script" uid="uid://bi2obgc1agqyr" path="res://scripts/environments/water_zone.gd" id="2_eo74c"]
-[ext_resource type="Script" uid="uid://fvuio4ilv6in" path="res://scripts/characters/Player/inke.gd" id="3_eo74c"]
-[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="ow_checkpoint"]
-[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="ow_sign"]
-[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="ow_merchant"]
-[ext_resource type="PackedScene" uid="uid://questgiver001" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="ow_questgiver"]
-[ext_resource type="PackedScene" uid="uid://questitem0001" path="res://scenes/quests/quest_item.tscn" id="ow_questitem"]
-[ext_resource type="PackedScene" uid="uid://locflag000001" path="res://scenes/quests/location_flag.tscn" id="ow_locflag"]
-[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="ow_gear"]
-[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/spray_can.tscn" id="ow_spraycan"]
-[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="ow_cred"]
-[ext_resource type="PackedScene" uid="uid://healthpickup1" path="res://scenes/items/Collectibles/health_pickup.tscn" id="ow_health"]
-[ext_resource type="PackedScene" uid="uid://healpatch0001" path="res://scenes/environments/heal_patch.tscn" id="ow_healpatch"]
+[ext_resource type="PackedScene" uid="uid://3bpo7uite5aa" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="ow_barrel"]
+[ext_resource type="PackedScene" uid="uid://boatwood0001" path="res://scenes/environments/boat.tscn" id="ow_boat"]
 [ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="ow_box"]
-[ext_resource type="PackedScene" uid="uid://explbarrel001" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="ow_barrel"]
-[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="ow_enemy"]
 [ext_resource type="PackedScene" uid="uid://chargerenmy01" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="ow_charger"]
-[ext_resource type="PackedScene" uid="uid://turretenemy01" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="ow_turret"]
-[ext_resource type="PackedScene" uid="uid://hopperenemy1" path="res://scenes/characters/NPCs/Enemies/hopper_enemy.tscn" id="ow_hopper"]
+[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="ow_checkpoint"]
 [ext_resource type="PackedScene" uid="uid://cowardenemy01" path="res://scenes/characters/NPCs/Enemies/coward_enemy.tscn" id="ow_coward"]
-[ext_resource type="PackedScene" uid="uid://swingrope0001" path="res://scenes/environments/rope.tscn" id="ow_rope"]
-[ext_resource type="PackedScene" uid="uid://swingbar00001" path="res://scenes/environments/swing_bar.tscn" id="ow_swingbar"]
-[ext_resource type="PackedScene" uid="uid://slampatch0001" path="res://scenes/environments/ground_pound_mound.tscn" id="ow_mound"]
-[ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="ow_climbwall"]
-[ext_resource type="PackedScene" uid="uid://cladderwall01" path="res://scenes/environments/ladder.tscn" id="ow_ladder"]
-[ext_resource type="PackedScene" uid="uid://balbeam000001" path="res://scenes/environments/balance_beam.tscn" id="ow_beam"]
-[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="ow_grapple"]
-[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="ow_rail"]
+[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="ow_cred"]
+[ext_resource type="Script" uid="uid://b025l0iuffk1d" path="res://scripts/levels/cred_threshold.gd" id="ow_credthresh"]
 [ext_resource type="PackedScene" uid="uid://dyx5autvv3t1e" path="res://scenes/environments/dialogue_trigger.tscn" id="ow_dialoguetrigger"]
 [ext_resource type="PackedScene" uid="uid://cu7ok4tvrfhg5" path="res://scenes/UI/dialogue_ui.tscn" id="ow_dialogueui"]
 [ext_resource type="PackedScene" uid="uid://dockwood0001" path="res://scenes/environments/dock.tscn" id="ow_dock"]
-[ext_resource type="PackedScene" uid="uid://boatwood0001" path="res://scenes/environments/boat.tscn" id="ow_boat"]
-[ext_resource type="Script" path="res://scripts/levels/cred_threshold.gd" id="ow_credthresh"]
-
-[sub_resource type="Curve3D" id="Curve3D_rail_beach"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(-0, -0, -0, 0, 0, 0, 0, 0, 0, -5, -0.185, 1.25, 5, 0.185, -1.25, 10, 0.94, -3, -5, 0.1575, 1, 5, -0.1575, -1, 20, 0.74, -5, -5, 0.2075, 0.75, 5, -0.2075, -0.75, 30, 0.31, -7, -4.5, 0.515, 0.25, 4.5, -0.515, -0.25, 40, -0.09, -8, -3.75, 0.565, -0.25, 3.75, -0.565, 0.25, 48, -1.75, -8, -0, -0, -0, 0, 0, 0, 55, -2.35, -7),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
-}
-point_count = 7
-
-[sub_resource type="Curve3D" id="Curve3D_rail_summit"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(-0, -0, -0, 0, 0, 0, 0, 0, 0, -4.5, 1.303, -4, 4.5, -1.303, 4, 8, -2, 8, -5, 2.553, -4.75, 5, -2.553, 4.75, 18, -5.21, 16, -5, 4.307, -6, 5, -4.307, 6, 28, -12.21, 27, -4.25, 3.957, -5.75, 4.25, -3.957, 5.75, 38, -22.44, 40, -3.75, 3.178, -4.5, 3.75, -3.178, 4.5, 45, -28.04, 50, -3.75, 1.977, -3.5, 3.75, -1.977, 3.5, 53, -35.15, 58, -0, -0, -0, 0, 0, 0, 60, -35.95, 64),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
-}
-point_count = 8
-
-[sub_resource type="Curve3D" id="Curve3D_rail_causeway"]
-resource_local_to_scene = true
-_data = {
-"points": PackedVector3Array(-0, -0, -0, 0, 0, 0, 0, 0, 0, -12, -0.1925, -4.75, 12, 0.1925, 4.75, 23, 0.37, 8, -12.5, 0.05, -5, 12.5, -0.05, 5, 48, 0.77, 19, -12.5, 0.05, -4.75, 12.5, -0.05, 4.75, 73, 0.17, 28, -13.75, -0, -4.75, 13.75, 0, 4.75, 98, 0.57, 38, -15, 0.2, -4.5, 15, -0.2, 4.5, 128, 0.17, 47, -13.75, 0.2, -4.75, 13.75, -0.2, 4.75, 158, -0.23, 56, -13.75, 0.2, -3, 13.75, -0.2, 3, 183, -0.63, 66, -15, 0.2, -0.75, 15, -0.2, 0.75, 213, -1.03, 68, -13.75, 0.15, -0, 13.75, -0.15, 0, 243, -1.43, 69, -0, -0, -0, 0, 0, 0, 268, -1.63, 68),
-"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-}
-point_count = 11
+[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="ow_enemy"]
+[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="ow_gear"]
+[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="ow_grapple"]
+[ext_resource type="PackedScene" uid="uid://diup37v2ws5aa" path="res://scenes/environments/heal_patch.tscn" id="ow_healpatch"]
+[ext_resource type="PackedScene" uid="uid://diup8fr8rdyya" path="res://scenes/items/Collectibles/health_pickup.tscn" id="ow_health"]
+[ext_resource type="PackedScene" uid="uid://hopperenemy1" path="res://scenes/characters/NPCs/Enemies/hopper_enemy.tscn" id="ow_hopper"]
+[ext_resource type="PackedScene" uid="uid://dxioe5mivmaii" path="res://scenes/quests/location_flag.tscn" id="ow_locflag"]
+[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="ow_merchant"]
+[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/ground_pound_mound.tscn" id="ow_mound"]
+[ext_resource type="PackedScene" uid="uid://bercg7tu4yiyy" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="ow_questgiver"]
+[ext_resource type="PackedScene" uid="uid://bercha5ed7iyy" path="res://scenes/quests/quest_item.tscn" id="ow_questitem"]
+[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="ow_rail"]
+[ext_resource type="PackedScene" uid="uid://dgu53j0o47iyy" path="res://scenes/environments/rope.tscn" id="ow_rope"]
+[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="ow_sign"]
+[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/spray_can.tscn" id="ow_spraycan"]
+[ext_resource type="PackedScene" uid="uid://dgu522lrq7iyy" path="res://scenes/environments/swing_bar.tscn" id="ow_swingbar"]
+[ext_resource type="PackedScene" uid="uid://jqfgjsekml77" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="ow_turret"]
 
 [sub_resource type="Curve3D" id="Curve3D_ne3rd"]
 closed = true
@@ -79,6 +51,39 @@ sky_material = SubResource("ProceduralSkyMaterial_4c02r")
 background_mode = 2
 sky = SubResource("Sky_eo74c")
 glow_enabled = true
+
+[sub_resource type="Curve3D" id="Curve3D_gv8es"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, -5, -0.185, 1.25, 5, 0.185, -1.25, 10, 0.94, -3, -5, 0.1575, 1, 5, -0.1575, -1, 20, 0.74, -5, -5, 0.2075, 0.75, 5, -0.2075, -0.75, 30, 0.31, -7, -4.5, 0.515, 0.25, 4.5, -0.515, -0.25, 40, -0.09, -8, -3.75, 0.565, -0.25, 3.75, -0.565, 0.25, 48, -1.75, -8, 0, 0, 0, 0, 0, 0, 55, -2.35, -7),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[sub_resource type="Curve3D" id="Curve3D_pwy72"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 21.664165, 0, -4.5, 1.303, -4, 4.5, -1.303, 4, 8, 10.48605, 8, -5, 2.553, -4.75, 5, -2.553, 4.75, 18, -0.62397003, 16, -5, 4.307, -6, 5, -4.307, 6, 28, -7.1198196, 27, -4.25, 3.957, -5.75, 4.25, -3.957, 5.75, 38, -22.44, 40, -3.75, 3.178, -4.5, 3.75, -3.178, 4.5, 45, -28.04, 50, -3.75, 1.977, -3.5, 3.75, -1.977, 3.5, 53, -35.15, 58, 0, 0, 0, 0, 0, 0, 60, -35.95, 64),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 8
+
+[sub_resource type="Curve3D" id="Curve3D_i4fwg"]
+resource_local_to_scene = true
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, -12, -0.1925, -4.75, 12, 0.1925, 4.75, 23, 0.37, 8, -12.5, 0.05, -5, 12.5, -0.05, 5, 48, 0.77, 19, -12.5, 0.05, -4.75, 12.5, -0.05, 4.75, 73, 0.17, 28, -13.75, 0, -4.75, 13.75, 0, 4.75, 98, 0.57, 38, -15, 0.2, -4.5, 15, -0.2, 4.5, 128, 0.17, 47, -13.75, 0.2, -4.75, 13.75, -0.2, 4.75, 158, -0.23, 56, -13.75, 0.2, -3, 13.75, -0.2, 3, 183, -0.63, 66, -15, 0.2, -0.75, 15, -0.2, 0.75, 213, -1.03, 68, -13.75, 0.15, 0, 13.75, -0.15, 0, 243, -1.43, 69, 0, 0, 0, 0, 0, 0, 268, -1.63, 68),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 11
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_2thie"]
+plane = Plane(0, 0, 1, 0)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_8cwos"]
+plane = Plane(0, 0, 1, 0)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_c1i3v"]
+plane = Plane(0, 0, 1, 0)
 
 [node name="open_world_demo_TBD" type="Node3D" unique_id=1168403704]
 
@@ -204,54 +209,35 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Terrain_World" unique_id=1507862617]
 environment = SubResource("Environment_ne3rd")
 
-[node name="Inke" type="CharacterBody3D" parent="." unique_id=2088239389 node_paths=PackedStringArray("wall_jump_rays", "rail_grind_area") groups=["Player"] instance=ExtResource("2_4c02r")]
+[node name="Terrain12" type="StaticBody3D" parent="Terrain_World" unique_id=1766300280]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -82.17214, 63.10482, -75.12814)
+script = ExtResource("1_71cx2")
+size = Vector2(20, 15)
+paint_data = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+paint_res = 64
+metadata/_custom_type_script = "uid://b112r7llqqap"
+
+[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("2_4c02r")]
 transform = Transform3D(0.2756374, 0, -0.9612617, 0, 1, 0, 0.9612617, 0, 0.2756374, 0, 2.0211139, 0)
-script = ExtResource("3_eo74c")
-wall_jump_rays = NodePath("WallJumpRays")
-rail_grind_area = NodePath("RailGrindArea")
 
 [node name="Checkpoints" type="Node" parent="." unique_id=900000002]
 
-[node name="Signs" type="Node" parent="." unique_id=900000003]
-
-[node name="NPCs" type="Node" parent="." unique_id=900000004]
-
-[node name="Quests" type="Node" parent="." unique_id=900000005]
-
-[node name="Collectibles" type="Node" parent="." unique_id=900000006]
-
-[node name="Breakables" type="Node" parent="." unique_id=900000007]
-
-[node name="Enemies" type="Node" parent="." unique_id=900000008]
-
-[node name="Movement" type="Node" parent="." unique_id=900000009]
-
-[node name="Rails" type="Node" parent="." unique_id=900000010]
-
-[node name="Triggers" type="Node" parent="." unique_id=900000011]
-
-[node name="Boss Arena" type="Node" parent="." unique_id=900000012]
-
-[node name="CredThreshold" type="Node" parent="." unique_id=900000013]
-script = ExtResource("ow_credthresh")
-cred_needed = 60
-
-[node name="DialogueUI" parent="." unique_id=900000014 instance=ExtResource("ow_dialogueui")]
-
 [node name="Checkpoint_Town" parent="Checkpoints" unique_id=900000015 instance=ExtResource("ow_checkpoint")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 18, 1.86, 12)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 1.86, 12)
 
 [node name="Checkpoint_Camp" parent="Checkpoints" unique_id=900000016 instance=ExtResource("ow_checkpoint")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 50, 1.78, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 1.78, -5)
 
 [node name="Checkpoint_Mountain" parent="Checkpoints" unique_id=900000017 instance=ExtResource("ow_checkpoint")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -40, 13.94, -13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 13.94, -13)
 
 [node name="Checkpoint_Causeway" parent="Checkpoints" unique_id=900000018 instance=ExtResource("ow_checkpoint")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 115, 1, 85)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 115, 1, 85)
 
 [node name="Checkpoint_Flats" parent="Checkpoints" unique_id=900000019 instance=ExtResource("ow_checkpoint")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 395, 1.51, 160)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 395, 1.51, 160)
+
+[node name="Signs" type="Node" parent="." unique_id=900000003]
 
 [node name="Sign_Town" parent="Signs" unique_id=900000020 instance=ExtResource("ow_sign")]
 transform = Transform3D(-0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, -0.939693, 20, 1.72, 20)
@@ -264,124 +250,135 @@ tag_color = Color(0, 1, 0.85, 1)
 transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, 398, 1.68, 162)
 tag_color = Color(1, 0.6, 0.1, 1)
 
+[node name="NPCs" type="Node" parent="." unique_id=900000004]
+
 [node name="Merchant" parent="NPCs" unique_id=900000023 instance=ExtResource("ow_merchant")]
 transform = Transform3D(-0.766044, 0, 0.642788, 0, 1, 0, -0.642788, 0, -0.766044, 25, 1.14, 18)
 
 [node name="QG_Rust" parent="NPCs" unique_id=900000024 instance=ExtResource("ow_questgiver")]
 transform = Transform3D(-0.984808, 0, -0.173648, 0, 1, 0, 0.173648, 0, -0.984808, 30, 1.17, 8)
 npc_name = "Rust"
-quest_file = "collect_gears.tres"
 body_color = Color(0.85, 0.45, 0.15, 1)
 small_talk = Array[String](["Beach life. Sand in every joint I own.", "My gears! A wave took a crate of my gears and scattered them down the east beach!"])
 quest_ask = "Fetch 5 of them back and the CRED is yours. Deal?"
+quest_file = "collect_gears.tres"
 
 [node name="QG_Moxie" parent="NPCs" unique_id=900000025 instance=ExtResource("ow_questgiver")]
 transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, 12, 2.46, 24)
 npc_name = "Moxie"
-quest_file = "break_boxes.tres"
 body_color = Color(0.9, 0.25, 0.55, 1)
 small_talk = Array[String](["You look like you break things professionally.", "Someone dumped a pile of crates on my beach plot. Some of them are TICKING."])
 quest_ask = "Smash 4 of them for me? Mind the red ones."
+quest_file = "break_boxes.tres"
 
 [node name="QG_Sarge" parent="NPCs" unique_id=900000026 instance=ExtResource("ow_questgiver")]
 transform = Transform3D(-0.173648, 0, -0.984808, 0, 1, 0, 0.984808, 0, -0.173648, 50, 1.68, -5)
 npc_name = "Sarge"
-quest_file = "defeat_enemy.tres"
 body_color = Color(0.35, 0.6, 0.3, 1)
 small_talk = Array[String](["Hold it right there, civilian.", "Inklings set up camp east of here. They hiss at my tent every night."])
 quest_ask = "Clear out 3 of them and I will make it worth your while."
+quest_file = "defeat_enemy.tres"
 
 [node name="QG_Pip" parent="NPCs" unique_id=900000027 instance=ExtResource("ow_questgiver")]
 transform = Transform3D(-0.939693, 0, -0.34202, 0, 1, 0, 0.34202, 0, -0.939693, 0, 1.46, 40)
 npc_name = "Pip"
-quest_file = "ow_fetch.tres"
 body_color = Color(0.4, 0.65, 0.95, 1)
 small_talk = Array[String](["Psst. Up here. No, HERE.", "My gizmo rolled up into the north hills. Rope swings, hopping nasties, the works."])
 quest_ask = "Grab it and haul it back? It is shiny. You will know it when you see it."
+quest_file = "ow_fetch.tres"
 
 [node name="QG_Echo" parent="NPCs" unique_id=900000028 instance=ExtResource("ow_questgiver")]
 transform = Transform3D(0.173648, 0, 0.984808, 0, 1, 0, -0.984808, 0, 0.173648, -28, 2.1, 3)
 npc_name = "Echo"
-quest_file = "ow_summit.tres"
+cred_minimum = 20
+not_enough_cred_lines = Array[String](["The mountain does not take beginners, and neither do I.", "Earn {cred} CRED around the island first. Then we talk about the summit."])
 body_color = Color(0.75, 0.75, 0.85, 1)
 small_talk = Array[String](["I have watched that peak my whole life. Never made it past the fence.", "Fence, ladder, swing bars, the beam, then the grapple rings. The full run."])
 quest_ask = "Touch the summit for me. Prove it can be done."
-cred_minimum = 20
-not_enough_cred_lines = Array[String](["The mountain does not take beginners, and neither do I.", "Earn {cred} CRED around the island first. Then we talk about the summit."])
+quest_file = "ow_summit.tres"
 
 [node name="QG_Boss" parent="NPCs" unique_id=900000029 instance=ExtResource("ow_questgiver")]
 transform = Transform3D(-0.766044, 0, -0.642788, 0, 1, 0, 0.642788, 0, -0.766044, 105, 1.19, 74)
 npc_name = "Warden"
-quest_file = "ow_boss.tres"
+cred_minimum = 45
+not_enough_cred_lines = Array[String](["The King eats rookies for breakfast. Not on my watch.", "Come back with {cred} CRED to your name and I will point you at him myself."])
 body_color = Color(0.6, 0.2, 0.2, 1)
 small_talk = Array[String](["Past this causeway is the east flats. The Sludge King runs them.", "Nobody crosses without business. You? You look like business."])
 quest_ask = "Take the King down. The flats go free, and the CRED is legendary."
-cred_minimum = 45
-not_enough_cred_lines = Array[String](["The King eats rookies for breakfast. Not on my watch.", "Come back with {cred} CRED to your name and I will point you at him myself."])
+quest_file = "ow_boss.tres"
+
+[node name="Quests" type="Node" parent="." unique_id=900000005]
 
 [node name="Gizmo" parent="Quests" unique_id=900000030 instance=ExtResource("ow_questitem")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -50, 23.53, 55)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 23.53, 55)
 item_id = "ow_gizmo"
 
 [node name="SummitFlag" parent="Quests" unique_id=900000031 instance=ExtResource("ow_locflag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -85, 65.36, -75)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -85, 65.36, -75)
+monitorable = false
 flag_id = "ow_summit"
-discovery_text = "THE SUMMIT - the whole island at your feet"
 radius = 6.0
+discovery_text = "THE SUMMIT - the whole island at your feet"
+
+[node name="Collectibles" type="Node" parent="." unique_id=900000006]
 
 [node name="BeachGear1" parent="Collectibles" unique_id=900000032 instance=ExtResource("ow_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 40, 2.05, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 2.05, 0)
 
 [node name="BeachGear2" parent="Collectibles" unique_id=900000033 instance=ExtResource("ow_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 45, 2.36, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45, 2.36, -5)
 
 [node name="BeachGear3" parent="Collectibles" unique_id=900000034 instance=ExtResource("ow_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 50, 2.68, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.68, -10)
 
 [node name="BeachGear4" parent="Collectibles" unique_id=900000035 instance=ExtResource("ow_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 55, 2.65, -15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 2.65, -15)
 
 [node name="BeachGear5" parent="Collectibles" unique_id=900000036 instance=ExtResource("ow_gear")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 60, 3.34, -25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 3.34, -25)
 
 [node name="SprayCan_Beach" parent="Collectibles" unique_id=900000037 instance=ExtResource("ow_spraycan")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 28, 2.09, 28)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 2.09, 28)
 
 [node name="SprayCan_Rail" parent="Collectibles" unique_id=900000038 instance=ExtResource("ow_spraycan")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 80, 1.92, 10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 1.92, 10)
 
 [node name="SprayCan_Hills" parent="Collectibles" unique_id=900000039 instance=ExtResource("ow_spraycan")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -52, 26.86, 58)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52, 26.86, 58)
 
 [node name="SprayCan_Summit" parent="Collectibles" unique_id=900000040 instance=ExtResource("ow_spraycan")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -85, 65.22, -71)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -86.319855, 66.18929, -71)
 
 [node name="SprayCan_Causeway" parent="Collectibles" unique_id=900000041 instance=ExtResource("ow_spraycan")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 180, 1.88, 118)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 180, 1.88, 118)
 
 [node name="SprayCan_Flats" parent="Collectibles" unique_id=900000042 instance=ExtResource("ow_spraycan")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 435, 2.76, 155)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 435, 2.76, 155)
 
 [node name="CRED_RailEnd" parent="Collectibles" unique_id=900000043 instance=ExtResource("ow_cred")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 92, 1.1, -26)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 92, 1.1, -26)
 
 [node name="CRED_Summit" parent="Collectibles" unique_id=900000044 instance=ExtResource("ow_cred")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -85, 65.52, -73)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -85.58378, 64.99495, -73)
 
 [node name="CRED_Flats" parent="Collectibles" unique_id=900000045 instance=ExtResource("ow_cred")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 440, 2.86, 165)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 440, 2.86, 165)
 
 [node name="Health_Town" parent="Collectibles" unique_id=900000046 instance=ExtResource("ow_health")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 30, 1.75, 15)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 1.75, 15)
+collision_layer = 0
 
 [node name="Health_Mountain" parent="Collectibles" unique_id=900000047 instance=ExtResource("ow_health")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -70, 44.63, -48)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70, 44.63, -48)
+collision_layer = 0
 
 [node name="HealPatch_Town" parent="Collectibles" unique_id=900000048 instance=ExtResource("ow_healpatch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 35, 1.68, 25)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 1.68, 25)
 
 [node name="HealPatch_Flats" parent="Collectibles" unique_id=900000049 instance=ExtResource("ow_healpatch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 400, 1.65, 170)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 400, 1.65, 170)
+
+[node name="Breakables" type="Node" parent="." unique_id=900000007]
 
 [node name="Box1" parent="Breakables" unique_id=900000050 instance=ExtResource("ow_box")]
 transform = Transform3D(0.965926, 0, 0.258819, 0, 1, 0, -0.258819, 0, 0.965926, 5, 2.2, 30)
@@ -405,10 +402,10 @@ transform = Transform3D(0.984808, 0, 0.173648, 0, 1, 0, -0.173648, 0, 0.984808, 
 transform = Transform3D(0.173648, 0, 0.984808, 0, 1, 0, -0.984808, 0, 0.173648, 4, 2.15, 24)
 
 [node name="Barrel1" parent="Breakables" unique_id=900000057 instance=ExtResource("ow_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 12, 2.34, 32)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 2.34, 32)
 
 [node name="Barrel2" parent="Breakables" unique_id=900000058 instance=ExtResource("ow_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 10, 2.05, 35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2.05, 35)
 
 [node name="CampBox1" parent="Breakables" unique_id=900000059 instance=ExtResource("ow_box")]
 transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 66, 2.47, -2)
@@ -417,46 +414,50 @@ transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 66, 2.47, 
 transform = Transform3D(0.258819, 0, 0.965926, 0, 1, 0, -0.965926, 0, 0.258819, 69, 1.91, 0)
 
 [node name="CampBarrel" parent="Breakables" unique_id=900000061 instance=ExtResource("ow_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 71, 3.19, -6)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 71, 3.19, -6)
+
+[node name="Enemies" type="Node" parent="." unique_id=900000008]
 
 [node name="Inkling1" parent="Enemies" unique_id=900000062 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 68, 3, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 68, 3, -8)
 
 [node name="Inkling2" parent="Enemies" unique_id=900000063 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 72, 2.47, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 2.47, -3)
 
 [node name="Inkling3" parent="Enemies" unique_id=900000064 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 75, 2.88, -10)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 75, 2.88, -10)
 
 [node name="Inkling4" parent="Enemies" unique_id=900000065 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 70, 1.09, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 1.09, 2)
 
 [node name="Inkling5" parent="Enemies" unique_id=900000066 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 65, 2.6, -14)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, 2.6, -14)
 
 [node name="Charger" parent="Enemies" unique_id=900000067 instance=ExtResource("ow_charger")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 78, 2.47, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 78, 2.47, -5)
 
 [node name="Turret_Camp" parent="Enemies" unique_id=900000068 instance=ExtResource("ow_turret")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 73, 2.84, -18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 73, 2.84, -18)
 
 [node name="Hopper1" parent="Enemies" unique_id=900000069 instance=ExtResource("ow_hopper")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -40, 14.6, 50)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 14.6, 50)
 
 [node name="Hopper2" parent="Enemies" unique_id=900000070 instance=ExtResource("ow_hopper")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -45, 21.74, 60)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45, 21.74, 60)
 
 [node name="Coward" parent="Enemies" unique_id=900000071 instance=ExtResource("ow_coward")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -35, 9.07, 45)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 9.07, 45)
 
 [node name="Turret_Causeway1" parent="Enemies" unique_id=900000072 instance=ExtResource("ow_turret")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 160, 1.03, 110)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 160, 1.03, 110)
 
 [node name="Turret_Causeway2" parent="Enemies" unique_id=900000073 instance=ExtResource("ow_turret")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 200, 1.72, 125)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 200, 1.72, 125)
+
+[node name="Movement" type="Node" parent="." unique_id=900000009]
 
 [node name="Rope_Hills" parent="Movement" unique_id=900000074 instance=ExtResource("ow_rope")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -30, 13.14, 48)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 13.14, 48)
 rope_length = 6.0
 
 [node name="SwingTree_Hills" parent="Movement" unique_id=900000075 instance=ExtResource("ow_swingbar")]
@@ -464,98 +465,95 @@ transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, -42, 19.51
 tree_disguise = true
 
 [node name="Mound_Hills" parent="Movement" unique_id=900000076 instance=ExtResource("ow_mound")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -20, 1.44, 55)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.44, 55)
 
 [node name="Mound_Beach" parent="Movement" unique_id=900000077 instance=ExtResource("ow_mound")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 28, 1.31, 35)
-
-[node name="ClimbFence" parent="Movement" unique_id=900000078 instance=ExtResource("ow_climbwall")]
-transform = Transform3D(0.819152, 0, 0.573576, 0, 1, 0, -0.573576, 0, 0.819152, -43, 13.84, -14)
-wall_size = Vector3(8, 11, 0.5)
-
-[node name="SummitLadder" parent="Movement" unique_id=900000079 instance=ExtResource("ow_ladder")]
-transform = Transform3D(0.573576, 0, 0.819152, 0, 1, 0, -0.819152, 0, 0.573576, -54, 24.6, -23)
-
-[node name="SwingBar1" parent="Movement" unique_id=900000080 instance=ExtResource("ow_swingbar")]
-transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, -62, 38.24, -38)
-
-[node name="SwingBar2" parent="Movement" unique_id=900000081 instance=ExtResource("ow_swingbar")]
-transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, -66, 40.79, -41)
-
-[node name="SwingBar3" parent="Movement" unique_id=900000082 instance=ExtResource("ow_swingbar")]
-transform = Transform3D(-0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, -0.5, -70, 44.2, -44)
-
-[node name="SummitBeam" parent="Movement" unique_id=900000083 instance=ExtResource("ow_beam")]
-transform = Transform3D(0.642788, 0, 0.766044, 0, 1, 0, -0.766044, 0, 0.642788, -75, 45.86, -52.5)
-beam_length = 9.0
-
-[node name="Grapple1" parent="Movement" unique_id=900000084 instance=ExtResource("ow_grapple")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -78, 41.69, -57)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 1.31, 35)
 
 [node name="Grapple2" parent="Movement" unique_id=900000085 instance=ExtResource("ow_grapple")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -83, 61.88, -66)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -83, 73.71733, -66)
 
 [node name="Grapple3" parent="Movement" unique_id=900000086 instance=ExtResource("ow_grapple")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -85, 70.35, -72)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -85, 77.75648, -72)
+
+[node name="Rails" type="Node" parent="." unique_id=900000010]
 
 [node name="Rail_Beach" parent="Rails" unique_id=900000087 instance=ExtResource("ow_rail")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 35, 4.42, -20)
-curve = SubResource("Curve3D_rail_beach")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 4.42, -20)
+curve = SubResource("Curve3D_gv8es")
 
 [node name="Rail_Summit" parent="Rails" unique_id=900000088 instance=ExtResource("ow_rail")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -78, 39.69, -60)
-curve = SubResource("Curve3D_rail_summit")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -78, 39.69, -60)
+curve = SubResource("Curve3D_pwy72")
 
 [node name="Rail_Causeway" parent="Rails" unique_id=900000089 instance=ExtResource("ow_rail")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 117, 3.83, 92)
-curve = SubResource("Curve3D_rail_causeway")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 117, 3.83, 92)
+curve = SubResource("Curve3D_i4fwg")
+
+[node name="Triggers" type="Node" parent="." unique_id=900000011]
 
 [node name="Trigger_Welcome" parent="Triggers" unique_id=900000090 instance=ExtResource("ow_dialoguetrigger")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 17, 2.96, 13)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17, 2.96, 13)
 dialogue_file = "Welcome"
 trigger_type = 1
-trigger_once = true
 box_size = Vector3(14, 5, 14)
+trigger_once = true
+
+[node name="@CollisionShape3D@21400" type="CollisionShape3D" parent="Triggers/Trigger_Welcome" unique_id=623241412]
+shape = SubResource("WorldBoundaryShape3D_2thie")
 
 [node name="Trigger_Causeway" parent="Triggers" unique_id=900000091 instance=ExtResource("ow_dialoguetrigger")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 108, 1.69, 80)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 108, 1.69, 80)
 dialogue_file = "CausewayGate"
 trigger_type = 1
-trigger_once = true
 box_size = Vector3(16, 6, 16)
+trigger_once = true
+
+[node name="@CollisionShape3D@21401" type="CollisionShape3D" parent="Triggers/Trigger_Causeway" unique_id=2114991150]
+shape = SubResource("WorldBoundaryShape3D_8cwos")
 
 [node name="Trigger_Mountain" parent="Triggers" unique_id=900000092 instance=ExtResource("ow_dialoguetrigger")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, -28, 2.29, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 2.29, 8)
 dialogue_file = "MountainBase"
 trigger_type = 1
-trigger_once = true
 box_size = Vector3(14, 6, 14)
+trigger_once = true
+
+[node name="@CollisionShape3D@21402" type="CollisionShape3D" parent="Triggers/Trigger_Mountain" unique_id=1868370651]
+shape = SubResource("WorldBoundaryShape3D_c1i3v")
+
+[node name="Boss Arena" type="Node" parent="." unique_id=900000012]
+
+[node name="SludgeKing" parent="Boss Arena" unique_id=900000095 instance=ExtResource("ow_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 425, 2.98, 165)
+max_health = 10
+current_health = 10
+is_boss = true
+boss_name = "THE SLUDGE KING"
+
+[node name="Grunt1" parent="Boss Arena" unique_id=900000096 instance=ExtResource("ow_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 418, 3.22, 158)
+
+[node name="Grunt2" parent="Boss Arena" unique_id=900000097 instance=ExtResource("ow_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 430, 2.04, 172)
+
+[node name="FlatsBarrel1" parent="Boss Arena" unique_id=900000098 instance=ExtResource("ow_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 420, 3.23, 160)
+
+[node name="FlatsBarrel2" parent="Boss Arena" unique_id=900000099 instance=ExtResource("ow_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 428, 3.17, 162)
+
+[node name="FlatsBarrel3" parent="Boss Arena" unique_id=900000100 instance=ExtResource("ow_barrel")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 423, 2.24, 170)
+
+[node name="CredThreshold" type="Node" parent="." unique_id=900000013]
+script = ExtResource("ow_credthresh")
+cred_needed = 60
+
+[node name="DialogueUI" parent="." unique_id=900000014 instance=ExtResource("ow_dialogueui")]
 
 [node name="Dock" parent="." unique_id=900000093 instance=ExtResource("ow_dock")]
 transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 55, 0.35, 86)
 
 [node name="Boat" parent="." unique_id=900000094 instance=ExtResource("ow_boat")]
 transform = Transform3D(-1, 0, 1.22465e-16, 0, 1, 0, -1.22465e-16, 0, -1, 55, 0.1, 102)
-
-[node name="SludgeKing" parent="Boss Arena" unique_id=900000095 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 425, 2.98, 165)
-is_boss = true
-boss_name = "THE SLUDGE KING"
-max_health = 10
-current_health = 10
-
-[node name="Grunt1" parent="Boss Arena" unique_id=900000096 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 418, 3.22, 158)
-
-[node name="Grunt2" parent="Boss Arena" unique_id=900000097 instance=ExtResource("ow_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 430, 2.04, 172)
-
-[node name="FlatsBarrel1" parent="Boss Arena" unique_id=900000098 instance=ExtResource("ow_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 420, 3.23, 160)
-
-[node name="FlatsBarrel2" parent="Boss Arena" unique_id=900000099 instance=ExtResource("ow_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 428, 3.17, 162)
-
-[node name="FlatsBarrel3" parent="Boss Arena" unique_id=900000100 instance=ExtResource("ow_barrel")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, -0, 0, 1, 423, 2.24, 170)
-
