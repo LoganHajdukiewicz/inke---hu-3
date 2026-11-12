@@ -25,6 +25,8 @@ const JumpArcs = preload("res://addons/level_kit/jump_arcs.gd")
 const Gen = preload("res://addons/level_kit/generators.gd")
 const PlatformScript = preload("res://addons/level_kit/nodes/platform.gd")
 const KitPlus = preload("res://addons/level_kit/kit_plus.gd")
+const WorldGizmo = preload("res://addons/level_kit/world_gizmo.gd")
+const DragBuild = preload("res://addons/level_kit/drag_build.gd")
 
 # Settings mirrored from the dock
 var grid_snap: float = 0.5
@@ -37,6 +39,8 @@ var _gizmo: Gizmo
 var _dock: Control
 var _dock_plus: Control
 var plus
+var drag
+var _world_gizmo
 var _ui := {}
 
 # Placement state
@@ -120,6 +124,11 @@ func _enter_tree() -> void:
 	_gizmo = Gizmo.new()
 	_gizmo.plugin = self
 	add_node_3d_gizmo_plugin(_gizmo)
+	_world_gizmo = WorldGizmo.new()
+	_world_gizmo.plugin = self
+	add_node_3d_gizmo_plugin(_world_gizmo)
+	drag = DragBuild.new()
+	drag.kit = self
 	add_custom_type("Platform", "StaticBody3D", PlatformScript, null)
 	_build_dock()
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock)
@@ -145,6 +154,11 @@ func _exit_tree() -> void:
 	_cancel_place()
 	_end_brush()
 	remove_node_3d_gizmo_plugin(_gizmo)
+	if _world_gizmo:
+		remove_node_3d_gizmo_plugin(_world_gizmo)
+	if drag:
+		drag.cancel()
+		drag.close_pie()
 	remove_custom_type("Platform")
 	if _dock:
 		remove_control_from_docks(_dock)
@@ -154,6 +168,11 @@ func _exit_tree() -> void:
 	if _dock_plus:
 		remove_control_from_docks(_dock_plus)
 		_dock_plus.queue_free()
+
+
+func _process(_delta: float) -> void:
+	if drag:
+		drag.process_snap()
 
 
 func _handles(object: Object) -> bool:
@@ -206,6 +225,9 @@ func _build_dock() -> void:
 	ry.toggled.connect(func(v): random_yaw = v)
 	grid_row.add_child(ry)
 	root.add_child(grid_row)
+
+	# --- DRAW TO SIZE ---
+	drag.build(root)
 
 	# --- PLACE ---
 	root.add_child(_header("PLACE  (click to drop, right-click/Esc to stop, Shift = stack)"))
@@ -469,6 +491,8 @@ func _terrain_normal(t: Terrain, p: Vector3) -> Vector3:
 
 func _start_place(item: Dictionary, button: Button) -> void:
 	_end_brush()
+	if drag:
+		drag.cancel()
 	if plus:
 		plus.cancel()
 	if _place_item == item:
@@ -513,8 +537,20 @@ func _make_instance(item: Dictionary) -> Node3D:
 
 
 func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
+	if drag and drag.active():
+		return drag.input(camera, event)
 	if plus and plus.active():
 		return plus.input(camera, event)
+	# Q = quick place menu at the cursor
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_Q and not event.ctrl_pressed and not event.alt_pressed and _place_item.is_empty() and _brush_mode == "":
+		if drag.pie_open():
+			drag.close_pie()
+		else:
+			drag.open_pie(camera, camera.get_viewport().get_mouse_position())
+		return AFTER_GUI_INPUT_STOP
+	if drag and drag.pie_open() and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		drag.close_pie()
+		return AFTER_GUI_INPUT_STOP
 	# Terrain brushes
 	if _brush_mode != "":
 		return _brush_input(camera, event)

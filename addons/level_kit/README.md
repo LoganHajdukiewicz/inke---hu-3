@@ -9,6 +9,46 @@ drag handles to size, generate whole jump courses, sculpt terrain, then hit
 
 ---
 
+---
+
+## ⭐ Drag to build (fastest way to block out a level)
+
+### Draw to size
+In **DRAW TO SIZE**, pick Platform, Pillar/Block, Wall, Ramp, Stairs, Room,
+Water, any floor type, Climb Fence, Heal Patch, Dialogue Box or Goal Flag.
+Then in the 3D view:
+1. **Press** on any surface: terrain, a roof, another platform.
+2. **Drag** out the footprint (snapped to the grid). An orange ghost box shows
+   the size live, and the status line shows the metres.
+3. Hold **Shift** and move the mouse **up/down** to set the height.
+4. **Release** to place it. Keep dragging to place more. Right-click or Esc
+   stops.
+
+Walls and fences collapse to their thickness along the short side, and ramps
+and stairs climb in the direction you dragged. Blocks and walls reach down to
+the surface you started on, so they're never floating.
+
+### Orange handles on everything
+Select any of these and drag the orange dots to resize that side:
+Room (width/depth/height), Hallway, Floor (box or cylinder radius), Terrain
+(size, hill height, brush radius), Water (size, depth), Climb Fence, Ladder,
+Balance Beam (length), Rope (length), Swing Bar (bar, posts), Heal Patch,
+Dialogue Trigger, Location Flag, Flatten Pad (radius, blend), Terrain Path
+(road width), Ground Pound Mound, Cred Gate, Dialogue Camera Bounds, and Curved
+Floor. Platforms have their own handles. Every drag snaps to the grid and is
+one Ctrl+Z.
+
+### Surface snap
+On by default. Move anything with Godot's normal move tool, sideways, and it
+**slides along the ground under it**: over hills, onto roofs and platforms.
+Drag it vertically if you really want it in the air.
+
+### Quick menu
+Press **Q** in the 3D view: a ring of the 12 most-used items opens at the
+cursor (slab, pillar, ramp, CRED, gear, crate, inkling, checkpoint, grapple
+point, spring floor, sign, health). Click one to drop it there. Q or Esc
+closes the ring.
+
 ## 1. Place anything with one click
 
 Pick an item in **PLACE**, then click in the 3D viewport.
