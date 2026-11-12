@@ -28,6 +28,7 @@ const KitPlus = preload("res://addons/level_kit/kit_plus.gd")
 const WorldGizmo = preload("res://addons/level_kit/world_gizmo.gd")
 const DragBuild = preload("res://addons/level_kit/drag_build.gd")
 const RotateGizmo = preload("res://addons/level_kit/rotate_gizmo.gd")
+const BuildAssist = preload("res://addons/level_kit/build_assist.gd")
 
 # Settings mirrored from the dock
 var grid_snap: float = 0.5
@@ -44,6 +45,7 @@ var drag
 var _world_gizmo
 var _rotate_gizmo
 var show_rotate_arc: bool = true
+var assist
 var _ui := {}
 
 # Placement state
@@ -117,6 +119,14 @@ var CATALOG := [
 	{"group": "Level flow", "name": "Scene Exit", "kind": "scene", "path": "res://scenes/environments/scene_transitioner.tscn", "lift": 0.0},
 	{"group": "Level flow", "name": "Dialogue Trigger", "kind": "scene", "path": "res://scenes/environments/dialogue_trigger.tscn", "lift": 0.0},
 	{"group": "Level flow", "name": "Water", "kind": "scene", "path": "res://scenes/environments/water_zone.tscn", "lift": 0.0},
+	{"group": "Scenery", "name": "Rock", "kind": "prop", "props": {"kind": 0}},
+	{"group": "Scenery", "name": "Boulder", "kind": "prop", "props": {"kind": 1}},
+	{"group": "Scenery", "name": "Tree", "kind": "prop", "props": {"kind": 2}},
+	{"group": "Scenery", "name": "Pine", "kind": "prop", "props": {"kind": 3}},
+	{"group": "Scenery", "name": "Palm", "kind": "prop", "props": {"kind": 4}},
+	{"group": "Scenery", "name": "Bush", "kind": "prop", "props": {"kind": 5}},
+	{"group": "Scenery", "name": "Stump", "kind": "prop", "props": {"kind": 8}},
+	{"group": "Scenery", "name": "Log", "kind": "prop", "props": {"kind": 9}},
 	{"group": "Worldbuilding", "name": "Room", "kind": "scene", "path": "res://scenes/environments/worldbuilding/room.tscn", "lift": 0.0},
 	{"group": "Worldbuilding", "name": "Hallway", "kind": "scene", "path": "res://scenes/environments/worldbuilding/hallway.tscn", "lift": 0.0},
 	{"group": "Worldbuilding", "name": "Terrain", "kind": "scene", "path": "res://scenes/environments/worldbuilding/terrain.tscn", "lift": 0.0},
@@ -137,6 +147,9 @@ func _enter_tree() -> void:
 	get_editor_interface().get_selection().selection_changed.connect(_on_selection_changed)
 	drag = DragBuild.new()
 	drag.kit = self
+	assist = BuildAssist.new()
+	assist.kit = self
+	add_custom_type("LKProp", "StaticBody3D", preload("res://addons/level_kit/nodes/prop.gd"), null)
 	add_custom_type("Platform", "StaticBody3D", PlatformScript, null)
 	_build_dock()
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock)
@@ -173,6 +186,10 @@ func _exit_tree() -> void:
 		drag.cancel()
 		drag.close_pie()
 	remove_custom_type("Platform")
+	remove_custom_type("LKProp")
+	if assist:
+		assist.stop_scatter()
+		assist._hide_overlay()
 	if _dock:
 		remove_control_from_docks(_dock)
 		_dock.queue_free()
@@ -194,9 +211,11 @@ func _on_selection_changed() -> void:
 	_last_selected = now
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if drag:
 		drag.process_snap()
+	if assist:
+		assist.process(delta)
 
 
 func _handles(object: Object) -> bool:
@@ -252,6 +271,7 @@ func _build_dock() -> void:
 
 	# --- DRAW TO SIZE ---
 	drag.build(root)
+	assist.build(root)
 
 	# --- PLACE ---
 	root.add_child(_header("PLACE  (click to drop, right-click/Esc to stop, Shift = stack)"))
@@ -554,6 +574,10 @@ func _make_instance(item: Dictionary) -> Node3D:
 	if item.kind == "platform":
 		n = PlatformScript.new()
 		n.name = item.name.replace(" ", "")
+	elif item.kind == "prop":
+		n = preload("res://addons/level_kit/nodes/prop.gd").new()
+		n.seed = randi() % 9999
+		n.name = item.name
 	else:
 		var ps: PackedScene = load(item.path)
 		if ps == null:
@@ -565,6 +589,8 @@ func _make_instance(item: Dictionary) -> Node3D:
 
 
 func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
+	if assist and assist.scattering:
+		return assist.scatter_input(camera, event)
 	if drag and drag.active():
 		return drag.input(camera, event)
 	if plus and plus.active():

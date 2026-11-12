@@ -46,6 +46,36 @@ knob around the circle to turn the object. It snaps to **15°** steps; hold
 one Ctrl+Z, and it works inside rotated parents. Toggle it with **Rotation
 arc** under CHECK.
 
+### Edge snap
+Drag a Platform, Floor, Room or Climb Fence near another one and it **clicks
+flush**: side by side, edges lined up, tops level, or stacked on top. The gap
+ruler shows "SNAPPED". Hold **Ctrl** while dragging to place freely. Toggle it
+with **Edge snap** under ASSIST.
+
+### Alt-drag copy
+Hold **Alt** when you start dragging something with the move tool. A copy
+stays at the starting spot and you drag the original away.
+
+### Gap ruler
+With a Platform selected, a line and label point to the nearest platform:
+`12.0m gap · level / to P03: Run jump ✓ / back: …`. It turns **green** when
+the jump is makeable and **red** when it's too far, using Inke's measured
+jumps. It updates live as you drag.
+
+### Scatter brush
+Select a terrain, choose a set (**Forest, Beach, Meadow, Rocky, Pines**),
+press **Paint** and drag. **Shift**+drag erases. Props get random size and
+rotation and sit on the ground. "Keep off paths…" skips cliffs, roads,
+flatten pads and anything near your platforms, so gameplay stays clear. The
+props are `LKProp` nodes: rock, boulder, tree, pine, palm, bush, grass,
+flowers, stump and log, built in code with no assets. Change `seed` to reroll
+one; they're also in PLACE ▸ Scenery.
+
+### Level stats
+**Refresh stats** shows the estimated run time versus the 10-minute target,
+whether quests plus medallions are enough for your CRED gate, counts of
+everything, and a warning when checkpoints are too far apart.
+
 ### Surface snap
 On by default. Move anything with Godot's normal move tool, sideways, and it
 **slides along the ground under it**: over hills, onto roofs and platforms.
