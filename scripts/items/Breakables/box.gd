@@ -41,6 +41,8 @@ var gear_scene = preload("res://scenes/items/Collectibles/six_teeth_gear.tscn")
 var is_broken: bool = false
 var game_manager
 var just_bounced: bool = false  # Prevent multiple bounces in rapid succession
+var _bounce_area: Area3D = null
+var _player_in_zone: CharacterBody3D = null  # player currently overlapping the stomp zone
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -86,6 +88,8 @@ func _physics_process(delta: float):
 	object would."""
 	if is_broken:
 		return
+	if _player_in_zone:
+		_check_stomp()
 	if is_on_floor():
 		var tip_dir = _get_tip_direction()
 		if tip_dir != Vector3.ZERO:
@@ -172,11 +176,15 @@ func _refresh_base_extents():
 		_base_half_extents = Vector2(r * 0.7, r * 0.7)  # Inscribed square-ish
 
 func _collider_half_height() -> float:
+	"""Half height of the crate in WORLD metres (includes node scale - many
+	crates in the levels are scaled 0.45-1.5, and ignoring that put the
+	'top' up to 0.27m off, which rejected real stomps on small crates)."""
+	var sy := global_transform.basis.get_scale().y if is_inside_tree() else scale.y
 	if collision and collision.shape is BoxShape3D:
-		return (collision.shape as BoxShape3D).size.y * 0.5 + collision.position.y
+		return ((collision.shape as BoxShape3D).size.y * 0.5 + collision.position.y) * sy
 	elif collision and collision.shape is CylinderShape3D:
-		return (collision.shape as CylinderShape3D).height * 0.5 + collision.position.y
-	return 0.5
+		return ((collision.shape as CylinderShape3D).height * 0.5 + collision.position.y) * sy
+	return 0.5 * sy
 
 func setup_bounce_detection():
 	"""
@@ -197,73 +205,95 @@ func setup_bounce_detection():
 	bounce_area.monitorable = false
 	
 	add_child(bounce_area)
+	_bounce_area = bounce_area
 	
 	# Create collision shape - a box on top of the crate
 	var bounce_collision = CollisionShape3D.new()
 	var bounce_shape = BoxShape3D.new()
 	
-	# Get the main collision box size
+	# Fit the zone to the REAL collider: its footprint and its actual top,
+	# including the collider's local offset. (Barrels use a cylinder whose
+	# centre sits at y=0.55 - the old "box at origin" math parked the zone
+	# INSIDE the barrel, below its top, so stomps on barrels never fired.)
+	var top_local := 0.5
+	var foot := Vector2(1.0, 1.0)
 	if collision and collision.shape is BoxShape3D:
-		var box_shape = collision.shape as BoxShape3D
-		# Make detection area slightly larger and positioned on top
-		bounce_shape.size = Vector3(
-			box_shape.size.x * 1.2,  # Wider for easier stomping
-			0.4,  # Thin detection zone on top
-			box_shape.size.z * 1.2
-		)
-		# Position on top of the box
-		bounce_collision.position = Vector3(0, box_shape.size.y * 0.5 + 0.2, 0)
-	else:
-		# Default size
-		bounce_shape.size = Vector3(1.2, 0.4, 1.2)
-		bounce_collision.position = Vector3(0, 0.7, 0)
-	
+		var bs := collision.shape as BoxShape3D
+		top_local = collision.position.y + bs.size.y * 0.5
+		foot = Vector2(bs.size.x, bs.size.z)
+	elif collision and collision.shape is CylinderShape3D:
+		var cs := collision.shape as CylinderShape3D
+		top_local = collision.position.y + cs.height * 0.5
+		foot = Vector2(cs.radius * 2.0, cs.radius * 2.0)
+	bounce_shape.size = Vector3(foot.x * 1.2, 0.5, foot.y * 1.2)
+	# Zone straddles the top: a little below it (so a landing that sinks a
+	# hair is still inside) and mostly above it.
+	bounce_collision.position = Vector3(0, top_local + 0.15, 0)
 	bounce_collision.shape = bounce_shape
 	bounce_area.add_child(bounce_collision)
 	
-	# Connect to body_entered signal
+	# Connect to body_entered / exited: while the player stays in the zone we
+	# keep re-checking every physics frame (see _check_stomp). A one-shot
+	# check on ENTER missed stomps whenever the player entered the zone on
+	# the way UP or from the side, then came down onto the top while still
+	# inside it - body_entered never fires a second time.
 	bounce_area.body_entered.connect(_on_bounce_area_body_entered)
+	bounce_area.body_exited.connect(_on_bounce_area_body_exited)
 	
 
 func _on_bounce_area_body_entered(body: Node3D):
-	"""
-	Called when something enters the bounce detection Area3D.
-	This is much more reliable than RigidBody collision detection!
-	"""
-	
-	if is_broken or just_bounced:
+	"""Player entered the stomp zone on top of the crate. Remember them and
+	try a stomp right away; _physics_process keeps trying until they leave."""
+	if is_broken or not body.is_in_group("Player") or not (body is CharacterBody3D):
 		return
-	
-	# Check if it's the player
-	if not body.is_in_group("Player"):
+	_player_in_zone = body as CharacterBody3D
+	_check_stomp()
+
+
+func _on_bounce_area_body_exited(body: Node3D):
+	if body == _player_in_zone:
+		_player_in_zone = null
+
+
+func _check_stomp() -> void:
+	"""Stomp = the player is coming DOWN onto the top. Accepted when:
+	  a) falling (velocity.y < -1), or
+	  b) feet at/above the top with no upward motion - move_and_slide's floor
+	     snap zeroes velocity.y on the landing frame, so soft landings have
+	     vy == 0; position doesn't lie, or
+	  c) standing on this crate (is_on_floor + our body is the floor).
+	A player jumping UP through the zone is ignored until they come down."""
+	var player := _player_in_zone
+	if is_broken or just_bounced or player == null or not is_instance_valid(player):
 		return
-	
-	var player = body as CharacterBody3D
-	if not player:
-		return
-	
-	
-	# Only bounce on a STOMP, not a side-bump. Two accepted cases:
-	#   a) clearly falling (velocity.y < -1)
-	#   b) feet ABOVE the box top with no upward motion - move_and_slide's
-	#      floor snap can zero velocity.y BEFORE this Area3D reports the
-	#      overlap, which used to eat soft landings (barrels "sometimes
-	#      didn't explode when jumped on"). Position doesn't lie.
-	var falling: bool = player.velocity.y < -1.0
 	var top_y: float = global_position.y + _collider_half_height()
-	var from_above: bool = player.global_position.y >= top_y - 0.15 and player.velocity.y <= 0.1
-	if not falling and not from_above:
+	var feet: float = player.global_position.y
+	var falling: bool = player.velocity.y < -1.0
+	var from_above: bool = feet >= top_y - 0.2 and player.velocity.y <= 0.1
+	# Standing ON this crate: a FLOOR contact (normal pointing up) with us,
+	# feet at our top. A side bump is also a slide collision with us, but
+	# its normal is horizontal - that must never count.
+	var standing_on_me := false
+	if player.is_on_floor() and feet >= top_y - 0.25:
+		for i in range(player.get_slide_collision_count()):
+			var col := player.get_slide_collision(i)
+			if col.get_collider() == self and col.get_normal().y > 0.7:
+				standing_on_me = true
+				break
+	# must be over the top, not beside it (side bumps never stomp)
+	if not (falling and feet >= top_y - 0.6) and not from_above and not standing_on_me:
 		return
-	
-	
-	# Apply bounce to player
+	_stomp(player)
+
+
+func _stomp(player: CharacterBody3D) -> void:
 	apply_bounce_to_player(player)
-	
 	# Box reaction - DEFERRED to avoid physics errors
 	if break_on_bounce:
 		call_deferred("take_damage", bounce_damage)
 	else:
 		call_deferred("squash_and_stretch")
+
 
 func apply_bounce_to_player(player: CharacterBody3D):
 	"""
