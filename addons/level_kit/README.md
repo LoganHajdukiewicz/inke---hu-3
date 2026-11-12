@@ -82,9 +82,9 @@ On by default. Move anything with Godot's normal move tool, sideways, and it
 Drag it vertically if you really want it in the air.
 
 ### Quick menu
-Press **Q** in the 3D view: a ring of the 12 most-used items opens at the
+Press **O** in the 3D view: a ring of the 12 most-used items opens at the
 cursor (slab, pillar, ramp, CRED, gear, crate, inkling, checkpoint, grapple
-point, spring floor, sign, health). Click one to drop it there. Q or Esc
+point, spring floor, sign, health). Click one to drop it there. O or Esc
 closes the ring.
 
 ## 1. Place anything with one click

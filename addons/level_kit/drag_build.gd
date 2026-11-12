@@ -13,7 +13,7 @@ extends RefCounted
 ##   with the normal move gizmo, it slides ALONG the ground under it -
 ##   over hills, onto roofs and platforms - instead of floating or sinking.
 ##
-## QUICK MENU: with the 3D view focused press Q - a pie of common items
+## QUICK MENU: with the 3D view focused press O - a pie of common items
 ##   appears at the cursor; click one to drop it right there.
 
 var kit: EditorPlugin
@@ -73,7 +73,7 @@ func build(root: VBoxContainer) -> void:
 	snap.toggled.connect(func(v): surface_snap = v)
 	row.add_child(snap)
 	var hint := Label.new()
-	hint.text = "  Q in the 3D view = quick place menu"
+	hint.text = "  O in the 3D view = quick place menu"
 	hint.add_theme_color_override("font_color", Color(0.7, 0.85, 1))
 	row.add_child(hint)
 	root.add_child(row)

@@ -639,8 +639,8 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 		return drag.input(camera, event)
 	if plus and plus.active():
 		return plus.input(camera, event)
-	# Q = quick place menu at the cursor
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_Q and not event.ctrl_pressed and not event.alt_pressed and _place_item.is_empty() and _brush_mode == "":
+	# O = quick place menu at the cursor (Q is Godot freelook down)
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_O and not event.ctrl_pressed and not event.shift_pressed and not event.alt_pressed and _place_item.is_empty() and _brush_mode == "":
 		if drag.pie_open():
 			drag.close_pie()
 		else:
