@@ -1,0 +1,195 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/environments/checkpoint.tscn" id="1_gxcgd"]
+[ext_resource type="Script" path="res://scripts/environments/checkpoint.gd" id="2_e3dih"]
+[ext_resource type="PackedScene" path="res://scenes/items/Signs/sign.tscn" id="3_hy08u"]
+[ext_resource type="Script" path="res://scripts/items/Signs/sign.gd" id="4_8tqmh"]
+[ext_resource type="Script" path="res://addons/level_kit/nodes/platform.gd" id="5_caxqo"]
+[ext_resource type="PackedScene" path="res://scenes/items/Rails/rail.tscn" id="6_kg41v"]
+[ext_resource type="Script" path="res://scripts/items/Rails/rail.gd" id="7_aw6qy"]
+[ext_resource type="PackedScene" path="res://scenes/items/Breakables/box.tscn" id="8_h33qe"]
+[ext_resource type="Script" path="res://scripts/items/Breakables/box.gd" id="9_jwfte"]
+[ext_resource type="PackedScene" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="10_mfw26"]
+[ext_resource type="Script" path="res://scripts/items/Breakables/explosive_barrel.gd" id="11_rw1q3"]
+[ext_resource type="PackedScene" path="res://scenes/environments/ground_pound_mound.tscn" id="12_w7vak"]
+[ext_resource type="Script" path="res://scripts/environments/ground_pound_mound.gd" id="13_a5ycq"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="14_v486y"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/enemy.gd" id="15_ndgy6"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="16_k6q1u"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/charger_enemy.gd" id="17_ysw67"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="18_d70bx"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/turret_enemy.gd" id="19_hqpsj"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/cred.tscn" id="20_d6v0o"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/cred.gd" id="21_elwls"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/spray_can.tscn" id="22_5xqvw"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/spray_can.gd" id="23_nklc0"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/health_pickup.tscn" id="24_uypiu"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/health_pickup.gd" id="25_6ljr7"]
+
+[sub_resource type="Curve3D" id="Curve3D_sslqw"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1.5, -4, 0, 0, 0, 0, 0, 0, 21, 2, -10, 0, 0, 0, 0, 0, 0, 31, -1, -6),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[node name="Combat_Camp_Junkyard" type="Node3D" unique_id=157769512]
+
+[node name="CP_Junk" type="Node3D" parent="." unique_id=1845429940 groups=["Checkpoint"] instance=ExtResource("1_gxcgd")]
+script = ExtResource("2_e3dih")
+checkpoint_id = "junk"
+
+[node name="S1GN_Junk1" type="StaticBody3D" parent="." unique_id=1120073632 instance=ExtResource("3_hy08u")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, -4, 0, 6)
+script = ExtResource("4_8tqmh")
+
+[node name="RailStart" type="StaticBody3D" parent="." unique_id=1174545886]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 2.8, 0)
+script = ExtResource("5_caxqo")
+size = Vector3(6, 0.6, 6)
+pillar_depth = 3.0
+look = 2
+
+[node name="Step" type="StaticBody3D" parent="." unique_id=1394098777]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.3, 0)
+script = ExtResource("5_caxqo")
+size = Vector3(3, 0.5, 4)
+pillar_depth = 1.5
+look = 2
+
+[node name="CampRail" type="Path3D" parent="." unique_id=1968522640 groups=["Rail"] instance=ExtResource("6_kg41v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 3.8, 0)
+curve = SubResource("Curve3D_sslqw")
+script = ExtResource("7_aw6qy")
+
+[node name="Camp" type="Node3D" parent="." unique_id=722065259]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46, -1.2, 0)
+
+[node name="Arena" type="StaticBody3D" parent="Camp" unique_id=97337555]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 72, 1.1, -2)
+script = ExtResource("5_caxqo")
+size = Vector3(34, 0.4, 30)
+look = 2
+
+[node name="Pile1" type="StaticBody3D" parent="Camp" unique_id=588900587]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 3, -8)
+script = ExtResource("5_caxqo")
+size = Vector3(5, 0.5, 4)
+pillar_depth = 2.0
+look = 2
+
+[node name="Pile2" type="StaticBody3D" parent="Camp" unique_id=586521411]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 4, 6)
+script = ExtResource("5_caxqo")
+size = Vector3(4, 0.5, 6)
+pillar_depth = 3.0
+look = 2
+
+[node name="Crate0" type="CharacterBody3D" parent="Camp" unique_id=1779844061 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 1.8, 2)
+script = ExtResource("9_jwfte")
+
+[node name="Crate1" type="CharacterBody3D" parent="Camp" unique_id=12972962 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, 1.8, 3.4)
+script = ExtResource("9_jwfte")
+
+[node name="Crate2" type="CharacterBody3D" parent="Camp" unique_id=1239012111 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.5, 2.8, 2.7)
+script = ExtResource("9_jwfte")
+
+[node name="Crate3" type="CharacterBody3D" parent="Camp" unique_id=1064867511 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76, 1.8, -10)
+script = ExtResource("9_jwfte")
+
+[node name="Crate4" type="CharacterBody3D" parent="Camp" unique_id=323260228 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77.4, 1.8, -10)
+script = ExtResource("9_jwfte")
+
+[node name="Crate5" type="CharacterBody3D" parent="Camp" unique_id=485159599 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84, 1.8, 0)
+script = ExtResource("9_jwfte")
+
+[node name="Crate6" type="CharacterBody3D" parent="Camp" unique_id=1331009278 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85, 1.8, 1.6)
+script = ExtResource("9_jwfte")
+
+[node name="Crate7" type="CharacterBody3D" parent="Camp" unique_id=99154148 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 1.8, 10)
+script = ExtResource("9_jwfte")
+
+[node name="Crate8" type="CharacterBody3D" parent="Camp" unique_id=1221148694 groups=["Breakables"] instance=ExtResource("8_h33qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 3.8, -8)
+script = ExtResource("9_jwfte")
+
+[node name="Barrel1" type="CharacterBody3D" parent="Camp" unique_id=668409502 groups=["Breakables", "Explosive"] instance=ExtResource("10_mfw26")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 1.9, 4)
+script = ExtResource("11_rw1q3")
+max_health = 1
+current_health = 1
+drops_gears = false
+
+[node name="Barrel2" type="CharacterBody3D" parent="Camp" unique_id=590921065 groups=["Breakables", "Explosive"] instance=ExtResource("10_mfw26")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 1.9, -6)
+script = ExtResource("11_rw1q3")
+max_health = 1
+current_health = 1
+drops_gears = false
+
+[node name="Mound" type="StaticBody3D" parent="Camp" unique_id=817885059 groups=["GroundPoundMound"] instance=ExtResource("12_w7vak")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 1.3, 10)
+script = ExtResource("13_a5ycq")
+
+[node name="Enemies" type="Node3D" parent="Camp" unique_id=973298535]
+
+[node name="Inkling" type="CharacterBody3D" parent="Camp/Enemies" unique_id=1436873857 groups=["Enemy"] instance=ExtResource("14_v486y")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 68, 1.6, -4)
+script = ExtResource("15_ndgy6")
+
+[node name="Inkling2" type="CharacterBody3D" parent="Camp/Enemies" unique_id=110062676 groups=["Enemy"] instance=ExtResource("14_v486y")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 74, 1.6, 0)
+script = ExtResource("15_ndgy6")
+
+[node name="Inkling3" type="CharacterBody3D" parent="Camp/Enemies" unique_id=255759306 groups=["Enemy"] instance=ExtResource("14_v486y")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 78, 1.6, -4)
+script = ExtResource("15_ndgy6")
+
+[node name="Inkling4" type="CharacterBody3D" parent="Camp/Enemies" unique_id=1635167768 groups=["Enemy"] instance=ExtResource("14_v486y")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 70, 1.6, 6)
+script = ExtResource("15_ndgy6")
+
+[node name="Inkling5" type="CharacterBody3D" parent="Camp/Enemies" unique_id=911726400 groups=["Enemy"] instance=ExtResource("14_v486y")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 82, 1.6, 4)
+script = ExtResource("15_ndgy6")
+
+[node name="Charger" type="CharacterBody3D" parent="Camp/Enemies" unique_id=1918426547 groups=["Enemy"] instance=ExtResource("16_k6q1u")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 84, 1.6, -2)
+script = ExtResource("17_ysw67")
+max_health = 4
+current_health = 4
+
+[node name="Turret" type="CharacterBody3D" parent="Camp/Enemies" unique_id=184422637 groups=["Enemy"] instance=ExtResource("18_d70bx")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 80, 4.5, 6)
+script = ExtResource("19_hqpsj")
+max_health = 4
+current_health = 4
+
+[node name="S1GN_Junk2" type="StaticBody3D" parent="." unique_id=910522084 instance=ExtResource("3_hy08u")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 14, 0.099999905, 10)
+script = ExtResource("4_8tqmh")
+
+[node name="S1GN_Junk3" type="StaticBody3D" parent="." unique_id=1651906752 instance=ExtResource("3_hy08u")]
+transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 12, 0.099999905, -14)
+script = ExtResource("4_8tqmh")
+
+[node name="BonusCRED_Junk" type="Area3D" parent="." unique_id=82336661 groups=["Collectibles"] instance=ExtResource("20_d6v0o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 4.8, 6)
+script = ExtResource("21_elwls")
+cred_value = 5
+
+[node name="SprayCan_Junk" type="Area3D" parent="." unique_id=877146233 groups=["Collectible", "SprayCan"] instance=ExtResource("22_5xqvw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 1.3, -14)
+script = ExtResource("23_nklc0")
+
+[node name="Health_Junk" type="Area3D" parent="." unique_id=1453904604 instance=ExtResource("24_uypiu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1, -6)
+script = ExtResource("25_6ljr7")

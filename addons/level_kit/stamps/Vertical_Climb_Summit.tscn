@@ -1,0 +1,167 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/environments/checkpoint.tscn" id="1_gofsd"]
+[ext_resource type="Script" path="res://scripts/environments/checkpoint.gd" id="2_xy24e"]
+[ext_resource type="PackedScene" path="res://scenes/items/Signs/sign.tscn" id="3_0v8cw"]
+[ext_resource type="Script" path="res://scripts/items/Signs/sign.gd" id="4_p64vg"]
+[ext_resource type="Script" path="res://addons/level_kit/nodes/platform.gd" id="5_k4pgm"]
+[ext_resource type="PackedScene" path="res://scenes/environments/climbable_wall.tscn" id="6_0ex5l"]
+[ext_resource type="Script" path="res://scripts/environments/climbable_wall.gd" id="7_dyldx"]
+[ext_resource type="PackedScene" path="res://scenes/environments/ladder.tscn" id="8_dtiq6"]
+[ext_resource type="Script" path="res://scripts/environments/ladder.gd" id="9_4p56d"]
+[ext_resource type="PackedScene" path="res://scenes/environments/swing_bar.tscn" id="10_wxroc"]
+[ext_resource type="Script" path="res://scripts/environments/swing_bar.gd" id="11_1ixxe"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/health_pickup.tscn" id="12_4d4dq"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/health_pickup.gd" id="13_xbkpa"]
+[ext_resource type="PackedScene" path="res://scenes/environments/grapple_point.tscn" id="14_0n45j"]
+[ext_resource type="Script" path="res://scripts/environments/grapple_point.gd" id="15_nj2hu"]
+[ext_resource type="PackedScene" path="res://scenes/quests/location_flag.tscn" id="16_vhjrn"]
+[ext_resource type="Script" path="res://scripts/quests/location_flag.gd" id="17_rnwry"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/cred.tscn" id="18_siw5d"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/cred.gd" id="19_qpify"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/spray_can.tscn" id="20_upll3"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/spray_can.gd" id="21_b6ne1"]
+[ext_resource type="PackedScene" path="res://scenes/items/Rails/rail.tscn" id="22_ims7t"]
+[ext_resource type="Script" path="res://scripts/items/Rails/rail.gd" id="23_xtwgi"]
+
+[sub_resource type="Curve3D" id="Curve3D_ot3y1"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, -15, 32, 0, 0, 0, 0, 0, 0, 18, -31, 72, 0, 0, 0, 0, 0, 0, 10, -42, 110),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[node name="Vertical_Climb_Summit" type="Node3D" unique_id=2032030950]
+
+[node name="CP_SummitBase" type="Node3D" parent="." unique_id=1900494287 groups=["Checkpoint"] instance=ExtResource("1_gofsd")]
+script = ExtResource("2_xy24e")
+checkpoint_id = "summit_base"
+
+[node name="S1GN_Summit1" type="StaticBody3D" parent="." unique_id=1120073632 instance=ExtResource("3_0v8cw")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 6, 0, 4)
+script = ExtResource("4_p64vg")
+
+[node name="Cliff1" type="StaticBody3D" parent="." unique_id=1986451778]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.8, -18)
+script = ExtResource("5_k4pgm")
+size = Vector3(16, 0.6, 12)
+pillar_depth = 9.0
+
+[node name="Fence1" type="StaticBody3D" parent="." unique_id=1857250356 groups=["ClimbableWall"] instance=ExtResource("6_0ex5l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.20000005, -11.700001)
+script = ExtResource("7_dyldx")
+wall_size = Vector3(8, 8.5, 0.5)
+
+[node name="Ladder1" type="StaticBody3D" parent="." unique_id=1500517684 groups=["ClimbableWall", "Ladder"] instance=ExtResource("8_dtiq6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, -0.20000005, -11.799999)
+script = ExtResource("9_4p56d")
+wall_size = Vector3(1.2, 6, 0.15)
+
+[node name="S1GN_Summit2" type="StaticBody3D" parent="." unique_id=1352079995 instance=ExtResource("3_0v8cw")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -6, 8, -20)
+script = ExtResource("4_p64vg")
+
+[node name="Swing1" type="Node3D" parent="." unique_id=1281161137 instance=ExtResource("10_wxroc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.8, -30)
+script = ExtResource("11_1ixxe")
+bar_length = 4.0
+show_posts = false
+
+[node name="Swing2" type="Node3D" parent="." unique_id=257835669 instance=ExtResource("10_wxroc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.8, -42)
+script = ExtResource("11_1ixxe")
+bar_length = 4.0
+show_posts = false
+
+[node name="Ledge2" type="StaticBody3D" parent="." unique_id=1918920272]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.8, -54)
+script = ExtResource("5_k4pgm")
+size = Vector3(12, 0.6, 10)
+pillar_depth = 12.0
+
+[node name="CP_Ledge2" type="Node3D" parent="." unique_id=25244042 groups=["Checkpoint"] instance=ExtResource("1_gofsd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 11, -54)
+script = ExtResource("2_xy24e")
+checkpoint_id = "summit_mid"
+
+[node name="Health_Summit" type="Area3D" parent="." unique_id=206246570 instance=ExtResource("12_4d4dq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 12, -56)
+script = ExtResource("13_xbkpa")
+
+[node name="S1GN_Summit3" type="StaticBody3D" parent="." unique_id=1050941529 instance=ExtResource("3_0v8cw")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 11, -56)
+script = ExtResource("4_p64vg")
+
+[node name="ChimneyL" type="StaticBody3D" parent="." unique_id=1288230148]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 25.8, -64)
+script = ExtResource("5_k4pgm")
+size = Vector3(1, 0.6, 8)
+pillar_depth = 15.0
+
+[node name="ChimneyR" type="StaticBody3D" parent="." unique_id=590660905]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 25.8, -64)
+script = ExtResource("5_k4pgm")
+size = Vector3(1, 0.6, 8)
+pillar_depth = 15.0
+
+[node name="Fence2" type="StaticBody3D" parent="." unique_id=231276853 groups=["ClimbableWall"] instance=ExtResource("6_0ex5l")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 9, 10.8, -62)
+script = ExtResource("7_dyldx")
+wall_size = Vector3(8, 15.5, 0.5)
+
+[node name="Cliff3" type="StaticBody3D" parent="." unique_id=1920702012]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 25.8, -76)
+script = ExtResource("5_k4pgm")
+size = Vector3(18, 0.6, 14)
+pillar_depth = 27.0
+
+[node name="S1GN_Summit4" type="StaticBody3D" parent="." unique_id=279775464 instance=ExtResource("3_0v8cw")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 26, -72)
+script = ExtResource("4_p64vg")
+
+[node name="Grapple1" type="Node3D" parent="." unique_id=297201783 groups=["GrapplePoint"] instance=ExtResource("14_0n45j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32.8, -90)
+script = ExtResource("15_nj2hu")
+
+[node name="Grapple2" type="Node3D" parent="." unique_id=1019885022 groups=["GrapplePoint"] instance=ExtResource("14_0n45j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 38.8, -100)
+script = ExtResource("15_nj2hu")
+
+[node name="Grapple3" type="Node3D" parent="." unique_id=2022249726 groups=["GrapplePoint"] instance=ExtResource("14_0n45j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 44.8, -110)
+script = ExtResource("15_nj2hu")
+
+[node name="Peak" type="StaticBody3D" parent="." unique_id=582931333]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 42.8, -120)
+script = ExtResource("5_k4pgm")
+shape = 1
+size = Vector3(10, 0.6, 10)
+pillar_depth = 44.0
+look = 5
+
+[node name="SummitFlag" type="Area3D" parent="." unique_id=935636402 instance=ExtResource("16_vhjrn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 44.3, -120)
+collision_layer = 0
+script = ExtResource("17_rnwry")
+flag_id = "demo_summit_top"
+size = Vector3(8, 4, 8)
+visible_in_game = true
+discovery_text = "THE SUMMIT"
+
+[node name="S1GN_SummitTop" type="StaticBody3D" parent="." unique_id=518583275 instance=ExtResource("3_0v8cw")]
+transform = Transform3D(-0.9396926, 0, -0.34202015, 0, 1, 0, 0.34202015, 0, -0.9396926, 3, 43, -122)
+script = ExtResource("4_p64vg")
+
+[node name="BonusCRED_Peak" type="Area3D" parent="." unique_id=82336661 groups=["Collectibles"] instance=ExtResource("18_siw5d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 44.8, -123)
+script = ExtResource("19_qpify")
+cred_value = 5
+
+[node name="SprayCan_Summit" type="Area3D" parent="." unique_id=18855095 groups=["Collectible", "SprayCan"] instance=ExtResource("20_upll3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 40.3, -100)
+script = ExtResource("21_b6ne1")
+
+[node name="SummitRail" type="Path3D" parent="." unique_id=653885441 groups=["Rail"] instance=ExtResource("22_ims7t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 43.8, -116)
+curve = SubResource("Curve3D_ot3y1")
+script = ExtResource("23_xtwgi")

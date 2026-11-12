@@ -24,6 +24,7 @@ const Gizmo = preload("res://addons/level_kit/platform_gizmo.gd")
 const JumpArcs = preload("res://addons/level_kit/jump_arcs.gd")
 const Gen = preload("res://addons/level_kit/generators.gd")
 const PlatformScript = preload("res://addons/level_kit/nodes/platform.gd")
+const KitPlus = preload("res://addons/level_kit/kit_plus.gd")
 
 # Settings mirrored from the dock
 var grid_snap: float = 0.5
@@ -34,6 +35,8 @@ var random_yaw: bool = false
 
 var _gizmo: Gizmo
 var _dock: Control
+var _dock_plus: Control
+var plus
 var _ui := {}
 
 # Placement state
@@ -120,6 +123,19 @@ func _enter_tree() -> void:
 	add_custom_type("Platform", "StaticBody3D", PlatformScript, null)
 	_build_dock()
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock)
+	plus = KitPlus.new()
+	plus.kit = self
+	_dock_plus = VBoxContainer.new()
+	_dock_plus.name = "Level Kit+"
+	var sc := ScrollContainer.new()
+	sc.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_dock_plus.add_child(sc)
+	var inner := VBoxContainer.new()
+	inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sc.add_child(inner)
+	plus.build(inner)
+	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock_plus)
 	if not ProjectSettings.has_setting("autoload/LevelKitPlayHere"):
 		add_autoload_singleton("LevelKitPlayHere", "res://addons/level_kit/runtime/play_here.gd")
 	set_input_event_forwarding_always_enabled()
@@ -133,6 +149,11 @@ func _exit_tree() -> void:
 	if _dock:
 		remove_control_from_docks(_dock)
 		_dock.queue_free()
+	if plus:
+		plus.cancel()
+	if _dock_plus:
+		remove_control_from_docks(_dock_plus)
+		_dock_plus.queue_free()
 
 
 func _handles(object: Object) -> bool:
@@ -448,6 +469,8 @@ func _terrain_normal(t: Terrain, p: Vector3) -> Vector3:
 
 func _start_place(item: Dictionary, button: Button) -> void:
 	_end_brush()
+	if plus:
+		plus.cancel()
 	if _place_item == item:
 		_cancel_place()
 		return
@@ -490,6 +513,8 @@ func _make_instance(item: Dictionary) -> Node3D:
 
 
 func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
+	if plus and plus.active():
+		return plus.input(camera, event)
 	# Terrain brushes
 	if _brush_mode != "":
 		return _brush_input(camera, event)

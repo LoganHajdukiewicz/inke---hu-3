@@ -1,0 +1,219 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/cred_gate.gd" id="1_a1kke"]
+[ext_resource type="PackedScene" path="res://scenes/items/Signs/sign.tscn" id="2_stm3g"]
+[ext_resource type="Script" path="res://scripts/items/Signs/sign.gd" id="3_n3t5q"]
+[ext_resource type="PackedScene" path="res://scenes/environments/checkpoint.tscn" id="4_hueer"]
+[ext_resource type="Script" path="res://scripts/environments/checkpoint.gd" id="5_rltj0"]
+[ext_resource type="Script" path="res://addons/level_kit/nodes/platform.gd" id="6_eil86"]
+[ext_resource type="PackedScene" path="res://scenes/environments/floor.tscn" id="7_ifwmi"]
+[ext_resource type="Script" path="res://scripts/environments/floor.gd" id="8_ahsr0"]
+[ext_resource type="PackedScene" path="res://scenes/items/Rails/rail.tscn" id="9_6mdtd"]
+[ext_resource type="Script" path="res://scripts/items/Rails/rail.gd" id="10_2gf5k"]
+[ext_resource type="PackedScene" path="res://scenes/environments/dialogue_trigger.tscn" id="11_w3ai0"]
+[ext_resource type="Script" path="res://scripts/environments/dialogue_trigger.gd" id="12_obav2"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="13_55b3t"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/charger_enemy.gd" id="14_c8j0m"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="15_7h75r"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/enemy.gd" id="16_8iwr5"]
+[ext_resource type="PackedScene" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="17_i80ys"]
+[ext_resource type="Script" path="res://scripts/items/Breakables/explosive_barrel.gd" id="18_wgvvo"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/health_pickup.tscn" id="19_6hgxt"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/health_pickup.gd" id="20_g2hjt"]
+[ext_resource type="PackedScene" path="res://scenes/environments/scene_transitioner.tscn" id="21_0vdgd"]
+[ext_resource type="Script" path="res://scripts/environments/scene_transitioner.gd" id="22_7hbec"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="23_5n143"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Friendly NPCs/quest_giver.gd" id="24_bdjpj"]
+
+[sub_resource type="Curve3D" id="Curve3D_0hj0k"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2.5, 18, 0, 0, 0, 0, 0, 0, 4, -6.5, 36, 0, 0, 0, 0, 0, 0, 0, -9.5, 50),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[node name="Boss_Arena_Islet" type="Node3D" unique_id=2003430214]
+
+[node name="CredGate" type="StaticBody3D" parent="." unique_id=176358520]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, -6)
+script = ExtResource("1_a1kke")
+size = Vector3(16, 6, 0.6)
+open_dialogue = "GateOpen"
+
+[node name="S1GN_Gate" type="StaticBody3D" parent="." unique_id=1120073632 instance=ExtResource("2_stm3g")]
+transform = Transform3D(-0.9396926, 0, 0.3420202, 0, 1, 0, -0.3420202, 0, -0.9396926, -9, 0.32358444, -10)
+script = ExtResource("3_n3t5q")
+
+[node name="CP_Gate" type="Node3D" parent="." unique_id=1874165480 groups=["Checkpoint"] instance=ExtResource("4_hueer")]
+script = ExtResource("5_rltj0")
+checkpoint_id = "gate"
+
+[node name="GateWallL" type="StaticBody3D" parent="." unique_id=623026345]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 5.8, -6)
+script = ExtResource("6_eil86")
+size = Vector3(12, 0.5, 1.2)
+pillar_depth = 8.0
+
+[node name="GateWallR" type="StaticBody3D" parent="." unique_id=704456932]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 5.8, -6)
+script = ExtResource("6_eil86")
+size = Vector3(12, 0.5, 1.2)
+pillar_depth = 8.0
+
+[node name="BossSpring" type="StaticBody3D" parent="." unique_id=1668996950 instance=ExtResource("7_ifwmi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.20000005, 12)
+script = ExtResource("8_ahsr0")
+floor_type = 1
+floor_size = Vector3(6, 0.5, 6)
+spring_force = 26.0
+
+[node name="Launch" type="StaticBody3D" parent="." unique_id=666951433]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.8, 24)
+script = ExtResource("6_eil86")
+size = Vector3(8, 0.6, 6)
+pillar_depth = 2.0
+
+[node name="BossRail" type="Path3D" parent="." unique_id=253864160 groups=["Rail"] instance=ExtResource("9_6mdtd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14.3, 28)
+curve = SubResource("Curve3D_0hj0k")
+script = ExtResource("10_2gf5k")
+
+[node name="Arena" type="Node3D" parent="." unique_id=1171908210]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.2, -84)
+
+[node name="Islet" type="StaticBody3D" parent="Arena" unique_id=1255311828]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 180)
+script = ExtResource("6_eil86")
+shape = 1
+size = Vector3(40, 3, 40)
+round_sides = 40
+pillar_depth = 8.0
+color = Color(0.75, 0.9, 0.6, 1)
+
+[node name="Pillar0" type="StaticBody3D" parent="Arena" unique_id=1289668456]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485281, 7, 188.48528)
+script = ExtResource("6_eil86")
+shape = 1
+size = Vector3(3, 0.5, 3)
+pillar_depth = 4.0
+
+[node name="Pillar1" type="StaticBody3D" parent="Arena" unique_id=1022422373]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.485281, 7, 188.48528)
+script = ExtResource("6_eil86")
+shape = 1
+size = Vector3(3, 0.5, 3)
+pillar_depth = 4.0
+
+[node name="Pillar2" type="StaticBody3D" parent="Arena" unique_id=66898190]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.485281, 7, 171.51472)
+script = ExtResource("6_eil86")
+shape = 1
+size = Vector3(3, 0.5, 3)
+pillar_depth = 4.0
+
+[node name="Pillar3" type="StaticBody3D" parent="Arena" unique_id=1359396101]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485281, 7, 171.51472)
+script = ExtResource("6_eil86")
+shape = 1
+size = Vector3(3, 0.5, 3)
+pillar_depth = 4.0
+
+[node name="CP_Arena" type="Node3D" parent="Arena" unique_id=658331460 groups=["Checkpoint"] instance=ExtResource("4_hueer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 166)
+script = ExtResource("5_rltj0")
+checkpoint_id = "arena"
+
+[node name="BossIntro" type="Area3D" parent="Arena" unique_id=2047996592 instance=ExtResource("11_w3ai0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 168)
+collision_layer = 0
+script = ExtResource("12_obav2")
+dialogue_file = "BossIntro"
+box_size = Vector3(30, 6, 3)
+show_prompt = false
+trigger_once = true
+auto_start = true
+
+[node name="SludgeKing" type="CharacterBody3D" parent="Arena" unique_id=1962142088 groups=["Enemy"] instance=ExtResource("13_55b3t")]
+transform = Transform3D(-2.2, 0, -1.923301e-07, 0, 2.2, 0, 1.923301e-07, 0, -2.2, 0, 3.6, 186)
+script = ExtResource("14_c8j0m")
+charge_damage = 1
+enemy_id = "sludge_king"
+max_health = 12
+current_health = 12
+is_boss = true
+boss_name = "THE SLUDGE KING"
+boss_bar_color = Color(0.45, 0.85, 0.2, 1)
+detection_range = 40.0
+
+[node name="Sludgeling" type="CharacterBody3D" parent="Arena" unique_id=1436873857 groups=["Enemy"] instance=ExtResource("15_7h75r")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -8, 3.6, 184)
+script = ExtResource("16_8iwr5")
+
+[node name="Sludgeling2" type="CharacterBody3D" parent="Arena" unique_id=1202394099 groups=["Enemy"] instance=ExtResource("15_7h75r")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 8, 3.6, 184)
+script = ExtResource("16_8iwr5")
+
+[node name="Sludgeling3" type="CharacterBody3D" parent="Arena" unique_id=1639128810 groups=["Enemy"] instance=ExtResource("15_7h75r")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 3.6, 194)
+script = ExtResource("16_8iwr5")
+
+[node name="Barrel" type="CharacterBody3D" parent="Arena" unique_id=1996280404 groups=["Breakables", "Explosive"] instance=ExtResource("17_i80ys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 3.7, 176)
+script = ExtResource("18_wgvvo")
+max_health = 1
+current_health = 1
+drops_gears = false
+
+[node name="Barrel2" type="CharacterBody3D" parent="Arena" unique_id=210888694 groups=["Breakables", "Explosive"] instance=ExtResource("17_i80ys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 3.7, 176)
+script = ExtResource("18_wgvvo")
+max_health = 1
+current_health = 1
+drops_gears = false
+
+[node name="Barrel3" type="CharacterBody3D" parent="Arena" unique_id=585327333 groups=["Breakables", "Explosive"] instance=ExtResource("17_i80ys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, 196)
+script = ExtResource("18_wgvvo")
+max_health = 1
+current_health = 1
+drops_gears = false
+
+[node name="Health_Arena1" type="Area3D" parent="Arena" unique_id=221513834 instance=ExtResource("19_6hgxt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 4.2, 168)
+script = ExtResource("20_g2hjt")
+
+[node name="Health_Arena2" type="Area3D" parent="Arena" unique_id=588613606 instance=ExtResource("19_6hgxt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 4.2, 168)
+script = ExtResource("20_g2hjt")
+
+[node name="WinTalk" type="Area3D" parent="Arena" unique_id=1990107428 instance=ExtResource("11_w3ai0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 200)
+collision_layer = 0
+script = ExtResource("12_obav2")
+dialogue_file = "Win"
+box_size = Vector3(6, 6, 6)
+show_prompt = false
+trigger_once = true
+auto_start = true
+
+[node name="ToYouWin" type="Area3D" parent="Arena" unique_id=1213278150 instance=ExtResource("21_0vdgd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 206)
+script = ExtResource("22_7hbec")
+target_scene = "res://scenes/levels/youwinyay.tscn"
+
+[node name="VictoryStep" type="StaticBody3D" parent="Arena" unique_id=1120316488]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 202)
+script = ExtResource("6_eil86")
+size = Vector3(8, 0.5, 8)
+look = 6
+
+[node name="QG_Warden" type="CharacterBody3D" parent="." unique_id=887324274 instance=ExtResource("23_5n143")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 9, 0.099999905, 2)
+collision_layer = 4
+script = ExtResource("24_bdjpj")
+npc_name = "Warden"
+cred_minimum = 45
+body_color = Color(0.55, 0.7, 0.3, 1)
+small_talk = Array[String](["So the townsfolk vouch for you now.", "The Sludge King's been flooding this beach with sludge for weeks."])
+quest_ask = "Go knock him off his throne. Spring pad, then the rail."
+quest_file = "demo_boss.tres"

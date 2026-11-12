@@ -1,0 +1,232 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="1_kw0nn"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/gears.gd" id="2_luk7o"]
+[ext_resource type="PackedScene" path="res://scenes/environments/checkpoint.tscn" id="3_nn6hw"]
+[ext_resource type="Script" path="res://scripts/environments/checkpoint.gd" id="4_v8g0p"]
+[ext_resource type="PackedScene" path="res://scenes/items/Signs/sign.tscn" id="5_yg56t"]
+[ext_resource type="Script" path="res://scripts/items/Signs/sign.gd" id="6_tqqvy"]
+[ext_resource type="Script" path="res://addons/level_kit/nodes/platform.gd" id="7_2rado"]
+[ext_resource type="PackedScene" path="res://scenes/environments/floor.tscn" id="8_624j5"]
+[ext_resource type="Script" path="res://scripts/environments/floor.gd" id="9_khgmm"]
+[ext_resource type="PackedScene" path="res://scenes/environments/dialogue_trigger.tscn" id="10_eap45"]
+[ext_resource type="Script" path="res://scripts/environments/dialogue_trigger.gd" id="11_nty5k"]
+[ext_resource type="PackedScene" path="res://scenes/items/Rails/rail.tscn" id="12_epwqa"]
+[ext_resource type="Script" path="res://scripts/items/Rails/rail.gd" id="13_idqdv"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/cred.tscn" id="14_kxuo7"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/cred.gd" id="15_4niux"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/spray_can.tscn" id="16_sl2yf"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/spray_can.gd" id="17_1yfuw"]
+
+[sub_resource type="Curve3D" id="Curve3D_4q8dp"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, -3.5, 6, 0, 0, 0, 0, 0, 0, 48, -7.5, 4, 0, 0, 0, 0, 0, 0, 78, -9, -12),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
+
+[node name="Floor_Gauntlet_Shipwreck" type="Node3D" unique_id=325563330]
+
+[node name="Gears" type="Node3D" parent="." unique_id=1053644388]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, -1.2, 0)
+
+[node name="Gear1" type="Area3D" parent="Gears" unique_id=1523433819 groups=["Gear"] instance=ExtResource("1_kw0nn")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -88, 11.2, 0)
+script = ExtResource("2_luk7o")
+
+[node name="Gear2" type="Area3D" parent="Gears" unique_id=1244044748 groups=["Gear"] instance=ExtResource("1_kw0nn")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -128, 11.2, 3)
+script = ExtResource("2_luk7o")
+
+[node name="Gear3" type="Area3D" parent="Gears" unique_id=9027665 groups=["Gear"] instance=ExtResource("1_kw0nn")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -152, 11.5, 0)
+script = ExtResource("2_luk7o")
+
+[node name="Gear4" type="Area3D" parent="Gears" unique_id=1069429214 groups=["Gear"] instance=ExtResource("1_kw0nn")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -174, 11.5, 22)
+script = ExtResource("2_luk7o")
+
+[node name="Gear5" type="Area3D" parent="Gears" unique_id=146504797 groups=["Gear"] instance=ExtResource("1_kw0nn")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -158, 11.5, 58)
+script = ExtResource("2_luk7o")
+
+[node name="Gear6" type="Area3D" parent="Gears" unique_id=258331066 groups=["Gear"] instance=ExtResource("1_kw0nn")]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -158, 11.2, 72)
+script = ExtResource("2_luk7o")
+
+[node name="CP_Wreck" type="Node3D" parent="." unique_id=1185054967 groups=["Checkpoint"] instance=ExtResource("3_nn6hw")]
+script = ExtResource("4_v8g0p")
+checkpoint_id = "wreck"
+
+[node name="S1GN_Wreck1" type="StaticBody3D" parent="." unique_id=1120073632 instance=ExtResource("5_yg56t")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -4, 0, -6)
+script = ExtResource("6_tqqvy")
+
+[node name="Dock" type="StaticBody3D" parent="." unique_id=435461191]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, -0.20000005, 0)
+script = ExtResource("7_2rado")
+size = Vector3(14, 0.5, 8)
+pillar_depth = 4.0
+look = 1
+
+[node name="Spring1" type="StaticBody3D" parent="." unique_id=348963340 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, -0.20000005, 0)
+script = ExtResource("9_khgmm")
+floor_type = 1
+floor_size = Vector3(5, 0.5, 5)
+
+[node name="Bow" type="StaticBody3D" parent="." unique_id=991395815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 8.8, 0)
+script = ExtResource("7_2rado")
+size = Vector3(12, 0.6, 12)
+pillar_depth = 12.0
+look = 1
+
+[node name="S1GN_Wreck2" type="StaticBody3D" parent="." unique_id=411350030 instance=ExtResource("5_yg56t")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -44, 9, 4)
+script = ExtResource("6_tqqvy")
+
+[node name="MovingDeck" type="StaticBody3D" parent="." unique_id=1203247357 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50, 8.8, 0)
+script = ExtResource("9_khgmm")
+floor_type = 4
+floor_size = Vector3(7, 0.5, 7)
+movement_axis = Vector3(-20, 0, 0)
+movement_duration = 4.0
+
+[node name="MidDeck" type="StaticBody3D" parent="." unique_id=556728383]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -80, 8.8, 0)
+script = ExtResource("7_2rado")
+size = Vector3(10, 0.6, 10)
+pillar_depth = 12.0
+look = 1
+
+[node name="Rotten0" type="StaticBody3D" parent="." unique_id=1139757904 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -90, 8.8, 0)
+script = ExtResource("9_khgmm")
+floor_type = 2
+floor_size = Vector3(6, 0.5, 5)
+fall_duration = 2.0
+respawn_delay = 2.5
+
+[node name="Rotten1" type="StaticBody3D" parent="." unique_id=183071257 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97, 8.8, 0)
+script = ExtResource("9_khgmm")
+floor_type = 2
+floor_size = Vector3(6, 0.5, 5)
+fall_duration = 2.0
+respawn_delay = 2.5
+
+[node name="Rotten2" type="StaticBody3D" parent="." unique_id=1015422473 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -104, 8.8, 0)
+script = ExtResource("9_khgmm")
+floor_type = 2
+floor_size = Vector3(6, 0.5, 5)
+fall_duration = 2.0
+respawn_delay = 2.5
+
+[node name="Rotten3" type="StaticBody3D" parent="." unique_id=1487291492 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -111, 8.8, 0)
+script = ExtResource("9_khgmm")
+floor_type = 2
+floor_size = Vector3(6, 0.5, 5)
+fall_duration = 2.0
+respawn_delay = 2.5
+
+[node name="FallTroll" type="Area3D" parent="." unique_id=879101443 instance=ExtResource("10_eap45")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -91, 10.3, 0)
+collision_layer = 0
+script = ExtResource("11_nty5k")
+dialogue_file = "WreckFall"
+box_size = Vector3(8, 4, 1)
+show_prompt = false
+trigger_once = true
+auto_start = true
+dynamic_camera = false
+
+[node name="Stern" type="StaticBody3D" parent="." unique_id=702867391]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -122, 8.8, 0)
+script = ExtResource("7_2rado")
+size = Vector3(12, 0.6, 14)
+pillar_depth = 12.0
+look = 1
+
+[node name="CP_Stern" type="Node3D" parent="." unique_id=2113017347 groups=["Checkpoint"] instance=ExtResource("3_nn6hw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -122, 9, 4)
+script = ExtResource("4_v8g0p")
+checkpoint_id = "stern"
+
+[node name="S1GN_Wreck3" type="StaticBody3D" parent="." unique_id=163401207 instance=ExtResource("5_yg56t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -118, 9, 6)
+script = ExtResource("6_tqqvy")
+
+[node name="SpinWheel" type="StaticBody3D" parent="." unique_id=2051380613 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -122, 8.8, 22)
+script = ExtResource("9_khgmm")
+floor_type = 3
+floor_size = Vector3(12, 0.5, 12)
+spin_speed = 45.0
+
+[node name="Ice0" type="StaticBody3D" parent="." unique_id=1308977124 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 8.8, 34)
+script = ExtResource("9_khgmm")
+floor_type = 6
+floor_size = Vector3(8, 0.5, 12)
+
+[node name="Sludge0" type="StaticBody3D" parent="." unique_id=52429549 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 5.8, 34)
+script = ExtResource("9_khgmm")
+floor_type = 5
+floor_size = Vector3(20, 0.5, 12)
+
+[node name="Ice1" type="StaticBody3D" parent="." unique_id=798249484 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 8.8, 46)
+script = ExtResource("9_khgmm")
+floor_type = 6
+floor_size = Vector3(6, 0.5, 12)
+
+[node name="Sludge1" type="StaticBody3D" parent="." unique_id=1036424794 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 5.8, 46)
+script = ExtResource("9_khgmm")
+floor_type = 5
+floor_size = Vector3(20, 0.5, 12)
+
+[node name="Ice2" type="StaticBody3D" parent="." unique_id=2003429726 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 8.8, 58)
+script = ExtResource("9_khgmm")
+floor_type = 6
+floor_size = Vector3(4, 0.5, 12)
+
+[node name="Sludge2" type="StaticBody3D" parent="." unique_id=713822509 instance=ExtResource("8_624j5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 5.8, 58)
+script = ExtResource("9_khgmm")
+floor_type = 5
+floor_size = Vector3(20, 0.5, 12)
+
+[node name="Hatch" type="StaticBody3D" parent="." unique_id=1189899690]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 8.8, 72)
+script = ExtResource("7_2rado")
+size = Vector3(10, 0.6, 10)
+pillar_depth = 12.0
+look = 1
+
+[node name="ReturnRail" type="Path3D" parent="." unique_id=2136923428 groups=["Rail"] instance=ExtResource("12_epwqa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -110, 10.3, 78)
+curve = SubResource("Curve3D_4q8dp")
+script = ExtResource("13_idqdv")
+
+[node name="BonusCRED_Wreck" type="Area3D" parent="." unique_id=82336661 groups=["Collectibles"] instance=ExtResource("14_kxuo7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 13.8, -8)
+script = ExtResource("15_4niux")
+cred_value = 5
+
+[node name="SprayCan_Wreck" type="Area3D" parent="." unique_id=1748989533 groups=["Collectible", "SprayCan"] instance=ExtResource("16_sl2yf")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -122, 10, 34)
+script = ExtResource("17_1yfuw")
+
+[connection signal="body_entered" from="Gears/Gear1" to="Gears/Gear1" method="_on_body_entered"]
+[connection signal="body_entered" from="Gears/Gear2" to="Gears/Gear2" method="_on_body_entered"]
+[connection signal="body_entered" from="Gears/Gear3" to="Gears/Gear3" method="_on_body_entered"]
+[connection signal="body_entered" from="Gears/Gear4" to="Gears/Gear4" method="_on_body_entered"]
+[connection signal="body_entered" from="Gears/Gear5" to="Gears/Gear5" method="_on_body_entered"]
+[connection signal="body_entered" from="Gears/Gear6" to="Gears/Gear6" method="_on_body_entered"]

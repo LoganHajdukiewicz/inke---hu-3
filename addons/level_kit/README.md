@@ -124,6 +124,59 @@ file is consumed on use and expires after 2 minutes).
 | **Alt+G** | Drop the selection straight down onto whatever is below it |
 | **Ctrl+Shift+P** | Play From Here |
 
+---
+
+# Level Kit+ (second dock tab)
+
+The slow parts of building a level, one click each. Everything is undoable.
+
+## Script Writer — dialogue without JSON
+Type in the box, one message per line:
+```
+S-1GN: Oh hey! You stopped to read me! [uwu]
+Press X to jump.                       <- no speaker = same as the last line
+But you're so smart I bet you already knew that. [owo]
+HU3: The sign is talking again.
+```
+`[uwu] [owo] [anxious]` set S-1GN's portrait. Any other `[name]` uses
+`assets/portraits/name.png`.
+- **Save dialogue** writes `dialogue/<SceneRootName>/<File>.json`, which is
+  exactly where DialogueManager looks.
+- **Save + place S-1GN sign**: click in the viewport to drop a sign that plays
+  it, facing the camera and with camera side-walls already on.
+- **Save + place walk-in trigger**: an invisible box that plays the dialogue
+  once, automatically, when Inke walks in. Good for S-1GN's "OH NO I FORGOT"
+  moments.
+- **Load** pulls an existing file back into the box as plain text.
+
+## Quest Wizard — a quest and its giver in one step
+Fill in the NPC name, title, type, count, CRED reward, an optional CRED
+requirement to talk, small talk and the ask. Then **Create**, and click to
+place the giver. It saves `quests/q_<npc>_<title>.tres` and wires it to the
+giver.
+- `reach_location`: a second click places the matching goal flag.
+- `fetch_item`: a second click places the item to fetch.
+
+## Draw
+Click points in the viewport. **Enter** or right-click finishes,
+**Backspace** removes the last point, **Esc** cancels. A live line shows the
+path.
+- **Draw Rail**: a grindable rail through your clicks at the set height,
+  smoothed or sharp.
+- **Draw Terrain Road**: click on a Terrain to carve a flat walkable road
+  (a TerrainPath).
+- **Draw Scatter Line**: drops copies of any catalogue item every N metres
+  along the line, each sitting on the ground. For trails of CRED, gears,
+  crates or enemies.
+
+## Stamps — reusable sections
+Select nodes, name them, then **Save selection**. Double-click a stamp to
+click-place copies (Rand yaw applies). Each copy is plain editable nodes, not
+a linked instance.
+
+Starter stamps (cut from the 11-21 demo): **Floor_Gauntlet_Shipwreck**,
+**Vertical_Climb_Summit**, **Combat_Camp_Junkyard**, **Boss_Arena_Islet**.
+
 ## Files
 - `level_kit.gd` – editor plugin and dock
 - `nodes/platform.gd` – the Platform node
@@ -131,5 +184,7 @@ file is consumed on use and expires after 2 minutes).
 - `generators.gd` – course layouts
 - `jump_arcs.gd` – measured jump data (generated)
 - `tools/record_arcs.gd` – re-measures jump arcs from the live controller
+- `kit_plus.gd` – Level Kit+ tab (script writer, quest wizard, draw, stamps)
+- `stamps/` – saved stamps
 - `runtime/play_here.gd` – tiny autoload behind Play From Here (inert unless
   launched from the dock)
