@@ -1,5 +1,7 @@
 # INKE & HU-3 — INPUT MAP (DualShock 4)
 
+> **Full, audited move list: [MOVES.md](MOVES.md).** This page is the button layout and design rules.
+
 **The complete catalog of everything Inke can do**, with the current binding on a
 PS4 DualShock controller. Actions are grouped by context. Where a context reuses
 a button, that's intentional — the game is stateful, so `X` can mean *jump*,
@@ -14,17 +16,17 @@ independent — rebinding one never clobbers the other. Saved to
 ## Controller layout at a glance
 
 ```
-        L2 (— free)                     R2  RUN (hold)
+        L2 (— free, reserved)           R2  RUN (hold)
         L1  YO-YO / GRAPPLE             R1  SPRAY PAINT
 
      D-PAD ↑  debug row up          △  HEAVY ATTACK / SPIN
    D-PAD ← →  shop browse         □ ○  □ ATTACK·INTERACT / ○ DASH
      D-PAD ↓  debug row down        X  JUMP / CONFIRM
 
-   SHARE  (— free)               OPTIONS  PAUSE
+   SHARE  FREE CAMERA (dev)      OPTIONS  PAUSE
    L3 (click)  CROUCH / SLAM     R3 (click)  LOCK-ON
         L-STICK  MOVE                 R-STICK  CAMERA
-             TOUCHPAD  (— reserved: spray tag wheel)
+             TOUCHPAD  DEBUG OVERLAY (dev)
 ```
 
 ---
@@ -92,15 +94,16 @@ independent — rebinding one never clobbers the other. Saved to
 
 | Action | DS4 | Godot action |
 |---|---|---|
-| Debug overlay | **TOUCHPAD** (suggested) / ` on KB | `display` |
+| Debug overlay | **TOUCHPAD** / ' on KB | `display` |
 | Overlay scroll | **D-Pad ↑ ↓** | `d_pad_up/down` |
-| Quit game | — (KB F11 hold) | `quit_game` |
+| Quit game | — (KB F1 hold) | `quit_game` |
+| Free-roam camera | **SHARE** / F10 / F6 | `free_camera` |
 
 ---
 
 ## Suggested changes (free buttons on a DS4)
 
-Currently **L2**, **SHARE** and **TOUCHPAD** are free. Suggestions:
+Currently only **L2** is free (SHARE = free camera, TOUCHPAD = debug overlay in dev builds). Suggestions:
 
 1. **Crouch/Slam → L2** — clicking L3 *while steering with the same stick* is
    the single worst ergonomic spot for a move you do mid-sprint. A hold-able
