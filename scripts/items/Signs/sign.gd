@@ -152,6 +152,15 @@ func _rebuild():
 		panel_pivot.add_child(rivet)
 
 # Helpers to configure the child DialogueTrigger from the sign
+	# PERFORMANCE: a sign is ~14 static parts. In the GAME, bake them into
+	# one mesh (1 draw call, low-poly). In the editor keep the parts so the
+	# exports still rebuild live.
+	if _model and is_instance_valid(_model):
+		if Engine.is_editor_hint():
+			MeshMerge.lower_tessellation(_model)
+		else:
+			MeshMerge.merge(_model, false)
+
 
 func set_dialogue_file(dialogue_name: String):
 	var dialogue_trigger = get_node_or_null("DialogueTrigger")

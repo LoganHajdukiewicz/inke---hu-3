@@ -127,6 +127,9 @@ func _process(delta: float):
 	
 	# Update shader intensity
 	motion_lines_material.set_shader_parameter("intensity", current_intensity)
+	# PERFORMANCE: full-screen overlay - skip drawing it entirely when idle.
+	if color_rect:
+		color_rect.visible = current_intensity > 0.002
 	
 	# Update line speed based on player speed (faster = faster lines)
 	var line_speed = 2.0 + (speed / max_speed) * 4.0

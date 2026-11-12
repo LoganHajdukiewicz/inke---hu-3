@@ -201,6 +201,9 @@ func _build_medallion():
 		link.position = Vector3(sin(ang) * 0.12, 0.36 + i * 0.075, 0)
 		link.rotation_degrees = Vector3(0, 90.0 * (i % 2), 12.0 * (1 - i))
 		model.add_child(link)
+	# PERFORMANCE: cap primitive tessellation (was up to 64x32 per tiny part)
+	if model and is_instance_valid(model):
+		MeshMerge.lower_tessellation(model)
 
 
 func _build_star_mesh(outer_r: float, inner_r: float, thickness: float) -> ArrayMesh:

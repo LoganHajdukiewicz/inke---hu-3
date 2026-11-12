@@ -164,6 +164,10 @@ func _build_visual():
 	light.light_energy = 1.0
 	light.position = Vector3(0, 0.3, 0)
 	add_child(light)
+	# PERFORMANCE: cap primitive tessellation (was up to 64x32 per tiny part)
+	if model and is_instance_valid(model):
+		MeshMerge.lower_tessellation(model)
+
 
 func _process(delta: float):
 	if collected:

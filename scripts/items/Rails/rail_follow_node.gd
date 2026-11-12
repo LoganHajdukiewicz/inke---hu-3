@@ -22,6 +22,14 @@ var detection_area: Area3D = null
 func _ready():
 	origin_point = path_follow_3d.progress
 	setup_detection_area()
+	# PERFORMANCE: idle followers do nothing - only process while the
+	# player is actually grinding on this node (rail_grinding_state sets
+	# grinding/chosen). 200+ followers per level used to tick every frame.
+	set_process(false)
+
+
+func _set_active(on: bool) -> void:
+	set_process(on)
 
 func setup_detection_area():
 	"""Set up Area3D for player detection"""
@@ -36,9 +44,14 @@ func setup_detection_area():
 	collision_shape.shape = sphere_shape
 	detection_area.add_child(collision_shape)
 	
-	# Set up collision layers/masks if needed
-	# detection_area.collision_layer = 0  # This area doesn't need to be detected by others
-	# detection_area.collision_mask = 1   # Detect objects on layer 1 (usually player layer)
+	# PERFORMANCE: live ONLY on the Grindable layer (2) and watch nothing.
+	# On the default layer/mask every follower overlapped its neighbours,
+	# the rail and the world: ~1,450 permanent collision pairs per level
+	# (2/3 of all physics pairs). Inke's RailGrindArea scans layer 2.
+	detection_area.collision_layer = 1 << 1   # layer 2 "Grindable Layer"
+	detection_area.collision_mask = 0
+	detection_area.monitoring = false
+	detection_area.monitorable = true
 
 func _process(delta):
 	# Only move if we're actively being used for grinding
@@ -63,8 +76,9 @@ func _process(delta):
 			grinding = false
 			direction_selected = false
 	else:
-		# Reset to origin when not grinding
+		# Reset to origin when not grinding, then go back to sleep
 		if not chosen:
 			path_follow_3d.progress = origin_point
 			direction_selected = false
 			detach = false
+			set_process(false)

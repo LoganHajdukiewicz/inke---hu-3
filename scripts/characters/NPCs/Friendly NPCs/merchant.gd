@@ -366,6 +366,9 @@ func _build_model():
 	_model.add_child(tag)
 	
 	_set_coat(false, true)
+	# PERFORMANCE: cap primitive tessellation (was up to 64x32 per tiny part)
+	if _model and is_instance_valid(_model):
+		MeshMerge.lower_tessellation(_model)
 
 
 func _set_coat(open: bool, instant: bool = false):

@@ -270,6 +270,12 @@ func _process(delta: float):
 	# Ease the intensity curve so the first/last moments of the fade are soft
 	var eased = current_intensity * current_intensity * (3.0 - 2.0 * current_intensity)
 	shader_material.set_shader_parameter("intensity", eased)
+	# PERFORMANCE: this is a FULL-SCREEN shader that copies the screen (with
+	# mipmaps) and takes 9 blur samples per pixel. At intensity 0 it still
+	# ran every frame and was the #1 cost in the game (~150ms/frame on a
+	# weak GPU). Only draw it while there is something to show.
+	if color_rect:
+		color_rect.visible = eased > 0.002
 	
 	# Flicker faster as the player goes faster (or a fixed fast rate on rails)
 	var flicker = line_flicker_speed

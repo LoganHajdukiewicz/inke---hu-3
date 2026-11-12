@@ -33,6 +33,7 @@ QuestManager="*res://autoloaded_scripts/quest_manager.gd"
 SaveManager="*res://autoloaded_scripts/save_manager.gd"
 GhostRecorder="*res://autoloaded_scripts/ghost_recorder.gd"
 LevelKitPlayHere="*res://addons/level_kit/runtime/play_here.gd"
+GraphicsQuality="*res://autoloaded_scripts/graphics_quality.gd"
 
 [display]
 

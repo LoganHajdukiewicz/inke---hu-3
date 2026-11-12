@@ -71,6 +71,10 @@ func _build_model():
 	light.omni_range = 2.5
 	light.shadow_enabled = false
 	_model.add_child(light)
+	# PERFORMANCE: cap primitive tessellation (was up to 64x32 per tiny part)
+	if _model and is_instance_valid(_model):
+		MeshMerge.lower_tessellation(_model)
+
 
 func _process(delta: float):
 	if not _model:

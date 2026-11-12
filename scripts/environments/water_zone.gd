@@ -291,9 +291,12 @@ func _do_buoy_refresh():
 
 
 func _spawn_buoy_visuals():
-	"""Place buoy meshes along the BuoyLine every buoy_spacing meters.
-	Pure visuals under _visuals - NEVER saved to the scene, so they can't
-	duplicate. Buoys sit on the water surface (this node's Y)."""
+	"""Place buoys along the BuoyLine every buoy_spacing meters.
+	PERFORMANCE: all buoys are ONE MultiMeshInstance3D (one draw call), and
+	the bobbing runs in the vertex shader - zero per-buoy nodes and zero
+	per-frame script work. (It used to be 3 MeshInstances + 2 materials per
+	buoy, moved from _process: ~1000 nodes and 330 updates/frame per sea.)
+	Pure visuals under _visuals - NEVER saved to the scene."""
 	if _buoy_holder and is_instance_valid(_buoy_holder):
 		_buoy_holder.free()
 	_buoys.clear()
@@ -302,21 +305,80 @@ func _spawn_buoy_visuals():
 			or _buoy_line == null or not is_instance_valid(_buoy_line) \
 			or _buoy_line.curve == null:
 		return
-	_buoy_holder = Node3D.new()
-	_visuals.add_child(_buoy_holder)
 	var curve := _buoy_line.curve
 	var length := curve.get_baked_length()
 	if length < 1.0:
 		return
 	var count := maxi(int(length / buoy_spacing), 3)
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.use_custom_data = true
+	mm.mesh = _buoy_mesh()
+	mm.instance_count = count
 	for i in range(count):
 		var p := curve.sample_baked(length * float(i) / count, true)
 		p = _buoy_line.transform * p   # BuoyLine local -> WaterZone local
-		var buoy := _build_buoy_mesh()
-		_buoy_holder.add_child(buoy)
-		buoy.position = Vector3(p.x, 0.0, p.z)   # Always on the surface
-		_buoys.append(buoy)
-		_buoy_phases.append(randf() * TAU)
+		mm.set_instance_transform(i, Transform3D(Basis().scaled(Vector3.ONE * 1.2), Vector3(p.x, 0.05, p.z)))
+		mm.set_instance_custom_data(i, Color(randf(), 0, 0, 0))   # bob phase
+	var mmi := MultiMeshInstance3D.new()
+	mmi.name = "Buoys"
+	mmi.multimesh = mm
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mmi.material_override = _buoy_material()
+	_buoy_holder = mmi
+	_visuals.add_child(mmi)
+
+
+static var _shared_buoy_mesh: ArrayMesh
+static var _shared_buoy_mat: ShaderMaterial
+
+
+static func _buoy_mesh() -> ArrayMesh:
+	"""Red cone body + white band + red tip merged into ONE mesh, colors in
+	vertex colors (one surface, one draw)."""
+	if _shared_buoy_mesh:
+		return _shared_buoy_mesh
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var parts := [[0.0, 0.5, 0.32, 0.18, Color(0.85, 0.1, 0.1)], [0.25, 0.47, 0.18, 0.14, Color(0.92, 0.92, 0.9)], [0.455, 0.705, 0.12, 0.0, Color(0.85, 0.1, 0.1)]]
+	for part in parts:
+		var y0: float = part[0]; var y1: float = part[1]; var r0: float = part[2]; var r1: float = part[3]
+		st.set_color(part[4])
+		for j in range(6):
+			var a0 := TAU * j / 6.0; var a1 := TAU * (j + 1) / 6.0
+			var p0 := Vector3(cos(a0) * r0, y0, sin(a0) * r0); var p1 := Vector3(cos(a1) * r0, y0, sin(a1) * r0)
+			var q0 := Vector3(cos(a0) * r1, y1, sin(a0) * r1); var q1 := Vector3(cos(a1) * r1, y1, sin(a1) * r1)
+			st.add_vertex(p0); st.add_vertex(q1); st.add_vertex(q0)
+			st.add_vertex(p0); st.add_vertex(p1); st.add_vertex(q1)
+			st.add_vertex(Vector3(0, y1, 0)); st.add_vertex(q0); st.add_vertex(q1)
+	st.generate_normals()
+	_shared_buoy_mesh = st.commit()
+	return _shared_buoy_mesh
+
+
+static func _buoy_material() -> ShaderMaterial:
+	if _shared_buoy_mat:
+		return _shared_buoy_mat
+	var sh := Shader.new()
+	sh.code = """
+shader_type spatial;
+render_mode cull_disabled;
+void vertex() {
+	float ph = INSTANCE_CUSTOM.r * 6.2831;
+	float t = TIME;
+	// bob + gentle sway, per-instance phase
+	VERTEX.x += sin(t * 1.2 + ph) * 0.08 * VERTEX.y;
+	VERTEX.y += sin(t * 1.6 + ph) * 0.12;
+}
+void fragment() {
+	ALBEDO = COLOR.rgb;
+	EMISSION = COLOR.rgb * step(0.5, COLOR.r - COLOR.g) * 0.3;
+	ROUGHNESS = 0.6;
+}
+"""
+	_shared_buoy_mat = ShaderMaterial.new()
+	_shared_buoy_mat.shader = sh
+	return _shared_buoy_mat
 
 
 func _build_buoy_mesh() -> Node3D:
@@ -414,12 +476,7 @@ func _player_in_danger() -> bool:
 
 func _process(delta: float):
 	_time += delta
-	# Buoy bobbing
-	for i in range(_buoys.size()):
-		var b := _buoys[i]
-		if is_instance_valid(b):
-			b.position.y = 0.05 + sin(_time * 1.6 + _buoy_phases[i]) * 0.12
-			b.rotation.z = sin(_time * 1.2 + _buoy_phases[i]) * 0.08
+	# (Buoy bobbing runs in the buoy shader - no per-frame work here.)
 	if Engine.is_editor_hint():
 		return
 	

@@ -545,6 +545,10 @@ func _build_visual() -> void:
 # NPCs can't be damaged or moved, but they DO notice. For now: a white
 # flash + a little indignant squash. Once the NPCs are modeled, swap the
 # squash for a proper hurt animation here.
+	# PERFORMANCE: cap primitive tessellation (was up to 64x32 per tiny part)
+	if _mesh_root and is_instance_valid(_mesh_root):
+		MeshMerge.lower_tessellation(_mesh_root)
+
 
 func on_hit() -> void:
 	"""Called by the player's attacks (they scan the \"NPCs\" group)."""

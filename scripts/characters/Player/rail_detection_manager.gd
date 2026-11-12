@@ -19,6 +19,9 @@ func setup_rail_detection():
 		print("Warning: RailGrindArea not found!")
 		return
 	
+	# Rail followers live on layer 2 (Grindable). Keep layer 1 so any body-
+	# based rails still register.
+	rail_grind_area.collision_mask = rail_grind_area.collision_mask | (1 << 1)
 	if not rail_grind_area.body_entered.is_connected(_on_rail_body_entered):
 		rail_grind_area.body_entered.connect(_on_rail_body_entered)
 	if not rail_grind_area.body_exited.is_connected(_on_rail_body_exited):

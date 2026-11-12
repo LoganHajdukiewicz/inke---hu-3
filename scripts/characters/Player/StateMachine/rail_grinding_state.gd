@@ -162,6 +162,8 @@ func setup_rail_node(rail_node):
 	# Set up the rail node
 	rail_node.chosen = true
 	rail_node.grinding = true
+	if rail_node.has_method("_set_active"):
+		rail_node._set_active(true)   # followers sleep until ridden (perf)
 	
 	# Determine grinding direction based on player facing
 	if not rail_node.direction_selected:
@@ -223,6 +225,10 @@ func exit():
 		rail_grind_node.detach = false
 		rail_grind_node.direction_selected = false
 		rail_grind_node.grinding = false
+		# Let the follower run one more tick to snap back to its origin, then
+		# it sleeps itself (see rail_follow_node._process)
+		if rail_grind_node.has_method("_set_active"):
+			rail_grind_node._set_active(true)
 	
 	player.gravity = player.gravity_default
 	
