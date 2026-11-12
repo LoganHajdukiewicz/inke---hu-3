@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "demo_summit"
+title = "Top of the World"
+description = "Echo is waiting at the top of the Summit, north of town. Climb it."
+quest_type = "reach_location"
+target_count = 1
+target_id = "demo_summit_top"
+
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 15
+repeatable = false

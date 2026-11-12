@@ -1,0 +1,34 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "This is the town square! Three people with ! over their heads need help.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Rust lost his gears at the SHIPWRECK. West.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Echo wants someone dumb enough to climb the SUMMIT. North. (That's you.)",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Moxie wants the JUNKYARD robots' crates smashed. East.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Do all three and you'll have enough CRED for the BIG GATE on the south beach.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Behind it is the Sludge King. He's... fine. Totally fine. (｡ᵕ ◞ _◟)",
+			"portrait": "S-1GN-anxious"
+		}
+	]
+}

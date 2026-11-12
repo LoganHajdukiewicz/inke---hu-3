@@ -1,0 +1,19 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "You see that stuff that popped out of the robots? That was PAINT.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "D-pad down picks HEAL paint, R1 sprays it. A little paint heals you right up.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "And D-pad up + R1 while standing still makes a checkpoint. Wow-ee.",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}

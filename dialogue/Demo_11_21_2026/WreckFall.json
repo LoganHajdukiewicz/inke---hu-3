@@ -1,0 +1,19 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "OH NO I FORGOT!!!!",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "(っ- ‸ -ς)",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "These planks fall!!!",
+			"portrait": "S-1GN-anxious"
+		}
+	]
+}

@@ -1,0 +1,19 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "Press ☐ to Kick. Or ▲ to Spin Attack. Or just jump on their heads. ↻(𓄼 .̀ ̮.́)Ψ",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Press L3 in the air to GROUND SLAM. It smashes crates too!",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Moxie wants 6 crates smashed. Barrels count. Barrels also EXPLODE. Fun!",
+			"portrait": "S-1GN-owo"
+		}
+	]
+}

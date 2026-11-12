@@ -26,6 +26,10 @@ enum TriggerType {
 @export var show_prompt: bool = true  # Only applies to PROXIMITY_BOX
 @export var trigger_once: bool = false  # Only trigger dialogue once
 @export var pause_game: bool = true  # Pause game during dialogue (only for PROXIMITY_BOX)
+## PROXIMITY_BOX only: start the dialogue the moment Inke enters the box
+## (no button press). A finite "walk-into-it" trigger - unlike WALL_TRIGGER,
+## which is an infinite plane that fires anywhere along its line.
+@export var auto_start: bool = false
 
 @export_group("Dynamic Camera")
 ## Cut between cinematic camera angles during this dialogue (starts from
@@ -239,6 +243,10 @@ func _on_body_entered(body: Node3D) -> void:
 	if trigger_once and has_been_triggered:
 		return
 	
+	if trigger_type == TriggerType.PROXIMITY_BOX and auto_start:
+		if not DialogueManager.is_dialogue_active():
+			start_dialogue()
+		return
 	if trigger_type == TriggerType.PROXIMITY_BOX:
 		# Proximity box requires player to press button
 		player_nearby = true

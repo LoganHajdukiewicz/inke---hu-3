@@ -1,0 +1,19 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "Echo is waiting at the top of the SUMMIT. It's tall. Like REALLY tall.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Walk into the chain fence to grab it. Left stick climbs. X hops UP.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "But you're so smart I bet you already knew that.",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}

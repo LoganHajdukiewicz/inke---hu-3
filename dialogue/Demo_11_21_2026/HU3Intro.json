@@ -1,0 +1,31 @@
+{
+	"dialogue": [
+		{
+			"speaker": "HU3",
+			"text": "Inke. The sign is talking again."
+		},
+		{
+			"speaker": "Inke",
+			"text": "It's a sign. Signs talk. That's... the whole job."
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "You ever wonder what that floating THING is next to your head?",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "His name is HU3. We went to high school together. He was a jerk.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "HU3",
+			"text": "I was a toaster in high school."
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "A JERK toaster.",
+			"portrait": "S-1GN-anxious"
+		}
+	]
+}

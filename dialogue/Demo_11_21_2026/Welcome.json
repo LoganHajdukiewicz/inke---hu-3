@@ -1,0 +1,29 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "Oh hey! Wow, you actually stopped to read me—how polite!",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Welcome to GEARHAVEN ISLE. Population: me. And some robots. And sharks. Mostly me.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Left stick moves you. R2 to run. O to dash. Right stick turns that camera you love so much.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "The town is just up the beach. People there have PROBLEMS. Problems pay CRED.",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "But you're so smart I bet you already knew that.",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Quest" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/quest.gd" id="1_quest"]
+
+[resource]
+script = ExtResource("1_quest")
+quest_id = "demo_gears"
+title = "Rust's Sunken Gears"
+description = "Rust's gear crate sank at the Shipwreck to the west. Collect 6 gears out there."
+quest_type = "collect_gears"
+target_count = 6
+target_id = ""
+
+has_time_limit = false
+time_limit_seconds = 60.0
+cred_reward = 15
+repeatable = false

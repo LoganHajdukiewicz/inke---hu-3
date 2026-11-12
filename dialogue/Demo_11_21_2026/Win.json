@@ -1,0 +1,29 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "Wow! You did it.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Like really did it.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Uhhh. Well...umm...",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "I guess I am a sign of my word. Here's your CRED.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Step into the light when you're ready. Thanks for playing the demo!",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}

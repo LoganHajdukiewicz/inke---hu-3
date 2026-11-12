@@ -1,0 +1,21 @@
+{
+	"dialogue": [
+		{
+			"speaker": "Sludge King",
+			"text": "WHO DARES TRACK MUD INTO MY SLUDGE?"
+		},
+		{
+			"speaker": "Inke",
+			"text": "...it's already mud."
+		},
+		{
+			"speaker": "Sludge King",
+			"text": "IT IS ARTISANAL MUD."
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Hit him when he's dizzy after a slam! And stomp the little guys! GOOD LUCK BYE.",
+			"portrait": "S-1GN-anxious"
+		}
+	]
+}

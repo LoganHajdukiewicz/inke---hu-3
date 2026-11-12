@@ -1,0 +1,24 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "...oh. Oh no. You actually did it.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "The gate's open. The Sludge King is right over there.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Spring pad, then the rail. Jump at the end. DON'T FALL IN THE SLUDGE.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "I'll be here. Hiding. Behind myself. (っ- ‸ -ς)",
+			"portrait": "S-1GN-anxious"
+		}
+	]
+}

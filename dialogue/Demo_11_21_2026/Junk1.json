@@ -1,0 +1,14 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "The JUNKYARD! The robots here are... not friendly.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Land on that rail and you'll grind straight into their camp. Press X to jump off.",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}

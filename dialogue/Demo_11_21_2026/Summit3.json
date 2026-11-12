@@ -1,0 +1,14 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "This chimney is too high to jump. Unless... you wall jump.",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Jump at a wall, then press X again to kick off to the other wall. Merchant sells it. HINT HINT.",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}

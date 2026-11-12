@@ -1,0 +1,14 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "WHOA THERE. That gate doesn't open for nobodies.",
+			"portrait": "S-1GN-anxious"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "You need 45 CRED. Go help the townsfolk. Come back when you're a SOMEBODY.",
+			"portrait": "S-1GN-owo"
+		}
+	]
+}

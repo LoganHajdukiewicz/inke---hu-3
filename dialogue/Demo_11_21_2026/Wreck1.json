@@ -1,0 +1,24 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "Welcome to the SHIPWRECK! Rust's gear crate sank out here.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Those bouncy pads are SPRING floors. Jump on them and BOING.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "This'll sure put a SPRING in your step. (˵ ¬ᴗ¬˵)",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Spring...spr—you get it.",
+			"portrait": "S-1GN-owo"
+		}
+	]
+}

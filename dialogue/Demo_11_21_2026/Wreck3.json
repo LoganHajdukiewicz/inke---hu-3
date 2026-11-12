@@ -1,0 +1,19 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "The captain's wheel SPINS. Ride it around.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "After that is the frozen hold. Super cold and slippery.",
+			"portrait": "S-1GN-uwu"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "And under it looks like sludge. I don't understand the weather here.",
+			"portrait": "S-1GN-anxious"
+		}
+	]
+}
