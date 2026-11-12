@@ -35,6 +35,13 @@ enum TriggerType {
 ## CutsceneCameras (fly with F10, press P to print a pose) and list them
 ## here - the camera cycles through them, one per dialogue line.
 @export var custom_camera_angles: Array[Node3D] = []
+## Side walls for the dialogue camera: when on, auto shots never go
+## further than camera_wall_left / camera_wall_right metres to either side
+## of the line between Inke and the speaker. Use in alleys, against cliffs,
+## or to keep the camera on the pretty side of a set.
+@export var camera_walls_enabled: bool = false
+@export_range(0.0, 30.0, 0.1) var camera_wall_left: float = 3.0
+@export_range(0.0, 30.0, 0.1) var camera_wall_right: float = 3.0
 
 @export var show_debug_visualization: bool = false:
 	set(value):

@@ -52,6 +52,13 @@ enum PowerupType {
 @export var dynamic_camera: bool = true
 ## Optional posed Node3Ds/CutsceneCameras used instead of the auto shots.
 @export var custom_camera_angles: Array[Node3D] = []
+## Side walls for the dialogue camera: when on, auto shots never go
+## further than camera_wall_left / camera_wall_right metres to either side
+## of the line between Inke and the speaker. Use in alleys, against cliffs,
+## or to keep the camera on the pretty side of a set.
+@export var camera_walls_enabled: bool = false
+@export_range(0.0, 30.0, 0.1) var camera_wall_left: float = 3.0
+@export_range(0.0, 30.0, 0.1) var camera_wall_right: float = 3.0
 
 @export_group("Intro Dialogue")
 ## Played through the dialogue box BEFORE the coat opens, one message per

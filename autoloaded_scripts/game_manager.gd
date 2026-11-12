@@ -117,12 +117,10 @@ func _input(event: InputEvent) -> void:
 	# unless Fn is held. _input (not _unhandled_input) so no UI/dialogue
 	# box can swallow the key first, and PROCESS_MODE_ALWAYS (see _ready)
 	# so it works while the game is paused (e.g. during dialogue).
-	if event is InputEventKey and event.pressed and not event.echo:
-		var kc: int = event.keycode
-		var pkc: int = event.physical_keycode
-		if kc == KEY_F10 or pkc == KEY_F10 or kc == KEY_F6 or pkc == KEY_F6:
-			toggle_free_roam_camera()
-			get_viewport().set_input_as_handled()
+	# free_camera action: F10 / F6 on keyboard, SHARE on a DS4 (rebindable)
+	if event.is_action_pressed("free_camera") and not event.is_echo():
+		toggle_free_roam_camera()
+		get_viewport().set_input_as_handled()
 
 
 # === FREE ROAM DEBUG CAMERA (F10) ===

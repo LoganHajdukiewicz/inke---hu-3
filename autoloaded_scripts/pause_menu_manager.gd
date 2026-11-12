@@ -54,6 +54,20 @@ func _input(event: InputEvent):
 			return
 		toggle_pause()
 		get_viewport().set_input_as_handled()
+		return
+	# Controller: O closes the pause menu (same as OPTIONS), and L1/R1
+	# flip between the STATS / CONTROLS / SAVES tabs.
+	if paused and event is InputEventJoypadButton and event.pressed:
+		match event.button_index:
+			JOY_BUTTON_B:
+				toggle_pause()
+				get_viewport().set_input_as_handled()
+			JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER:
+				var order := ["stats", "controls", "saves"]
+				var i := order.find(current_tab)
+				i = (i + (1 if event.button_index == JOY_BUTTON_RIGHT_SHOULDER else -1) + order.size()) % order.size()
+				_show_tab(order[i])
+				get_viewport().set_input_as_handled()
 
 func _handle_rebind_capture(event: InputEvent):
 	# ESC cancels the capture

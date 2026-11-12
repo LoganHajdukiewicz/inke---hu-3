@@ -1,80 +1,98 @@
 extends Node3D
-## Third-person camera rig - FULL REWRITE.
+## Third-person camera rig - v3 (smooth + clip-proof).
+##
+## FRAMING matches the Unity build exactly (same on-screen size of Inke):
+##   Unity: 8.5m arm, 1.8m pivot, 32.6deg down, 70deg FOV for a 1.5m capsule
+##   Godot Inke is ~1.72m tall, so distance/pivot scale by 1.72/1.5:
+##   9.75m arm, 2.06m pivot, 32.6deg down, 70deg FOV.
+##   Inke's height = 9.3% of the screen, feet at 38.6% from the bottom -
+##   identical to Unity (verified with the projection math in docs).
 ##
 ## Node structure (rebuilt in _ready, reusing the scene's Camera3D):
-##
-##   CameraController  (this node, top_level - smoothed follow position + YAW)
+##   CameraController  (top_level - smoothed follow position + YAW)
 ##     CameraTarget    (pivot at head height - PITCH)
-##       SpringArm3D   (collision-aware arm - pulls the camera IN when walls,
-##                      ceilings or props would otherwise put it outside the
-##                      room. This is the "camera is outside my small room"
-##                      fix: the arm shape-casts from the pivot and parks the
-##                      camera just in front of whatever it hits.)
-##         Camera3D    (+ shake offset applied here)
+##       Camera3D      (placed by code along the arm - no SpringArm)
 ##
-## Everything is Inspector-tunable. External API kept from the old camera:
-##   handle_camera_input(delta), follow_character(pos, vel),
-##   initialize_camera(), get_camera_forward()/get_camera_right(),
-##   shake(intensity, duration), auto_behind, lock-on API,
-##   transform.basis (yaw-only - movement code reads this).
+## WHY NO SpringArm3D: the arm only updates in physics ticks, so on a 144Hz
+## screen the camera stepped at 60Hz (judder) and its single sphere cast
+## let thin walls/corners poke into the near plane. This rig:
+##   - sweeps a sphere AND checks the near-plane rectangle every RENDER frame
+##   - pulls in instantly, eases back out (never yanks, never shows a wall)
+##   - follows a physics-interpolated target so motion is smooth at any FPS
+##   - never puts the camera inside geometry after a teleport/respawn
+##
+## External API kept: handle_camera_input(delta), follow_character(pos, vel),
+## initialize_camera(), get_camera_forward()/get_camera_right(),
+## shake(), start_zoom_effect(), auto_behind, lock-on API, transform.basis
+## (yaw-only - movement code reads this).
 
 # ---------------------------------------------------------------------------
 # Tunables
 # ---------------------------------------------------------------------------
 @export_group("Look")
 @export var mouse_sensitivity: float = 0.002
-@export var controller_sensitivity: float = 2.0
+## Right-stick turn speed (radians/sec at full deflection).
+@export var controller_sensitivity: float = 2.4
 @export var invert_y: bool = false
+## Right-stick response curve: >1 = finer aim near centre, fast at the edge.
+@export_range(1.0, 3.0, 0.1) var stick_curve: float = 1.6
+## Stick input is eased in/out over this time so turning starts/stops smoothly.
+@export_range(0.0, 0.3, 0.01) var stick_smoothing: float = 0.08
 ## Lowest the camera can look (degrees, negative = down).
 @export var pitch_min_degrees: float = -65.0
 ## Highest the camera can look (degrees).
 @export var pitch_max_degrees: float = 45.0
 
-@export_group("Framing")
-## How far behind the player the camera wants to sit. Change it live in
-## the Inspector (runtime too) - the spring arm follows this value.
-@export var camera_distance: float = 12.6:
-	set(v):
-		camera_distance = v
-		if spring_arm:
-			spring_arm.spring_length = v
-			_smoothed_arm_length = v
-## Pivot height above the player's feet (roughly head height).
-@export var pivot_height: float = 2.1
-## Default downward look angle when the game starts.
-@export var default_pitch_degrees: float = -12.0
+@export_group("Framing (matches Unity)")
+## Distance behind the player. 9.75 = Unity's 8.5m framing at Godot scale.
+@export var camera_distance: float = 9.75
+## Pivot height above the player's feet.
+@export var pivot_height: float = 2.06
+## Default downward look angle (degrees, negative = looking down).
+@export var default_pitch_degrees: float = -32.6
+## Base field of view (Unity uses 70).
+@export var base_fov: float = 70.0
 
 @export_group("Follow")
-## How quickly the rig position catches up to the player (higher = snappier).
-@export var follow_speed: float = 9.0
-## Extra catch-up at high player speeds so fast movement never outruns the camera.
-@export var follow_speed_fast: float = 14.0
+## How quickly the rig catches up to the player (higher = snappier).
+@export var follow_speed: float = 10.0
+## Extra catch-up at high speed so fast movement never outruns the camera.
+@export var follow_speed_fast: float = 16.0
 @export var fast_speed_threshold: float = 12.0
+## Vertical follow is softer, so jumps don't bob the whole screen.
+@export_range(0.1, 1.0, 0.05) var vertical_follow_ratio: float = 0.55
+## Max distance the rig may lag behind before it snaps (teleports, respawns).
+@export var snap_distance: float = 25.0
 
 @export_group("Collision")
-## Physics layers the camera arm collides with (world geometry).
+## Physics layers the camera collides with (world geometry).
 @export_flags_3d_physics var collision_mask: int = 1
-## Gap kept between the camera and the surface it hit.
-@export var collision_margin: float = 0.3
-## Radius of the sphere the arm sweeps (bigger = camera avoids corners sooner
-## and never lets walls clip into the near plane).
-@export var collision_sphere_radius: float = 0.4
-## How fast the camera glides back OUT after an obstruction clears.
-## (Pulling IN is instant so geometry never occludes the player.)
-@export var reexpand_speed: float = 6.0
+## Radius of the swept sphere (keeps the near plane out of walls/corners).
+@export var collision_radius: float = 0.35
+## Extra gap kept between the camera and what it hit.
+@export var collision_margin: float = 0.15
+## Closest the camera may get to the pivot.
+@export var min_distance: float = 1.2
+## How fast the camera eases back OUT after an obstruction clears (m/s-ish).
+@export var reexpand_speed: float = 5.0
+## Small things (fences, poles, NPCs) can't yank the camera in: obstructions
+## must stay for this long before the camera moves for them. Walls behind
+## the camera always pull in instantly regardless.
+@export_range(0.0, 0.5, 0.01) var thin_obstruction_grace: float = 0.12
 
 @export_group("Speed FOV")
 @export var fov_kick_enabled: bool = true
-@export var base_fov: float = 75.0
-@export var max_fov: float = 92.0
+@export var max_fov: float = 86.0
 @export var fov_kick_start_speed: float = 12.0
 @export var fov_max_speed: float = 40.0
 @export var fov_lerp_speed: float = 4.0
 
 @export_group("Lock On")
 @export var lock_on_range: float = 30.0
-@export var lock_on_turn_speed: float = 0.3
+@export var lock_on_turn_speed: float = 8.0
 @export var lock_on_switch_cooldown: float = 0.3
+
+const AUTO_BEHIND_SPEED := 5.0
 
 # ---------------------------------------------------------------------------
 # State
@@ -87,27 +105,28 @@ var lock_on_active: bool = false
 var locked_target: Node3D = null
 var lock_on_switch_timer: float = 0.0
 
-# Auto-behind mode (balance beams etc.): the camera swings around to sit
-# directly behind the player's facing direction.
+## Set by the player while on a balance beam: camera swings behind.
 var auto_behind: bool = false
-const AUTO_BEHIND_SPEED: float = 3.5
 
 var character: Node3D = null
 var camera_target: Node3D = null      # pitch pivot
-var spring_arm: SpringArm3D = null
-var arm_end: Node3D = null            # placed BY the arm; camera hangs off it
 var camera_3d: Camera3D = null
+## Back-compat: some scenes/tools reference spring_arm; it's always null now.
+var spring_arm: SpringArm3D = null
 
 var _rad_pitch_min: float
 var _rad_pitch_max: float
-var _smoothed_arm_length: float = 0.0
+var _current_distance: float = 0.0
+var _blocked_time: float = 0.0
+var _stick_smoothed := Vector2.ZERO
+var _follow_target := Vector3.ZERO
+var _follow_velocity := Vector3.ZERO
+var _prev_target := Vector3.ZERO
+var _target_time := 0.0
 
-# Camera shake
 var shake_time_left: float = 0.0
 var shake_strength: float = 0.0
 var shake_offset: Vector3 = Vector3.ZERO
-
-# Zoom punch (cred pickups etc.)
 var _zoom_fov_offset: float = 0.0
 
 
@@ -115,67 +134,41 @@ func _ready():
 	_rad_pitch_min = deg_to_rad(pitch_min_degrees)
 	_rad_pitch_max = deg_to_rad(pitch_max_degrees)
 	pitch_input = deg_to_rad(default_pitch_degrees)
-	
 	if get_parent() is CharacterBody3D:
 		character = get_parent()
-	
 	_build_rig()
-	
 	if character:
 		global_position = character.global_position
+		_follow_target = global_position
+		_prev_target = global_position
 		rotation.y = character.rotation.y
 		twist_input = character.rotation.y
+	_current_distance = camera_distance
+	# Render-rate update: run after the player's physics so we read its
+	# latest position, and every frame so the camera never judders.
+	process_priority = 100
 
 
 func _build_rig() -> void:
-	"""Assemble pivot -> spring arm -> camera, reusing whatever the scene
-	already has so saved Camera3D settings (fov, environment...) survive."""
 	camera_target = get_node_or_null("CameraTarget")
 	if camera_target == null:
 		camera_target = Node3D.new()
 		camera_target.name = "CameraTarget"
 		add_child(camera_target)
-	# The pivot sits at head height with NO baked tilt/offset - pitch is
-	# applied as pure rotation and the spring arm handles the distance.
 	camera_target.transform = Transform3D.IDENTITY
 	camera_target.position = Vector3(0, pivot_height, 0)
-	
-	# Find an existing camera anywhere under us (the old scene had it as a
-	# direct child of CameraTarget).
 	camera_3d = _find_camera(self)
-	
-	spring_arm = SpringArm3D.new()
-	spring_arm.name = "SpringArm3D"
-	spring_arm.collision_mask = collision_mask
-	spring_arm.margin = collision_margin
-	spring_arm.spring_length = camera_distance
-	var sphere := SphereShape3D.new()
-	sphere.radius = collision_sphere_radius
-	spring_arm.shape = sphere
-	camera_target.add_child(spring_arm)
-	if character:
-		spring_arm.add_excluded_object(character.get_rid())
-	
-	# IMPORTANT STRUCTURE: SpringArm3D repositions its DIRECT children every
-	# physics tick. If the camera were a direct child, any code writing
-	# camera_3d.position (shake, smoothing) would fight the arm and win on
-	# render frames - the camera ends up glued to the pivot (~2m from the
-	# player, 'unplayably close'). So the arm owns a bare ArmEnd node and
-	# the camera hangs OFF ArmEnd with a local offset the arm never touches.
-	arm_end = Node3D.new()
-	arm_end.name = "ArmEnd"
-	spring_arm.add_child(arm_end)
-	
 	if camera_3d == null:
 		camera_3d = Camera3D.new()
 		camera_3d.name = "Camera3D"
 		camera_3d.current = true
-	elif camera_3d.get_parent():
-		camera_3d.get_parent().remove_child(camera_3d)
-	arm_end.add_child(camera_3d)
-	camera_3d.transform = Transform3D.IDENTITY
+	if camera_3d.get_parent() != camera_target:
+		if camera_3d.get_parent():
+			camera_3d.get_parent().remove_child(camera_3d)
+		camera_target.add_child(camera_3d)
+	camera_3d.transform = Transform3D(Basis(), Vector3(0, 0, camera_distance))
 	camera_3d.fov = base_fov
-	_smoothed_arm_length = camera_distance
+	camera_3d.near = 0.05
 
 
 func _find_camera(node: Node) -> Camera3D:
@@ -194,51 +187,61 @@ func initialize_camera():
 
 
 # ---------------------------------------------------------------------------
-# Per-frame driving (called from the player)
+# Per-frame driving
 # ---------------------------------------------------------------------------
 func _process(delta: float):
 	_update_shake(delta)
-	
 	if lock_on_switch_timer > 0.0:
 		lock_on_switch_timer -= delta
 	if Input.is_action_just_pressed("lock_on"):
 		toggle_lock_on()
 	if lock_on_active and lock_on_switch_timer <= 0.0:
 		_check_lock_on_switch()
-	
+	_update_look(delta)
+	_update_follow(delta)
 	_update_arm(delta)
 
 
+## Kept for the player's physics loop. Look input now runs per render
+## frame in _process (smoother), so this only updates the FOV kick.
 func handle_camera_input(delta: float):
+	_update_fov_kick(delta)
+
+
+func _update_look(delta: float) -> void:
 	if lock_on_active and is_instance_valid(locked_target):
 		_handle_lock_on_camera(delta)
 	elif auto_behind:
 		_handle_auto_behind_camera(delta)
 	else:
 		_handle_free_camera(delta)
-	_update_fov_kick(delta)
 
 
 func _handle_free_camera(delta: float):
-	var stick := Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
-	if stick.length_squared() > 0.01:
-		twist_input -= stick.x * controller_sensitivity * delta
-		var y := stick.y * controller_sensitivity * delta
+	var raw := Input.get_vector("camera_left", "camera_right", "camera_up", "camera_down")
+	# Response curve (precise near centre, fast at full tilt)
+	var mag := raw.length()
+	if mag > 0.0:
+		raw = raw / mag * pow(minf(mag, 1.0), stick_curve)
+	# Ease the stick so turning starts and stops without a hard edge
+	var k := 1.0 if stick_smoothing <= 0.0 else 1.0 - exp(-delta / stick_smoothing)
+	_stick_smoothed = _stick_smoothed.lerp(raw, k)
+	if _stick_smoothed.length_squared() > 0.000001:
+		twist_input -= _stick_smoothed.x * controller_sensitivity * delta
+		var y := _stick_smoothed.y * controller_sensitivity * 0.75 * delta
 		pitch_input += y if invert_y else -y
 	_apply_rotation()
 
 
 func _handle_auto_behind_camera(delta: float):
-	"""Swing around to sit directly behind the player's facing (balance
-	beams). Pitch stays player-controlled."""
 	if not character:
 		_handle_free_camera(delta)
 		return
-	twist_input = lerp_angle(twist_input, character.rotation.y, clampf(AUTO_BEHIND_SPEED * delta, 0.0, 1.0))
+	twist_input = lerp_angle(twist_input, character.rotation.y, 1.0 - exp(-AUTO_BEHIND_SPEED * delta))
 	_apply_rotation()
 
 
-func _handle_lock_on_camera(_delta: float):
+func _handle_lock_on_camera(delta: float):
 	if not is_instance_valid(locked_target):
 		disable_lock_on()
 		return
@@ -249,9 +252,10 @@ func _handle_lock_on_camera(_delta: float):
 		disable_lock_on()
 		return
 	var target_yaw := atan2(-to_target.x, -to_target.z)
-	var target_pitch := asin(clampf(to_target.y / maxf(distance, 0.001), -1.0, 1.0))
-	twist_input = lerp_angle(twist_input, target_yaw, lock_on_turn_speed)
-	pitch_input = lerp_angle(pitch_input, target_pitch, lock_on_turn_speed)
+	var target_pitch := clampf(asin(clampf(to_target.y / maxf(distance, 0.001), -1.0, 1.0)) - 0.35, _rad_pitch_min, _rad_pitch_max)
+	var k := 1.0 - exp(-lock_on_turn_speed * delta)
+	twist_input = lerp_angle(twist_input, target_yaw, k)
+	pitch_input = lerp_angle(pitch_input, target_pitch, k)
 	_apply_rotation()
 
 
@@ -262,56 +266,151 @@ func _apply_rotation():
 		camera_target.rotation.x = pitch_input
 
 
+## Called from the player's physics tick with its new position. We store
+## it as a target and interpolate per render frame between physics ticks.
 func follow_character(character_position: Vector3, character_velocity: Vector3 = Vector3.ZERO):
-	"""Smoothly follow the player. Frame-rate independent exponential
-	smoothing; catches up faster when the player is moving fast."""
-	var delta := get_physics_process_delta_time()
-	var h_speed := Vector2(character_velocity.x, character_velocity.z).length()
+	_prev_target = _follow_target
+	_follow_target = character_position
+	_follow_velocity = character_velocity
+	_target_time = 0.0
+
+
+func _update_follow(delta: float) -> void:
+	if character == null:
+		return
+	# Interpolate the target between physics ticks (render-rate smoothness)
+	_target_time += delta
+	var tick := 1.0 / float(Engine.physics_ticks_per_second)
+	var target := _prev_target.lerp(_follow_target, clampf(_target_time / tick, 0.0, 1.0))
+	# Teleport / respawn: snap instead of flying across the map
+	if global_position.distance_to(target) > snap_distance:
+		global_position = target
+		_current_distance = _safe_distance(camera_distance)
+		return
+	var h_speed := Vector2(_follow_velocity.x, _follow_velocity.z).length()
 	var speed := follow_speed
 	if h_speed > fast_speed_threshold:
-		var t: float = clampf((h_speed - fast_speed_threshold) * 0.1, 0.0, 1.0)
-		speed = lerpf(follow_speed, follow_speed_fast, t)
-	var alpha := 1.0 - exp(-speed * delta)
-	position = position.lerp(character_position, alpha)
+		speed = lerpf(follow_speed, follow_speed_fast, clampf((h_speed - fast_speed_threshold) * 0.1, 0.0, 1.0))
+	var a := 1.0 - exp(-speed * delta)
+	var av := 1.0 - exp(-speed * vertical_follow_ratio * delta)
+	var p := global_position
+	p.x = lerpf(p.x, target.x, a)
+	p.z = lerpf(p.z, target.z, a)
+	p.y = lerpf(p.y, target.y, av)
+	# Never let the camera lag so far vertically that Inke leaves the frame
+	p.y = clampf(p.y, target.y - 2.5, target.y + 2.5)
+	global_position = p
 
 
+# ---------------------------------------------------------------------------
+# Collision: sphere sweep + near-plane corner rays, every render frame
+# ---------------------------------------------------------------------------
 func _update_arm(delta: float):
-	"""Enclosed-space handling. The SpringArm sweeps a sphere and yields a
-	hit length; we snap IN instantly (never let a wall occlude the player)
-	but glide back OUT smoothly so clearing a doorway doesn't yank the
-	camera."""
-	if spring_arm == null:
+	if camera_3d == null or camera_target == null:
 		return
-	# IMPORTANT: spring_length stays at FULL distance so the arm always
-	# casts the whole way (shortening it here deadlocks the arm: a capped
-	# cast can never report anything farther than the cap). The arm places
-	# the camera at the hit instantly (pull-in is immediate = never
-	# occluded); re-expansion is smoothed with a local camera offset.
-	spring_arm.spring_length = camera_distance
-	var hit: float = spring_arm.get_hit_length()
-	if hit < _smoothed_arm_length:
-		_smoothed_arm_length = hit                      # pull in NOW
+	var safe := _safe_distance(camera_distance)
+	if safe < _current_distance - 0.01:
+		# Obstructed. Big walls pull in instantly; tiny/brief blockers get a
+		# short grace so a passing pole doesn't punch the camera in.
+		_blocked_time += delta
+		var drop := _current_distance - safe
+		var here_clear := not _sphere_overlaps(camera_3d.global_position - shake_offset, collision_radius)
+		if drop > 1.5 or _blocked_time >= thin_obstruction_grace or not here_clear:
+			_current_distance = safe
 	else:
-		_smoothed_arm_length = lerpf(_smoothed_arm_length, hit, clampf(reexpand_speed * delta, 0.0, 1.0))
-	# The arm parks ArmEnd at `hit`; nudge the camera back toward the player
-	# by the not-yet-re-expanded amount (offset <= 0 keeps us inside the
-	# swept safe corridor, so this never clips into geometry). The offset
-	# lives on camera_3d (child of ArmEnd) - NEVER on a direct arm child.
+		_blocked_time = 0.0
+		# Clear: ease back out, but never further than is currently safe
+		_current_distance = minf(lerpf(_current_distance, safe, 1.0 - exp(-reexpand_speed * delta)), safe)
+	camera_3d.position = Vector3(0, 0, maxf(_current_distance, 0.0)) + shake_offset
+
+
+func _safe_distance(wanted: float) -> float:
+	var space := get_world_3d().direct_space_state if is_inside_tree() else null
+	if space == null:
+		return wanted
+	var pivot := camera_target.global_position
+	var back := camera_target.global_transform.basis.z.normalized()
+	var exclude := []
+	if character is CollisionObject3D:
+		exclude.append((character as CollisionObject3D).get_rid())
+	# 1) Sphere sweep from the pivot along the arm
+	var shape := SphereShape3D.new()
+	shape.radius = collision_radius
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = shape
+	q.transform = Transform3D(Basis(), pivot)
+	q.motion = back * wanted
+	q.collision_mask = collision_mask
+	q.exclude = exclude
+	var res := space.cast_motion(q)
+	var dist := wanted
+	if res.size() == 2 and res[0] < 1.0:
+		dist = wanted * res[0] - collision_margin
+	# 2) Near-plane corners: the sphere can slip past a corner the camera's
+	#    view rectangle would still cut through. Ray to each corner too.
 	if camera_3d:
-		camera_3d.position = shake_offset + Vector3(0, 0, _smoothed_arm_length - hit)
+		var vp := get_viewport().get_visible_rect().size if get_viewport() else Vector2(16, 9)
+		var aspect := vp.x / maxf(vp.y, 1.0)
+		# Generous rectangle: the near plane at 0.05m is tiny, so pad it to a
+		# 'camera body' of ~collision_radius so edges never touch walls.
+		var half_h := maxf(tan(deg_to_rad(camera_3d.fov) * 0.5) * camera_3d.near, collision_radius * 0.75)
+		var half_w := half_h * aspect
+		var right := camera_target.global_transform.basis.x.normalized()
+		var up := camera_target.global_transform.basis.y.normalized()
+		for c in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1), Vector2(0, 0)]:
+			var off: Vector3 = right * c.x * half_w + up * c.y * half_h
+			var from := pivot + off
+			# start from the pivot, not the offset point, so a corner can't
+			# hide the wall between pivot and the offset ray origin
+			var rq0 := PhysicsRayQueryParameters3D.create(pivot, from)
+			rq0.collision_mask = collision_mask
+			rq0.exclude = exclude
+			if not space.intersect_ray(rq0).is_empty():
+				continue
+			var rq := PhysicsRayQueryParameters3D.create(from, from + back * (dist + collision_margin))
+			rq.collision_mask = collision_mask
+			rq.exclude = exclude
+			var hit := space.intersect_ray(rq)
+			if not hit.is_empty():
+				dist = minf(dist, (hit.position - from).length() - collision_margin)
+	return maxf(dist, minf(min_distance, wanted))
+
+
+func _sphere_overlaps(p: Vector3, r: float) -> bool:
+	var space := get_world_3d().direct_space_state
+	var sh := SphereShape3D.new()
+	sh.radius = r
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = sh
+	q.transform = Transform3D(Basis(), p)
+	q.collision_mask = collision_mask
+	if character is CollisionObject3D:
+		q.exclude = [(character as CollisionObject3D).get_rid()]
+	return not space.intersect_shape(q, 1).is_empty()
+
+
+func _point_inside_geometry(p: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state
+	var q := PhysicsPointQueryParameters3D.new()
+	q.position = p
+	q.collision_mask = collision_mask
+	if character is CollisionObject3D:
+		q.exclude = [(character as CollisionObject3D).get_rid()]
+	return not space.intersect_point(q, 1).is_empty()
 
 
 func _update_fov_kick(delta: float):
 	if not camera_3d or not character:
 		return
 	var target_fov := base_fov
-	if fov_kick_enabled:
-		var h_speed := Vector2(character.velocity.x, character.velocity.z).length()
+	if fov_kick_enabled and "velocity" in character:
+		var v: Vector3 = character.velocity
+		var h_speed := Vector2(v.x, v.z).length()
 		var t := clampf((h_speed - fov_kick_start_speed) / maxf(fov_max_speed - fov_kick_start_speed, 0.01), 0.0, 1.0)
 		t = t * t * (3.0 - 2.0 * t)
 		target_fov = lerpf(base_fov, max_fov, t)
 	target_fov += _zoom_fov_offset
-	camera_3d.fov = lerpf(camera_3d.fov, target_fov, clampf(fov_lerp_speed * delta, 0.0, 1.0))
+	camera_3d.fov = lerpf(camera_3d.fov, target_fov, 1.0 - exp(-fov_lerp_speed * delta))
 
 
 # ---------------------------------------------------------------------------
@@ -326,11 +425,7 @@ func _update_shake(delta: float):
 	if shake_time_left > 0.0:
 		shake_time_left -= delta
 		var amount: float = shake_strength * clampf(shake_time_left / 0.25, 0.0, 1.0)
-		shake_offset = Vector3(
-			randf_range(-amount, amount),
-			randf_range(-amount, amount),
-			randf_range(-amount, amount)
-		)
+		shake_offset = Vector3(randf_range(-amount, amount), randf_range(-amount, amount), 0.0)
 		if shake_time_left <= 0.0:
 			shake_strength = 0.0
 			shake_offset = Vector3.ZERO
@@ -370,10 +465,9 @@ func disable_lock_on():
 
 
 func _find_nearest_enemy() -> Node3D:
-	var enemies := get_tree().get_nodes_in_group("Enemy")
 	var nearest: Node3D = null
 	var nearest_sq := lock_on_range * lock_on_range
-	for enemy in enemies:
+	for enemy in get_tree().get_nodes_in_group("Enemy"):
 		if not is_instance_valid(enemy) or not enemy is Node3D:
 			continue
 		var d := global_position.distance_squared_to(enemy.global_position)
@@ -405,8 +499,7 @@ func _find_target_in_direction(direction: Vector3) -> Node3D:
 		var distance := to_enemy.length()
 		if distance > lock_on_range:
 			continue
-		var alignment := to_enemy.normalized().dot(world_direction)
-		var score := alignment / (distance * 0.1 + 1.0)
+		var score := to_enemy.normalized().dot(world_direction) / (distance * 0.1 + 1.0)
 		if score > best_score:
 			best_score = score
 			best_target = enemy
@@ -421,11 +514,10 @@ func _unhandled_input(event):
 		twist_input -= event.relative.x * mouse_sensitivity
 		var y: float = event.relative.y * mouse_sensitivity
 		pitch_input += y if invert_y else -y
-	
-	if event.is_action_pressed("ui_cancel"):
+	# Keyboard Esc frees the mouse. (Pad OPTIONS is the pause menu's.)
+	if event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE:
 		mouse_captured = !mouse_captured
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if mouse_captured else Input.MOUSE_MODE_VISIBLE)
-	
 	if event is InputEventMouseButton and event.pressed and not mouse_captured:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 		mouse_captured = true
