@@ -27,6 +27,7 @@ const PlatformScript = preload("res://addons/level_kit/nodes/platform.gd")
 const KitPlus = preload("res://addons/level_kit/kit_plus.gd")
 const WorldGizmo = preload("res://addons/level_kit/world_gizmo.gd")
 const DragBuild = preload("res://addons/level_kit/drag_build.gd")
+const RotateGizmo = preload("res://addons/level_kit/rotate_gizmo.gd")
 
 # Settings mirrored from the dock
 var grid_snap: float = 0.5
@@ -41,6 +42,8 @@ var _dock_plus: Control
 var plus
 var drag
 var _world_gizmo
+var _rotate_gizmo
+var show_rotate_arc: bool = true
 var _ui := {}
 
 # Placement state
@@ -127,6 +130,11 @@ func _enter_tree() -> void:
 	_world_gizmo = WorldGizmo.new()
 	_world_gizmo.plugin = self
 	add_node_3d_gizmo_plugin(_world_gizmo)
+	_rotate_gizmo = RotateGizmo.new()
+	_rotate_gizmo.plugin = self
+	add_node_3d_gizmo_plugin(_rotate_gizmo)
+	# redraw arcs when the selection changes (only the selected node shows one)
+	get_editor_interface().get_selection().selection_changed.connect(_on_selection_changed)
 	drag = DragBuild.new()
 	drag.kit = self
 	add_custom_type("Platform", "StaticBody3D", PlatformScript, null)
@@ -156,6 +164,11 @@ func _exit_tree() -> void:
 	remove_node_3d_gizmo_plugin(_gizmo)
 	if _world_gizmo:
 		remove_node_3d_gizmo_plugin(_world_gizmo)
+	if _rotate_gizmo:
+		remove_node_3d_gizmo_plugin(_rotate_gizmo)
+	var sel := get_editor_interface().get_selection()
+	if sel.selection_changed.is_connected(_on_selection_changed):
+		sel.selection_changed.disconnect(_on_selection_changed)
 	if drag:
 		drag.cancel()
 		drag.close_pie()
@@ -168,6 +181,17 @@ func _exit_tree() -> void:
 	if _dock_plus:
 		remove_control_from_docks(_dock_plus)
 		_dock_plus.queue_free()
+
+
+var _last_selected: Array = []
+
+
+func _on_selection_changed() -> void:
+	var now := get_editor_interface().get_selection().get_selected_nodes()
+	for n in _last_selected + now:
+		if is_instance_valid(n) and n is Node3D:
+			(n as Node3D).update_gizmos()
+	_last_selected = now
 
 
 func _process(_delta: float) -> void:
@@ -344,6 +368,10 @@ func _build_dock() -> void:
 	links.tooltip_text = "Lines to nearby platforms: green = jumpable, red = too far/high"
 	links.toggled.connect(func(v): show_links = v; _refresh_gizmos())
 	chk.add_child(links)
+	var rot := CheckBox.new(); rot.text = "Rotation arc"; rot.button_pressed = show_rotate_arc
+	rot.tooltip_text = "Semi-circle + knob around the selected object: drag the knob to turn it (15° steps, Shift = free)"
+	rot.toggled.connect(func(v): show_rotate_arc = v; _on_selection_changed())
+	chk.add_child(rot)
 	root.add_child(chk)
 	var val := Button.new()
 	val.text = "Validate Level"

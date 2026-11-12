@@ -38,6 +38,14 @@ Dialogue Trigger, Location Flag, Flatten Pad (radius, blend), Terrain Path
 Floor. Platforms have their own handles. Every drag snaps to the grid and is
 one Ctrl+Z.
 
+### Rotation arc
+Select any object and a **cyan semi-circle** appears around its feet, with a
+yellow arrow showing which way it faces and a **knob** at the front. Drag the
+knob around the circle to turn the object. It snaps to **15°** steps; hold
+**Shift** for free rotation. The angle shows in the status line. One drag is
+one Ctrl+Z, and it works inside rotated parents. Toggle it with **Rotation
+arc** under CHECK.
+
 ### Surface snap
 On by default. Move anything with Godot's normal move tool, sideways, and it
 **slides along the ground under it**: over hills, onto roofs and platforms.
