@@ -29,6 +29,8 @@ const WorldGizmo = preload("res://addons/level_kit/world_gizmo.gd")
 const DragBuild = preload("res://addons/level_kit/drag_build.gd")
 const RotateGizmo = preload("res://addons/level_kit/rotate_gizmo.gd")
 const BuildAssist = preload("res://addons/level_kit/build_assist.gd")
+const MotionGizmo = preload("res://addons/level_kit/motion_gizmo.gd")
+const KitTools = preload("res://addons/level_kit/kit_tools.gd")
 
 # Settings mirrored from the dock
 var grid_snap: float = 0.5
@@ -46,6 +48,9 @@ var _world_gizmo
 var _rotate_gizmo
 var show_rotate_arc: bool = true
 var assist
+var tools
+var _motion_gizmo
+var _dock_tools: Control
 var _ui := {}
 
 # Placement state
@@ -143,6 +148,9 @@ func _enter_tree() -> void:
 	_rotate_gizmo = RotateGizmo.new()
 	_rotate_gizmo.plugin = self
 	add_node_3d_gizmo_plugin(_rotate_gizmo)
+	_motion_gizmo = MotionGizmo.new()
+	_motion_gizmo.plugin = self
+	add_node_3d_gizmo_plugin(_motion_gizmo)
 	# redraw arcs when the selection changes (only the selected node shows one)
 	get_editor_interface().get_selection().selection_changed.connect(_on_selection_changed)
 	drag = DragBuild.new()
@@ -166,6 +174,21 @@ func _enter_tree() -> void:
 	sc.add_child(inner)
 	plus.build(inner)
 	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock_plus)
+	tools = KitTools.new()
+	tools.kit = self
+	_dock_tools = VBoxContainer.new()
+	_dock_tools.name = "Level Tools"
+	var tsc := ScrollContainer.new()
+	tsc.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	tsc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_dock_tools.add_child(tsc)
+	var tin := VBoxContainer.new()
+	tin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tsc.add_child(tin)
+	tools.build(tin)
+	add_control_to_dock(DOCK_SLOT_RIGHT_UL, _dock_tools)
+	scene_changed.connect(func(_r): tools.refresh_bookmarks())
+	scene_saved.connect(func(_p): tools.rehide_after_save())
 	if not ProjectSettings.has_setting("autoload/LevelKitPlayHere"):
 		add_autoload_singleton("LevelKitPlayHere", "res://addons/level_kit/runtime/play_here.gd")
 	set_input_event_forwarding_always_enabled()
@@ -179,6 +202,13 @@ func _exit_tree() -> void:
 		remove_node_3d_gizmo_plugin(_world_gizmo)
 	if _rotate_gizmo:
 		remove_node_3d_gizmo_plugin(_rotate_gizmo)
+	if _motion_gizmo:
+		remove_node_3d_gizmo_plugin(_motion_gizmo)
+	if tools:
+		tools.restore_hidden_before_save()
+	if _dock_tools:
+		remove_control_from_docks(_dock_tools)
+		_dock_tools.queue_free()
 	var sel := get_editor_interface().get_selection()
 	if sel.selection_changed.is_connected(_on_selection_changed):
 		sel.selection_changed.disconnect(_on_selection_changed)
@@ -216,6 +246,20 @@ func _process(delta: float) -> void:
 		drag.process_snap()
 	if assist:
 		assist.process(delta)
+
+
+func _save_external_data() -> void:
+	# Runs right before the editor saves scenes: make hidden categories
+	# visible so they're never saved invisible (re-hidden on scene_saved).
+	if tools:
+		tools.restore_hidden_before_save()
+
+
+func _build() -> bool:
+	# Before Play: show everything.
+	if tools:
+		tools.restore_hidden_before_save()
+	return true
 
 
 func _handles(object: Object) -> bool:
@@ -1165,7 +1209,11 @@ func _play_from_here() -> void:
 	var f := FileAccess.open("user://level_kit_play_here.json", FileAccess.WRITE)
 	f.store_string(JSON.stringify(data))
 	f.close()
+	if tools:
+		tools.restore_hidden_before_save()
 	get_editor_interface().save_scene()
+	if tools:
+		tools.rehide_after_save()
 	get_editor_interface().play_current_scene()
 	_status("Playing from (%.0f, %.0f, %.0f) with all upgrades." % [spawn.x, spawn.y, spawn.z])
 

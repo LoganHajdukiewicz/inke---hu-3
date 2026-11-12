@@ -255,6 +255,54 @@ a linked instance.
 Starter stamps (cut from the 11-21 demo): **Floor_Gauntlet_Shipwreck**,
 **Vertical_Climb_Summit**, **Combat_Camp_Junkyard**, **Boss_Arena_Islet**.
 
+---
+
+# Level Tools (third dock tab)
+
+### Play test
+- **▶ Play from here**: Inke spawns where the viewport is looking.
+- **▶ Play from selected**: Inke spawns standing on top of whatever is
+  selected (a platform, a checkpoint, a peak).
+- **■ Stop.** "Play inside the editor" runs the game in Godot's embedded Game
+  tab instead of a separate window. Edit something, press Play again, and the
+  scene saves and restarts with all upgrades.
+
+### Moving floors: drag the path
+Select a Moving floor. A dashed line and a ghost outline show where it
+travels. **Drag the cyan ball** to set the end point (Shift+drag moves it up
+or down). Spinning floors show an orange arc sized by speed; drag its ball
+outward to spin faster (5–720°/s).
+
+### Align & spread (select 2 or more)
+- **Align X / Align Z / Same height**: line them up with the first selected
+  one. Same height matches the tops of platforms.
+- **Spread X / Z / along a line**: space them evenly between the first and
+  last, or with **Fixed gap** exactly that many metres between edges.
+- **Ground all** drops them onto the ground. **Face same way** turns them to
+  match the last-clicked object. **Random turn** gives each a random rotation.
+
+### Looks
+Click a swatch (Stone, Wood, Metal, Grass, Sand, Snow, Crystal, Punk Pink,
+Toxic, Brick, Night, Gold) to restyle the selected platforms, props and room
+walls. **Copy look from active** copies the last-clicked object's look onto
+the rest of the selection. **Toggle edge trim** turns platform trim on or off.
+
+### Hide & lock
+Each category (Enemies, Pickups, Breakables, Scenery, Dialogue, NPCs,
+Terrain, Water, Platforms) has a 👁 hide toggle and a 🔒 lock toggle (locked
+things can't be clicked or moved). Hiding is editor-only: hidden things are
+automatically shown again before every save and play, so the real level
+never ends up invisible.
+
+### Camera bookmarks
+Type a name and **Save view**. Click a bookmark to fly there; right-click
+deletes it. Bookmarks are saved inside the scene file.
+
+### Auto checkpoints
+Set the max spacing (default 90m). **Suggest** lists every place (platforms,
+quest givers, rails, flags, the boss) that's further than that from a
+checkpoint. **Add them** places checkpoints there, on the ground.
+
 ## Files
 - `level_kit.gd` – editor plugin and dock
 - `nodes/platform.gd` – the Platform node
@@ -262,6 +310,10 @@ Starter stamps (cut from the 11-21 demo): **Floor_Gauntlet_Shipwreck**,
 - `generators.gd` – course layouts
 - `jump_arcs.gd` – measured jump data (generated)
 - `tools/record_arcs.gd` – re-measures jump arcs from the live controller
+- `kit_tools.gd` – Level Tools tab (play test, align, looks, hide/lock, bookmarks, auto checkpoints)
+- `motion_gizmo.gd` – moving/spinning floor path handles
+- `rotate_gizmo.gd`, `world_gizmo.gd`, `drag_build.gd`, `build_assist.gd` – handles, draw-to-size, snapping, scatter, stats
+- `nodes/prop.gd` – code-built scenery props
 - `kit_plus.gd` – Level Kit+ tab (script writer, quest wizard, draw, stamps)
 - `stamps/` – saved stamps
 - `runtime/play_here.gd` – tiny autoload behind Play From Here (inert unless
