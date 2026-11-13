@@ -594,7 +594,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -57.7)
 wall_size = Vector3(8, 8.5, 0.5)
 
 [node name="Ladder1" parent="Summit" unique_id=1100277709 instance=ExtResource("36_3y6qj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7, 1, -57.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1631618, 5.25, -57.925)
+wall_size = Vector3(1.2, 7.5, 0.15)
 
 [node name="S1GN_Summit2" parent="Summit" unique_id=1845173894 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -6, 9.2, -66)
