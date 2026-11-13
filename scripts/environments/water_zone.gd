@@ -50,6 +50,8 @@ class_name WaterZone
 @export var buoy_spacing: float = 4.0:
 	set(v): buoy_spacing = maxf(v, 1.0); _queue_buoy_refresh()
 @export var boundary_enabled: bool = true
+## Line HU3 says every time Inke crosses the buoy line going outward.
+@export var buoy_warning_text: String = "Oh no! I heard that sharks live past these buoys!"
 ## Tick to DELETE the BuoyLine and regenerate the default circle
 ## (throws away your edits).
 @export var regenerate_buoys: bool = false:
@@ -70,6 +72,7 @@ class_name WaterZone
 var _visuals: Node3D = null
 var _buoy_holder: Node3D = null
 var _buoys: Array[Node3D] = []
+var _was_outside: bool = false
 var _buoy_phases: PackedFloat32Array = PackedFloat32Array()
 var _col: CollisionShape3D = null
 var _player: CharacterBody3D = null
@@ -458,20 +461,58 @@ func _inside_ring(world_pos: Vector3) -> bool:
 	return Geometry2D.is_point_in_polygon(Vector2(local.x, local.z), ring)
 
 
-func _player_in_danger() -> bool:
-	"""True when the player is outside the BuoyLine loop, horizontally over
-	this water - swimming, diving OR airborne above it. Jumping does not
-	pause the timer. Inside the loop or on land = safe."""
+func _outside_buoys() -> bool:
+	"""Player is horizontally over THIS water but outside the BuoyLine loop
+	(any height)."""
 	if _player == null or not is_instance_valid(_player):
 		return false
 	var local := to_local(_player.global_position)
 	if absf(local.x) > water_size.x * 0.5 or absf(local.z) > water_size.y * 0.5:
 		return false   # Not over this water at all
-	if _inside_ring(_player.global_position):
+	return not _inside_ring(_player.global_position)
+
+
+func _is_swimming() -> bool:
+	"""Actually IN the water (swimming / diving), not standing on a platform
+	or flying over it."""
+	if _player == null or not is_instance_valid(_player):
 		return false
-	if _is_land(_player.global_position):
+	if _player_inside:
+		return true
+	if "current_water" in _player and _player.current_water == self:
+		return true
+	var sm = _player.get("state_machine")
+	if sm and sm.current_state and sm.current_state.get_script().get_global_name() == "SwimmingState":
+		return true
+	return false
+
+
+func _on_solid_ground() -> bool:
+	"""Standing on something solid: land, a dock, a platform, a boat... -
+	anything that is NOT water. Only this sends a charging shark away."""
+	if _player == null or not is_instance_valid(_player):
+		return true
+	if not (_player is CharacterBody3D):
 		return false
-	return true
+	var cb := _player as CharacterBody3D
+	return cb.is_on_floor() and not _is_swimming()
+
+
+func _player_in_danger() -> bool:
+	"""SPAWN rule: the shark comes only for someone SWIMMING outside the
+	buoys. Standing on a platform (even one far out past the buoys) or
+	jumping between platforms over that water never summons it."""
+	return _outside_buoys() and _is_swimming()
+
+
+func _update_buoy_warning() -> void:
+	"""HU3 warns every time Inke crosses the buoy line going OUT."""
+	var outside := _outside_buoys()
+	if outside and not _was_outside:
+		var dm = get_node_or_null("/root/DialogueManager")
+		if dm and dm.has_method("bark") and not (dm.has_method("is_dialogue_active") and dm.is_dialogue_active()):
+			dm.bark("HU3", buoy_warning_text, 3.0)
+	_was_outside = outside
 
 
 func _process(delta: float):
@@ -479,6 +520,15 @@ func _process(delta: float):
 	# (Buoy bobbing runs in the buoy shader - no per-frame work here.)
 	if Engine.is_editor_hint():
 		return
+	
+	# Know the player even before they touch the water (the buoy warning
+	# fires when you cross the line on land, a platform or mid-jump too)
+	if _player == null or not is_instance_valid(_player):
+		var ps := get_tree().get_nodes_in_group("Player")
+		if ps.size() > 0:
+			_player = ps[0]
+	if boundary_enabled and _line_ready:
+		_update_buoy_warning()
 	
 	# --- Shark update -------------------------------------------------------
 	if _shark_phase != SharkPhase.NONE:
@@ -491,9 +541,9 @@ func _process(delta: float):
 	if _player == null or not is_instance_valid(_player):
 		_warn_timer = 0.0
 		return
-	# Danger is judged HORIZONTALLY over the water: jumping out of the
-	# water volume doesn't pause or reset the clock. Anywhere outside the
-	# buoy loop the timer runs - land or safe water are the only outs.
+	# Only SWIMMING outside the buoys starts the clock. Hopping out of the
+	# water for a split second (jump spam) doesn't reset it - only standing
+	# on solid ground or getting back inside the buoys does.
 	if _player_in_danger():
 		# Hidden grace period - no countdown on screen, the buoys ARE the
 		# warning. Outstay it and the shark charges.
@@ -501,7 +551,7 @@ func _process(delta: float):
 		if _warn_timer >= warning_time:
 			_warn_timer = 0.0
 			_start_shark_charge()
-	else:
+	elif _on_solid_ground() or not _outside_buoys():
 		_warn_timer = 0.0
 
 
@@ -552,10 +602,10 @@ func _update_shark(delta: float):
 		if _player == null or not is_instance_valid(_player):
 			_shark_break_off()
 			return
-		# MERCY RULE: make it back inside the loop (or onto land) before the
-		# shark touches you and it breaks off. Jumping over unsafe water
-		# does NOT count as safe.
-		if not _player_in_danger():
+		# The shark only gives up when Inke is standing on SOLID GROUND
+		# (land, dock, platform...). Swimming back inside the buoys or
+		# jumping around over the water doesn't shake it.
+		if _on_solid_ground():
 			_shark_break_off()
 			return
 		var target := _player.global_position
@@ -564,7 +614,8 @@ func _update_shark(delta: float):
 		# Horizontal chase/chomp: jumping doesn't help, the shark lunges up
 		var dist := Vector2(_player.global_position.x - _shark.global_position.x,
 				_player.global_position.z - _shark.global_position.z).length()
-		if dist < 1.3:
+		var reachable: bool = _player.global_position.y < surface_y + 2.5
+		if dist < 1.3 and reachable:
 			# CHOMP
 			_player.velocity = Vector3.ZERO
 			if _player.has_method("die"):
