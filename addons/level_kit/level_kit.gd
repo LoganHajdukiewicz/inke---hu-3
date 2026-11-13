@@ -16,7 +16,6 @@ extends EditorPlugin
 ##   PLAY    - Play From Here: runs the scene with Inke at the viewport.
 ##
 ## Viewport hotkeys (3D viewport focused, a Level Kit node selected):
-##   D  duplicate the selection one jump forward (along its facing)
 ##   G  drop the selection onto the ground under it
 ##   F5-style: dock "Play From Here" button (Ctrl+Shift+P)
 
@@ -675,9 +674,6 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 		if event.keycode == KEY_P and event.ctrl_pressed and event.shift_pressed:
 			_play_from_here()
 			return AFTER_GUI_INPUT_STOP
-		if event.keycode == KEY_D and not event.ctrl_pressed and not event.alt_pressed:
-			if _duplicate_forward():
-				return AFTER_GUI_INPUT_STOP
 		if event.keycode == KEY_G and event.alt_pressed:
 			if _drop_selection():
 				return AFTER_GUI_INPUT_STOP
@@ -810,42 +806,6 @@ func _world_aabb(n: Node3D) -> AABB:
 
 
 # --- selection hotkeys ---
-
-func _duplicate_forward() -> bool:
-	"""D: copy the selected node(s) one comfortable run jump forward."""
-	var sel := get_editor_interface().get_selection().get_selected_nodes()
-	if sel.is_empty():
-		return false
-	var root := get_editor_interface().get_edited_scene_root()
-	var ur := get_undo_redo()
-	ur.create_action("Level Kit: duplicate forward")
-	var new_sel := []
-	for s in sel:
-		if not (s is Node3D) or s == root:
-			continue
-		var n3 := s as Node3D
-		var dup := n3.duplicate()
-		var span := 0.0
-		if n3 is Platform:
-			span = (n3 as Platform).size.z
-		var gap := Gen.safe_gap("run", 0.0, 0.35, maxf(span, 4.0))
-		var fwd := -n3.global_transform.basis.z.normalized()
-		var xf := n3.global_transform
-		xf.origin += fwd * (span + gap)
-		ur.add_do_method(n3.get_parent(), "add_child", dup, true)
-		ur.add_do_method(dup, "set_owner", root)
-		ur.add_do_property(dup, "global_transform", xf)
-		ur.add_do_reference(dup)
-		ur.add_undo_method(n3.get_parent(), "remove_child", dup)
-		new_sel.append(dup)
-	ur.commit_action()
-	var es := get_editor_interface().get_selection()
-	es.clear()
-	for n in new_sel:
-		es.add_node(n)
-	_status("Duplicated forward by a run-jump gap. Press D again to keep going.")
-	return true
-
 
 func _drop_selection() -> bool:
 	"""Alt+G: drop selected nodes straight down onto whatever is below."""

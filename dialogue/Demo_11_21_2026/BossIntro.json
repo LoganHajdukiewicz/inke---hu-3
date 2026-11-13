@@ -2,15 +2,18 @@
 	"dialogue": [
 		{
 			"speaker": "Sludge King",
-			"text": "WHO DARES TRACK MUD INTO MY SLUDGE?"
+			"text": "WHO DARES TRACK MUD INTO MY SLUDGE?",
+			"portrait": "Sludge-King"
 		},
 		{
 			"speaker": "Inke",
-			"text": "...it's already mud."
+			"text": "...it's already mud.",
+			"portrait": "Inke"
 		},
 		{
 			"speaker": "Sludge King",
-			"text": "IT IS ARTISANAL MUD."
+			"text": "IT IS ARTISANAL MUD.",
+			"portrait": "Sludge-King"
 		},
 		{
 			"speaker": "S-1GN",

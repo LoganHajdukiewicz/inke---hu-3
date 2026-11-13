@@ -96,8 +96,46 @@ func begin(focus: Node3D, custom_angles: Array = []) -> void:
 	
 	active = true
 	_shot_index = 0
+	_last_other = null
 	next_shot(true)   # blend from gameplay view into the first shot
 	set_process(true)
+
+
+var _speaker_name: String = ""
+
+
+func set_speaker(name: String) -> void:
+	"""Called by DialogueManager on every line: the camera frames whoever is
+	talking. 'Inke' (or HU3) -> a shot on Inke; any other name -> the scene
+	node with that name / npc_name / boss_name / enemy_id (e.g. the Sludge
+	King), falling back to the dialogue's focus node."""
+	_speaker_name = name
+
+
+func _speaker_node() -> Node3D:
+	var n := _speaker_name.strip_edges().to_lower()
+	if n == "" :
+		return _focus
+	if n in ["inke", "hu3", "hu-3"]:
+		return _player
+	var scene := get_tree().current_scene
+	if scene == null:
+		return _focus
+	var key := n.replace(" ", "").replace("-", "").replace("_", "")
+	var best: Node3D = null
+	var best_d := INF
+	for c in scene.find_children("*", "Node3D", true, false):
+		var names: Array = [str(c.name)]
+		for prop in ["npc_name", "boss_name", "enemy_id", "merchant_name"]:
+			if prop in c: names.append(str(c.get(prop)))
+		for nm in names:
+			var k: String = nm.to_lower().replace(" ", "").replace("-", "").replace("_", "").replace("the", "")
+			if k != "" and (k == key or k == key.replace("the", "")):
+				var d: float = (c as Node3D).global_position.distance_to(_player.global_position) if _player else 0.0
+				if d < best_d:
+					best_d = d; best = c
+				break
+	return best if best else _focus
 
 
 func next_shot(first: bool = false) -> void:
@@ -188,8 +226,28 @@ func _process(delta: float) -> void:
 # ---------------------------------------------------------------------------
 # Auto shot computation
 # ---------------------------------------------------------------------------
+func _other() -> Node3D:
+	"""The non-Inke party in the conversation: the current speaker if it's
+	someone else, otherwise the last non-Inke speaker / focus node."""
+	var sp := _speaker_node()
+	if sp and sp != _player:
+		_last_other = sp
+	return _last_other if _last_other and is_instance_valid(_last_other) else _focus
+
+
+var _last_other: Node3D = null
+
+
+func _head_of(n: Node3D, fallback: float) -> Vector3:
+	if n == null or not is_instance_valid(n):
+		return Vector3.ZERO
+	# Use the body's visual height (scaled bosses are big)
+	var h := fallback * n.global_transform.basis.get_scale().y
+	return n.global_position + Vector3(0, h, 0)
+
+
 func _speaker_head() -> Vector3:
-	return _focus.global_position + Vector3(0, 1.6, 0) if _focus and is_instance_valid(_focus) else Vector3.ZERO
+	return _head_of(_other(), 1.6)
 
 
 func _player_head() -> Vector3:
@@ -212,6 +270,15 @@ func _compute_shot(index: int) -> Dictionary:
 		side = Vector3.RIGHT
 	var flip: float = 1.0 if (index / 4) % 2 == 0 else -1.0
 	var kind := index % 4
+	# Frame WHOEVER IS TALKING: Inke speaking -> shot on Inke (reverse OTS),
+	# anyone else -> shot on them (OTS or close-up). Wide two-shots still
+	# come in for variety every few lines.
+	var inke_talking := _speaker_node() == _player and _player != null
+	if kind != 3:
+		if inke_talking:
+			kind = 1
+		elif kind == 1:
+			kind = 0 if (index / 2) % 2 == 0 else 2
 	# Try the preferred shot, then its mirror, then the other kinds.
 	var order := [kind, kind, (kind + 1) % 4, (kind + 2) % 4, (kind + 3) % 4, 3]
 	for attempt in range(order.size()):

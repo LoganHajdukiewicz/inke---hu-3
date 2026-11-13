@@ -57,6 +57,11 @@ func _consume_dynamic_camera() -> void:
 		camera_director = DialogueCameraDirector.new()
 		camera_director.name = "DialogueCameraDirector"
 		add_child(camera_director)
+	# First shot must frame the FIRST speaker, not a default
+	var first_speaker := ""
+	if current_dialogue.size() > 0 and current_dialogue[0] is Dictionary:
+		first_speaker = str(current_dialogue[0].get("speaker", ""))
+	camera_director.set_speaker(first_speaker)
 	camera_director.begin(_pending_camera_focus, _pending_camera_angles)
 	_pending_camera_focus = null
 	_pending_camera_angles = []
@@ -190,6 +195,8 @@ func show_current_line() -> void:
 	# New cinematic angle only when the SPEAKER changes. Consecutive lines
 	# by the same character hold the current shot - don't assume dialogue
 	# is back-and-forth; monologues shouldn't cut on every line.
+	if camera_director and camera_director.active:
+		camera_director.set_speaker(speaker)
 	if camera_director and camera_director.active and current_index > 0:
 		if speaker != _last_camera_speaker:
 			camera_director.next_shot()

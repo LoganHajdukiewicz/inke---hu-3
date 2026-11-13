@@ -1,38 +1,66 @@
-[gd_scene format=3 uid="uid://bjum5cq6o3dji"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://b112r7llqqap" path="res://scripts/environments/worldbuilding/terrain.gd" id="1_bwsd3"]
-[ext_resource type="Script" uid="uid://cvdt44l58stnc" path="res://scripts/environments/worldbuilding/flatten_pad.gd" id="2_nfmil"]
-[ext_resource type="PackedScene" uid="uid://water0one001" path="res://scenes/environments/water_zone.tscn" id="3_fut4o"]
-[ext_resource type="PackedScene" uid="uid://bgtuvkweqa1l4" path="res://scenes/environments/reset_plane.tscn" id="5_ump5n"]
-[ext_resource type="PackedScene" uid="uid://d0ixvyxxmslor" path="res://scenes/items/Signs/sign.tscn" id="7_wvjwh"]
-[ext_resource type="PackedScene" uid="uid://dyx5autvv3t1e" path="res://scenes/environments/dialogue_trigger.tscn" id="9_y2v3n"]
-[ext_resource type="Script" uid="uid://di3wornj0kmh5" path="res://addons/level_kit/nodes/platform.gd" id="11_ewirw"]
-[ext_resource type="PackedScene" uid="uid://diup37v2ws5aa" path="res://scenes/environments/heal_patch.tscn" id="12_pakl0"]
-[ext_resource type="PackedScene" uid="uid://diup8fr8rdyya" path="res://scenes/items/Collectibles/health_pickup.tscn" id="14_hvas5"]
-[ext_resource type="PackedScene" uid="uid://cinkwisp0001a" path="res://scenes/items/Collectibles/spray_can.tscn" id="16_epjt2"]
-[ext_resource type="PackedScene" uid="uid://bdxo4fr0da0vb" path="res://scenes/characters/Player/inke.tscn" id="18_r6uqs"]
-[ext_resource type="PackedScene" uid="uid://d2iuuu7okc6bg" path="res://scenes/environments/checkpoint.tscn" id="20_b8ayc"]
-[ext_resource type="PackedScene" uid="uid://bx58ch1j8e8bo" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="22_51gcg"]
-[ext_resource type="PackedScene" uid="uid://bercg7tu4yiyy" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="24_4rym6"]
-[ext_resource type="PackedScene" uid="uid://c12ty8bvk86rc" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="26_i5sta"]
-[ext_resource type="PackedScene" uid="uid://b60dbcg2q5bp3" path="res://scenes/environments/floor.tscn" id="28_jxhsd"]
-[ext_resource type="PackedScene" uid="uid://dwaregi88lej4" path="res://scenes/items/Rails/rail.tscn" id="30_6j6fx"]
-[ext_resource type="PackedScene" uid="uid://bcxt1banj6acv" path="res://scenes/items/Collectibles/cred.tscn" id="32_n36la"]
-[ext_resource type="PackedScene" uid="uid://c1imbwallnew1" path="res://scenes/environments/climbable_wall.tscn" id="34_vesew"]
-[ext_resource type="PackedScene" uid="uid://cladderwall01" path="res://scenes/environments/ladder.tscn" id="36_3y6qj"]
-[ext_resource type="PackedScene" uid="uid://dgu522lrq7iyy" path="res://scenes/environments/swing_bar.tscn" id="38_xlaav"]
-[ext_resource type="PackedScene" uid="uid://7rlf6gb13oqe" path="res://scenes/environments/grapple_point.tscn" id="40_nrfji"]
-[ext_resource type="PackedScene" uid="uid://dxioe5mivmaii" path="res://scenes/quests/location_flag.tscn" id="42_vsxe8"]
-[ext_resource type="PackedScene" uid="uid://c63w5kpmx8pxr" path="res://scenes/items/Breakables/box.tscn" id="44_el88t"]
-[ext_resource type="PackedScene" uid="uid://3bpo7uite5aa" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="46_4d7kp"]
-[ext_resource type="PackedScene" uid="uid://c4m5c15b77iyy" path="res://scenes/environments/ground_pound_mound.tscn" id="48_cewm5"]
-[ext_resource type="PackedScene" uid="uid://o2ukbrpnyo3t" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="50_d17wy"]
-[ext_resource type="PackedScene" uid="uid://chargerenmy01" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="52_d4yxb"]
-[ext_resource type="PackedScene" uid="uid://jqfgjsekml77" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="54_6e3im"]
-[ext_resource type="Script" uid="uid://clqj71wc5kuyh" path="res://scripts/levels/cred_gate.gd" id="56_gmem8"]
-[ext_resource type="PackedScene" uid="uid://bfg2o2wtbkhpj" path="res://scenes/environments/scene_transitioner.tscn" id="57_wnyom"]
-[ext_resource type="PackedScene" uid="uid://cu7ok4tvrfhg5" path="res://scenes/UI/dialogue_ui.tscn" id="59_me06v"]
-[ext_resource type="Script" uid="uid://b025l0iuffk1d" path="res://scripts/levels/cred_threshold.gd" id="61_u3bgp"]
+[ext_resource type="Script" path="res://scripts/environments/worldbuilding/terrain.gd" id="1_bwsd3"]
+[ext_resource type="Script" path="res://scripts/environments/worldbuilding/flatten_pad.gd" id="2_nfmil"]
+[ext_resource type="PackedScene" path="res://scenes/environments/water_zone.tscn" id="3_fut4o"]
+[ext_resource type="Script" path="res://scripts/environments/water_zone.gd" id="4_bwsd3"]
+[ext_resource type="PackedScene" path="res://scenes/environments/reset_plane.tscn" id="5_ump5n"]
+[ext_resource type="Script" path="res://scripts/environments/reset_plane.gd" id="6_nfmil"]
+[ext_resource type="PackedScene" path="res://scenes/items/Signs/sign.tscn" id="7_wvjwh"]
+[ext_resource type="Script" path="res://scripts/items/Signs/sign.gd" id="8_fut4o"]
+[ext_resource type="PackedScene" path="res://scenes/environments/dialogue_trigger.tscn" id="9_y2v3n"]
+[ext_resource type="Script" path="res://scripts/environments/dialogue_trigger.gd" id="10_1uqhs"]
+[ext_resource type="Script" path="res://addons/level_kit/nodes/platform.gd" id="11_ewirw"]
+[ext_resource type="PackedScene" path="res://scenes/environments/heal_patch.tscn" id="12_pakl0"]
+[ext_resource type="Script" path="res://scripts/environments/heal_patch.gd" id="13_ump5n"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/health_pickup.tscn" id="14_hvas5"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/health_pickup.gd" id="15_tvf3g"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/spray_can.tscn" id="16_epjt2"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/spray_can.gd" id="17_wvjwh"]
+[ext_resource type="PackedScene" path="res://scenes/characters/Player/inke.tscn" id="18_r6uqs"]
+[ext_resource type="Script" path="res://scripts/characters/Player/inke.gd" id="19_63qgu"]
+[ext_resource type="PackedScene" path="res://scenes/environments/checkpoint.tscn" id="20_b8ayc"]
+[ext_resource type="Script" path="res://scripts/environments/checkpoint.gd" id="21_y2v3n"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Friendly NPCs/merchant.tscn" id="22_51gcg"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Friendly NPCs/merchant.gd" id="23_eqdgt"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Friendly NPCs/quest_giver.tscn" id="24_4rym6"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Friendly NPCs/quest_giver.gd" id="25_ewirw"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/six_teeth_gear.tscn" id="26_i5sta"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/gears.gd" id="27_pakl0"]
+[ext_resource type="PackedScene" path="res://scenes/environments/floor.tscn" id="28_jxhsd"]
+[ext_resource type="Script" path="res://scripts/environments/floor.gd" id="29_pyvoo"]
+[ext_resource type="PackedScene" path="res://scenes/items/Rails/rail.tscn" id="30_6j6fx"]
+[ext_resource type="Script" path="res://scripts/items/Rails/rail.gd" id="31_hvas5"]
+[ext_resource type="PackedScene" path="res://scenes/items/Collectibles/cred.tscn" id="32_n36la"]
+[ext_resource type="Script" path="res://scripts/items/Collectibles/cred.gd" id="33_jh21m"]
+[ext_resource type="PackedScene" path="res://scenes/environments/climbable_wall.tscn" id="34_vesew"]
+[ext_resource type="Script" path="res://scripts/environments/climbable_wall.gd" id="35_epjt2"]
+[ext_resource type="PackedScene" path="res://scenes/environments/ladder.tscn" id="36_3y6qj"]
+[ext_resource type="Script" path="res://scripts/environments/ladder.gd" id="37_ruqmi"]
+[ext_resource type="PackedScene" path="res://scenes/environments/swing_bar.tscn" id="38_xlaav"]
+[ext_resource type="Script" path="res://scripts/environments/swing_bar.gd" id="39_r6uqs"]
+[ext_resource type="PackedScene" path="res://scenes/environments/grapple_point.tscn" id="40_nrfji"]
+[ext_resource type="Script" path="res://scripts/environments/grapple_point.gd" id="41_yqpr4"]
+[ext_resource type="PackedScene" path="res://scenes/quests/location_flag.tscn" id="42_vsxe8"]
+[ext_resource type="Script" path="res://scripts/quests/location_flag.gd" id="43_b8ayc"]
+[ext_resource type="PackedScene" path="res://scenes/items/Breakables/box.tscn" id="44_el88t"]
+[ext_resource type="Script" path="res://scripts/items/Breakables/box.gd" id="45_gqq8p"]
+[ext_resource type="PackedScene" path="res://scenes/items/Breakables/explosive_barrel.tscn" id="46_4d7kp"]
+[ext_resource type="Script" path="res://scripts/items/Breakables/explosive_barrel.gd" id="47_51gcg"]
+[ext_resource type="PackedScene" path="res://scenes/environments/ground_pound_mound.tscn" id="48_cewm5"]
+[ext_resource type="Script" path="res://scripts/environments/ground_pound_mound.gd" id="49_3m8cl"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/enemy.tscn" id="50_d17wy"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/enemy.gd" id="51_4rym6"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/charger_enemy.tscn" id="52_d4yxb"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/charger_enemy.gd" id="53_6ui1m"]
+[ext_resource type="PackedScene" path="res://scenes/characters/NPCs/Enemies/turret_enemy.tscn" id="54_6e3im"]
+[ext_resource type="Script" path="res://scripts/characters/NPCs/Enemies/turret_enemy.gd" id="55_i5sta"]
+[ext_resource type="Script" path="res://scripts/levels/cred_gate.gd" id="56_gmem8"]
+[ext_resource type="PackedScene" path="res://scenes/environments/scene_transitioner.tscn" id="57_wnyom"]
+[ext_resource type="Script" path="res://scripts/environments/scene_transitioner.gd" id="58_ajqhq"]
+[ext_resource type="PackedScene" path="res://scenes/UI/dialogue_ui.tscn" id="59_me06v"]
+[ext_resource type="Script" path="res://scripts/UI/dialogue_ui.gd" id="60_jxhsd"]
+[ext_resource type="Script" path="res://scripts/levels/cred_threshold.gd" id="61_u3bgp"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qpk0s"]
 sky_top_color = Color(0.401837, 0.248319, 0.976917, 1)
@@ -211,25 +239,30 @@ script = ExtResource("2_nfmil")
 radius = 10.0
 blend = 12.0
 
-[node name="Sea" parent="World" unique_id=2031402787 instance=ExtResource("3_fut4o")]
+[node name="Sea" type="Area3D" parent="World" unique_id=2031402787 instance=ExtResource("3_fut4o")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, 0)
 collision_layer = 0
 monitorable = false
+script = ExtResource("4_bwsd3")
 water_size = Vector2(700, 700)
 boundary_distance = 30.0
 
 [node name="BuoyLine" type="Path3D" parent="World/Sea" unique_id=2060060257]
 curve = SubResource("Curve3D_h03jm")
 
-[node name="ResetPlane" parent="World" unique_id=1397401038 instance=ExtResource("5_ump5n")]
+[node name="ResetPlane" type="Node3D" parent="World" unique_id=1397401038 instance=ExtResource("5_ump5n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -20, 0)
+script = ExtResource("6_nfmil")
 
 [node name="Hub" type="Node3D" parent="." unique_id=1466812847]
 
-[node name="S1GN_Welcome" parent="Hub" unique_id=1120073632 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Welcome" type="StaticBody3D" parent="Hub" unique_id=1120073632 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-0.9396926, 0, -0.34202015, 0, 1, 0, 0.34202015, 0, -0.9396926, 18, 1.1189792, 44)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Hub/S1GN_Welcome" unique_id=268251948 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Hub/S1GN_Welcome" unique_id=268251948 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Welcome"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -239,10 +272,13 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20275" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=1764556558]
 shape = SubResource("BoxShape3D_rb3oi")
 
-[node name="S1GN_Town" parent="Hub" unique_id=1501362999 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Town" type="StaticBody3D" parent="Hub" unique_id=1501362999 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 1.2, 12)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Hub/S1GN_Town" unique_id=1053746152 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Hub/S1GN_Town" unique_id=1053746152 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "TownSign"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -252,10 +288,13 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20292" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=1779445223]
 shape = SubResource("BoxShape3D_7gbg7")
 
-[node name="S1GN_Merchant" parent="Hub" unique_id=219031489 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Merchant" type="StaticBody3D" parent="Hub" unique_id=219031489 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-0.50000006, 0, 0.8660254, 0, 1, 0, -0.8660254, 0, -0.50000006, 14, 1.2, -10)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Hub/S1GN_Merchant" unique_id=839448817 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Hub/S1GN_Merchant" unique_id=839448817 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "MerchantSign"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -298,38 +337,50 @@ size = Vector3(8, 0.5, 10)
 pillar_depth = 6.0
 look = 1
 
-[node name="HealPatch" parent="Hub" unique_id=356911551 instance=ExtResource("12_pakl0")]
+[node name="HealPatch" type="Area3D" parent="Hub" unique_id=356911551 instance=ExtResource("12_pakl0")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 1.35, 6)
+collision_layer = 0
+script = ExtResource("13_ump5n")
 
-[node name="Health" parent="Hub" unique_id=1508155064 instance=ExtResource("14_hvas5")]
+[node name="Health" type="Area3D" parent="Hub" unique_id=1508155064 instance=ExtResource("14_hvas5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2.2, -6)
 collision_layer = 0
+script = ExtResource("15_tvf3g")
 
-[node name="SprayCan_Roof" parent="Hub" unique_id=1871781203 instance=ExtResource("16_epjt2")]
+[node name="SprayCan_Roof" type="Area3D" parent="Hub" unique_id=1871781203 groups=["Collectible", "SprayCan"] instance=ExtResource("16_epjt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 8, 14)
+script = ExtResource("17_wvjwh")
 
-[node name="Inke" parent="." unique_id=2088239389 instance=ExtResource("18_r6uqs")]
+[node name="Inke" type="CharacterBody3D" parent="." unique_id=2088239389 node_paths=PackedStringArray("wall_jump_rays", "rail_grind_area") groups=["Player"] instance=ExtResource("18_r6uqs")]
 transform = Transform3D(-0.9396926, 0, -0.34202015, 0, 1, 0, 0.34202015, 0, -0.9396926, -2.0119314, 1.1099964, -1.4113445)
+script = ExtResource("19_63qgu")
+wall_jump_rays = NodePath("WallJumpRays")
+rail_grind_area = NodePath("RailGrindArea")
 
 [node name="Checkpoints" type="Node3D" parent="." unique_id=130074801]
 
-[node name="CP_Beach" parent="Checkpoints" unique_id=352488106 instance=ExtResource("20_b8ayc")]
+[node name="CP_Beach" type="Node3D" parent="Checkpoints" unique_id=352488106 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 3.344169, 48)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "beach"
 
-[node name="CP_Town" parent="Checkpoints" unique_id=2119401538 instance=ExtResource("20_b8ayc")]
+[node name="CP_Town" type="Node3D" parent="Checkpoints" unique_id=2119401538 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 8)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "town"
 
 [node name="NPCs" type="Node3D" parent="." unique_id=570467570]
 
-[node name="Merchant" parent="NPCs" unique_id=742257988 instance=ExtResource("22_51gcg")]
+[node name="Merchant" type="CharacterBody3D" parent="NPCs" unique_id=742257988 instance=ExtResource("22_51gcg")]
 transform = Transform3D(-0.7660445, 0, -0.6427876, 0, 1, 0, 0.6427876, 0, -0.7660445, 17.585876, 6.884063, -16.082983)
+script = ExtResource("23_eqdgt")
 available_upgrades = Array[int]([0, 1, 2, 9])
 camera_walls_enabled = true
 
-[node name="QG_Rust" parent="NPCs" unique_id=1564658184 instance=ExtResource("24_4rym6")]
+[node name="QG_Rust" type="CharacterBody3D" parent="NPCs" unique_id=1564658184 instance=ExtResource("24_4rym6")]
 transform = Transform3D(-0.34202006, 0, -0.9396927, 0, 1, 0, 0.9396927, 0, -0.34202006, -12, 1.3, -4)
+collision_layer = 4
+script = ExtResource("25_ewirw")
 npc_name = "Rust"
 body_color = Color(0.85, 0.45, 0.15, 1)
 camera_walls_enabled = true
@@ -339,8 +390,10 @@ small_talk = Array[String](["Ahoy... landlubber. Ignore the crying, it's sea spr
 quest_ask = "Bring me six gears and the CRED is yours. Deal?"
 quest_file = "demo_gears.tres"
 
-[node name="QG_Echo" parent="NPCs" unique_id=1239706126 instance=ExtResource("24_4rym6")]
+[node name="QG_Echo" type="CharacterBody3D" parent="NPCs" unique_id=1239706126 instance=ExtResource("24_4rym6")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 1.3, -14)
+collision_layer = 4
+script = ExtResource("25_ewirw")
 npc_name = "Echo"
 body_color = Color(0.4, 0.75, 1, 1)
 camera_walls_enabled = true
@@ -350,8 +403,10 @@ small_talk = Array[String](["...", "Sorry. I was listening to the mountain. It's
 quest_ask = "Climb to the very top and plant my flag. I'll meet you there."
 quest_file = "demo_summit.tres"
 
-[node name="QG_Moxie" parent="NPCs" unique_id=362219257 instance=ExtResource("24_4rym6")]
+[node name="QG_Moxie" type="CharacterBody3D" parent="NPCs" unique_id=362219257 instance=ExtResource("24_4rym6")]
 transform = Transform3D(-0.1736482, 0, 0.9848077, 0, 1, 0, -0.9848077, 0, -0.1736482, 12, 1.3, 2)
+collision_layer = 4
+script = ExtResource("25_ewirw")
 npc_name = "Moxie"
 body_color = Color(0.95, 0.3, 0.55, 1)
 camera_walls_enabled = true
@@ -365,32 +420,42 @@ quest_file = "demo_crates.tres"
 
 [node name="Gears" type="Node3D" parent="Shipwreck" unique_id=958548086]
 
-[node name="Gear1" parent="Shipwreck/Gears" unique_id=1214060643 instance=ExtResource("26_i5sta")]
+[node name="Gear1" type="Area3D" parent="Shipwreck/Gears" unique_id=1214060643 groups=["Gear"] instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -88, 11.2, 0)
+script = ExtResource("27_pakl0")
 
-[node name="Gear2" parent="Shipwreck/Gears" unique_id=420760984 instance=ExtResource("26_i5sta")]
+[node name="Gear2" type="Area3D" parent="Shipwreck/Gears" unique_id=420760984 groups=["Gear"] instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -128, 11.2, 3)
+script = ExtResource("27_pakl0")
 
-[node name="Gear3" parent="Shipwreck/Gears" unique_id=1325346038 instance=ExtResource("26_i5sta")]
+[node name="Gear3" type="Area3D" parent="Shipwreck/Gears" unique_id=1325346038 groups=["Gear"] instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -152, 11.5, 0)
+script = ExtResource("27_pakl0")
 
-[node name="Gear4" parent="Shipwreck/Gears" unique_id=1213801124 instance=ExtResource("26_i5sta")]
+[node name="Gear4" type="Area3D" parent="Shipwreck/Gears" unique_id=1213801124 groups=["Gear"] instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -174, 11.5, 22)
+script = ExtResource("27_pakl0")
 
-[node name="Gear5" parent="Shipwreck/Gears" unique_id=449255396 instance=ExtResource("26_i5sta")]
+[node name="Gear5" type="Area3D" parent="Shipwreck/Gears" unique_id=449255396 groups=["Gear"] instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -158, 11.5, 58)
+script = ExtResource("27_pakl0")
 
-[node name="Gear6" parent="Shipwreck/Gears" unique_id=1912894389 instance=ExtResource("26_i5sta")]
+[node name="Gear6" type="Area3D" parent="Shipwreck/Gears" unique_id=1912894389 groups=["Gear"] instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -158, 11.2, 72)
+script = ExtResource("27_pakl0")
 
-[node name="CP_Wreck" parent="Shipwreck" unique_id=1138245226 instance=ExtResource("20_b8ayc")]
+[node name="CP_Wreck" type="Node3D" parent="Shipwreck" unique_id=1138245226 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 1.2, 0)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "wreck"
 
-[node name="S1GN_Wreck1" parent="Shipwreck" unique_id=683131278 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Wreck1" type="StaticBody3D" parent="Shipwreck" unique_id=683131278 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -52, 1.2, -6)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Shipwreck/S1GN_Wreck1" unique_id=1023675361 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Shipwreck/S1GN_Wreck1" unique_id=1023675361 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Wreck1"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -407,8 +472,9 @@ size = Vector3(14, 0.5, 8)
 pillar_depth = 4.0
 look = 1
 
-[node name="Spring1" parent="Shipwreck" unique_id=1541442200 instance=ExtResource("28_jxhsd")]
+[node name="Spring1" type="StaticBody3D" parent="Shipwreck" unique_id=1541442200 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -76, 1, 0)
+script = ExtResource("29_pyvoo")
 floor_type = 1
 floor_size = Vector3(5, 0.5, 5)
 
@@ -419,10 +485,13 @@ size = Vector3(12, 0.6, 12)
 pillar_depth = 12.0
 look = 1
 
-[node name="S1GN_Wreck2" parent="Shipwreck" unique_id=947137938 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Wreck2" type="StaticBody3D" parent="Shipwreck" unique_id=947137938 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -92, 10.2, 4)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Shipwreck/S1GN_Wreck2" unique_id=451552782 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Shipwreck/S1GN_Wreck2" unique_id=451552782 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Wreck2"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -432,8 +501,9 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20376" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck2/DialogueTrigger" unique_id=1452773621]
 shape = SubResource("BoxShape3D_t42ol")
 
-[node name="MovingDeck" parent="Shipwreck" unique_id=1946370354 instance=ExtResource("28_jxhsd")]
+[node name="MovingDeck" type="StaticBody3D" parent="Shipwreck" unique_id=1946370354 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -98, 10, 0)
+script = ExtResource("29_pyvoo")
 floor_type = 4
 floor_size = Vector3(7, 0.5, 7)
 movement_axis = Vector3(-20, 0, 0)
@@ -446,36 +516,42 @@ size = Vector3(10, 0.6, 10)
 pillar_depth = 12.0
 look = 1
 
-[node name="Rotten0" parent="Shipwreck" unique_id=1248926255 instance=ExtResource("28_jxhsd")]
+[node name="Rotten0" type="StaticBody3D" parent="Shipwreck" unique_id=1248926255 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -138, 10, 0)
+script = ExtResource("29_pyvoo")
 floor_type = 2
 floor_size = Vector3(6, 0.5, 5)
 fall_duration = 2.0
 respawn_delay = 2.5
 
-[node name="Rotten1" parent="Shipwreck" unique_id=1960720676 instance=ExtResource("28_jxhsd")]
+[node name="Rotten1" type="StaticBody3D" parent="Shipwreck" unique_id=1960720676 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -145, 10, 0)
+script = ExtResource("29_pyvoo")
 floor_type = 2
 floor_size = Vector3(6, 0.5, 5)
 fall_duration = 2.0
 respawn_delay = 2.5
 
-[node name="Rotten2" parent="Shipwreck" unique_id=751461355 instance=ExtResource("28_jxhsd")]
+[node name="Rotten2" type="StaticBody3D" parent="Shipwreck" unique_id=751461355 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -152, 10, 0)
+script = ExtResource("29_pyvoo")
 floor_type = 2
 floor_size = Vector3(6, 0.5, 5)
 fall_duration = 2.0
 respawn_delay = 2.5
 
-[node name="Rotten3" parent="Shipwreck" unique_id=189765211 instance=ExtResource("28_jxhsd")]
+[node name="Rotten3" type="StaticBody3D" parent="Shipwreck" unique_id=189765211 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -159, 10, 0)
+script = ExtResource("29_pyvoo")
 floor_type = 2
 floor_size = Vector3(6, 0.5, 5)
 fall_duration = 2.0
 respawn_delay = 2.5
 
-[node name="FallTroll" parent="Shipwreck" unique_id=1288328245 instance=ExtResource("9_y2v3n")]
+[node name="FallTroll" type="Area3D" parent="Shipwreck" unique_id=1288328245 instance=ExtResource("9_y2v3n")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -139, 11.5, 0)
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "WreckFall"
 box_size = Vector3(8, 4, 1)
 show_prompt = false
@@ -493,14 +569,18 @@ size = Vector3(12, 0.6, 14)
 pillar_depth = 12.0
 look = 1
 
-[node name="CP_Stern" parent="Shipwreck" unique_id=1898299948 instance=ExtResource("20_b8ayc")]
+[node name="CP_Stern" type="Node3D" parent="Shipwreck" unique_id=1898299948 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170, 10.2, 4)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "stern"
 
-[node name="S1GN_Wreck3" parent="Shipwreck" unique_id=810094680 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Wreck3" type="StaticBody3D" parent="Shipwreck" unique_id=810094680 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -166, 10.2, 6)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Shipwreck/S1GN_Wreck3" unique_id=297792198 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Shipwreck/S1GN_Wreck3" unique_id=297792198 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Wreck3"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -510,39 +590,46 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20393" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck3/DialogueTrigger" unique_id=1194521158]
 shape = SubResource("BoxShape3D_qg6lj")
 
-[node name="SpinWheel" parent="Shipwreck" unique_id=1474500799 instance=ExtResource("28_jxhsd")]
+[node name="SpinWheel" type="StaticBody3D" parent="Shipwreck" unique_id=1474500799 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170, 10, 22)
+script = ExtResource("29_pyvoo")
 floor_type = 3
 floor_size = Vector3(12, 0.5, 12)
 spin_speed = 45.0
 
-[node name="Ice0" parent="Shipwreck" unique_id=1845399632 instance=ExtResource("28_jxhsd")]
+[node name="Ice0" type="StaticBody3D" parent="Shipwreck" unique_id=1845399632 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 10, 34)
+script = ExtResource("29_pyvoo")
 floor_type = 6
 floor_size = Vector3(8, 0.5, 12)
 
-[node name="Sludge0" parent="Shipwreck" unique_id=1668698172 instance=ExtResource("28_jxhsd")]
+[node name="Sludge0" type="StaticBody3D" parent="Shipwreck" unique_id=1668698172 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 7, 34)
+script = ExtResource("29_pyvoo")
 floor_type = 5
 floor_size = Vector3(20, 0.5, 12)
 
-[node name="Ice1" parent="Shipwreck" unique_id=2068148891 instance=ExtResource("28_jxhsd")]
+[node name="Ice1" type="StaticBody3D" parent="Shipwreck" unique_id=2068148891 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 10, 46)
+script = ExtResource("29_pyvoo")
 floor_type = 6
 floor_size = Vector3(6, 0.5, 12)
 
-[node name="Sludge1" parent="Shipwreck" unique_id=84324659 instance=ExtResource("28_jxhsd")]
+[node name="Sludge1" type="StaticBody3D" parent="Shipwreck" unique_id=84324659 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 7, 46)
+script = ExtResource("29_pyvoo")
 floor_type = 5
 floor_size = Vector3(20, 0.5, 12)
 
-[node name="Ice2" parent="Shipwreck" unique_id=461459941 instance=ExtResource("28_jxhsd")]
+[node name="Ice2" type="StaticBody3D" parent="Shipwreck" unique_id=461459941 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 10, 58)
+script = ExtResource("29_pyvoo")
 floor_type = 6
 floor_size = Vector3(4, 0.5, 12)
 
-[node name="Sludge2" parent="Shipwreck" unique_id=1632772774 instance=ExtResource("28_jxhsd")]
+[node name="Sludge2" type="StaticBody3D" parent="Shipwreck" unique_id=1632772774 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 7, 58)
+script = ExtResource("29_pyvoo")
 floor_type = 5
 floor_size = Vector3(20, 0.5, 12)
 
@@ -553,27 +640,34 @@ size = Vector3(10, 0.6, 10)
 pillar_depth = 12.0
 look = 1
 
-[node name="ReturnRail" parent="Shipwreck" unique_id=68630576 instance=ExtResource("30_6j6fx")]
+[node name="ReturnRail" type="Path3D" parent="Shipwreck" unique_id=68630576 groups=["Rail"] instance=ExtResource("30_6j6fx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 11.5, 78)
 curve = SubResource("Curve3D_4q8dp")
+script = ExtResource("31_hvas5")
 
-[node name="BonusCRED_Wreck" parent="Shipwreck" unique_id=82336661 instance=ExtResource("32_n36la")]
+[node name="BonusCRED_Wreck" type="Area3D" parent="Shipwreck" unique_id=82336661 groups=["Collectibles"] instance=ExtResource("32_n36la")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -88, 15, -8)
+script = ExtResource("33_jh21m")
 cred_value = 5
 
-[node name="SprayCan_Wreck" parent="Shipwreck" unique_id=1231368625 instance=ExtResource("16_epjt2")]
+[node name="SprayCan_Wreck" type="Area3D" parent="Shipwreck" unique_id=1231368625 groups=["Collectible", "SprayCan"] instance=ExtResource("16_epjt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170, 11.2, 34)
+script = ExtResource("17_wvjwh")
 
 [node name="Summit" type="Node3D" parent="." unique_id=426195685]
 
-[node name="CP_SummitBase" parent="Summit" unique_id=740057406 instance=ExtResource("20_b8ayc")]
+[node name="CP_SummitBase" type="Node3D" parent="Summit" unique_id=740057406 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -46)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "summit_base"
 
-[node name="S1GN_Summit1" parent="Summit" unique_id=482895862 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Summit1" type="StaticBody3D" parent="Summit" unique_id=482895862 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 6, 1.2, -42)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Summit/S1GN_Summit1" unique_id=843232525 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Summit/S1GN_Summit1" unique_id=843232525 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Summit1"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -589,18 +683,23 @@ script = ExtResource("11_ewirw")
 size = Vector3(16, 0.6, 12)
 pillar_depth = 9.0
 
-[node name="Fence1" parent="Summit" unique_id=1976498724 instance=ExtResource("34_vesew")]
+[node name="Fence1" type="StaticBody3D" parent="Summit" unique_id=1976498724 groups=["ClimbableWall"] instance=ExtResource("34_vesew")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -57.7)
+script = ExtResource("35_epjt2")
 wall_size = Vector3(8, 8.5, 0.5)
 
-[node name="Ladder1" parent="Summit" unique_id=1100277709 instance=ExtResource("36_3y6qj")]
+[node name="Ladder1" type="StaticBody3D" parent="Summit" unique_id=1100277709 groups=["ClimbableWall", "Ladder"] instance=ExtResource("36_3y6qj")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1631618, 5.25, -57.925)
+script = ExtResource("37_ruqmi")
 wall_size = Vector3(1.2, 7.5, 0.15)
 
-[node name="S1GN_Summit2" parent="Summit" unique_id=1845173894 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Summit2" type="StaticBody3D" parent="Summit" unique_id=1845173894 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -6, 9.2, -66)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Summit/S1GN_Summit2" unique_id=1013892588 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Summit/S1GN_Summit2" unique_id=1013892588 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Summit2"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -610,13 +709,15 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20442" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=1342580953]
 shape = SubResource("BoxShape3D_oxnp8")
 
-[node name="Swing1" parent="Summit" unique_id=357450823 instance=ExtResource("38_xlaav")]
+[node name="Swing1" type="Node3D" parent="Summit" unique_id=357450823 instance=ExtResource("38_xlaav")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14, -76)
+script = ExtResource("39_r6uqs")
 bar_length = 4.0
 show_posts = false
 
-[node name="Swing2" parent="Summit" unique_id=258826456 instance=ExtResource("38_xlaav")]
+[node name="Swing2" type="Node3D" parent="Summit" unique_id=258826456 instance=ExtResource("38_xlaav")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, -88)
+script = ExtResource("39_r6uqs")
 bar_length = 4.0
 show_posts = false
 
@@ -626,18 +727,23 @@ script = ExtResource("11_ewirw")
 size = Vector3(12, 0.6, 10)
 pillar_depth = 12.0
 
-[node name="CP_Ledge2" parent="Summit" unique_id=1957042206 instance=ExtResource("20_b8ayc")]
+[node name="CP_Ledge2" type="Node3D" parent="Summit" unique_id=1957042206 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.2, -100)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "summit_mid"
 
-[node name="Health_Summit" parent="Summit" unique_id=526155730 instance=ExtResource("14_hvas5")]
+[node name="Health_Summit" type="Area3D" parent="Summit" unique_id=526155730 instance=ExtResource("14_hvas5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 13.2, -102)
 collision_layer = 0
+script = ExtResource("15_tvf3g")
 
-[node name="S1GN_Summit3" parent="Summit" unique_id=340466519 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Summit3" type="StaticBody3D" parent="Summit" unique_id=340466519 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -4, 12.2, -102)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Summit/S1GN_Summit3" unique_id=1465652456 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Summit/S1GN_Summit3" unique_id=1465652456 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Summit3"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -659,8 +765,9 @@ script = ExtResource("11_ewirw")
 size = Vector3(1, 0.6, 8)
 pillar_depth = 15.0
 
-[node name="Fence2" parent="Summit" unique_id=445314916 instance=ExtResource("34_vesew")]
+[node name="Fence2" type="StaticBody3D" parent="Summit" unique_id=445314916 groups=["ClimbableWall"] instance=ExtResource("34_vesew")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 9, 12, -108)
+script = ExtResource("35_epjt2")
 wall_size = Vector3(8, 15.5, 0.5)
 
 [node name="Cliff3" type="StaticBody3D" parent="Summit" unique_id=426083713]
@@ -669,10 +776,13 @@ script = ExtResource("11_ewirw")
 size = Vector3(18, 0.6, 14)
 pillar_depth = 27.0
 
-[node name="S1GN_Summit4" parent="Summit" unique_id=309381614 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Summit4" type="StaticBody3D" parent="Summit" unique_id=309381614 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 27.2, -118)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Summit/S1GN_Summit4" unique_id=172054441 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Summit/S1GN_Summit4" unique_id=172054441 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Summit4"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -682,14 +792,17 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20487" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=894974487]
 shape = SubResource("BoxShape3D_em4n5")
 
-[node name="Grapple1" parent="Summit" unique_id=297201783 instance=ExtResource("40_nrfji")]
+[node name="Grapple1" type="Node3D" parent="Summit" unique_id=297201783 groups=["GrapplePoint"] instance=ExtResource("40_nrfji")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 34, -136)
+script = ExtResource("41_yqpr4")
 
-[node name="Grapple2" parent="Summit" unique_id=109778675 instance=ExtResource("40_nrfji")]
+[node name="Grapple2" type="Node3D" parent="Summit" unique_id=109778675 groups=["GrapplePoint"] instance=ExtResource("40_nrfji")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 40, -146)
+script = ExtResource("41_yqpr4")
 
-[node name="Grapple3" parent="Summit" unique_id=927740499 instance=ExtResource("40_nrfji")]
+[node name="Grapple3" type="Node3D" parent="Summit" unique_id=927740499 groups=["GrapplePoint"] instance=ExtResource("40_nrfji")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 46, -156)
+script = ExtResource("41_yqpr4")
 
 [node name="Peak" type="StaticBody3D" parent="Summit" unique_id=971806904]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 44, -166)
@@ -699,18 +812,23 @@ size = Vector3(10, 0.6, 10)
 pillar_depth = 44.0
 look = 5
 
-[node name="SummitFlag" parent="Summit" unique_id=44273707 instance=ExtResource("42_vsxe8")]
+[node name="SummitFlag" type="Area3D" parent="Summit" unique_id=44273707 instance=ExtResource("42_vsxe8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 45.5, -166)
+collision_layer = 0
 monitorable = false
+script = ExtResource("43_b8ayc")
 flag_id = "demo_summit_top"
 size = Vector3(8, 4, 8)
 visible_in_game = true
 discovery_text = "THE SUMMIT"
 
-[node name="S1GN_SummitTop" parent="Summit" unique_id=866005475 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_SummitTop" type="StaticBody3D" parent="Summit" unique_id=866005475 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-0.9396926, 0, -0.34202015, 0, 1, 0, 0.34202015, 0, -0.9396926, 3, 44.2, -168)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Summit/S1GN_SummitTop" unique_id=872985048 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Summit/S1GN_SummitTop" unique_id=872985048 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "SummitTop"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -720,27 +838,34 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20505" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=399225303]
 shape = SubResource("BoxShape3D_hujp2")
 
-[node name="BonusCRED_Peak" parent="Summit" unique_id=458821052 instance=ExtResource("32_n36la")]
+[node name="BonusCRED_Peak" type="Area3D" parent="Summit" unique_id=458821052 groups=["Collectibles"] instance=ExtResource("32_n36la")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 46, -169)
+script = ExtResource("33_jh21m")
 cred_value = 5
 
-[node name="SprayCan_Summit" parent="Summit" unique_id=1547421502 instance=ExtResource("16_epjt2")]
+[node name="SprayCan_Summit" type="Area3D" parent="Summit" unique_id=1547421502 groups=["Collectible", "SprayCan"] instance=ExtResource("16_epjt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 41.5, -146)
+script = ExtResource("17_wvjwh")
 
-[node name="SummitRail" parent="Summit" unique_id=187641511 instance=ExtResource("30_6j6fx")]
+[node name="SummitRail" type="Path3D" parent="Summit" unique_id=187641511 groups=["Rail"] instance=ExtResource("30_6j6fx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 45, -162)
 curve = SubResource("Curve3D_ot3y1")
+script = ExtResource("31_hvas5")
 
 [node name="Junkyard" type="Node3D" parent="." unique_id=794154906]
 
-[node name="CP_Junk" parent="Junkyard" unique_id=1307981456 instance=ExtResource("20_b8ayc")]
+[node name="CP_Junk" type="Node3D" parent="Junkyard" unique_id=1307981456 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46, 1.2, 0)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "junk"
 
-[node name="S1GN_Junk1" parent="Junkyard" unique_id=2139614335 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Junk1" type="StaticBody3D" parent="Junkyard" unique_id=2139614335 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 42, 1.2, 6)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Junkyard/S1GN_Junk1" unique_id=828803877 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Junkyard/S1GN_Junk1" unique_id=828803877 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Junk1"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -764,9 +889,10 @@ size = Vector3(3, 0.5, 4)
 pillar_depth = 1.5
 look = 2
 
-[node name="CampRail" parent="Junkyard" unique_id=1785793089 instance=ExtResource("30_6j6fx")]
+[node name="CampRail" type="Path3D" parent="Junkyard" unique_id=1785793089 groups=["Rail"] instance=ExtResource("30_6j6fx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53, 5, 0)
 curve = SubResource("Curve3D_sslqw")
+script = ExtResource("31_hvas5")
 
 [node name="Camp" type="Node3D" parent="Junkyard" unique_id=1515677760]
 
@@ -790,69 +916,101 @@ size = Vector3(4, 0.5, 6)
 pillar_depth = 3.0
 look = 2
 
-[node name="Crate0" parent="Junkyard/Camp" unique_id=1779844061 instance=ExtResource("44_el88t")]
+[node name="Crate0" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1779844061 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 1.8, 2)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate1" parent="Junkyard/Camp" unique_id=900724416 instance=ExtResource("44_el88t")]
+[node name="Crate1" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=900724416 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 65, 1.8, 3.4)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate2" parent="Junkyard/Camp" unique_id=1450447314 instance=ExtResource("44_el88t")]
+[node name="Crate2" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1450447314 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64.5, 2.8, 2.7)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate3" parent="Junkyard/Camp" unique_id=1900004158 instance=ExtResource("44_el88t")]
+[node name="Crate3" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1900004158 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 76, 1.8, -10)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate4" parent="Junkyard/Camp" unique_id=1860600820 instance=ExtResource("44_el88t")]
+[node name="Crate4" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1860600820 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 77.4, 1.8, -10)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate5" parent="Junkyard/Camp" unique_id=931472815 instance=ExtResource("44_el88t")]
+[node name="Crate5" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=931472815 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 84, 1.8, 0)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate6" parent="Junkyard/Camp" unique_id=1751882286 instance=ExtResource("44_el88t")]
+[node name="Crate6" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1751882286 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 85, 1.8, 1.6)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate7" parent="Junkyard/Camp" unique_id=1337208354 instance=ExtResource("44_el88t")]
+[node name="Crate7" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1337208354 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 1.8, 10)
+script = ExtResource("45_gqq8p")
 
-[node name="Crate8" parent="Junkyard/Camp" unique_id=1775976047 instance=ExtResource("44_el88t")]
+[node name="Crate8" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1775976047 groups=["Breakables"] instance=ExtResource("44_el88t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 66, 3.8, -8)
+script = ExtResource("45_gqq8p")
 
-[node name="Barrel1" parent="Junkyard/Camp" unique_id=1705613146 instance=ExtResource("46_4d7kp")]
+[node name="Barrel1" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=1705613146 groups=["Breakables", "Explosive"] instance=ExtResource("46_4d7kp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 74, 1.9, 4)
+script = ExtResource("47_51gcg")
+max_health = 1
+current_health = 1
+drops_gears = false
 
-[node name="Barrel2" parent="Junkyard/Camp" unique_id=487653302 instance=ExtResource("46_4d7kp")]
+[node name="Barrel2" type="CharacterBody3D" parent="Junkyard/Camp" unique_id=487653302 groups=["Breakables", "Explosive"] instance=ExtResource("46_4d7kp")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 82, 1.9, -6)
+script = ExtResource("47_51gcg")
+max_health = 1
+current_health = 1
+drops_gears = false
 
-[node name="Mound" parent="Junkyard/Camp" unique_id=847008619 instance=ExtResource("48_cewm5")]
+[node name="Mound" type="StaticBody3D" parent="Junkyard/Camp" unique_id=847008619 groups=["GroundPoundMound"] instance=ExtResource("48_cewm5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 1.3, 10)
+script = ExtResource("49_3m8cl")
 
 [node name="Enemies" type="Node3D" parent="Junkyard/Camp" unique_id=1855359502]
 
-[node name="Inkling" parent="Junkyard/Camp/Enemies" unique_id=1436873857 instance=ExtResource("50_d17wy")]
+[node name="Inkling" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=1436873857 groups=["Enemy"] instance=ExtResource("50_d17wy")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 68, 1.6, -4)
+script = ExtResource("51_4rym6")
 
-[node name="Inkling2" parent="Junkyard/Camp/Enemies" unique_id=1135305143 instance=ExtResource("50_d17wy")]
+[node name="Inkling2" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=1135305143 groups=["Enemy"] instance=ExtResource("50_d17wy")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 74, 1.6, 0)
+script = ExtResource("51_4rym6")
 
-[node name="Inkling3" parent="Junkyard/Camp/Enemies" unique_id=1822373783 instance=ExtResource("50_d17wy")]
+[node name="Inkling3" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=1822373783 groups=["Enemy"] instance=ExtResource("50_d17wy")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 78, 1.6, -4)
+script = ExtResource("51_4rym6")
 
-[node name="Inkling4" parent="Junkyard/Camp/Enemies" unique_id=2104960064 instance=ExtResource("50_d17wy")]
+[node name="Inkling4" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=2104960064 groups=["Enemy"] instance=ExtResource("50_d17wy")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 70, 1.6, 6)
+script = ExtResource("51_4rym6")
 
-[node name="Inkling5" parent="Junkyard/Camp/Enemies" unique_id=305766742 instance=ExtResource("50_d17wy")]
+[node name="Inkling5" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=305766742 groups=["Enemy"] instance=ExtResource("50_d17wy")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 82, 1.6, 4)
+script = ExtResource("51_4rym6")
 
-[node name="Charger" parent="Junkyard/Camp/Enemies" unique_id=2087702638 instance=ExtResource("52_d4yxb")]
+[node name="Charger" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=2087702638 groups=["Enemy"] instance=ExtResource("52_d4yxb")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 84, 1.6, -2)
+script = ExtResource("53_6ui1m")
+max_health = 4
+current_health = 4
 
-[node name="Turret" parent="Junkyard/Camp/Enemies" unique_id=1160017602 instance=ExtResource("54_6e3im")]
+[node name="Turret" type="CharacterBody3D" parent="Junkyard/Camp/Enemies" unique_id=1160017602 groups=["Enemy"] instance=ExtResource("54_6e3im")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 80, 4.5, 6)
+script = ExtResource("55_i5sta")
+max_health = 4
+current_health = 4
 
-[node name="S1GN_Junk2" parent="Junkyard" unique_id=61134472 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Junk2" type="StaticBody3D" parent="Junkyard" unique_id=61134472 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 60, 1.3, 10)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Junkyard/S1GN_Junk2" unique_id=1813051581 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Junkyard/S1GN_Junk2" unique_id=1813051581 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Junk2"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -862,10 +1020,13 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20542" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=348366806]
 shape = SubResource("BoxShape3D_glph4")
 
-[node name="S1GN_Junk3" parent="Junkyard" unique_id=1461318381 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Junk3" type="StaticBody3D" parent="Junkyard" unique_id=1461318381 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 58, 1.3, -14)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Junkyard/S1GN_Junk3" unique_id=498037209 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Junkyard/S1GN_Junk3" unique_id=498037209 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Junk3"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -875,16 +1036,19 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20558" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=1895278724]
 shape = SubResource("BoxShape3D_1lfqq")
 
-[node name="BonusCRED_Junk" parent="Junkyard" unique_id=400655807 instance=ExtResource("32_n36la")]
+[node name="BonusCRED_Junk" type="Area3D" parent="Junkyard" unique_id=400655807 groups=["Collectibles"] instance=ExtResource("32_n36la")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 6, 6)
+script = ExtResource("33_jh21m")
 cred_value = 5
 
-[node name="SprayCan_Junk" parent="Junkyard" unique_id=736872822 instance=ExtResource("16_epjt2")]
+[node name="SprayCan_Junk" type="Area3D" parent="Junkyard" unique_id=736872822 groups=["Collectible", "SprayCan"] instance=ExtResource("16_epjt2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 88, 2.5, -14)
+script = ExtResource("17_wvjwh")
 
-[node name="Health_Junk" parent="Junkyard" unique_id=149792562 instance=ExtResource("14_hvas5")]
+[node name="Health_Junk" type="Area3D" parent="Junkyard" unique_id=149792562 instance=ExtResource("14_hvas5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 60, 2.2, -6)
 collision_layer = 0
+script = ExtResource("15_tvf3g")
 
 [node name="Boss" type="Node3D" parent="." unique_id=1693306234]
 
@@ -901,10 +1065,13 @@ cred_needed = 100
 size = Vector3(500, 25, 0.6)
 open_dialogue = "GateOpen"
 
-[node name="S1GN_Gate" parent="Boss" unique_id=1711810341 instance=ExtResource("7_wvjwh")]
+[node name="S1GN_Gate" type="StaticBody3D" parent="Boss" unique_id=1711810341 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(-0.9396926, 0, 0.3420202, 0, 1, 0, -0.3420202, 0, -0.9396926, -9, 1.5235845, 74)
+script = ExtResource("8_fut4o")
 
-[node name="DialogueTrigger" parent="Boss/S1GN_Gate" unique_id=485883983 instance=ExtResource("9_y2v3n")]
+[node name="DialogueTrigger" type="Area3D" parent="Boss/S1GN_Gate" unique_id=485883983 instance=ExtResource("9_y2v3n")]
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "GateLocked"
 box_size = Vector3(5, 5, 5)
 camera_walls_enabled = true
@@ -914,12 +1081,14 @@ camera_wall_right = 6.0
 [node name="@CollisionShape3D@20580" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=1069980363]
 shape = SubResource("BoxShape3D_thdtl")
 
-[node name="CP_Gate" parent="Boss" unique_id=712152118 instance=ExtResource("20_b8ayc")]
+[node name="CP_Gate" type="Node3D" parent="Boss" unique_id=712152118 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 84)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "gate"
 
-[node name="BossSpring" parent="Boss" unique_id=574008277 instance=ExtResource("28_jxhsd")]
+[node name="BossSpring" type="StaticBody3D" parent="Boss" unique_id=574008277 instance=ExtResource("28_jxhsd")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 96)
+script = ExtResource("29_pyvoo")
 floor_type = 1
 floor_size = Vector3(6, 0.5, 6)
 spring_force = 26.0
@@ -930,9 +1099,10 @@ script = ExtResource("11_ewirw")
 size = Vector3(8, 0.6, 6)
 pillar_depth = 2.0
 
-[node name="BossRail" parent="Boss" unique_id=1812873155 instance=ExtResource("30_6j6fx")]
+[node name="BossRail" type="Path3D" parent="Boss" unique_id=1812873155 groups=["Rail"] instance=ExtResource("30_6j6fx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15.5, 112)
 curve = SubResource("Curve3D_0hj0k")
+script = ExtResource("31_hvas5")
 
 [node name="Arena" type="Node3D" parent="Boss" unique_id=792399996]
 
@@ -940,45 +1110,48 @@ curve = SubResource("Curve3D_0hj0k")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 180)
 script = ExtResource("11_ewirw")
 shape = 1
-size = Vector3(40, 3, 40)
-round_sides = 40
+size = Vector3(80, 3, 80)
+round_sides = 64
 pillar_depth = 8.0
 color = Color(0.75, 0.9, 0.6, 1)
 
 [node name="Pillar0" type="StaticBody3D" parent="Boss/Arena" unique_id=1407123874]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485281, 7, 188.48528)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.970562, 7, 196.97055)
 script = ExtResource("11_ewirw")
 shape = 1
 size = Vector3(3, 0.5, 3)
 pillar_depth = 4.0
 
 [node name="Pillar1" type="StaticBody3D" parent="Boss/Arena" unique_id=373900827]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.485281, 7, 188.48528)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.970562, 7, 196.97055)
 script = ExtResource("11_ewirw")
 shape = 1
 size = Vector3(3, 0.5, 3)
 pillar_depth = 4.0
 
 [node name="Pillar2" type="StaticBody3D" parent="Boss/Arena" unique_id=1824093194]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.485281, 7, 171.51472)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.970562, 7, 163.02945)
 script = ExtResource("11_ewirw")
 shape = 1
 size = Vector3(3, 0.5, 3)
 pillar_depth = 4.0
 
 [node name="Pillar3" type="StaticBody3D" parent="Boss/Arena" unique_id=497154916]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.485281, 7, 171.51472)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.970562, 7, 163.02945)
 script = ExtResource("11_ewirw")
 shape = 1
 size = Vector3(3, 0.5, 3)
 pillar_depth = 4.0
 
-[node name="CP_Arena" parent="Boss/Arena" unique_id=1093637410 instance=ExtResource("20_b8ayc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 166)
+[node name="CP_Arena" type="Node3D" parent="Boss/Arena" unique_id=1093637410 groups=["Checkpoint"] instance=ExtResource("20_b8ayc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 144)
+script = ExtResource("21_y2v3n")
 checkpoint_id = "arena"
 
-[node name="BossIntro" parent="Boss/Arena" unique_id=2118530919 instance=ExtResource("9_y2v3n")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 168)
+[node name="BossIntro" type="Area3D" parent="Boss/Arena" unique_id=2118530919 instance=ExtResource("9_y2v3n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 148)
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "BossIntro"
 box_size = Vector3(30, 6, 3)
 show_prompt = false
@@ -988,8 +1161,9 @@ auto_start = true
 [node name="@CollisionShape3D@20596" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=344679064]
 shape = SubResource("BoxShape3D_yqtbm")
 
-[node name="SludgeKing" parent="Boss/Arena" unique_id=1497243751 instance=ExtResource("52_d4yxb")]
-transform = Transform3D(-2.2, 0, -1.923301e-07, 0, 2.2, 0, 1.923301e-07, 0, -2.2, 0, 3.6, 186)
+[node name="SludgeKing" type="CharacterBody3D" parent="Boss/Arena" unique_id=1497243751 groups=["Enemy"] instance=ExtResource("52_d4yxb")]
+transform = Transform3D(-2.2, 0, -1.923301e-07, 0, 2.2, 0, 1.923301e-07, 0, -2.2, 0, 3.6, 192)
+script = ExtResource("53_6ui1m")
 charge_damage = 1
 enemy_id = "sludge_king"
 max_health = 12
@@ -998,35 +1172,55 @@ is_boss = true
 boss_name = "THE SLUDGE KING"
 boss_bar_color = Color(0.45, 0.85, 0.2, 1)
 detection_range = 40.0
+cred_drop = 100
 
-[node name="Sludgeling" parent="Boss/Arena" unique_id=1749077420 instance=ExtResource("50_d17wy")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -8, 3.6, 184)
+[node name="Sludgeling" type="CharacterBody3D" parent="Boss/Arena" unique_id=1749077420 groups=["Enemy"] instance=ExtResource("50_d17wy")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -16, 3.6, 188)
+script = ExtResource("51_4rym6")
 
-[node name="Sludgeling2" parent="Boss/Arena" unique_id=94931484 instance=ExtResource("50_d17wy")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 8, 3.6, 184)
+[node name="Sludgeling2" type="CharacterBody3D" parent="Boss/Arena" unique_id=94931484 groups=["Enemy"] instance=ExtResource("50_d17wy")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 16, 3.6, 188)
+script = ExtResource("51_4rym6")
 
-[node name="Sludgeling3" parent="Boss/Arena" unique_id=750445944 instance=ExtResource("50_d17wy")]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 3.6, 194)
+[node name="Sludgeling3" type="CharacterBody3D" parent="Boss/Arena" unique_id=750445944 groups=["Enemy"] instance=ExtResource("50_d17wy")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 3.6, 208)
+script = ExtResource("51_4rym6")
 
-[node name="Barrel" parent="Boss/Arena" unique_id=38763093 instance=ExtResource("46_4d7kp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 3.7, 176)
+[node name="Barrel" type="CharacterBody3D" parent="Boss/Arena" unique_id=38763093 groups=["Breakables", "Explosive"] instance=ExtResource("46_4d7kp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 3.7, 172)
+script = ExtResource("47_51gcg")
+max_health = 1
+current_health = 1
+drops_gears = false
 
-[node name="Barrel2" parent="Boss/Arena" unique_id=1945810574 instance=ExtResource("46_4d7kp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 3.7, 176)
+[node name="Barrel2" type="CharacterBody3D" parent="Boss/Arena" unique_id=1945810574 groups=["Breakables", "Explosive"] instance=ExtResource("46_4d7kp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 3.7, 172)
+script = ExtResource("47_51gcg")
+max_health = 1
+current_health = 1
+drops_gears = false
 
-[node name="Barrel3" parent="Boss/Arena" unique_id=839659638 instance=ExtResource("46_4d7kp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, 196)
+[node name="Barrel3" type="CharacterBody3D" parent="Boss/Arena" unique_id=839659638 groups=["Breakables", "Explosive"] instance=ExtResource("46_4d7kp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, 212)
+script = ExtResource("47_51gcg")
+max_health = 1
+current_health = 1
+drops_gears = false
 
-[node name="Health_Arena1" parent="Boss/Arena" unique_id=1354911668 instance=ExtResource("14_hvas5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 4.2, 168)
+[node name="Health_Arena1" type="Area3D" parent="Boss/Arena" unique_id=1354911668 instance=ExtResource("14_hvas5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24, 4.2, 156)
 collision_layer = 0
+script = ExtResource("15_tvf3g")
 
-[node name="Health_Arena2" parent="Boss/Arena" unique_id=559868074 instance=ExtResource("14_hvas5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 4.2, 168)
+[node name="Health_Arena2" type="Area3D" parent="Boss/Arena" unique_id=559868074 instance=ExtResource("14_hvas5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 4.2, 156)
 collision_layer = 0
+script = ExtResource("15_tvf3g")
 
-[node name="WinTalk" parent="Boss/Arena" unique_id=338428296 instance=ExtResource("9_y2v3n")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 236.5317)
+[node name="WinTalk" type="Area3D" parent="Boss/Arena" unique_id=338428296 instance=ExtResource("9_y2v3n")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.6, 253)
+collision_layer = 0
+script = ExtResource("10_1uqhs")
 dialogue_file = "Win"
 box_size = Vector3(6, 6, 7.5)
 show_prompt = false
@@ -1036,21 +1230,354 @@ auto_start = true
 [node name="@CollisionShape3D@34523" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=110926957]
 shape = SubResource("BoxShape3D_avob5")
 
-[node name="ToYouWin" parent="Boss/Arena" unique_id=1630342374 instance=ExtResource("57_wnyom")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 236.68788)
+[node name="ToYouWin" type="Area3D" parent="Boss/Arena" unique_id=1630342374 instance=ExtResource("57_wnyom")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.1, 253.2)
+script = ExtResource("58_ajqhq")
 target_scene = "res://scenes/levels/youwinyay.tscn"
 
 [node name="VictoryStep" type="StaticBody3D" parent="Boss/Arena" unique_id=1090299974]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 236.72913)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.5, 253)
 script = ExtResource("11_ewirw")
 size = Vector3(8, 0.5, 8)
 look = 6
 
-[node name="Floor" parent="Boss/Arena" unique_id=1297906226 instance=ExtResource("28_jxhsd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.100421906, 3.3965645, 218.71005)
+[node name="RimWall" type="Node3D" parent="Boss/Arena" unique_id=1938534325]
 
-[node name="QG_Warden" parent="Boss" unique_id=1743251261 instance=ExtResource("24_4rym6")]
+[node name="Rim01" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=545383957]
+transform = Transform3D(0.98078525, 0, -0.19509032, 0, 1, 0, 0.19509032, 0, 0.98078525, 7.7255764, 4.6, 141.1609)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim02" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=450857914]
+transform = Transform3D(0.9469301, 0, -0.32143947, 0, 1, 0, 0.32143947, 0, 0.9469301, 12.729003, 4.6, 142.50157)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim03" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1424105591]
+transform = Transform3D(0.89687276, 0, -0.4422887, 0, 1, 0, 0.4422887, 0, 0.89687276, 17.514631, 4.6, 144.48384)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim04" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=2135791335]
+transform = Transform3D(0.8314696, 0, -0.55557024, 0, 1, 0, 0.55557024, 0, 0.8314696, 22.000582, 4.6, 147.0738)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim05" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1606339923]
+transform = Transform3D(0.7518398, 0, -0.6593458, 0, 1, 0, 0.6593458, 0, 0.7518398, 26.110092, 4.6, 150.22714)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim06" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1678815567]
+transform = Transform3D(0.6593458, 0, -0.7518398, 0, 1, 0, 0.7518398, 0, 0.6593458, 29.772856, 4.6, 153.88991)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim07" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=324564536]
+transform = Transform3D(0.55557024, 0, -0.8314696, 0, 1, 0, 0.8314696, 0, 0.55557024, 32.926193, 4.6, 157.99942)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim08" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=2121962752]
+transform = Transform3D(0.44228867, 0, -0.89687276, 0, 1, 0, 0.89687276, 0, 0.44228867, 35.51616, 4.6, 162.48537)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim09" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=811630858]
+transform = Transform3D(0.32143947, 0, -0.9469301, 0, 1, 0, 0.9469301, 0, 0.32143947, 37.498432, 4.6, 167.271)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim10" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1268739677]
+transform = Transform3D(0.19509035, 0, -0.98078525, 0, 1, 0, 0.98078525, 0, 0.19509035, 38.839096, 4.6, 172.27443)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim11" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=707190044]
+transform = Transform3D(0.065403074, 0, -0.99785894, 0, 1, 0, 0.99785894, 0, 0.065403074, 39.515213, 4.6, 177.41003)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim12" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1829765774]
+transform = Transform3D(-0.06540316, 0, -0.99785894, 0, 1, 0, 0.99785894, 0, -0.06540316, 39.515213, 4.6, 182.58997)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim13" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1612741574]
+transform = Transform3D(-0.19509032, 0, -0.98078525, 0, 1, 0, 0.98078525, 0, -0.19509032, 38.839096, 4.6, 187.72557)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim14" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1667388803]
+transform = Transform3D(-0.32143945, 0, -0.9469301, 0, 1, 0, 0.9469301, 0, -0.32143945, 37.498432, 4.6, 192.729)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim15" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1394149546]
+transform = Transform3D(-0.44228864, 0, -0.89687276, 0, 1, 0, 0.89687276, 0, -0.44228864, 35.51616, 4.6, 197.51463)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim16" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=433288156]
+transform = Transform3D(-0.5555702, 0, -0.83146966, 0, 1, 0, 0.83146966, 0, -0.5555702, 32.926193, 4.6, 202.00058)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim17" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=457958726]
+transform = Transform3D(-0.65934575, 0, -0.7518399, 0, 1, 0, 0.7518399, 0, -0.65934575, 29.772856, 4.6, 206.11009)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim18" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=784611764]
+transform = Transform3D(-0.7518399, 0, -0.65934575, 0, 1, 0, 0.65934575, 0, -0.7518399, 26.110092, 4.6, 209.77286)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim19" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1643273055]
+transform = Transform3D(-0.83146966, 0, -0.5555702, 0, 1, 0, 0.5555702, 0, -0.83146966, 22.000582, 4.6, 212.9262)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim20" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=897447620]
+transform = Transform3D(-0.89687276, 0, -0.44228864, 0, 1, 0, 0.44228864, 0, -0.89687276, 17.514631, 4.6, 215.51616)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim21" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1370983383]
+transform = Transform3D(-0.94693017, 0, -0.32143945, 0, 1, 0, 0.32143945, 0, -0.94693017, 12.729003, 4.6, 217.49843)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim22" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1080583072]
+transform = Transform3D(-0.9807853, 0, -0.19509031, 0, 1, 0, 0.19509031, 0, -0.9807853, 7.7255764, 4.6, 218.8391)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim25" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1979785880]
+transform = Transform3D(-0.9807853, 0, 0.19509031, 0, 1, 0, -0.19509031, 0, -0.9807853, -7.7255764, 4.6, 218.8391)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim26" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=2010636965]
+transform = Transform3D(-0.94693017, 0, 0.32143945, 0, 1, 0, -0.32143945, 0, -0.94693017, -12.729003, 4.6, 217.49843)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim27" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1767401763]
+transform = Transform3D(-0.89687276, 0, 0.44228864, 0, 1, 0, -0.44228864, 0, -0.89687276, -17.514631, 4.6, 215.51616)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim28" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1710293571]
+transform = Transform3D(-0.83146966, 0, 0.5555702, 0, 1, 0, -0.5555702, 0, -0.83146966, -22.000582, 4.6, 212.9262)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim29" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=511469138]
+transform = Transform3D(-0.7518399, 0, 0.65934575, 0, 1, 0, -0.65934575, 0, -0.7518399, -26.110092, 4.6, 209.77286)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim30" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=556058675]
+transform = Transform3D(-0.65934575, 0, 0.7518399, 0, 1, 0, -0.7518399, 0, -0.65934575, -29.772856, 4.6, 206.11009)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim31" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=945518542]
+transform = Transform3D(-0.5555702, 0, 0.83146966, 0, 1, 0, -0.83146966, 0, -0.5555702, -32.926193, 4.6, 202.00058)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim32" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1034950509]
+transform = Transform3D(-0.44228864, 0, 0.89687276, 0, 1, 0, -0.89687276, 0, -0.44228864, -35.51616, 4.6, 197.51463)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim33" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1408882736]
+transform = Transform3D(-0.32143945, 0, 0.9469301, 0, 1, 0, -0.9469301, 0, -0.32143945, -37.498432, 4.6, 192.729)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim34" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=410658697]
+transform = Transform3D(-0.19509032, 0, 0.98078525, 0, 1, 0, -0.98078525, 0, -0.19509032, -38.839096, 4.6, 187.72557)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim35" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1717436186]
+transform = Transform3D(-0.06540316, 0, 0.99785894, 0, 1, 0, -0.99785894, 0, -0.06540316, -39.515213, 4.6, 182.58997)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim36" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=910555792]
+transform = Transform3D(0.065403074, 0, 0.99785894, 0, 1, 0, -0.99785894, 0, 0.065403074, -39.515213, 4.6, 177.41003)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim37" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1021607555]
+transform = Transform3D(0.19509035, 0, 0.98078525, 0, 1, 0, -0.98078525, 0, 0.19509035, -38.839096, 4.6, 172.27443)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim38" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1045997917]
+transform = Transform3D(0.32143947, 0, 0.9469301, 0, 1, 0, -0.9469301, 0, 0.32143947, -37.498432, 4.6, 167.271)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim39" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=461370972]
+transform = Transform3D(0.44228867, 0, 0.89687276, 0, 1, 0, -0.89687276, 0, 0.44228867, -35.51616, 4.6, 162.48537)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim40" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1370055322]
+transform = Transform3D(0.55557024, 0, 0.8314696, 0, 1, 0, -0.8314696, 0, 0.55557024, -32.926193, 4.6, 157.99942)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim41" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1215913247]
+transform = Transform3D(0.6593458, 0, 0.7518398, 0, 1, 0, -0.7518398, 0, 0.6593458, -29.772856, 4.6, 153.88991)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim42" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=95429432]
+transform = Transform3D(0.7518398, 0, 0.6593458, 0, 1, 0, -0.6593458, 0, 0.7518398, -26.110092, 4.6, 150.22714)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim43" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1097129508]
+transform = Transform3D(0.8314696, 0, 0.55557024, 0, 1, 0, -0.55557024, 0, 0.8314696, -22.000582, 4.6, 147.0738)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim44" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1838552741]
+transform = Transform3D(0.89687276, 0, 0.4422887, 0, 1, 0, -0.4422887, 0, 0.89687276, -17.514631, 4.6, 144.48384)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim45" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1111934128]
+transform = Transform3D(0.9469301, 0, 0.32143947, 0, 1, 0, -0.32143947, 0, 0.9469301, -12.729003, 4.6, 142.50157)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="Rim46" type="StaticBody3D" parent="Boss/Arena/RimWall" unique_id=1592219040]
+transform = Transform3D(0.98078525, 0, 0.19509032, 0, 1, 0, -0.19509032, 0, 0.98078525, -7.7255764, 4.6, 141.1609)
+script = ExtResource("11_ewirw")
+size = Vector3(5.6359878, 0.4, 0.8)
+pillar_depth = 1.2
+ledge_grabbable = false
+
+[node name="ExitMover0" type="StaticBody3D" parent="Boss/Arena" unique_id=1779801320 instance=ExtResource("28_jxhsd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6, 226)
+script = ExtResource("29_pyvoo")
+floor_type = 4
+floor_size = Vector3(5, 0.5, 5)
+movement_axis = Vector3(8, 0, 0)
+movement_duration = 2.5
+
+[node name="ExitMover1" type="StaticBody3D" parent="Boss/Arena" unique_id=483947014 instance=ExtResource("28_jxhsd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 4.6, 235)
+script = ExtResource("29_pyvoo")
+floor_type = 4
+floor_size = Vector3(5, 0.5, 5)
+movement_axis = Vector3(-12, 0, 0)
+
+[node name="ExitMover2" type="StaticBody3D" parent="Boss/Arena" unique_id=212865476 instance=ExtResource("28_jxhsd")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.6, 244)
+script = ExtResource("29_pyvoo")
+floor_type = 4
+floor_size = Vector3(5, 0.5, 5)
+movement_axis = Vector3(0, 2.5, 0)
+movement_duration = 2.0
+
+[node name="QG_Warden" type="CharacterBody3D" parent="Boss" unique_id=1743251261 instance=ExtResource("24_4rym6")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 9, 1.3, 86)
+collision_layer = 4
+script = ExtResource("25_ewirw")
 npc_name = "Warden"
 cred_minimum = 45
 body_color = Color(0.55, 0.7, 0.3, 1)
@@ -1058,8 +1585,17 @@ small_talk = Array[String](["So the townsfolk vouch for you now.", "The Sludge K
 quest_ask = "Go knock him off his throne. Spring pad, then the rail."
 quest_file = "demo_boss.tres"
 
-[node name="DialogueUI" parent="." unique_id=1032373017 instance=ExtResource("59_me06v")]
+[node name="DialogueUI" type="CanvasLayer" parent="." unique_id=1032373017 instance=ExtResource("59_me06v")]
+layer = 100
+script = ExtResource("60_jxhsd")
 
 [node name="CredThreshold" type="Node" parent="." unique_id=1095067759]
 script = ExtResource("61_u3bgp")
 cred_needed = 45
+
+[connection signal="body_entered" from="Shipwreck/Gears/Gear1" to="Shipwreck/Gears/Gear1" method="_on_body_entered"]
+[connection signal="body_entered" from="Shipwreck/Gears/Gear2" to="Shipwreck/Gears/Gear2" method="_on_body_entered"]
+[connection signal="body_entered" from="Shipwreck/Gears/Gear3" to="Shipwreck/Gears/Gear3" method="_on_body_entered"]
+[connection signal="body_entered" from="Shipwreck/Gears/Gear4" to="Shipwreck/Gears/Gear4" method="_on_body_entered"]
+[connection signal="body_entered" from="Shipwreck/Gears/Gear5" to="Shipwreck/Gears/Gear5" method="_on_body_entered"]
+[connection signal="body_entered" from="Shipwreck/Gears/Gear6" to="Shipwreck/Gears/Gear6" method="_on_body_entered"]

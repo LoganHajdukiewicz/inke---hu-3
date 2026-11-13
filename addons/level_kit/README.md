@@ -198,7 +198,6 @@ file is consumed on use and expires after 2 minutes).
 
 | Key | Action |
 |---|---|
-| **D** | Duplicate the selection one comfortable run-jump forward (along its facing). Press repeatedly to lay out a line of platforms. |
 | **Alt+G** | Drop the selection straight down onto whatever is below it |
 | **Ctrl+Shift+P** | Play From Here |
 

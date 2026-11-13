@@ -77,6 +77,11 @@ var spawn_position: Vector3 = Vector3.ZERO  # Track where enemy spawned
 var attack_cooldown_timer: float = 0.0      # Ticks down between lunges
 
 # Loot system
+@export_group("Death Loot (CRED)")
+## CRED medallion dropped when this enemy is beaten (0 = none). Bosses
+## usually drop a big one. CRED is a lifetime score - it's never spent.
+@export var cred_drop: int = 0
+
 @export_group("Death Loot (Gears)")
 @export var drops_gears_on_death: bool = true
 @export var gear_count_min: int = 3
@@ -373,10 +378,24 @@ func die():
 	# Spawn gear explosion
 	if drops_gears_on_death:
 		spawn_gear_explosion()
+	if cred_drop > 0:
+		spawn_cred_drop()
 	
 	# Optional death particles/effects here
 	
 	queue_free()
+
+func spawn_cred_drop():
+	"""Drop a CRED medallion worth cred_drop where the enemy fell. It pops up
+	and settles on the ground (cred.gd finds the floor itself)."""
+	var cred_scene: PackedScene = load("res://scenes/items/Collectibles/cred.tscn")
+	if cred_scene == null or get_parent() == null:
+		return
+	var cred = cred_scene.instantiate()
+	cred.cred_value = cred_drop
+	get_parent().add_child(cred)
+	cred.global_position = global_position + Vector3(0, 1.5, 0)
+
 
 func spawn_gear_explosion():
 	"""Spawn gears with a scatter effect when enemy dies.
