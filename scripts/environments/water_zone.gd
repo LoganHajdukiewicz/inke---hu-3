@@ -602,10 +602,10 @@ func _update_shark(delta: float):
 		if _player == null or not is_instance_valid(_player):
 			_shark_break_off()
 			return
-		# The shark only gives up when Inke is standing on SOLID GROUND
-		# (land, dock, platform...). Swimming back inside the buoys or
-		# jumping around over the water doesn't shake it.
-		if _on_solid_ground():
+		# The shark gives up when Inke gets back INSIDE the buoys (any way -
+		# swimming, jumping, on a platform) or stands on SOLID GROUND.
+		# Jumping around over the water outside the buoys doesn't shake it.
+		if _on_solid_ground() or not _outside_buoys():
 			_shark_break_off()
 			return
 		var target := _player.global_position
