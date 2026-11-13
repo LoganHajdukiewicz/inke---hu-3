@@ -260,7 +260,7 @@ func _check_stomp() -> void:
 	  a) falling (velocity.y < -1), or
 	  b) feet at/above the top with no upward motion - move_and_slide's floor
 	     snap zeroes velocity.y on the landing frame, so soft landings have
-	     vy == 0; position doesn't lie, or
+		 vy == 0; position doesn't lie, or
 	  c) standing on this crate (is_on_floor + our body is the floor).
 	A player jumping UP through the zone is ignored until they come down."""
 	var player := _player_in_zone

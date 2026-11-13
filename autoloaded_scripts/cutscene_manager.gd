@@ -138,7 +138,7 @@ func _hu3() -> CharacterBody3D:
 func hu3_goto(target: Vector3, speed: float = 6.0) -> void:
 	"""Fly HU3 to a world position. He stops following the player until
 	hu3_release() (release_control() calls it for you).
-	    await CutsceneManager.hu3_goto($DoorMarker.global_position)"""
+		await CutsceneManager.hu3_goto($DoorMarker.global_position)"""
 	var h := _hu3()
 	if h == null:
 		return
@@ -175,7 +175,7 @@ func play_camera_recording(path: String, blend_in: float = 0.8,
 	Glides from the gameplay camera into the take, plays it, glides back.
 	AWAIT IT - it returns when the take is over:
 	    await CutsceneManager.play_camera_recording(
-	        "res://cinematic_shots/rec_island_1.camrec")"""
+			"res://cinematic_shots/rec_island_1.camrec")"""
 	var frames := _load_recording(path)
 	if frames.is_empty():
 		push_warning("CutsceneManager: no camera recording at " + path)
