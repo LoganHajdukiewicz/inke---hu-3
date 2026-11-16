@@ -4,22 +4,45 @@ extends Node
 ## Forward+ compiles GPU pipelines the first time each material/lighting
 ## combination is drawn. Until they're ready it draws with fallback shaders
 ## and stalls - garbled/rainbow surfaces and a crawling frame rate right
-## after a level loads. On every scene change this node:
-##   1. covers the screen with a "Loading..." panel and pauses the game
-##   2. puts one small quad per UNIQUE material in the scene (plus the scene
-##      itself, seen from the camera) in front of the camera, so the GPU
-##      compiles everything now
-##   3. waits until the engine reports no more pipeline compilations for a
-##      moment (or a timeout), then removes the quads and unpauses
-## The shader cache keeps the result, so later launches are much faster.
+## after a level loads. On every 3D scene load this node:
+##   1. covers the screen with a Loading panel and pauses the game
+##   2. draws one tiny quad per UNIQUE material in front of the camera (the
+##      level itself also renders behind the panel), so the GPU compiles
+##      everything now instead of during play
+##   3. finishes only when BOTH signals say "ready":
+##        a) the engine's pipeline-compilation counters stopped changing
+##           (quiet_time seconds), and
+##        b) the frame rate has been steady for steady_time seconds: every
+##           frame faster than steady_frame_ms. A compile in progress stalls
+##           frames, so this catches it even when the counters don't move
+##           (they read 0 on the Compatibility/OpenGL renderer).
+##      A hard cap (max_wait) guarantees the game always starts.
+## All timing uses a REAL clock (Time.get_ticks_usec), not summed deltas,
+## and the log reports how long the screen was actually up.
 
-@export var max_wait: float = 25.0        # hard cap (seconds)
-@export var quiet_time: float = 0.6       # no new compilations for this long = done
+## Never show the loading screen longer than this (seconds, real time).
+@export var max_wait: float = 30.0
+## Minimum time on screen so every material has been drawn at least once.
+@export var min_time: float = 0.5
+## Pipeline counters must stay unchanged this long (seconds).
+@export var quiet_time: float = 0.6
+## Frames must ALL be faster than this...
+@export var steady_frame_ms: float = 50.0
+## ...for this long in a row (seconds) before we call it smooth.
+@export var steady_time: float = 1.0
+## If the machine simply can't reach steady_frame_ms, accept "no frame
+## slower than 2x the median" after this many seconds instead of waiting
+## for the cap (slow PCs still get the loading screen, not a 30s hang).
+@export var relaxed_after: float = 6.0
 
 var _scene: Node = null
 var _busy := false
 var _overlay: CanvasLayer
 var _label: Label
+var _sub: Label
+var _bar: ProgressBar
+
+signal warmup_finished(seconds: float, materials: int)
 
 
 func _ready() -> void:
@@ -46,16 +69,25 @@ func _compilations() -> int:
 	return total
 
 
+func _now() -> float:
+	return Time.get_ticks_usec() / 1_000_000.0
+
+
 func _warm(scene: Node) -> void:
 	if _busy or not is_instance_valid(scene):
 		return
 	_busy = true
+	var start := _now()
 	_show_overlay()
 	var was_paused := get_tree().paused
 	get_tree().paused = true
-	# wait a couple of frames so the scene's own _ready()s build their meshes
+	# let the scene's own _ready()s build their meshes first
 	for i in range(3):
 		await get_tree().process_frame
+	_label.text = "Loading..."
+	_sub.text = "Gathering materials"
+	await get_tree().process_frame
+
 	var cam := get_viewport().get_camera_3d()
 	var holder := Node3D.new()
 	holder.name = "_ShaderWarmup"
@@ -65,61 +97,99 @@ func _warm(scene: Node) -> void:
 		holder.position = Vector3(0, 0, -2.0)
 	else:
 		scene.add_child(holder)
-	# one quad per unique material (overrides, surface overrides, mesh mats)
-	var seen := {}
+	var mats := _unique_materials(scene)
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.05, 0.05)
-	var i := 0
+	# Add the quads in batches so the progress bar actually moves and the
+	# GPU gets them a few at a time
+	var batch := 25
+	for i in range(mats.size()):
+		var q := MeshInstance3D.new()
+		q.mesh = quad
+		q.material_override = mats[i]
+		q.position = Vector3((i % 20) * 0.06 - 0.6, (i / 20) * 0.06 - 0.3, 0)
+		q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+		holder.add_child(q)
+		if i % batch == batch - 1 or i == mats.size() - 1:
+			_bar.value = float(i + 1) / maxf(mats.size(), 1) * 70.0
+			_sub.text = "Preparing materials  %d / %d" % [i + 1, mats.size()]
+			await get_tree().process_frame
+
+	# --- wait until BOTH signals say we're ready ----------------------------
+	var last_comp := _compilations()
+	var last_comp_change := _now()
+	var steady_since := -1.0
+	var last_frame := _now()
+	var frame_times := []
+	var reason := "timeout"
+	while true:
+		await get_tree().process_frame
+		var now := _now()
+		var ft := (now - last_frame) * 1000.0
+		last_frame = now
+		frame_times.append(ft)
+		if frame_times.size() > 90:
+			frame_times.pop_front()
+		var comp := _compilations()
+		if comp != last_comp:
+			last_comp = comp
+			last_comp_change = now
+		var elapsed := now - start
+		# steadiness: strict threshold, relaxed to "no frame > 2x median"
+		# on machines that can't hit it at all
+		var limit := steady_frame_ms
+		if elapsed > relaxed_after and frame_times.size() >= 10:
+			var sorted := frame_times.duplicate()
+			sorted.sort()
+			limit = maxf(steady_frame_ms, sorted[sorted.size() / 2] * 2.0)
+		if ft <= limit:
+			if steady_since < 0.0:
+				steady_since = now
+		else:
+			steady_since = -1.0
+		var quiet: bool = now - last_comp_change >= quiet_time
+		var steady: bool = steady_since >= 0.0 and now - steady_since >= steady_time
+		var fps: float = 1000.0 / maxf(ft, 0.001)
+		_bar.value = 70.0 + 30.0 * clampf((now - steady_since) / steady_time if steady_since >= 0.0 else 0.0, 0.0, 1.0)
+		_sub.text = "Settling...  %s  ·  %d fps" % ["shaders ready" if quiet else "compiling shaders", int(fps)]
+		if elapsed >= min_time and quiet and steady:
+			reason = "ready"
+			break
+		if elapsed >= max_wait:
+			break
+	holder.queue_free()
+	await get_tree().process_frame
+	get_tree().paused = was_paused
+	_hide_overlay()
+	var secs := _now() - start
+	# tell the FPS guard not to judge the frames we just spent compiling
+	var gq = get_node_or_null("/root/GraphicsQuality")
+	if gq and "_cooldown" in gq:
+		gq._cooldown = 3.0
+	_busy = false
+	print("ShaderWarmup: %d materials, loading screen up %.1fs (%s, %d pipeline compilations)" % [mats.size(), secs, reason, last_comp])
+	warmup_finished.emit(secs, mats.size())
+
+
+func _unique_materials(scene: Node) -> Array:
+	var seen := {}
+	var out := []
 	for gi in scene.find_children("*", "GeometryInstance3D", true, false):
-		var mats := []
+		var list := []
 		if gi.material_override:
-			mats.append(gi.material_override)
+			list.append(gi.material_override)
 		if gi is MeshInstance3D and gi.mesh:
 			for si in range(gi.mesh.get_surface_count()):
 				var m: Material = gi.get_surface_override_material(si)
 				if m == null:
 					m = gi.mesh.surface_get_material(si)
 				if m:
-					mats.append(m)
-		for m in mats:
-			if seen.has(m):
-				continue
-			seen[m] = true
-			var q := MeshInstance3D.new()
-			q.mesh = quad
-			q.material_override = m
-			q.position = Vector3((i % 20) * 0.06 - 0.6, (i / 20) * 0.06 - 0.3, 0)
-			q.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
-			holder.add_child(q)
-			i += 1
-	_label.text = "Loading...  (preparing %d materials)" % seen.size()
-	# wait for compilation to settle
-	var t := 0.0
-	var last := _compilations()
-	var quiet := 0.0
-	while t < max_wait:
-		await get_tree().process_frame
-		var dt := get_process_delta_time()
-		t += dt
-		var now := _compilations()
-		if now != last:
-			last = now
-			quiet = 0.0
-		else:
-			quiet += dt
-		# at least ~10 frames so everything got drawn once, then settle
-		if t > 0.4 and quiet >= quiet_time:
-			break
-	holder.queue_free()
-	await get_tree().process_frame
-	get_tree().paused = was_paused
-	_hide_overlay()
-	# tell the FPS guard not to judge the frames we just spent compiling
-	var gq = get_node_or_null("/root/GraphicsQuality")
-	if gq and "_cooldown" in gq:
-		gq._cooldown = 3.0
-	_busy = false
-	print("ShaderWarmup: %d materials, %.1fs" % [seen.size(), t])
+					list.append(m)
+		for m in list:
+			if not seen.has(m):
+				seen[m] = true
+				out.append(m)
+	return out
 
 
 func _show_overlay() -> void:
@@ -130,13 +200,29 @@ func _show_overlay() -> void:
 		bg.color = Color(0.06, 0.05, 0.08)
 		bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 		_overlay.add_child(bg)
+		var box := VBoxContainer.new()
+		box.set_anchors_preset(Control.PRESET_CENTER)
+		box.custom_minimum_size = Vector2(520, 0)
+		box.position = Vector2(-260, -60)
+		box.add_theme_constant_override("separation", 12)
+		_overlay.add_child(box)
 		_label = Label.new()
-		_label.text = "Loading..."
-		_label.add_theme_font_size_override("font_size", 32)
-		_label.set_anchors_preset(Control.PRESET_CENTER)
+		_label.add_theme_font_size_override("font_size", 36)
 		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_overlay.add_child(_label)
+		box.add_child(_label)
+		_bar = ProgressBar.new()
+		_bar.custom_minimum_size = Vector2(520, 18)
+		_bar.show_percentage = false
+		box.add_child(_bar)
+		_sub = Label.new()
+		_sub.add_theme_font_size_override("font_size", 18)
+		_sub.add_theme_color_override("font_color", Color(0.75, 0.75, 0.8))
+		_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		box.add_child(_sub)
 		add_child(_overlay)
+	_label.text = "Loading..."
+	_sub.text = ""
+	_bar.value = 0.0
 	_overlay.visible = true
 
 
