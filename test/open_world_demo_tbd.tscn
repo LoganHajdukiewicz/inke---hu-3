@@ -303,7 +303,7 @@ npc_name = "Warden"
 cred_minimum = 45
 not_enough_cred_lines = Array[String](["The King eats rookies for breakfast. Not on my watch.", "Come back with {cred} CRED to your name and I will point you at him myself."])
 body_color = Color(0.6, 0.2, 0.2, 1)
-small_talk = Array[String](["Past this causeway is the east flats. The Sludge King runs them.", "Nobody crosses without business. You? You look like business."])
+small_talk = Array[String](["Past this causeway is the east flats. Da Boss runs them.", "Nobody crosses without business. You? You look like business."])
 quest_ask = "Take the King down. The flats go free, and the CRED is legendary."
 quest_file = "ow_boss.tres"
 

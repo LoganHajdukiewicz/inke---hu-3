@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_quest")
 quest_id = "demo_boss"
-title = "The Sludge King"
+title = "Da Boss"
 description = "The gate on the south beach is open. Defeat the Sludge King on the arena islet."
 quest_type = "defeat_enemy"
 target_count = 1

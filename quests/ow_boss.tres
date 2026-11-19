@@ -6,7 +6,7 @@
 script = ExtResource("1_quest")
 quest_id = "ow_boss"
 title = "Kingpin of the Flats"
-description = "The Sludge King runs the east flats. Cross the causeway and take him down."
+description = "Da Boss runs the east flats. Cross the causeway and take him down."
 quest_type = "defeat_enemy"
 target_count = 1
 target_id = ""

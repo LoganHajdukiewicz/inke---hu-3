@@ -1,23 +1,23 @@
 {
 	"dialogue": [
 		{
-			"speaker": "Sludge King",
-			"text": "WHO DARES TRACK MUD INTO MY SLUDGE?",
+			"speaker": "Da Boss",
+			"text": "I'm DA BOSS!",
 			"portrait": "Sludge-King"
 		},
 		{
 			"speaker": "Inke",
-			"text": "...it's already mud.",
+			"text": "You're the boss?",
 			"portrait": "Inke"
 		},
 		{
-			"speaker": "Sludge King",
-			"text": "IT IS ARTISANAL MUD.",
+			"speaker": "Da Boss",
+			"text": "I'm DA BOSS!",
 			"portrait": "Sludge-King"
 		},
 		{
 			"speaker": "S-1GN",
-			"text": "Hit him when he's dizzy after a slam! And stomp the little guys! GOOD LUCK BYE.",
+			"text": "He is the boss!",
 			"portrait": "S-1GN-anxious"
 		}
 	]

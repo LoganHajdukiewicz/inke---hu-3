@@ -67,7 +67,7 @@ size = Vector3(5, 5, 5)
 [sub_resource type="BoxShape3D" id="BoxShape3D_avob5"]
 size = Vector3(5, 5, 5)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_i5lbt"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_7gbg7"]
 size = Vector3(8, 4, 1)
 
 [sub_resource type="Curve3D" id="Curve3D_4q8dp"]
@@ -77,8 +77,34 @@ _data = {
 }
 point_count = 4
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_oj0g1"]
+size = Vector3(5, 5, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i5lbt"]
+size = Vector3(5, 5, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t42ol"]
+size = Vector3(5, 5, 5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cuayk"]
+size = Vector3(5, 5, 5)
+
+[sub_resource type="Curve3D" id="Curve3D_ot3y1"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, -3.3637226, 0.9143982, -2.7331543, 0, 0, 0, 0, 0, 0, 18, 2.08852, 72, 0, 0, 0, 0, 0, 0, 10, -7.5435486, 110),
+"tilts": PackedFloat32Array(0, 0, 0)
+}
+point_count = 3
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_qg6lj"]
 size = Vector3(5, 5, 5)
+
+[sub_resource type="Curve3D" id="Curve3D_sslqw"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1.5, -4, 0, 0, 0, 0, 0, 0, 21, 2, -10, 0, 0, 0, 0, 0, 0, 31, -1, -6),
+"tilts": PackedFloat32Array(0, 0, 0, 0)
+}
+point_count = 4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_sqmw6"]
 size = Vector3(5, 5, 5)
@@ -89,32 +115,6 @@ size = Vector3(5, 5, 5)
 [sub_resource type="BoxShape3D" id="BoxShape3D_6cgd1"]
 size = Vector3(5, 5, 5)
 
-[sub_resource type="Curve3D" id="Curve3D_ot3y1"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 14, 6.041748, 32, 0, 0, 0, 0, 0, 0, 18, 2.08852, 72, 0, 0, 0, 0, 0, 0, 10, -7.5435486, 110),
-"tilts": PackedFloat32Array(0, 0, 0)
-}
-point_count = 3
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_em4n5"]
-size = Vector3(5, 5, 5)
-
-[sub_resource type="Curve3D" id="Curve3D_sslqw"]
-_data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 1.5, -4, 0, 0, 0, 0, 0, 0, 21, 2, -10, 0, 0, 0, 0, 0, 0, 31, -1, -6),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
-}
-point_count = 4
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_hujp2"]
-size = Vector3(5, 5, 5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_vdkk1"]
-size = Vector3(5, 5, 5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_glph4"]
-size = Vector3(5, 5, 5)
-
 [sub_resource type="Curve3D" id="Curve3D_0hj0k"]
 _data = {
 "points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2.5, 18, 0, 0, 0, 0, 0, 0, 4, -3.5234814, 36),
@@ -122,10 +122,10 @@ _data = {
 }
 point_count = 3
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_1lfqq"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_em4n5"]
 size = Vector3(30, 6, 3)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_thdtl"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_hujp2"]
 size = Vector3(6, 6, 7.5)
 
 [node name="Demo_11_21_2026" type="Node3D" unique_id=441198499]
@@ -223,7 +223,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20264" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=429195549]
+[node name="@CollisionShape3D@20265" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=60072219]
 shape = SubResource("BoxShape3D_r64o3")
 
 [node name="S1GN_Town" parent="Hub" unique_id=1501362999 instance=ExtResource("7_wvjwh")]
@@ -236,7 +236,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20280" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=1530427921]
+[node name="@CollisionShape3D@20281" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=1821948391]
 shape = SubResource("BoxShape3D_rb3oi")
 
 [node name="S1GN_Merchant" parent="Hub" unique_id=219031489 instance=ExtResource("7_wvjwh")]
@@ -249,7 +249,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20296" type="CollisionShape3D" parent="Hub/S1GN_Merchant/DialogueTrigger" unique_id=2107500010]
+[node name="@CollisionShape3D@20297" type="CollisionShape3D" parent="Hub/S1GN_Merchant/DialogueTrigger" unique_id=1616648733]
 shape = SubResource("BoxShape3D_avob5")
 
 [node name="Plaza" type="StaticBody3D" parent="Hub" unique_id=621713663]
@@ -312,18 +312,19 @@ checkpoint_id = "town"
 
 [node name="Merchant" parent="NPCs" unique_id=742257988 instance=ExtResource("22_51gcg")]
 transform = Transform3D(-0.7660445, 0, -0.6427876, 0, 1, 0, 0.6427876, 0, -0.7660445, 17.585876, 6.6345167, -16.082983)
-available_upgrades = Array[int]([0, 1, 2, 9])
+available_upgrades = Array[int]([0, 2, 9, 4])
+greeting_text = "Lookie here a new customer!"
 camera_walls_enabled = true
 
 [node name="QG_Rust" parent="NPCs" unique_id=1564658184 instance=ExtResource("24_4rym6")]
 transform = Transform3D(-0.34202006, 0, -0.9396927, 0, 1, 0, 0.9396927, 0, -0.34202006, -12, 1.3, -4)
-npc_name = "Rust"
+npc_name = "CRED Eater"
 body_color = Color(0.85, 0.45, 0.15, 1)
 camera_walls_enabled = true
 camera_wall_left = 5.0
 camera_wall_right = 5.0
-small_talk = Array[String](["Ahoy... landlubber. Ignore the crying, it's sea spray.", "My gear crate went down with the old wreck out WEST. Six gears, scattered all over those rotten decks."])
-quest_ask = "Bring me six gears and the CRED is yours. Deal?"
+small_talk = Array[String](["Look here, I really need some GEARs man. I am STARVING!!", "Just a few though okay? "])
+quest_ask = "Bring me six gears and all my CRED is yours. Deal?"
 quest_file = "demo_gears.tres"
 
 [node name="QG_Echo" parent="NPCs" unique_id=1239706126 instance=ExtResource("24_4rym6")]
@@ -334,7 +335,7 @@ camera_walls_enabled = true
 camera_wall_left = 5.0
 camera_wall_right = 5.0
 small_talk = Array[String](["...", "Sorry. I was listening to the mountain. It's NORTH. It hums."])
-quest_ask = "Climb to the very top and plant my flag. I'll meet you there."
+quest_ask = "See that high point over there? I want you to reach it! HIGHER!!! HIGHER!!!!"
 quest_file = "demo_summit.tres"
 
 [node name="QG_Moxie" parent="NPCs" unique_id=362219257 instance=ExtResource("24_4rym6")]
@@ -344,8 +345,8 @@ body_color = Color(0.95, 0.3, 0.55, 1)
 camera_walls_enabled = true
 camera_wall_left = 5.0
 camera_wall_right = 5.0
-small_talk = Array[String](["Robots set up a camp in the junkyard EAST of here.", "They're stockpiling crates. Of what? Don't care. I want them GONE."])
-quest_ask = "Smash six of their crates. Barrels go boom, by the way. Love that for you."
+small_talk = Array[String](["Some other robots set up a camp in the junkyard EAST of here.", "They're stockpiling crates. Of what? Don't care. I want them GONE."])
+quest_ask = "Smash six of their crates. BURN IT ALL TO THE GROUND!!! LET THERE BE NOTHING BUT FIRE AND ROT!!!"
 quest_file = "demo_crates.tres"
 
 [node name="Shipwreck" type="Node3D" parent="." unique_id=746678790]
@@ -436,8 +437,8 @@ trigger_once = true
 auto_start = true
 dynamic_camera = false
 
-[node name="@CollisionShape3D@20380" type="CollisionShape3D" parent="Shipwreck/FallTroll" unique_id=1288582479]
-shape = SubResource("BoxShape3D_i5lbt")
+[node name="@CollisionShape3D@20349" type="CollisionShape3D" parent="Shipwreck/FallTroll" unique_id=2100511981]
+shape = SubResource("BoxShape3D_7gbg7")
 
 [node name="Stern" type="StaticBody3D" parent="Shipwreck" unique_id=1469366033]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -170, 10, 0)
@@ -534,8 +535,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20426" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=2095962472]
-shape = SubResource("BoxShape3D_qg6lj")
+[node name="@CollisionShape3D@20363" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=1690219181]
+shape = SubResource("BoxShape3D_oj0g1")
 
 [node name="Swing1" parent="Summit" unique_id=357450823 instance=ExtResource("38_xlaav")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14, -76)
@@ -576,8 +577,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20450" type="CollisionShape3D" parent="Summit/S1GN_Summit3/DialogueTrigger" unique_id=134016694]
-shape = SubResource("BoxShape3D_sqmw6")
+[node name="@CollisionShape3D@20387" type="CollisionShape3D" parent="Summit/S1GN_Summit3/DialogueTrigger" unique_id=1317788624]
+shape = SubResource("BoxShape3D_i5lbt")
 
 [node name="ChimneyL" type="StaticBody3D" parent="Summit" unique_id=2012434228]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 27, -110)
@@ -607,8 +608,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20466" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=1416939383]
-shape = SubResource("BoxShape3D_oxnp8")
+[node name="@CollisionShape3D@20403" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=1879082979]
+shape = SubResource("BoxShape3D_t42ol")
 
 [node name="Grapple1" parent="Summit" unique_id=297201783 instance=ExtResource("40_nrfji")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 39.28933, -136)
@@ -645,11 +646,11 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20484" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=274864156]
-shape = SubResource("BoxShape3D_6cgd1")
+[node name="@CollisionShape3D@20421" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=114616716]
+shape = SubResource("BoxShape3D_cuayk")
 
 [node name="BonusCRED_Peak" parent="Summit" unique_id=458821052 instance=ExtResource("32_n36la")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 46, -169)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1935313, 46, -167.50412)
 cred_value = 5
 
 [node name="SprayCan_Summit" parent="Summit" unique_id=1547421502 instance=ExtResource("16_epjt2")]
@@ -675,8 +676,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20500" type="CollisionShape3D" parent="Junkyard/S1GN_Junk1/DialogueTrigger" unique_id=635189570]
-shape = SubResource("BoxShape3D_em4n5")
+[node name="@CollisionShape3D@20437" type="CollisionShape3D" parent="Junkyard/S1GN_Junk1/DialogueTrigger" unique_id=1915431773]
+shape = SubResource("BoxShape3D_qg6lj")
 
 [node name="RailStart" type="StaticBody3D" parent="Junkyard" unique_id=1234004466]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 4, 0)
@@ -787,8 +788,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20521" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=1816936759]
-shape = SubResource("BoxShape3D_hujp2")
+[node name="@CollisionShape3D@20458" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=287408370]
+shape = SubResource("BoxShape3D_sqmw6")
 
 [node name="S1GN_Junk3" parent="Junkyard" unique_id=1461318381 instance=ExtResource("7_wvjwh")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 58, 1.3, -14)
@@ -800,8 +801,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20537" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=1351187207]
-shape = SubResource("BoxShape3D_vdkk1")
+[node name="@CollisionShape3D@20474" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=918760797]
+shape = SubResource("BoxShape3D_oxnp8")
 
 [node name="BonusCRED_Junk" parent="Junkyard" unique_id=400655807 instance=ExtResource("32_n36la")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 80, 6, 6)
@@ -840,8 +841,8 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20560" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=560588726]
-shape = SubResource("BoxShape3D_glph4")
+[node name="@CollisionShape3D@20497" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=1339130921]
+shape = SubResource("BoxShape3D_6cgd1")
 
 [node name="CP_Gate" parent="Boss" unique_id=712152118 instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 84)
@@ -914,8 +915,8 @@ show_prompt = false
 trigger_once = true
 auto_start = true
 
-[node name="@CollisionShape3D@20576" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=1142348348]
-shape = SubResource("BoxShape3D_1lfqq")
+[node name="@CollisionShape3D@20513" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=577105967]
+shape = SubResource("BoxShape3D_em4n5")
 
 [node name="SludgeKing" parent="Boss/Arena" unique_id=1497243751 instance=ExtResource("52_d4yxb")]
 transform = Transform3D(-2.2, 0, -1.923301e-07, 0, 2.2, 0, 1.923301e-07, 0, -2.2, 0, 3.6, 192)
@@ -924,7 +925,7 @@ enemy_id = "sludge_king"
 max_health = 12
 current_health = 12
 is_boss = true
-boss_name = "THE SLUDGE KING"
+boss_name = "Da Boss"
 boss_bar_color = Color(0.45, 0.85, 0.2, 1)
 detection_range = 40.0
 cred_drop = 100
@@ -963,8 +964,8 @@ show_prompt = false
 trigger_once = true
 auto_start = true
 
-[node name="@CollisionShape3D@20587" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=44765514]
-shape = SubResource("BoxShape3D_thdtl")
+[node name="@CollisionShape3D@20524" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=1779855137]
+shape = SubResource("BoxShape3D_hujp2")
 
 [node name="ToYouWin" parent="Boss/Arena" unique_id=1630342374 instance=ExtResource("57_wnyom")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7.1, 253.2)
@@ -1319,4 +1320,4 @@ quest_file = "demo_boss.tres"
 
 [node name="CredThreshold" type="Node" parent="." unique_id=1095067759]
 script = ExtResource("61_u3bgp")
-cred_needed = 45
+cred_needed = 35
