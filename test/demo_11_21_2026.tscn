@@ -103,10 +103,10 @@ size = Vector3(5, 5, 5)
 
 [sub_resource type="Curve3D" id="Curve3D_ot3y1"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, -15, 32, 0, 0, 0, 0, 0, 0, 18, -31, 72, 0, 0, 0, 0, 0, 0, 10, -42, 110),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 14, 6.041748, 32, 0, 0, 0, 0, 0, 0, 18, 2.08852, 72, 0, 0, 0, 0, 0, 0, 10, -7.5435486, 110),
+"tilts": PackedFloat32Array(0, 0, 0)
 }
-point_count = 4
+point_count = 3
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_em4n5"]
 size = Vector3(5, 5, 5)
@@ -129,10 +129,10 @@ size = Vector3(5, 5, 5)
 
 [sub_resource type="Curve3D" id="Curve3D_0hj0k"]
 _data = {
-"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2.5, 18, 0, 0, 0, 0, 0, 0, 4, -6.5, 36, 0, 0, 0, 0, 0, 0, 0, -9.5, 50),
-"tilts": PackedFloat32Array(0, 0, 0, 0)
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -2.5, 18, 0, 0, 0, 0, 0, 0, 4, -3.5234814, 36),
+"tilts": PackedFloat32Array(0, 0, 0)
 }
-point_count = 4
+point_count = 3
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_1lfqq"]
 size = Vector3(30, 6, 3)
@@ -235,7 +235,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20289" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=699577951]
+[node name="@CollisionShape3D@20265" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=1499869270]
 shape = SubResource("BoxShape3D_r64o3")
 
 [node name="S1GN_Town" parent="Hub" unique_id=1501362999 instance=ExtResource("7_wvjwh")]
@@ -248,7 +248,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20305" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=1595154187]
+[node name="@CollisionShape3D@20281" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=55920792]
 shape = SubResource("BoxShape3D_rb3oi")
 
 [node name="S1GN_Merchant" parent="Hub" unique_id=219031489 instance=ExtResource("7_wvjwh")]
@@ -261,7 +261,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20321" type="CollisionShape3D" parent="Hub/S1GN_Merchant/DialogueTrigger" unique_id=1899902210]
+[node name="@CollisionShape3D@20297" type="CollisionShape3D" parent="Hub/S1GN_Merchant/DialogueTrigger" unique_id=915957050]
 shape = SubResource("BoxShape3D_avob5")
 
 [node name="Plaza" type="StaticBody3D" parent="Hub" unique_id=621713663]
@@ -379,9 +379,6 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -174
 [node name="Gear5" parent="Shipwreck/Gears" unique_id=449255396 instance=ExtResource("26_i5sta")]
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -158, 11.5, 58)
 
-[node name="Gear6" parent="Shipwreck/Gears" unique_id=1912894389 instance=ExtResource("26_i5sta")]
-transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, -158, 11.2, 72)
-
 [node name="CP_Wreck" parent="Shipwreck" unique_id=1138245226 instance=ExtResource("20_b8ayc")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 1.2, 0)
 checkpoint_id = "wreck"
@@ -396,20 +393,15 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20373" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck1/DialogueTrigger" unique_id=317992549]
+[node name="@CollisionShape3D@20349" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck1/DialogueTrigger" unique_id=182818722]
 shape = SubResource("BoxShape3D_7gbg7")
 
 [node name="Dock" type="StaticBody3D" parent="Shipwreck" unique_id=1715323674]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -66, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -66.5, 3.6515656, 0)
 script = ExtResource("11_ewirw")
 size = Vector3(14, 0.5, 8)
 pillar_depth = 4.0
 look = 1
-
-[node name="Spring1" parent="Shipwreck" unique_id=1541442200 instance=ExtResource("28_jxhsd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -76, 1, 0)
-floor_type = 1
-floor_size = Vector3(5, 0.5, 5)
 
 [node name="Bow" type="StaticBody3D" parent="Shipwreck" unique_id=1977292836]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -88, 10, 0)
@@ -428,7 +420,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20389" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck2/DialogueTrigger" unique_id=1685368271]
+[node name="@CollisionShape3D@20365" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck2/DialogueTrigger" unique_id=1966538794]
 shape = SubResource("BoxShape3D_oj0g1")
 
 [node name="MovingDeck" parent="Shipwreck" unique_id=1946370354 instance=ExtResource("28_jxhsd")]
@@ -482,7 +474,7 @@ trigger_once = true
 auto_start = true
 dynamic_camera = false
 
-[node name="@CollisionShape3D@20405" type="CollisionShape3D" parent="Shipwreck/FallTroll" unique_id=49974123]
+[node name="@CollisionShape3D@20381" type="CollisionShape3D" parent="Shipwreck/FallTroll" unique_id=2135924665]
 shape = SubResource("BoxShape3D_i5lbt")
 
 [node name="Stern" type="StaticBody3D" parent="Shipwreck" unique_id=1469366033]
@@ -506,7 +498,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20406" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck3/DialogueTrigger" unique_id=324424147]
+[node name="@CollisionShape3D@20382" type="CollisionShape3D" parent="Shipwreck/S1GN_Wreck3/DialogueTrigger" unique_id=1617442204]
 shape = SubResource("BoxShape3D_t42ol")
 
 [node name="SpinWheel" parent="Shipwreck" unique_id=1474500799 instance=ExtResource("28_jxhsd")]
@@ -552,11 +544,15 @@ size = Vector3(10, 0.6, 10)
 pillar_depth = 12.0
 look = 1
 
+[node name="BonusCRED_platform" parent="Shipwreck/Hatch" unique_id=82336661 instance=ExtResource("32_n36la")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.26441956, 0.29785347, 0.6026306)
+cred_value = 5
+
 [node name="ReturnRail" parent="Shipwreck" unique_id=68630576 instance=ExtResource("30_6j6fx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -158, 11.5, 78)
 curve = SubResource("Curve3D_4q8dp")
 
-[node name="BonusCRED_Wreck" parent="Shipwreck" unique_id=82336661 instance=ExtResource("32_n36la")]
+[node name="BonusCRED_Wreck" parent="Shipwreck" unique_id=1285937999 instance=ExtResource("32_n36la")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -88, 15, -8)
 cred_value = 5
 
@@ -579,7 +575,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20422" type="CollisionShape3D" parent="Summit/S1GN_Summit1/DialogueTrigger" unique_id=2119592723]
+[node name="@CollisionShape3D@20398" type="CollisionShape3D" parent="Summit/S1GN_Summit1/DialogueTrigger" unique_id=1136630552]
 shape = SubResource("BoxShape3D_cuayk")
 
 [node name="Cliff1" type="StaticBody3D" parent="Summit" unique_id=169252743]
@@ -602,7 +598,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20457" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=1785624389]
+[node name="@CollisionShape3D@20427" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=330067409]
 shape = SubResource("BoxShape3D_qg6lj")
 
 [node name="Swing1" parent="Summit" unique_id=357450823 instance=ExtResource("38_xlaav")]
@@ -644,7 +640,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20480" type="CollisionShape3D" parent="Summit/S1GN_Summit3/DialogueTrigger" unique_id=1367987092]
+[node name="@CollisionShape3D@20451" type="CollisionShape3D" parent="Summit/S1GN_Summit3/DialogueTrigger" unique_id=32163107]
 shape = SubResource("BoxShape3D_sqmw6")
 
 [node name="ChimneyL" type="StaticBody3D" parent="Summit" unique_id=2012434228]
@@ -675,7 +671,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20502" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=910569479]
+[node name="@CollisionShape3D@20467" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=1119727889]
 shape = SubResource("BoxShape3D_oxnp8")
 
 [node name="Grapple1" parent="Summit" unique_id=297201783 instance=ExtResource("40_nrfji")]
@@ -713,7 +709,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20520" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=2109074527]
+[node name="@CollisionShape3D@20485" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=1207649]
 shape = SubResource("BoxShape3D_6cgd1")
 
 [node name="BonusCRED_Peak" parent="Summit" unique_id=458821052 instance=ExtResource("32_n36la")]
@@ -743,7 +739,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20536" type="CollisionShape3D" parent="Junkyard/S1GN_Junk1/DialogueTrigger" unique_id=1396375570]
+[node name="@CollisionShape3D@20501" type="CollisionShape3D" parent="Junkyard/S1GN_Junk1/DialogueTrigger" unique_id=201912747]
 shape = SubResource("BoxShape3D_em4n5")
 
 [node name="RailStart" type="StaticBody3D" parent="Junkyard" unique_id=1234004466]
@@ -855,7 +851,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20557" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=1830356219]
+[node name="@CollisionShape3D@20522" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=1679340047]
 shape = SubResource("BoxShape3D_hujp2")
 
 [node name="S1GN_Junk3" parent="Junkyard" unique_id=1461318381 instance=ExtResource("7_wvjwh")]
@@ -868,7 +864,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20573" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=1282782553]
+[node name="@CollisionShape3D@20538" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=737882119]
 shape = SubResource("BoxShape3D_vdkk1")
 
 [node name="BonusCRED_Junk" parent="Junkyard" unique_id=400655807 instance=ExtResource("32_n36la")]
@@ -885,17 +881,17 @@ collision_layer = 0
 [node name="Boss" type="Node3D" parent="." unique_id=1693306234]
 
 [node name="CredGate" type="StaticBody3D" parent="Boss" unique_id=1033484557]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 78)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.3116455, 4, 78)
 script = ExtResource("56_gmem8")
-cred_needed = 5
-size = Vector3(500, 25, 0.6)
+cred_needed = 35
+size = Vector3(332, 25, 0.6)
 open_dialogue = "GateOpen"
 
 [node name="CredGate2" type="StaticBody3D" parent="Boss" unique_id=519264913]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.167167, 218.90388)
 script = ExtResource("56_gmem8")
 cred_needed = 100
-size = Vector3(500, 25, 0.6)
+size = Vector3(93.5, 25, 0.6)
 open_dialogue = "GateOpen"
 
 [node name="S1GN_Gate" parent="Boss" unique_id=1711810341 instance=ExtResource("7_wvjwh")]
@@ -908,7 +904,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@20596" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=1179104970]
+[node name="@CollisionShape3D@20561" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=1451684217]
 shape = SubResource("BoxShape3D_glph4")
 
 [node name="CP_Gate" parent="Boss" unique_id=712152118 instance=ExtResource("20_b8ayc")]
@@ -916,10 +912,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 84)
 checkpoint_id = "gate"
 
 [node name="BossSpring" parent="Boss" unique_id=574008277 instance=ExtResource("28_jxhsd")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 96)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.761997, 96)
 floor_type = 1
 floor_size = Vector3(6, 0.5, 6)
-spring_force = 26.0
+spring_force = 35.0
 
 [node name="Launch" type="StaticBody3D" parent="Boss" unique_id=101736145]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 14, 108)
@@ -982,7 +978,7 @@ show_prompt = false
 trigger_once = true
 auto_start = true
 
-[node name="@CollisionShape3D@20612" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=1443824557]
+[node name="@CollisionShape3D@20577" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=1129256882]
 shape = SubResource("BoxShape3D_1lfqq")
 
 [node name="SludgeKing" parent="Boss/Arena" unique_id=1497243751 instance=ExtResource("52_d4yxb")]
@@ -1031,7 +1027,7 @@ show_prompt = false
 trigger_once = true
 auto_start = true
 
-[node name="@CollisionShape3D@20623" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=1217126430]
+[node name="@CollisionShape3D@20588" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=446333931]
 shape = SubResource("BoxShape3D_thdtl")
 
 [node name="ToYouWin" parent="Boss/Arena" unique_id=1630342374 instance=ExtResource("57_wnyom")]
