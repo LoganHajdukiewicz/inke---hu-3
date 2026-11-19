@@ -1,0 +1,19 @@
+{
+	"dialogue": [
+		{
+			"speaker": "S-1GN",
+			"text": "Oh...wow...I, uhhh...didn't see that coming.",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "Like I am glad you won, but like...I was expecting something else I guess.",
+			"portrait": "S-1GN-owo"
+		},
+		{
+			"speaker": "S-1GN",
+			"text": "All right then, I guess go on forward!",
+			"portrait": "S-1GN-uwu"
+		}
+	]
+}
