@@ -223,7 +223,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@32864" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=1658266441]
+[node name="@CollisionShape3D@24669" type="CollisionShape3D" parent="Hub/S1GN_Welcome/DialogueTrigger" unique_id=825651557]
 shape = SubResource("BoxShape3D_r64o3")
 
 [node name="S1GN_Town" parent="Hub" unique_id=1501362999 instance=ExtResource("7_wvjwh")]
@@ -236,7 +236,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@32880" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=1921574658]
+[node name="@CollisionShape3D@24685" type="CollisionShape3D" parent="Hub/S1GN_Town/DialogueTrigger" unique_id=1043759019]
 shape = SubResource("BoxShape3D_rb3oi")
 
 [node name="S1GN_Merchant" parent="Hub" unique_id=219031489 instance=ExtResource("7_wvjwh")]
@@ -249,7 +249,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@32896" type="CollisionShape3D" parent="Hub/S1GN_Merchant/DialogueTrigger" unique_id=394182390]
+[node name="@CollisionShape3D@24701" type="CollisionShape3D" parent="Hub/S1GN_Merchant/DialogueTrigger" unique_id=2145002161]
 shape = SubResource("BoxShape3D_avob5")
 
 [node name="Plaza" type="StaticBody3D" parent="Hub" unique_id=621713663]
@@ -315,6 +315,7 @@ transform = Transform3D(-0.7660445, 0, -0.6427876, 0, 1, 0, 0.6427876, 0, -0.766
 available_upgrades = Array[int]([0, 2, 9, 4])
 greeting_text = "Lookie here a new customer!"
 camera_walls_enabled = true
+intro_lines = Array[String](["Ahh... Buy these upgrades with the GEARs you collect. ", "...don't ask where I got em. "])
 
 [node name="QG_Rust" parent="NPCs" unique_id=1564658184 instance=ExtResource("24_4rym6")]
 transform = Transform3D(-0.34202006, 0, -0.9396927, 0, 1, 0, 0.9396927, 0, -0.34202006, -12, 1.3, -4)
@@ -437,7 +438,7 @@ trigger_once = true
 auto_start = true
 dynamic_camera = false
 
-[node name="@CollisionShape3D@32948" type="CollisionShape3D" parent="Shipwreck/FallTroll" unique_id=1050769305]
+[node name="@CollisionShape3D@24753" type="CollisionShape3D" parent="Shipwreck/FallTroll" unique_id=1461695603]
 shape = SubResource("BoxShape3D_7gbg7")
 
 [node name="Stern" type="StaticBody3D" parent="Shipwreck" unique_id=1469366033]
@@ -535,7 +536,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@32962" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=419542267]
+[node name="@CollisionShape3D@24767" type="CollisionShape3D" parent="Summit/S1GN_Summit2/DialogueTrigger" unique_id=1560745683]
 shape = SubResource("BoxShape3D_oj0g1")
 
 [node name="Swing1" parent="Summit" unique_id=357450823 instance=ExtResource("38_xlaav")]
@@ -577,7 +578,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@32986" type="CollisionShape3D" parent="Summit/S1GN_Summit3/DialogueTrigger" unique_id=1339412811]
+[node name="@CollisionShape3D@24791" type="CollisionShape3D" parent="Summit/S1GN_Summit3/DialogueTrigger" unique_id=1519558306]
 shape = SubResource("BoxShape3D_i5lbt")
 
 [node name="ChimneyL" type="StaticBody3D" parent="Summit" unique_id=2012434228]
@@ -608,7 +609,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@33002" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=2022975836]
+[node name="@CollisionShape3D@24807" type="CollisionShape3D" parent="Summit/S1GN_Summit4/DialogueTrigger" unique_id=2106829406]
 shape = SubResource("BoxShape3D_t42ol")
 
 [node name="Grapple1" parent="Summit" unique_id=297201783 instance=ExtResource("40_nrfji")]
@@ -646,7 +647,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@33020" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=1750498943]
+[node name="@CollisionShape3D@24825" type="CollisionShape3D" parent="Summit/S1GN_SummitTop/DialogueTrigger" unique_id=1286622307]
 shape = SubResource("BoxShape3D_cuayk")
 
 [node name="BonusCRED_Peak" parent="Summit" unique_id=458821052 instance=ExtResource("32_n36la")]
@@ -676,7 +677,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@33036" type="CollisionShape3D" parent="Junkyard/S1GN_Junk1/DialogueTrigger" unique_id=179111697]
+[node name="@CollisionShape3D@24841" type="CollisionShape3D" parent="Junkyard/S1GN_Junk1/DialogueTrigger" unique_id=1382435702]
 shape = SubResource("BoxShape3D_qg6lj")
 
 [node name="RailStart" type="StaticBody3D" parent="Junkyard" unique_id=1234004466]
@@ -788,7 +789,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@33057" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=712318902]
+[node name="@CollisionShape3D@24862" type="CollisionShape3D" parent="Junkyard/S1GN_Junk2/DialogueTrigger" unique_id=682803543]
 shape = SubResource("BoxShape3D_sqmw6")
 
 [node name="S1GN_Junk3" parent="Junkyard" unique_id=1461318381 instance=ExtResource("7_wvjwh")]
@@ -801,7 +802,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@33073" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=1186412759]
+[node name="@CollisionShape3D@24878" type="CollisionShape3D" parent="Junkyard/S1GN_Junk3/DialogueTrigger" unique_id=976116099]
 shape = SubResource("BoxShape3D_oxnp8")
 
 [node name="BonusCRED_Junk" parent="Junkyard" unique_id=400655807 instance=ExtResource("32_n36la")]
@@ -841,7 +842,7 @@ camera_walls_enabled = true
 camera_wall_left = 6.0
 camera_wall_right = 6.0
 
-[node name="@CollisionShape3D@33096" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=36306680]
+[node name="@CollisionShape3D@24901" type="CollisionShape3D" parent="Boss/S1GN_Gate/DialogueTrigger" unique_id=725114101]
 shape = SubResource("BoxShape3D_6cgd1")
 
 [node name="CP_Gate" parent="Boss" unique_id=712152118 instance=ExtResource("20_b8ayc")]
@@ -915,7 +916,7 @@ show_prompt = false
 trigger_once = true
 auto_start = true
 
-[node name="@CollisionShape3D@38530" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=461694342]
+[node name="@CollisionShape3D@24917" type="CollisionShape3D" parent="Boss/Arena/BossIntro" unique_id=1879753040]
 shape = SubResource("BoxShape3D_em4n5")
 
 [node name="SludgeKing" parent="Boss/Arena" unique_id=1497243751 instance=ExtResource("52_d4yxb")]
@@ -964,7 +965,7 @@ show_prompt = false
 trigger_once = true
 auto_start = true
 
-[node name="@CollisionShape3D@33123" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=890056853]
+[node name="@CollisionShape3D@24928" type="CollisionShape3D" parent="Boss/Arena/WinTalk" unique_id=650679934]
 shape = SubResource("BoxShape3D_hujp2")
 
 [node name="ToYouWin" parent="Boss/Arena" unique_id=1630342374 instance=ExtResource("57_wnyom")]

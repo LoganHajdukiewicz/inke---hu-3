@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1_quest")
 quest_id = "demo_gears"
-title = "Rust's Sunken Gears"
-description = "Rust's gear crate sank at the Shipwreck to the west. Collect 6 gears out there."
+title = "GEAR Eater's Lunch"
+description = "GEAR Eater is hungry. Grab some GEARs for him to eat!"
 quest_type = "collect_gears"
 target_count = 6
 target_id = ""
